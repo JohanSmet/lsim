@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <array>
 
 class Circuit;
 
@@ -24,11 +25,17 @@ public:
     Component(Circuit *circuit, size_t pin_count);
 
     pin_t pin(uint32_t index);
+
+    virtual void prepare();
+    virtual void tick();
     virtual void process() = 0;
+
+    void set_dirty() {m_dirty[1] = true;}
 
 protected:
     Circuit *m_circuit;
     std::vector<pin_t>  m_pins;
+    std::array<bool, 2> m_dirty;
 };
 
 // connector - I/O between circuits

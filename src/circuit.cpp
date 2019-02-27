@@ -78,6 +78,12 @@ void Circuit::write_value(pin_t pin, Value value) {
     if (m_values[m_write_idx][node_id] != value) {
         m_values[m_write_idx][node_id] = value;
         m_node_change_time[node_id] = m_sim_time;
+
+        for (auto i_pin : m_node_pins[node_id]) {
+            if (i_pin != pin) {
+                m_pins[i_pin]->set_dirty();
+            }
+        }
     }
 
     m_node_write_time[node_id] = m_sim_time;
@@ -112,8 +118,12 @@ void Circuit::simulation_init() {
 void Circuit::simulation_tick() {
     m_sim_time = m_sim_time + 1;
 
-    for (auto const &component : m_components) {
-        component->process();
+    for (auto &component : m_components) {
+        component->prepare();
+    }
+
+    for (auto &component : m_components) {
+        component->tick();
     }
 
     m_read_idx ^= 1;

@@ -11,15 +11,27 @@
 // Component
 //
 
-Component::Component(Circuit *circuit, size_t pin_count) : m_circuit(circuit) {
+Component::Component(Circuit *circuit, size_t pin_count) : m_circuit(circuit), m_dirty({false, false}) {
     for (size_t i = 0; i < pin_count; ++i) {
         m_pins.push_back(circuit->create_pin(this));
     }
 }
 
+void Component::prepare() {
+    m_dirty[0] = m_dirty[1];
+    m_dirty[1] = false;
+}
+
 pin_t Component::pin(uint32_t index) {
     assert(index < m_pins.size());
     return m_pins[index];
+}
+
+void Component::tick() {
+    if (m_dirty[0]) {
+        process();
+        m_dirty[0] = false;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////

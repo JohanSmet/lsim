@@ -16,6 +16,7 @@ Constant::Constant(Circuit *circuit, size_t outputs, Value value) :
             m_value(value) {
     assert(circuit);
     assert(outputs >= 1);
+    set_dirty();
 }
 
 void Constant::process() {

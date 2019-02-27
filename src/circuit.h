@@ -13,6 +13,7 @@ class Component;
 const node_t NOT_CONNECTED = (node_t) -1;
 
 typedef std::vector<Value> value_container_t;
+typedef std::vector<bool> bool_container_t;
 typedef std::vector<std::unique_ptr<Component>> component_container_t;
 typedef std::vector<pin_t> pin_container_t;
 typedef uint64_t sim_timestamp_t;
