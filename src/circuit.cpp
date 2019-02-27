@@ -126,6 +126,7 @@ void Circuit::simulation_tick() {
         component->tick();
     }
 
+    m_values[m_read_idx] = m_values[m_write_idx];
     m_read_idx ^= 1;
     m_write_idx ^= 1;
 }
