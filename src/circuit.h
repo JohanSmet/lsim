@@ -27,7 +27,13 @@ public:
     Value read_value(pin_t pin);
     Value read_value(pin_t pin, Value value_for_undefined);
 
-    void register_component(std::unique_ptr<Component> component);
+    template<typename T, typename... Args>
+    inline T *create_component(Args&&... args) {
+        auto comp = std::make_unique<T>(std::forward<Args>(args)...);
+        auto raw = comp.get();
+        m_components.push_back(std::move(comp));
+        return raw;
+    }
 
     void simulation_init();
     void simulation_tick();

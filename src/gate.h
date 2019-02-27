@@ -7,44 +7,18 @@
 
 #include "basic.h"
 
-class AndGate : Component {
+class Constant : public Component {
+public:
+    Constant(Circuit *circuit, size_t outputs, Value value);
+    virtual void process();
+private:
+    Value m_value;
+};
+
+class AndGate : public Component {
 public:
     AndGate(Circuit *circuit, size_t num_inputs);
-
     virtual void process();
-    
 };
-
-#if 0
-#include <vector>
-#include <memory>
-
-class Gate {
-public:
-    Gate(size_t delay);
-
-    void set_dirty();
-    void tick();
-
-protected:
-    void add_pin(PinDirection direction);
-    virtual void process() = 0;
-
-protected:
-    std::vector<std::unique_ptr<Pin>> m_pins;
-    Delay m_delay;
-    bool m_dirty;
-};
-
-class AndGate : public Gate {
-public:
-    AndGate(size_t num_inputs);
-
-private:
-    size_t m_num_inputs;
-};
-
-#endif
-
 
 #endif // LSIM_GATE_H

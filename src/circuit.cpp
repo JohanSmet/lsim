@@ -4,7 +4,11 @@
 #include <algorithm>
 #include <cassert>
 
-Circuit::Circuit() : m_read_idx(0), m_write_idx(1), m_sim_time(0) {
+Circuit::Circuit() : 
+            m_read_idx(0), 
+            m_write_idx(1), 
+            m_sim_time(0),
+            m_next_node_id(0) {
 }
 
 pin_t Circuit::create_pin(Component *component) {
@@ -22,8 +26,8 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     // both pins not connected - create a new node
     if (node_a == NOT_CONNECTED && node_b == NOT_CONNECTED) {
         auto node_id = create_node();
-        m_pin_nodes[node_a] = node_id;
-        m_pin_nodes[node_b] = node_id;
+        m_pin_nodes[pin_a] = node_id;
+        m_pin_nodes[pin_b] = node_id;
         return;
     }
 
@@ -31,6 +35,7 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     if (node_a != NOT_CONNECTED && node_b != NOT_CONNECTED) {
         m_free_nodes.push_back(node_b);
         std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
+        return;
     }
 
     // one pin connected, the other node: add pin to node
@@ -57,6 +62,10 @@ node_t Circuit::create_node() {
 
 void Circuit::write_value(pin_t pin, Value value) {
     auto node_id = m_pin_nodes[pin];
+    if (node_id == NOT_CONNECTED) {
+        return;
+    }
+
     assert(m_node_write_time[node_id] < m_sim_time);
     m_values[m_write_idx][node_id] = value;
     m_node_write_time[node_id] = m_sim_time;
@@ -64,18 +73,15 @@ void Circuit::write_value(pin_t pin, Value value) {
 
 Value Circuit::read_value(pin_t pin) {
     auto node_id = m_pin_nodes[pin];
+    if (node_id == NOT_CONNECTED) {
+        return VALUE_UNDEFINED;
+    }
     return m_values[m_read_idx][node_id];
 }
 
 Value Circuit::read_value(pin_t pin, Value value_for_undefined) {
-    auto node_id = m_pin_nodes[pin];
-    auto value = m_values[m_read_idx][node_id];
-
+    auto value = read_value(pin);
     return (value != VALUE_UNDEFINED) ? value : value_for_undefined;
-}
-
-void Circuit::register_component(std::unique_ptr<Component> component) {
-    m_components.push_back(std::move(component));
 }
 
 void Circuit::simulation_init() {
