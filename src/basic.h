@@ -31,6 +31,13 @@ protected:
     std::vector<pin_t>  m_pins;
 };
 
+// connector - I/O between circuits
+class Connector : public Component {
+public:
+    Connector(Circuit *circuit, size_t data_bits);
+    virtual void process();
+};
+
 
 #if 0
 

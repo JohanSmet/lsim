@@ -22,6 +22,19 @@ pin_t Component::pin(uint32_t index) {
     return m_pins[index];
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Connection - I/O between circuits
+//
+
+Connector::Connector(Circuit *circuit, size_t data_bits) : Component(circuit, data_bits) {
+
+}
+
+void Connector::process() {
+
+}
+
 #if 0
 
 //////////////////////////////////////////////////////////////////////////////
