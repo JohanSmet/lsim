@@ -54,30 +54,26 @@ target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
 # Unit tests
 #
 
-#enable_testing()
-#
-#set (TEST_SOURCES
-#	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_main.c"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_dyn_array.c"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_hash_map.c"
-# 	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_basic_ops.c"
-# 	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_spirv_sim.c"
-#	"${CMAKE_CURRENT_SOURCE_DIR}/tests/munit/munit.c"
-#)
-#
-#set (TEST_HEADERS
-#	"${CMAKE_CURRENT_SOURCE_DIR}/tests/munit/munit.h"
-#)
-#
-#add_executable(test_runner ${TEST_SOURCES} ${TEST_HEADERS})
-#target_include_directories(test_runner PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-#target_link_libraries(test_runner ${LIB_TARGET} ${EXTRA_LIBS})
-#add_test(NAME unittests COMMAND test_runner)
-#
+enable_testing()
+
+set (TEST_SOURCES
+	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_main.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_circuit.cpp"
+)
+
+set (TEST_HEADERS
+	"${CMAKE_CURRENT_SOURCE_DIR}/tests/catch.hpp"
+)
+
+add_executable(test_runner ${TEST_SOURCES} ${TEST_HEADERS})
+target_include_directories(test_runner PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(test_runner ${LIB_TARGET} ${EXTRA_LIBS})
+add_test(NAME unittests COMMAND test_runner)
+
 #add_custom_command(
-#     TARGET test_runner
-#     COMMENT "Run tests"
-#     POST_BUILD 
-#     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-#     COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIGURATION> --output-on-failures
+     #TARGET test_runner
+     #COMMENT "Run tests"
+     #POST_BUILD 
+     #WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+     #COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIGURATION> --output-on-failures
 #)
