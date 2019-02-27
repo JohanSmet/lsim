@@ -8,7 +8,49 @@ inline void simulate_until_pin_change(Circuit *circuit, pin_t pin) {
     } while (!circuit->value_changed(pin));
 }
 
-TEST_CASE("AND-gate functions as expected", "[gate]") {
+TEST_CASE("Buffer", "[gate]") {
+
+    auto circuit = std::make_unique<Circuit>();
+    REQUIRE(circuit);
+
+    auto in = circuit->create_component<Connector>(8);
+    REQUIRE(in);
+
+    auto out = circuit->create_component<Connector>(8);
+    REQUIRE(out);
+
+    auto buffer = circuit->create_component<Buffer>(8);
+    REQUIRE(buffer);
+
+    for (int idx = 0; idx < 8; ++idx) {
+        circuit->connect_pins(in->pin(idx), buffer->pin(idx));
+        circuit->connect_pins(buffer->pin(idx + 8), out->pin(idx));
+    }
+
+    circuit->simulation_init();
+    REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
+
+    // buffer takes a cycle to change output
+    in->change_data(VALUE_TRUE);
+    circuit->simulation_tick();
+    REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
+    circuit->simulation_tick();
+    REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
+    REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
+    REQUIRE(circuit->read_value(out->pin(2)) == VALUE_FALSE);
+
+    in->change_data(VALUE_TRUE << 2 | VALUE_FALSE);
+    circuit->simulation_tick();
+    REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
+    REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
+    REQUIRE(circuit->read_value(out->pin(2)) == VALUE_FALSE);
+    circuit->simulation_tick();
+    REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
+    REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
+    REQUIRE(circuit->read_value(out->pin(2)) == VALUE_TRUE);
+}
+
+TEST_CASE("AndGate", "[gate]") {
 
     auto circuit = std::make_unique<Circuit>();
     REQUIRE(circuit);

@@ -27,6 +27,25 @@ void Constant::process() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Buffer
+//
+
+Buffer::Buffer(Circuit *circuit, size_t data_bits) : Component(circuit, data_bits * 2) {
+    assert(circuit);
+    assert(data_bits >= 1);
+}
+
+void Buffer::process() {
+    auto data_bits = m_pins.size() / 2;
+
+    for (auto pin = 0u; pin < data_bits; ++pin) {
+        auto value = m_circuit->read_value(m_pins[pin]);
+        m_circuit->write_value(m_pins[pin + data_bits], value);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // AND gate
 //
 

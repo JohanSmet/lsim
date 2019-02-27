@@ -15,6 +15,12 @@ private:
     Value m_value;
 };
 
+class Buffer : public Component {
+public:
+    Buffer(Circuit *circuit, size_t data_bits);
+    virtual void process();
+};
+
 class AndGate : public Component {
 public:
     AndGate(Circuit *circuit, size_t num_inputs);
