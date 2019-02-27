@@ -14,6 +14,7 @@ const node_t NOT_CONNECTED = (node_t) -1;
 
 typedef std::vector<Value> value_container_t;
 typedef std::vector<std::unique_ptr<Component>> component_container_t;
+typedef std::vector<pin_t> pin_container_t;
 typedef uint64_t sim_timestamp_t;
 
 class Circuit {
@@ -42,11 +43,12 @@ private:
     node_t create_node();
 
 private:
-    std::vector<Component *>    m_pins;
-    std::vector<node_t>         m_pin_nodes;
+    std::vector<Component *>        m_pins;
+    std::vector<node_t>             m_pin_nodes;
+    std::vector<pin_container_t>    m_node_pins;
 
     node_t m_next_node_id;
-    std::vector<node_t>         m_free_nodes;
+    std::vector<node_t>             m_free_nodes;
 
     std::array<value_container_t, 2>  m_values;
     std::vector<sim_timestamp_t>      m_node_write_time;

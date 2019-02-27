@@ -28,6 +28,8 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
         auto node_id = create_node();
         m_pin_nodes[pin_a] = node_id;
         m_pin_nodes[pin_b] = node_id;
+        m_node_pins[node_id].push_back(pin_a);
+        m_node_pins[node_id].push_back(pin_b);
         return;
     }
 
@@ -35,6 +37,10 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     if (node_a != NOT_CONNECTED && node_b != NOT_CONNECTED) {
         m_free_nodes.push_back(node_b);
         std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
+        for (auto pin : m_node_pins[node_b]) {
+            m_node_pins[node_a].push_back(pin);
+        }
+        m_node_pins[node_b].clear();
         return;
     }
 
@@ -56,6 +62,7 @@ node_t Circuit::create_node() {
     m_values[0].push_back(VALUE_UNDEFINED);
     m_values[1].push_back(VALUE_UNDEFINED);
     m_node_write_time.push_back(0);
+    m_node_pins.push_back({});
 
     return m_next_node_id++;
 }
