@@ -39,12 +39,29 @@ void Component::tick() {
 // Connection - I/O between circuits
 //
 
-Connector::Connector(Circuit *circuit, size_t data_bits) : Component(circuit, data_bits) {
-
+Connector::Connector(Circuit *circuit, size_t data_bits) : 
+            Component(circuit, data_bits),
+            m_data(0),
+            m_changed(false) {
+    assert(data_bits > 0 && data_bits < 64);
 }
 
 void Connector::process() {
+    if (!m_changed) {
+        return;
+    }
 
+    for (auto idx = 0u; idx < m_pins.size(); ++idx) {
+        int data = (m_data & (1 << idx)) >> idx;
+        m_circuit->write_value(m_pins[idx], static_cast<Value>(data));
+    }
+    m_changed = false;
+}
+
+void Connector::change_data(uint64_t data) {
+    m_data = data;
+    m_changed = true;
+    set_dirty();
 }
 
 #if 0

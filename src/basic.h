@@ -43,6 +43,12 @@ class Connector : public Component {
 public:
     Connector(Circuit *circuit, size_t data_bits);
     virtual void process();
+
+    void change_data(uint64_t data);
+
+private: 
+    uint64_t m_data;
+    bool     m_changed;
 };
 
 
