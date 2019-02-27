@@ -29,7 +29,7 @@ public:
 
     template<typename T, typename... Args>
     inline T *create_component(Args&&... args) {
-        auto comp = std::make_unique<T>(std::forward<Args>(args)...);
+        auto comp = std::make_unique<T>(this, std::forward<Args>(args)...);
         auto raw = comp.get();
         m_components.push_back(std::move(comp));
         return raw;
