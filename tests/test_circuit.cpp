@@ -14,14 +14,5 @@ TEST_CASE("Components are created correctly", "[circuit]") {
 
     auto connector = circuit->create_component<Connector>(1);
     REQUIRE(connector);
-
-    circuit->connect_pins(constant->pin(0), and_gate->pin(0));
-    circuit->connect_pins(constant->pin(0), and_gate->pin(1));
-    circuit->connect_pins(and_gate->pin(2), connector->pin(0));
-
-    circuit->simulation_init();
-    circuit->simulation_tick();
-    
-    REQUIRE(circuit->read_value(connector->pin(0)) == VALUE_TRUE);
 }
 

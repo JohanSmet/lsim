@@ -58,6 +58,7 @@ enable_testing()
 
 set (TEST_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_main.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_gate.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/tests/test_circuit.cpp"
 )
 
