@@ -28,6 +28,8 @@ public:
     Value read_value(pin_t pin);
     Value read_value(pin_t pin, Value value_for_undefined);
 
+    bool value_changed(pin_t pin);
+
     template<typename T, typename... Args>
     inline T *create_component(Args&&... args) {
         auto comp = std::make_unique<T>(this, std::forward<Args>(args)...);
@@ -52,12 +54,12 @@ private:
 
     std::array<value_container_t, 2>  m_values;
     std::vector<sim_timestamp_t>      m_node_write_time;
+    std::vector<sim_timestamp_t>      m_node_change_time;
     int m_read_idx;
     int m_write_idx;
 
-    sim_timestamp_t             m_sim_time;
-    component_container_t       m_components;
-
+    sim_timestamp_t                 m_sim_time;
+    component_container_t           m_components;
 };
 
 

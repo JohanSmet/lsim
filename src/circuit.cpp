@@ -62,6 +62,7 @@ node_t Circuit::create_node() {
     m_values[0].push_back(VALUE_UNDEFINED);
     m_values[1].push_back(VALUE_UNDEFINED);
     m_node_write_time.push_back(0);
+    m_node_change_time.push_back(0);
     m_node_pins.push_back({});
 
     return m_next_node_id++;
@@ -74,7 +75,11 @@ void Circuit::write_value(pin_t pin, Value value) {
     }
 
     assert(m_node_write_time[node_id] < m_sim_time);
-    m_values[m_write_idx][node_id] = value;
+    if (m_values[m_write_idx][node_id] != value) {
+        m_values[m_write_idx][node_id] = value;
+        m_node_change_time[node_id] = m_sim_time;
+    }
+
     m_node_write_time[node_id] = m_sim_time;
 }
 
@@ -89,6 +94,15 @@ Value Circuit::read_value(pin_t pin) {
 Value Circuit::read_value(pin_t pin, Value value_for_undefined) {
     auto value = read_value(pin);
     return (value != VALUE_UNDEFINED) ? value : value_for_undefined;
+}
+
+bool Circuit::value_changed(pin_t pin) {
+    auto node_id = m_pin_nodes[pin];
+    if (node_id == NOT_CONNECTED) {
+        return false;
+    }
+
+    return m_node_change_time[node_id] == m_sim_time;
 }
 
 void Circuit::simulation_init() {
