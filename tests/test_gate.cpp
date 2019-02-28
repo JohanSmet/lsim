@@ -153,3 +153,37 @@ TEST_CASE("OrGate", "[gate]") {
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 }
+
+TEST_CASE("NotGate", "[gate]") {
+
+    auto circuit = std::make_unique<Circuit>();
+    REQUIRE(circuit);
+
+    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    REQUIRE(in_0);
+    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    REQUIRE(in_1);
+
+    auto not_gate = circuit->create_component<NotGate>();
+    REQUIRE(not_gate);
+
+    auto out = circuit->create_component<Connector>(1);
+    REQUIRE(out);
+
+    circuit->simulation_init();
+    circuit->connect_pins(not_gate->pin(1), out->pin(0));
+
+    SECTION("input is false") {
+        circuit->connect_pins(in_0->pin(0), not_gate->pin(0));
+
+        simulate_until_pin_change(circuit.get(), out->pin(0));
+        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
+    }
+
+    SECTION("input is true") {
+        circuit->connect_pins(in_1->pin(0), not_gate->pin(0));
+
+        simulate_until_pin_change(circuit.get(), out->pin(0));
+        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
+    }
+}

@@ -80,3 +80,17 @@ void OrGate::process() {
     m_circuit->write_value(m_pins.back(), static_cast<Value>(output));
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// NOT gate
+//
+
+NotGate::NotGate(Circuit *circuit) : Component(circuit, 2) {
+    assert(circuit);
+}
+
+void NotGate::process() {
+    auto input = m_circuit->read_value(m_pins[0]);
+    m_circuit->write_value(m_pins[1], negate_value(input));
+}
+

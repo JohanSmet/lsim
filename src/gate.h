@@ -33,4 +33,10 @@ public:
     virtual void process();
 };
 
+class NotGate : public Component {
+public:
+    NotGate(Circuit *circuit);
+    virtual void process();
+};
+
 #endif // LSIM_GATE_H

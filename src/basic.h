@@ -20,6 +20,16 @@ enum Value {
     VALUE_UNDEFINED     = 2
 };
 
+inline Value negate_value(Value input) {
+    if (input == VALUE_TRUE) {
+        return VALUE_FALSE; 
+    } else if (input == VALUE_FALSE) {
+        return VALUE_TRUE;
+    } else {
+        return VALUE_UNDEFINED;
+    }
+}
+
 class Component {
 public:
     Component(Circuit *circuit, size_t pin_count);
