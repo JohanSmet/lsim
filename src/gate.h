@@ -51,4 +51,10 @@ public:
     virtual void process();
 };
 
+class XorGate : public Component {
+public:
+    XorGate(Circuit *circuit);
+    virtual void process();
+};
+
 #endif // LSIM_GATE_H
