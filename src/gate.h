@@ -27,4 +27,10 @@ public:
     virtual void process();
 };
 
+class OrGate : public Component {
+public:
+    OrGate(Circuit *circuit, size_t num_inputs);
+    virtual void process();
+};
+
 #endif // LSIM_GATE_H
