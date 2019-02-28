@@ -39,4 +39,10 @@ public:
     virtual void process();
 };
 
+class NandGate : public Component {
+public:
+    NandGate(Circuit *circuit, size_t num_inputs);
+    virtual void process();
+};
+
 #endif // LSIM_GATE_H
