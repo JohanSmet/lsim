@@ -112,3 +112,21 @@ void NandGate::process() {
     m_circuit->write_value(m_pins.back(), negate_value(static_cast<Value>(output)));
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// NOR gate
+//
+
+NorGate::NorGate(Circuit *circuit, size_t num_inputs) : Component(circuit, num_inputs + 1) {
+    assert(circuit);
+    assert(num_inputs >= 2);
+}
+
+void NorGate::process() {
+    int output = m_circuit->read_value(m_pins[0], VALUE_TRUE);
+    for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
+        output |= m_circuit->read_value(m_pins[idx], VALUE_TRUE);
+    }
+    m_circuit->write_value(m_pins.back(), negate_value(static_cast<Value>(output)));
+}
+

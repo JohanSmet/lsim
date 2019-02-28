@@ -45,4 +45,10 @@ public:
     virtual void process();
 };
 
+class NorGate : public Component {
+public:
+    NorGate(Circuit *circuit, size_t num_inputs);
+    virtual void process();
+};
+
 #endif // LSIM_GATE_H
