@@ -23,6 +23,7 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     const auto &node_a = m_pin_nodes[pin_a];
     const auto &node_b = m_pin_nodes[pin_b];
 
+
     // both pins not connected - create a new node
     if (node_a == NOT_CONNECTED && node_b == NOT_CONNECTED) {
         auto node_id = create_node();
@@ -35,6 +36,11 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
 
     // both pins connected - merge node b into node a
     if (node_a != NOT_CONNECTED && node_b != NOT_CONNECTED) {
+        if (node_a == node_b) {
+            // pins already connected to each other
+            return;
+        }
+
         m_free_nodes.push_back(node_b);
         std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
         for (auto pin : m_node_pins[node_b]) {
