@@ -10,6 +10,14 @@ string(TOUPPER ${CMAKE_SYSTEM_NAME} PLATFORM_NAME)
 string(CONCAT PLATFORM_DEF "PLATFORM_" ${PLATFORM_NAME})
 
 #
+# external dependencies
+#
+
+add_subdirectory("libs/pugixml")
+set (PUGIXML_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/pugixml/src)
+list (APPEND EXTRA_LIBS pugixml)
+
+#
 # simulator library
 #
 
@@ -28,7 +36,7 @@ set (LIB_HEADERS
 )
 
 add_library(${LIB_TARGET} STATIC ${LIB_SOURCES} ${LIB_HEADERS})
-target_include_directories(${LIB_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs)
+target_include_directories(${LIB_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${PUGIXML_INCLUDE})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
 
 #
