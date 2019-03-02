@@ -117,6 +117,20 @@ bool Circuit::value_changed(pin_t pin) {
     return m_node_change_time[node_id] == m_sim_time;
 }
 
+void Circuit::register_component_name(const std::string &name, Component *component) {
+    assert(component);
+    m_component_name_lut[name] = component;
+}
+
+Component *Circuit::component_by_name(const std::string &name) {
+    auto res = m_component_name_lut.find(name);
+    if (res != std::end(m_component_name_lut)) {
+        return res->second;
+    } else {
+        return nullptr;
+    }
+}
+
 void Circuit::simulation_init() {
     m_sim_time = 0;
 }

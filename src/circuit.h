@@ -6,6 +6,8 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <unordered_map>
+#include <string>
 #include "basic.h"
 
 class Component;
@@ -15,6 +17,7 @@ const node_t NOT_CONNECTED = (node_t) -1;
 typedef std::vector<Value> value_container_t;
 typedef std::vector<bool> bool_container_t;
 typedef std::vector<std::unique_ptr<Component>> component_container_t;
+typedef std::unordered_map<std::string, Component *> component_name_lut_t;
 typedef std::vector<pin_t> pin_container_t;
 typedef uint64_t sim_timestamp_t;
 
@@ -38,6 +41,8 @@ public:
         m_components.push_back(std::move(comp));
         return raw;
     }
+    void register_component_name(const std::string &name, Component *component);
+    Component *component_by_name(const std::string &name);
 
     void simulation_init();
     void simulation_tick();
@@ -60,7 +65,9 @@ private:
     int m_write_idx;
 
     sim_timestamp_t                 m_sim_time;
+
     component_container_t           m_components;
+    component_name_lut_t            m_component_name_lut;
 };
 
 
