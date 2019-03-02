@@ -14,6 +14,8 @@ class Circuit;
 typedef uint32_t pin_t;
 typedef uint32_t node_t;
 
+const pin_t PIN_UNDEFINED = static_cast<pin_t>(-1);
+
 enum Value {
     VALUE_FALSE         = 0,
     VALUE_TRUE          = 1,
@@ -35,6 +37,7 @@ public:
     Component(Circuit *circuit, size_t pin_count);
 
     pin_t pin(uint32_t index);
+    size_t num_pins() const {return m_pins.size();}
 
     virtual void prepare();
     virtual void tick();
