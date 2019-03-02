@@ -63,6 +63,7 @@ private:
     void handle_not_gate(Component *component, ComponentProperties &props);
 
     bool parse_location(const std::string &loc_string, Position &pos);
+    bool parse_facing(const std::string &facing_string, LogisimDirection &facing);
     void add_pin_location(pin_t pin, const Position &loc);
 
     Position input_pin_location(Position base, size_t index, 
@@ -111,7 +112,6 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     DEF_REQUIRED_ATTR(comp_type, comp_node, name);
     DEF_REQUIRED_ATTR(comp_loc, comp_node, loc);
 
-
     ComponentProperties comp_props = {0};
     comp_props.m_facing = LS_EAST;
 
@@ -127,6 +127,8 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
             comp_props.m_label = prop_val;
         } else if (prop_name == "size") {
             comp_props.m_size = std::stoi(prop_val);
+        } else if (prop_name == "facing") {
+            parse_facing(prop_val, comp_props.m_facing);
         }
     }
 
@@ -288,6 +290,23 @@ bool LogisimParser::parse_location(const std::string &loc_string, Position &pos)
 
     pos.m_x = std::stoi(loc_string.substr(1, comma - 1));
     pos.m_y = std::stoi(loc_string.substr(comma + 1));
+
+    return true;
+}
+
+bool LogisimParser::parse_facing(const std::string &facing_string, LogisimDirection &facing) {
+
+    if (facing_string == "north") {
+        facing = LS_NORTH;
+    } else if (facing_string == "east") {
+        facing = LS_EAST;
+    } else if (facing_string == "south") {
+        facing = LS_SOUTH;
+    } else if (facing_string == "west") {
+        facing = LS_WEST;
+    } else {
+        return false;
+    }
 
     return true;
 }
