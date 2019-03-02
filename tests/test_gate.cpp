@@ -2,12 +2,6 @@
 #include "circuit.h"
 #include "gate.h"
 
-inline void simulate_until_pin_change(Circuit *circuit, pin_t pin) {
-    do {
-        circuit->simulation_tick();
-    } while (!circuit->value_changed(pin));
-}
-
 TEST_CASE("Buffer", "[gate]") {
 
     auto circuit = std::make_unique<Circuit>();
@@ -73,7 +67,7 @@ TEST_CASE("AndGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), and_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), and_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -81,7 +75,7 @@ TEST_CASE("AndGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), and_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), and_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -89,7 +83,7 @@ TEST_CASE("AndGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), and_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), and_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -97,7 +91,7 @@ TEST_CASE("AndGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), and_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), and_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 }
@@ -125,7 +119,7 @@ TEST_CASE("OrGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), or_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), or_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -133,7 +127,7 @@ TEST_CASE("OrGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), or_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), or_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -141,7 +135,7 @@ TEST_CASE("OrGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), or_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), or_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -149,7 +143,7 @@ TEST_CASE("OrGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), or_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), or_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 }
@@ -176,14 +170,14 @@ TEST_CASE("NotGate", "[gate]") {
     SECTION("input is false") {
         circuit->connect_pins(in_0->pin(0), not_gate->pin(0));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
     SECTION("input is true") {
         circuit->connect_pins(in_1->pin(0), not_gate->pin(0));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 }
@@ -211,7 +205,7 @@ TEST_CASE("NandGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), nand_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), nand_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -219,7 +213,7 @@ TEST_CASE("NandGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), nand_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), nand_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -227,7 +221,7 @@ TEST_CASE("NandGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), nand_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), nand_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -235,7 +229,7 @@ TEST_CASE("NandGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), nand_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), nand_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 }
@@ -263,7 +257,7 @@ TEST_CASE("NorGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), nor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), nor_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -271,7 +265,7 @@ TEST_CASE("NorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), nor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), nor_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -279,7 +273,7 @@ TEST_CASE("NorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), nor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), nor_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -287,7 +281,7 @@ TEST_CASE("NorGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), nor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), nor_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 }
@@ -315,7 +309,7 @@ TEST_CASE("XorGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), xor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), xor_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -323,7 +317,7 @@ TEST_CASE("XorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), xor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), xor_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -331,7 +325,7 @@ TEST_CASE("XorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), xor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), xor_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -339,7 +333,7 @@ TEST_CASE("XorGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), xor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), xor_gate->pin(1));
 
-        simulate_until_pin_change(circuit.get(), out->pin(0));
+        circuit->simulation_until_pin_change(out->pin(0));
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 }

@@ -98,9 +98,6 @@ TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     REQUIRE(out);
 
     dynamic_cast<Connector *>(in)->change_data(VALUE_TRUE);
-    circuit->simulation_tick();
-    circuit->simulation_tick();
-    circuit->simulation_tick();
-    circuit->simulation_tick();
+    circuit->simulation_until_pin_change(out->pin(0));
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
 }

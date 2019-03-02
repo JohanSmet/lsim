@@ -46,6 +46,7 @@ public:
 
     void simulation_init();
     void simulation_tick();
+    void simulation_until_pin_change(pin_t pin);
 
 private:
     node_t create_node();

@@ -151,3 +151,8 @@ void Circuit::simulation_tick() {
     m_write_idx ^= 1;
 }
 
+void Circuit::simulation_until_pin_change(pin_t pin) {
+    do {
+        simulation_tick();
+    } while (!value_changed(pin));
+}
