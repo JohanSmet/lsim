@@ -43,6 +43,14 @@ private:
         LS_WEST
     };
 
+    struct ComponentProperties {
+        size_t              m_size;
+        Position            m_location;
+        LogisimDirection    m_facing;
+        std::string         m_label;
+        bool                m_negate_output;
+    };
+
     typedef std::vector<int64_t>        wire_node_t;
     typedef std::vector<wire_node_t>    wire_container_t;
 
@@ -50,8 +58,13 @@ private:
     bool parse_component(pugi::xml_node &comp_node);
     bool parse_wire(pugi::xml_node &wire_node);
     bool connect_components();
+
+    void handle_gate(Component *component, ComponentProperties &props);
+    void handle_not_gate(Component *component, ComponentProperties &props);
+
     bool parse_location(const std::string &loc_string, Position &pos);
     void add_pin_location(pin_t pin, const Position &loc);
+
     Position input_pin_location(Position base, size_t index, 
                                 size_t num_inputs, size_t comp_size,
                                 LogisimDirection direction = LS_EAST,
@@ -98,75 +111,59 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     DEF_REQUIRED_ATTR(comp_type, comp_node, name);
     DEF_REQUIRED_ATTR(comp_loc, comp_node, loc);
 
-    // parse location
-    Position location = {0, 0};
-    
-    if (!parse_location(comp_loc, location)) {
+
+    ComponentProperties comp_props = {0};
+    comp_props.m_facing = LS_EAST;
+
+    if (!parse_location(comp_loc, comp_props.m_location)) {
         return false;
     }
-
-    size_t comp_size = 20;
-    auto comp_facing = LS_EAST;
-    std::string comp_label = "";
 
     for (auto prop : comp_node.children("a")) {
         DEF_REQUIRED_ATTR(prop_name, prop, name);
         DEF_REQUIRED_ATTR(prop_val, prop, val);
 
         if (prop_name == "label") {
-            comp_label = prop_val;
+            comp_props.m_label = prop_val;
+        } else if (prop_name == "size") {
+            comp_props.m_size = std::stoi(prop_val);
         }
     }
 
     Component *component = nullptr;
     if (comp_type == "Buffer") {
         component = m_circuit->create_component<Buffer>(1);
-        add_pin_location(component->pin(0), input_pin_location(location, 0, 1, comp_size, comp_facing));
-        add_pin_location(component->pin(1), location);
+        add_pin_location(component->pin(0), input_pin_location(comp_props.m_location, 0, 1, 20, comp_props.m_facing));
+        add_pin_location(component->pin(1), comp_props.m_location);
     } else if (comp_type == "Pin") {
         component = m_circuit->create_component<Connector>(1);
-        add_pin_location(component->pin(0), location);
+        add_pin_location(component->pin(0), comp_props.m_location);
     } else if (comp_type == "AND Gate") {
         component = m_circuit->create_component<AndGate>(2);
-        auto num_inputs = component->num_pins() - 1;
-        for (auto idx = 0u; idx < num_inputs; ++idx) {
-           add_pin_location(component->pin(idx), input_pin_location(location, idx, num_inputs, comp_size, comp_facing, false));
-        }
-        add_pin_location(component->pin(component->num_pins() - 1), location);
+        handle_gate(component, comp_props);
     } else if (comp_type == "OR Gate") {
         component = m_circuit->create_component<OrGate>(2);
-        auto num_inputs = component->num_pins() - 1;
-        for (auto idx = 0u; idx < num_inputs; ++idx) {
-           add_pin_location(component->pin(idx), input_pin_location(location, idx, num_inputs, comp_size, comp_facing, false));
-        }
-        add_pin_location(component->pin(component->num_pins() - 1), location);
+        handle_gate(component, comp_props);
     } else if (comp_type == "NOT Gate") {
         component = m_circuit->create_component<NotGate>();
-        add_pin_location(component->pin(0), input_pin_location(location, 0, 1, comp_size, comp_facing, true));
-        add_pin_location(component->pin(1), location);
+        handle_not_gate(component, comp_props);
     } else if (comp_type == "NAND Gate") {
         component = m_circuit->create_component<AndGate>(2);
-        auto num_inputs = component->num_pins() - 1;
-        for (auto idx = 0u; idx < num_inputs; ++idx) {
-           add_pin_location(component->pin(idx), input_pin_location(location, idx, num_inputs, comp_size, comp_facing, true));
-        }
-        add_pin_location(component->pin(component->num_pins() - 1), location);
+        comp_props.m_negate_output = true;
+        handle_gate(component, comp_props);
     } else if (comp_type == "NOR Gate") {
         component = m_circuit->create_component<OrGate>(2);
-        auto num_inputs = component->num_pins() - 1;
-        for (auto idx = 0u; idx < num_inputs; ++idx) {
-           add_pin_location(component->pin(idx), input_pin_location(location, idx, num_inputs, comp_size, comp_facing, true));
-        }
-        add_pin_location(component->pin(component->num_pins() - 1), location);
+        comp_props.m_negate_output = true;
+        handle_gate(component, comp_props);
     } else if (comp_type == "XOR Gate") {
         component = m_circuit->create_component<XorGate>();
-        add_pin_location(component->pin(2), location);
+        handle_gate(component, comp_props);
     } else {
         return false;
     }
 
-    if (!comp_label.empty()) {
-        m_circuit->register_component_name(comp_label.c_str(), component);
+    if (!comp_props.m_label.empty()) {
+        m_circuit->register_component_name(comp_props.m_label, component);
     }
 
     return true;
@@ -233,6 +230,50 @@ bool LogisimParser::connect_components() {
     }
 
     return true;
+}
+
+void LogisimParser::handle_gate(Component *component, ComponentProperties &props) {
+    // default size = MEDIUM (50)
+    if (props.m_size == 0) {
+        props.m_size = 50;
+    }
+
+    // inputs
+    auto num_inputs = component->num_pins() - 1;
+    for (auto idx = 0u; idx < num_inputs; ++idx) {
+        add_pin_location(component->pin(idx), input_pin_location(
+                                                props.m_location, 
+                                                idx, 
+                                                num_inputs, 
+                                                props.m_size, 
+                                                props.m_facing, 
+                                                props.m_negate_output)
+        );
+    }
+
+    // output
+    add_pin_location(component->pin(component->num_pins() - 1), props.m_location);
+}
+
+void LogisimParser::handle_not_gate(Component *component, ComponentProperties &props) {
+    // default size = WIDE (30)
+    if (props.m_size == 0) {
+        props.m_size = 30;
+    }
+
+    // input
+    add_pin_location(component->pin(0), input_pin_location(
+                                            props.m_location, 
+                                            0, 
+                                            1, 
+                                            props.m_size, 
+                                            props.m_facing, 
+                                            false)      // size already includes negation symbol
+    );
+
+    // output
+    add_pin_location(component->pin(1), props.m_location);
+
 }
 
 bool LogisimParser::parse_location(const std::string &loc_string, Position &pos) {
