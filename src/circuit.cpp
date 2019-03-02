@@ -158,3 +158,24 @@ void Circuit::simulation_until_pin_change(pin_t pin) {
         simulation_tick();
     } while (!value_changed(pin));
 }
+
+void Circuit::simulation_until_stable(int stable_ticks) {
+    bool stop = false;
+    bool stable;
+    auto remaining = stable_ticks;
+
+    while (!stop) {
+        simulation_tick();
+
+        bool stable = true;
+        for (auto node_change : m_node_change_time) {
+            stable &= node_change != m_sim_time;
+        }
+        
+        if (!stable) {
+            remaining = stable_ticks;
+        } else {
+            stop = --remaining == 0;
+        }
+    }
+}
