@@ -53,8 +53,10 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     // one pin connected, the other node: add pin to node
     if (node_a == NOT_CONNECTED) {
         m_pin_nodes[pin_a] = node_b;
+        m_node_pins[node_b].push_back(pin_a);
     } else {
         m_pin_nodes[pin_b] = node_a;
+        m_node_pins[node_a].push_back(pin_b);
     }
 }
 
