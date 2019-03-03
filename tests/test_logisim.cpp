@@ -434,7 +434,7 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
     auto pin_Sum = static_cast<Connector *> (circuit->component_by_name("Sum"));
     REQUIRE(pin_Sum);
 
-    bool truth_table[][5] = {
+    Value truth_table[][5] = {
         // Ci           A            B            Co           Sum
         {VALUE_FALSE, VALUE_FALSE, VALUE_FALSE, VALUE_FALSE, VALUE_FALSE},
         {VALUE_FALSE, VALUE_FALSE, VALUE_TRUE,  VALUE_FALSE, VALUE_TRUE},
@@ -484,7 +484,7 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
     auto pin_O = static_cast<Connector *> (circuit->component_by_name("O"));
     REQUIRE(pin_O);
 
-    bool truth_table[][5] = {
+    Value truth_table[][5] = {
         // I1           I2           I3           I4           O
         {VALUE_FALSE, VALUE_FALSE, VALUE_FALSE, VALUE_FALSE, VALUE_FALSE},
         {VALUE_FALSE, VALUE_FALSE, VALUE_FALSE, VALUE_TRUE,  VALUE_FALSE},
