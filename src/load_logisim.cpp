@@ -169,6 +169,12 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         comp_props.m_extra_size = 10;
         comp_props.m_inputs = 2;                // FIXME: report violations
         handle_gate(component, comp_props);
+    } else if (comp_type == "XNOR Gate") {
+        component = m_circuit->create_component<XnorGate>();
+        comp_props.m_extra_size = 10;
+        comp_props.m_inputs = 2;                // FIXME: report violations
+        comp_props.m_negate_output = true;
+        handle_gate(component, comp_props);
     } else {
         return false;
     }

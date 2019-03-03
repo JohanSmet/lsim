@@ -337,3 +337,55 @@ TEST_CASE("XorGate", "[gate]") {
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 }
+
+TEST_CASE("XnorGate", "[gate]") {
+
+    auto circuit = std::make_unique<Circuit>();
+    REQUIRE(circuit);
+
+    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    REQUIRE(in_0);
+    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    REQUIRE(in_1);
+
+    auto xnor_gate = circuit->create_component<XnorGate>();
+    REQUIRE(xnor_gate);
+
+    auto out = circuit->create_component<Connector>(1);
+    REQUIRE(out);
+
+    circuit->simulation_init();
+    circuit->connect_pins(xnor_gate->pin(2), out->pin(0));
+
+    SECTION("all inputs are false") {
+        circuit->connect_pins(in_0->pin(0), xnor_gate->pin(0));
+        circuit->connect_pins(in_0->pin(0), xnor_gate->pin(1));
+
+        circuit->simulation_until_pin_change(out->pin(0));
+        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
+    }
+
+    SECTION("all inputs are true") {
+        circuit->connect_pins(in_1->pin(0), xnor_gate->pin(0));
+        circuit->connect_pins(in_1->pin(0), xnor_gate->pin(1));
+
+        circuit->simulation_until_pin_change(out->pin(0));
+        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
+    }
+
+    SECTION("first input is true, second is false") {
+        circuit->connect_pins(in_1->pin(0), xnor_gate->pin(0));
+        circuit->connect_pins(in_0->pin(0), xnor_gate->pin(1));
+
+        circuit->simulation_until_pin_change(out->pin(0));
+        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
+    }
+
+    SECTION("first input is false, second is true") {
+        circuit->connect_pins(in_0->pin(0), xnor_gate->pin(0));
+        circuit->connect_pins(in_1->pin(0), xnor_gate->pin(1));
+
+        circuit->simulation_until_pin_change(out->pin(0));
+        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
+    }
+}

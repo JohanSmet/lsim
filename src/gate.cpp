@@ -144,3 +144,18 @@ void XorGate::process() {
     output ^= m_circuit->read_value(m_pins[1], VALUE_TRUE);
     m_circuit->write_value(m_pins[2], static_cast<Value>(output));
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// XNOR gate
+//
+
+XnorGate::XnorGate(Circuit *circuit) : Component(circuit, 2 + 1) {
+    assert(circuit);
+}
+
+void XnorGate::process() {
+    int output = m_circuit->read_value(m_pins[0], VALUE_TRUE);
+    output ^= m_circuit->read_value(m_pins[1], VALUE_TRUE);
+    m_circuit->write_value(m_pins[2], negate_value(static_cast<Value>(output)));
+}
