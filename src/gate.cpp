@@ -46,6 +46,34 @@ void Buffer::process() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// TriStateBuffer
+//
+
+TriStateBuffer::TriStateBuffer(Circuit *circuit, size_t data_bits) : 
+                    Component(circuit, 1 + (data_bits * 2)),
+                    m_enable_idx(data_bits) {
+    assert(circuit);
+    assert(data_bits >= 1);
+}
+
+void TriStateBuffer::process() {
+    auto data_bits = (m_pins.size() - 1) / 2;
+
+    if (m_circuit->read_value(m_pins[m_enable_idx]) != VALUE_TRUE) {
+        for (auto pin = 0u; pin < data_bits; ++pin) {
+            m_circuit->write_value(m_pins[pin + data_bits + 1], VALUE_UNDEFINED);
+        }
+        return;
+    }
+
+    for (auto pin = 0u; pin < data_bits; ++pin) {
+        auto value = m_circuit->read_value(m_pins[pin]);
+        m_circuit->write_value(m_pins[pin + data_bits + 1], value);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // AND gate
 //
 

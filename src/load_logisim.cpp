@@ -64,6 +64,7 @@ private:
 
     void handle_gate(Component *component, ComponentProperties &props);
     void handle_not_gate(Component *component, ComponentProperties &props);
+    void handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left);
 
     bool parse_location(const std::string &loc_string, Position &pos);
     bool parse_facing(const std::string &facing_string, LogisimDirection &facing);
@@ -116,6 +117,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     ComponentProperties comp_props = {0};
     comp_props.m_facing = LS_EAST;
     comp_props.m_inputs = 2;
+    bool tristate_left = false;
 
     if (!parse_location(comp_loc, comp_props.m_location)) {
         return false;
@@ -133,16 +135,18 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
             parse_facing(prop_val, comp_props.m_facing);
         } else if (prop_name == "inputs") {
             comp_props.m_inputs = std::stoi(prop_val);
+        } else if (prop_name == "control") {
+            tristate_left = (prop_val == "left");
         }
     }
 
     Component *component = nullptr;
     if (comp_type == "Buffer") {
         component = m_circuit->create_component<Buffer>(1);
-        comp_props.m_size = 20;
-        comp_props.m_inputs = 1;
-        add_pin_location(component->pin(0), input_pin_location(comp_props.m_location, 0, comp_props));
-        add_pin_location(component->pin(1), comp_props.m_location);
+        handle_buffer(component, comp_props, false, false);
+    } else if (comp_type == "Controlled Buffer") {
+        component = m_circuit->create_component<TriStateBuffer>(1);
+        handle_buffer(component, comp_props, true, tristate_left);
     } else if (comp_type == "Pin") {
         component = m_circuit->create_component<Connector>(1);
         add_pin_location(component->pin(0), comp_props.m_location);
@@ -279,7 +283,27 @@ void LogisimParser::handle_not_gate(Component *component, ComponentProperties &p
 
     // output
     add_pin_location(component->pin(1), props.m_location);
+}
 
+void LogisimParser::handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left) {
+
+    // buffers have a fixed size
+    props.m_size = 20;
+    props.m_inputs = 1;
+
+    // input
+    add_pin_location(component->pin(0), input_pin_location(props.m_location, 0, props));
+
+    // enable pin
+    if (tri_state) {
+        auto en_loc = props.m_location;
+        en_loc.m_x -= props.m_size / 2;
+        en_loc.m_y += (left) ? -10 : 10;
+        add_pin_location(component->pin(1), en_loc);
+    }
+
+    // output
+    add_pin_location(component->pin(component->num_pins() - 1), props.m_location);
 }
 
 bool LogisimParser::parse_location(const std::string &loc_string, Position &pos) {

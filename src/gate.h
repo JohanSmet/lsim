@@ -21,6 +21,15 @@ public:
     virtual void process();
 };
 
+class TriStateBuffer : public Component {
+public:
+    TriStateBuffer(Circuit *circuit, size_t data_bits);
+    virtual void process();
+    pin_t enable_pin() const {return m_pins[m_enable_idx];}
+private:
+    size_t  m_enable_idx;
+};
+
 class AndGate : public Component {
 public:
     AndGate(Circuit *circuit, size_t num_inputs);

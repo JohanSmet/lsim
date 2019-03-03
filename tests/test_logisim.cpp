@@ -307,6 +307,90 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
 </project>
 )FILE";
 
+const char *logisim_tristate_data = R"FILE(
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project source="2.14.6" version="1.0">
+This file is intended to be loaded by Logisim-evolution (https://github.com/reds-heig/logisim-evolution).
+<lib desc="#Wiring" name="0"/>
+  <lib desc="#Gates" name="1"/>
+  <lib desc="#Plexers" name="2">
+    <tool name="Multiplexer">
+      <a name="enable" val="false"/>
+    </tool>
+    <tool name="Demultiplexer">
+      <a name="enable" val="false"/>
+    </tool>
+  </lib>
+  <lib desc="#Arithmetic" name="3"/>
+  <lib desc="#Memory" name="4">
+    <tool name="ROM">
+      <a name="contents">addr/data: 8 8
+0
+</a>
+    </tool>
+  </lib>
+  <lib desc="#I/O" name="5"/>
+  <main name="main"/>
+  <options>
+    <a name="gateUndefined" val="ignore"/>
+    <a name="simlimit" val="1000"/>
+    <a name="simrand" val="0"/>
+    <a name="tickmain" val="half_period"/>
+  </options>
+  <mappings>
+    <tool lib="8" map="Button2" name="Menu Tool"/>
+    <tool lib="8" map="Button3" name="Menu Tool"/>
+    <tool lib="8" map="Ctrl Button1" name="Menu Tool"/>
+  </mappings>
+  <toolbar>
+    <tool lib="8" name="Poke Tool"/>
+    <tool lib="8" name="Edit Tool"/>
+    <tool lib="8" name="Text Tool">
+      <a name="text" val=""/>
+      <a name="font" val="SansSerif plain 12"/>
+      <a name="halign" val="center"/>
+      <a name="valign" val="base"/>
+    </tool>
+    <sep/>
+    <tool lib="0" name="Pin"/>
+    <tool lib="0" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="labelloc" val="east"/>
+    </tool>
+    <tool lib="1" name="NOT Gate"/>
+    <tool lib="1" name="AND Gate"/>
+    <tool lib="1" name="OR Gate"/>
+  </toolbar>
+  <circuit name="main">
+    <a name="circuit" val="main"/>
+    <a name="clabel" val=""/>
+    <a name="clabelup" val="east"/>
+    <a name="clabelfont" val="SansSerif bold 16"/>
+    <a name="circuitnamedbox" val="true"/>
+    <a name="circuitvhdlpath" val=""/>
+    <wire from="(130,50)" to="(130,70)"/>
+    <wire from="(80,80)" to="(120,80)"/>
+    <wire from="(140,80)" to="(180,80)"/>
+    <comp lib="1" loc="(140,80)" name="Controlled Buffer">
+      <a name="control" val="left"/>
+    </comp>
+    <comp lib="0" loc="(180,80)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="O"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="0" loc="(80,80)" name="Pin">
+      <a name="label" val="A"/>
+    </comp>
+    <comp lib="0" loc="(130,50)" name="Pin">
+      <a name="facing" val="south"/>
+      <a name="label" val="en"/>
+    </comp>
+  </circuit>
+</project>
+)FILE";
 
 TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     auto circuit = std::make_unique<Circuit>();
@@ -432,5 +516,44 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
         pin_I4->change_data(truth_table[test_idx][3]);
         circuit->simulation_until_stable(5);
         REQUIRE(circuit->read_value(pin_O->pin(0)) == truth_table[test_idx][4]);
+    }
+}
+
+TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
+
+    // load circuit
+    auto circuit = std::make_unique<Circuit>();
+    REQUIRE(circuit);
+
+    REQUIRE(load_logisim(circuit.get(), logisim_tristate_data, std::strlen(logisim_tristate_data)));
+
+    // input pins
+    auto *pin_in = static_cast<Connector *> (circuit->component_by_name("A"));
+    REQUIRE(pin_in);
+
+    auto *pin_en = static_cast<Connector *> (circuit->component_by_name("en"));
+    REQUIRE(pin_en);
+
+    // output pins
+    auto pin_O = static_cast<Connector *> (circuit->component_by_name("O"));
+    REQUIRE(pin_O);
+
+    circuit->simulation_init();
+
+    Value truth_table[][3] = {
+        // in           en           out 
+        {VALUE_FALSE, VALUE_TRUE,  VALUE_FALSE},
+        {VALUE_FALSE, VALUE_FALSE, VALUE_UNDEFINED},
+        {VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE},
+        {VALUE_TRUE,  VALUE_FALSE, VALUE_UNDEFINED}
+    };
+
+    size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
+
+    for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
+        pin_in->change_data(truth_table[test_idx][0]);
+        pin_en->change_data(truth_table[test_idx][1]);
+        circuit->simulation_until_stable(5);
+        REQUIRE(circuit->read_value(pin_O->pin(0)) == truth_table[test_idx][2]);
     }
 }
