@@ -28,6 +28,7 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"
 )
 
 set (LIB_HEADERS
@@ -35,6 +36,7 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
 )
 
 add_library(${LIB_TARGET} STATIC ${LIB_SOURCES} ${LIB_HEADERS})

@@ -1,9 +1,14 @@
 #include "catch.hpp"
 #include "circuit.h"
+#include "simulator.h"
 #include "gate.h"
 
 TEST_CASE("Components are created correctly", "[circuit]") {
-    auto circuit = std::make_unique<Circuit>();
+
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto and_gate = circuit->create_component<AndGate>(2);

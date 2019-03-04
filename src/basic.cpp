@@ -5,21 +5,17 @@
 #include "basic.h"
 #include "circuit.h"
 #include <assert.h>
+#include <algorithm>
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // Component
 //
 
-Component::Component(Circuit *circuit, size_t pin_count) : m_circuit(circuit), m_dirty({false, false}) {
+Component::Component(Circuit *circuit, size_t pin_count) : m_circuit(circuit) {
     for (size_t i = 0; i < pin_count; ++i) {
         m_pins.push_back(circuit->create_pin(this));
     }
-}
-
-void Component::prepare() {
-    m_dirty[0] = m_dirty[1];
-    m_dirty[1] = false;
 }
 
 pin_t Component::pin(uint32_t index) {
@@ -28,10 +24,15 @@ pin_t Component::pin(uint32_t index) {
 }
 
 void Component::tick() {
-    if (m_dirty[0]) {
+    if (is_dirty()) {
         process();
-        m_dirty[0] = false;
     }
+}
+
+bool Component::is_dirty() const {
+    return std::any_of(std::begin(m_pins), std::end(m_pins),
+                       [=] (auto pin) {return m_circuit->value_changed(pin);}
+    );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -46,22 +47,23 @@ Connector::Connector(Circuit *circuit, size_t data_bits) :
     assert(data_bits > 0 && data_bits < 64);
 }
 
-void Connector::process() {
-    if (!m_changed) {
-        return;
+void Connector::tick() {
+    if (m_changed) {
+        process();
+        m_changed = false;
     }
+}
 
+void Connector::process() {
     for (auto idx = 0u; idx < m_pins.size(); ++idx) {
         int data = (m_data & (1 << idx)) >> idx;
         m_circuit->write_value(m_pins[idx], static_cast<Value>(data));
     }
-    m_changed = false;
 }
 
 void Connector::change_data(uint64_t data) {
     m_data = data;
     m_changed = true;
-    set_dirty();
 }
 
 #if 0

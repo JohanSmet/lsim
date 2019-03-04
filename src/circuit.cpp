@@ -1,14 +1,12 @@
 // circuit.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 
 #include "circuit.h"
+#include "simulator.h"
 #include <algorithm>
 #include <cassert>
 
-Circuit::Circuit() : 
-            m_read_idx(0), 
-            m_write_idx(1), 
-            m_sim_time(0),
-            m_next_node_id(0) {
+Circuit::Circuit(Simulator *sim) : 
+            m_sim(sim) {
 }
 
 pin_t Circuit::create_pin(Component *component) {
@@ -23,14 +21,11 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     const auto &node_a = m_pin_nodes[pin_a];
     const auto &node_b = m_pin_nodes[pin_b];
 
-
     // both pins not connected - create a new node
     if (node_a == NOT_CONNECTED && node_b == NOT_CONNECTED) {
-        auto node_id = create_node();
+        auto node_id = m_sim->assign_node();
         m_pin_nodes[pin_a] = node_id;
         m_pin_nodes[pin_b] = node_id;
-        m_node_pins[node_id].push_back(pin_a);
-        m_node_pins[node_id].push_back(pin_b);
         return;
     }
 
@@ -41,39 +36,17 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
             return;
         }
 
-        m_free_nodes.push_back(node_b);
+        m_sim->release_node(node_b);
         std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
-        for (auto pin : m_node_pins[node_b]) {
-            m_node_pins[node_a].push_back(pin);
-        }
-        m_node_pins[node_b].clear();
         return;
     }
 
     // one pin connected, the other node: add pin to node
     if (node_a == NOT_CONNECTED) {
         m_pin_nodes[pin_a] = node_b;
-        m_node_pins[node_b].push_back(pin_a);
     } else {
         m_pin_nodes[pin_b] = node_a;
-        m_node_pins[node_a].push_back(pin_b);
     }
-}
-
-node_t Circuit::create_node() {
-    if (!m_free_nodes.empty()) {
-        auto id = m_free_nodes.back();
-        m_free_nodes.pop_back();
-        return id;
-    }
-    
-    m_values[0].push_back(VALUE_UNDEFINED);
-    m_values[1].push_back(VALUE_UNDEFINED);
-    m_node_write_time.push_back(0);
-    m_node_change_time.push_back(0);
-    m_node_pins.push_back({});
-
-    return m_next_node_id++;
 }
 
 void Circuit::write_value(pin_t pin, Value value) {
@@ -82,19 +55,7 @@ void Circuit::write_value(pin_t pin, Value value) {
         return;
     }
 
-    assert(m_node_write_time[node_id] < m_sim_time);
-    if (m_values[m_write_idx][node_id] != value) {
-        m_values[m_write_idx][node_id] = value;
-        m_node_change_time[node_id] = m_sim_time;
-
-        for (auto i_pin : m_node_pins[node_id]) {
-            if (i_pin != pin) {
-                m_pins[i_pin]->set_dirty();
-            }
-        }
-    }
-
-    m_node_write_time[node_id] = m_sim_time;
+    m_sim->write_node(node_id, value);
 }
 
 Value Circuit::read_value(pin_t pin) {
@@ -102,7 +63,7 @@ Value Circuit::read_value(pin_t pin) {
     if (node_id == NOT_CONNECTED) {
         return VALUE_UNDEFINED;
     }
-    return m_values[m_read_idx][node_id];
+    return m_sim->read_node(node_id);
 }
 
 Value Circuit::read_value(pin_t pin, Value value_for_undefined) {
@@ -116,7 +77,12 @@ bool Circuit::value_changed(pin_t pin) {
         return false;
     }
 
-    return m_node_change_time[node_id] == m_sim_time;
+    return m_sim->node_changed_last_step(node_id);
+}
+
+node_t Circuit::pin_node(pin_t pin) const {
+    assert(pin < m_pin_nodes.size());
+    return m_pin_nodes[pin];
 }
 
 void Circuit::register_component_name(const std::string &name, Component *component) {
@@ -133,49 +99,8 @@ Component *Circuit::component_by_name(const std::string &name) {
     }
 }
 
-void Circuit::simulation_init() {
-    m_sim_time = 0;
-}
-
-void Circuit::simulation_tick() {
-    m_sim_time = m_sim_time + 1;
-
-    for (auto &component : m_components) {
-        component->prepare();
-    }
-
+void Circuit::process() {
     for (auto &component : m_components) {
         component->tick();
-    }
-
-    m_values[m_read_idx] = m_values[m_write_idx];
-    m_read_idx ^= 1;
-    m_write_idx ^= 1;
-}
-
-void Circuit::simulation_until_pin_change(pin_t pin) {
-    do {
-        simulation_tick();
-    } while (!value_changed(pin));
-}
-
-void Circuit::simulation_until_stable(int stable_ticks) {
-    bool stop = false;
-    bool stable;
-    auto remaining = stable_ticks;
-
-    while (!stop) {
-        simulation_tick();
-
-        bool stable = true;
-        for (auto node_change : m_node_change_time) {
-            stable &= node_change != m_sim_time;
-        }
-        
-        if (!stable) {
-            remaining = stable_ticks;
-        } else {
-            stop = --remaining == 0;
-        }
     }
 }

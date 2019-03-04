@@ -1,10 +1,14 @@
 #include "catch.hpp"
+#include "simulator.h"
 #include "circuit.h"
 #include "gate.h"
 
 TEST_CASE("Buffer", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>(8);
@@ -21,24 +25,24 @@ TEST_CASE("Buffer", "[gate]") {
         circuit->connect_pins(buffer->pin(idx + 8), out->pin(idx));
     }
 
-    circuit->simulation_init();
+    sim->init();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
 
     // buffer takes a cycle to change output
     in->change_data(VALUE_TRUE);
-    circuit->simulation_tick();
+    sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
-    circuit->simulation_tick();
+    sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(2)) == VALUE_FALSE);
 
     in->change_data(VALUE_TRUE << 2 | VALUE_FALSE);
-    circuit->simulation_tick();
+    sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(2)) == VALUE_FALSE);
-    circuit->simulation_tick();
+    sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(2)) == VALUE_TRUE);
@@ -46,7 +50,10 @@ TEST_CASE("Buffer", "[gate]") {
 
 TEST_CASE("TriStateBuffer", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>(2);
@@ -67,7 +74,7 @@ TEST_CASE("TriStateBuffer", "[gate]") {
         circuit->connect_pins(buffer->pin(idx + 3), out->pin(idx));
     }
 
-    circuit->simulation_init();
+    sim->init();
 
     Value truth_table[][5] = {
         // in[0]        in[1]         en          out[0]           out[1]
@@ -87,7 +94,7 @@ TEST_CASE("TriStateBuffer", "[gate]") {
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         in->change_data(truth_table[test_idx][0] | truth_table[test_idx][1] << 1);
         en->change_data(truth_table[test_idx][2]);
-        circuit->simulation_until_stable(5);
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == truth_table[test_idx][3]);
         REQUIRE(circuit->read_value(out->pin(1)) == truth_table[test_idx][4]);
     }
@@ -96,7 +103,10 @@ TEST_CASE("TriStateBuffer", "[gate]") {
 
 TEST_CASE("AndGate", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
@@ -110,14 +120,14 @@ TEST_CASE("AndGate", "[gate]") {
     auto out = circuit->create_component<Connector>(1);
     REQUIRE(out);
 
-    circuit->simulation_init();
+    sim->init();
     circuit->connect_pins(and_gate->pin(2), out->pin(0));
 
     SECTION("all inputs are false") {
         circuit->connect_pins(in_0->pin(0), and_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), and_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -125,7 +135,7 @@ TEST_CASE("AndGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), and_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), and_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -133,7 +143,7 @@ TEST_CASE("AndGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), and_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), and_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -141,14 +151,18 @@ TEST_CASE("AndGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), and_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), and_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
+        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 }
 
 TEST_CASE("OrGate", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
@@ -162,14 +176,14 @@ TEST_CASE("OrGate", "[gate]") {
     auto out = circuit->create_component<Connector>(1);
     REQUIRE(out);
 
-    circuit->simulation_init();
+    sim->init();
     circuit->connect_pins(or_gate->pin(2), out->pin(0));
 
     SECTION("all inputs are false") {
         circuit->connect_pins(in_0->pin(0), or_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), or_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -177,7 +191,7 @@ TEST_CASE("OrGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), or_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), or_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -185,7 +199,7 @@ TEST_CASE("OrGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), or_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), or_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -193,14 +207,17 @@ TEST_CASE("OrGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), or_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), or_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 }
 
 TEST_CASE("NotGate", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
@@ -214,27 +231,30 @@ TEST_CASE("NotGate", "[gate]") {
     auto out = circuit->create_component<Connector>(1);
     REQUIRE(out);
 
-    circuit->simulation_init();
+    sim->init();
     circuit->connect_pins(not_gate->pin(1), out->pin(0));
 
     SECTION("input is false") {
         circuit->connect_pins(in_0->pin(0), not_gate->pin(0));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
     SECTION("input is true") {
         circuit->connect_pins(in_1->pin(0), not_gate->pin(0));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 }
 
 TEST_CASE("NandGate", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
@@ -248,14 +268,14 @@ TEST_CASE("NandGate", "[gate]") {
     auto out = circuit->create_component<Connector>(1);
     REQUIRE(out);
 
-    circuit->simulation_init();
+    sim->init();
     circuit->connect_pins(nand_gate->pin(2), out->pin(0));
 
     SECTION("all inputs are false") {
         circuit->connect_pins(in_0->pin(0), nand_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), nand_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -263,7 +283,7 @@ TEST_CASE("NandGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), nand_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), nand_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -271,7 +291,7 @@ TEST_CASE("NandGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), nand_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), nand_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -279,14 +299,17 @@ TEST_CASE("NandGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), nand_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), nand_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 }
 
 TEST_CASE("NorGate", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
@@ -300,14 +323,14 @@ TEST_CASE("NorGate", "[gate]") {
     auto out = circuit->create_component<Connector>(1);
     REQUIRE(out);
 
-    circuit->simulation_init();
+    sim->init();
     circuit->connect_pins(nor_gate->pin(2), out->pin(0));
 
     SECTION("all inputs are false") {
         circuit->connect_pins(in_0->pin(0), nor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), nor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -315,7 +338,7 @@ TEST_CASE("NorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), nor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), nor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -323,7 +346,7 @@ TEST_CASE("NorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), nor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), nor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -331,14 +354,17 @@ TEST_CASE("NorGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), nor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), nor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 }
 
 TEST_CASE("XorGate", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
@@ -352,14 +378,14 @@ TEST_CASE("XorGate", "[gate]") {
     auto out = circuit->create_component<Connector>(1);
     REQUIRE(out);
 
-    circuit->simulation_init();
+    sim->init();
     circuit->connect_pins(xor_gate->pin(2), out->pin(0));
 
     SECTION("all inputs are false") {
         circuit->connect_pins(in_0->pin(0), xor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), xor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -367,7 +393,7 @@ TEST_CASE("XorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), xor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), xor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -375,7 +401,7 @@ TEST_CASE("XorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), xor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), xor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -383,14 +409,17 @@ TEST_CASE("XorGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), xor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), xor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 }
 
 TEST_CASE("XnorGate", "[gate]") {
 
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
@@ -404,14 +433,14 @@ TEST_CASE("XnorGate", "[gate]") {
     auto out = circuit->create_component<Connector>(1);
     REQUIRE(out);
 
-    circuit->simulation_init();
+    sim->init();
     circuit->connect_pins(xnor_gate->pin(2), out->pin(0));
 
     SECTION("all inputs are false") {
         circuit->connect_pins(in_0->pin(0), xnor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), xnor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -419,7 +448,7 @@ TEST_CASE("XnorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), xnor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), xnor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     }
 
@@ -427,7 +456,7 @@ TEST_CASE("XnorGate", "[gate]") {
         circuit->connect_pins(in_1->pin(0), xnor_gate->pin(0));
         circuit->connect_pins(in_0->pin(0), xnor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 
@@ -435,7 +464,7 @@ TEST_CASE("XnorGate", "[gate]") {
         circuit->connect_pins(in_0->pin(0), xnor_gate->pin(0));
         circuit->connect_pins(in_1->pin(0), xnor_gate->pin(1));
 
-        circuit->simulation_until_pin_change(out->pin(0));
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     }
 }

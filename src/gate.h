@@ -10,6 +10,7 @@
 class Constant : public Component {
 public:
     Constant(Circuit *circuit, size_t outputs, Value value);
+    virtual void tick();
     virtual void process();
 private:
     Value m_value;

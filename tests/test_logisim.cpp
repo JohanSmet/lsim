@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "load_logisim.h"
+#include "simulator.h"
 #include "circuit.h"
 
 #include <cstring>
@@ -393,10 +394,13 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
 )FILE";
 
 TEST_CASE ("Small Logisim Circuit", "[logisim]") {
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    REQUIRE(load_logisim(circuit.get(), logisim_test_data, std::strlen(logisim_test_data)));
+    REQUIRE(load_logisim(circuit, logisim_test_data, std::strlen(logisim_test_data)));
 
     auto in = circuit->component_by_name("In");
     REQUIRE(in);
@@ -405,17 +409,20 @@ TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     REQUIRE(out);
 
     static_cast<Connector *>(in)->change_data(VALUE_TRUE);
-    circuit->simulation_until_pin_change(out->pin(0));
+    sim->run_until_stable(5);
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
 }
 
 TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
 
     // load circuit
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    REQUIRE(load_logisim(circuit.get(), logisim_adder_data, std::strlen(logisim_adder_data)));
+    REQUIRE(load_logisim(circuit, logisim_adder_data, std::strlen(logisim_adder_data)));
 
     // input pins
     auto *pin_Ci = static_cast<Connector *> (circuit->component_by_name("Ci"));
@@ -453,7 +460,7 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
         pin_Ci->change_data(truth_table[test_idx][0]);
         pin_A->change_data(truth_table[test_idx][1]);
         pin_B->change_data(truth_table[test_idx][2]);
-        circuit->simulation_until_stable(5);
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(pin_Co->pin(0)) == truth_table[test_idx][3]);
         REQUIRE(circuit->read_value(pin_Sum->pin(0)) == truth_table[test_idx][4]);
     }
@@ -462,10 +469,13 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
 TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
 
     // load circuit
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    REQUIRE(load_logisim(circuit.get(), logisim_multi_data, std::strlen(logisim_multi_data)));
+    REQUIRE(load_logisim(circuit, logisim_multi_data, std::strlen(logisim_multi_data)));
 
     // input pins
     auto *pin_I1 = static_cast<Connector *> (circuit->component_by_name("I1"));
@@ -514,7 +524,7 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
         pin_I2->change_data(truth_table[test_idx][1]);
         pin_I3->change_data(truth_table[test_idx][2]);
         pin_I4->change_data(truth_table[test_idx][3]);
-        circuit->simulation_until_stable(5);
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(pin_O->pin(0)) == truth_table[test_idx][4]);
     }
 }
@@ -522,10 +532,13 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
 TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
 
     // load circuit
-    auto circuit = std::make_unique<Circuit>();
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    REQUIRE(load_logisim(circuit.get(), logisim_tristate_data, std::strlen(logisim_tristate_data)));
+    REQUIRE(load_logisim(circuit, logisim_tristate_data, std::strlen(logisim_tristate_data)));
 
     // input pins
     auto *pin_in = static_cast<Connector *> (circuit->component_by_name("A"));
@@ -538,7 +551,7 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
     auto pin_O = static_cast<Connector *> (circuit->component_by_name("O"));
     REQUIRE(pin_O);
 
-    circuit->simulation_init();
+    sim->init();
 
     Value truth_table[][3] = {
         // in           en           out 
@@ -553,7 +566,7 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         pin_in->change_data(truth_table[test_idx][0]);
         pin_en->change_data(truth_table[test_idx][1]);
-        circuit->simulation_until_stable(5);
+        sim->run_until_stable(5);
         REQUIRE(circuit->read_value(pin_O->pin(0)) == truth_table[test_idx][2]);
     }
 }

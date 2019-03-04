@@ -39,22 +39,23 @@ public:
     pin_t pin(uint32_t index);
     size_t num_pins() const {return m_pins.size();}
 
-    virtual void prepare();
     virtual void tick();
     virtual void process() = 0;
 
-    void set_dirty() {m_dirty[1] = true;}
+private:
+    bool is_dirty() const;
 
 protected:
     Circuit *m_circuit;
     std::vector<pin_t>  m_pins;
-    std::array<bool, 2> m_dirty;
 };
 
 // connector - I/O between circuits
 class Connector : public Component {
 public:
     Connector(Circuit *circuit, size_t data_bits);
+
+    virtual void tick();
     virtual void process();
 
     void change_data(uint64_t data);

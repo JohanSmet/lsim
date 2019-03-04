@@ -11,6 +11,7 @@
 #include "basic.h"
 
 class Component;
+class Simulator;
 
 const node_t NOT_CONNECTED = (node_t) -1;
 
@@ -23,7 +24,7 @@ typedef uint64_t sim_timestamp_t;
 
 class Circuit {
 public:
-    Circuit();
+    Circuit(Simulator *sim);
 
     pin_t create_pin(Component *component);
     void connect_pins(pin_t pin_a, pin_t pin_b);
@@ -33,6 +34,7 @@ public:
     Value read_value(pin_t pin, Value value_for_undefined);
 
     bool value_changed(pin_t pin);
+    node_t pin_node(pin_t pin) const;
 
     template<typename T, typename... Args>
     inline T *create_component(Args&&... args) {
@@ -44,29 +46,13 @@ public:
     void register_component_name(const std::string &name, Component *component);
     Component *component_by_name(const std::string &name);
 
-    void simulation_init();
-    void simulation_tick();
-    void simulation_until_pin_change(pin_t pin);
-    void simulation_until_stable(int stable_ticks);
+    void process();
 
 private:
-    node_t create_node();
+    Simulator *m_sim;
 
-private:
     std::vector<Component *>        m_pins;
     std::vector<node_t>             m_pin_nodes;
-    std::vector<pin_container_t>    m_node_pins;
-
-    node_t m_next_node_id;
-    std::vector<node_t>             m_free_nodes;
-
-    std::array<value_container_t, 2>  m_values;
-    std::vector<sim_timestamp_t>      m_node_write_time;
-    std::vector<sim_timestamp_t>      m_node_change_time;
-    int m_read_idx;
-    int m_write_idx;
-
-    sim_timestamp_t                 m_sim_time;
 
     component_container_t           m_components;
     component_name_lut_t            m_component_name_lut;
