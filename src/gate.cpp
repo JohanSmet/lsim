@@ -11,11 +11,10 @@
 // constant
 //
 
-Constant::Constant(Circuit *circuit, size_t outputs, Value value) : 
-            Component(circuit, outputs),
+Constant::Constant(Circuit *circuit, Value value) : 
+            Component(circuit, 1),
             m_value(value) {
     assert(circuit);
-    assert(outputs >= 1);
 }
 
 void Constant::tick() {
@@ -23,9 +22,7 @@ void Constant::tick() {
 }
 
 void Constant::process() {
-    for (const auto &pin : m_pins) {
-        m_circuit->write_value(pin, m_value);
-    }
+    m_circuit->write_value(m_pins[0], m_value);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

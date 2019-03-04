@@ -109,9 +109,9 @@ TEST_CASE("AndGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(in_1);
 
     auto and_gate = circuit->create_component<AndGate>(2);
@@ -165,9 +165,9 @@ TEST_CASE("OrGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(in_1);
 
     auto or_gate = circuit->create_component<OrGate>(2);
@@ -220,9 +220,9 @@ TEST_CASE("NotGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(in_1);
 
     auto not_gate = circuit->create_component<NotGate>();
@@ -257,9 +257,9 @@ TEST_CASE("NandGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(in_1);
 
     auto nand_gate = circuit->create_component<NandGate>(2);
@@ -312,9 +312,9 @@ TEST_CASE("NorGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(in_1);
 
     auto nor_gate = circuit->create_component<NorGate>(2);
@@ -367,9 +367,9 @@ TEST_CASE("XorGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(in_1);
 
     auto xor_gate = circuit->create_component<XorGate>();
@@ -422,9 +422,9 @@ TEST_CASE("XnorGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(1, VALUE_FALSE);
+    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(1, VALUE_TRUE);
+    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(in_1);
 
     auto xnor_gate = circuit->create_component<XnorGate>();
