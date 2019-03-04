@@ -118,6 +118,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     comp_props.m_facing = LS_EAST;
     comp_props.m_inputs = 2;
     bool tristate_left = false;
+    Value constant_val = VALUE_TRUE;
 
     if (!parse_location(comp_loc, comp_props.m_location)) {
         return false;
@@ -137,6 +138,8 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
             comp_props.m_inputs = std::stoi(prop_val);
         } else if (prop_name == "control") {
             tristate_left = (prop_val == "left");
+        } else if (prop_name == "value") {
+            constant_val = (prop_val == "0x0") ? VALUE_FALSE : VALUE_TRUE;
         }
     }
 
@@ -147,6 +150,9 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     } else if (comp_type == "Controlled Buffer") {
         component = m_circuit->create_component<TriStateBuffer>(1);
         handle_buffer(component, comp_props, true, tristate_left);
+    } else if (comp_type == "Constant") {
+        component = m_circuit->create_component<Constant>(constant_val);
+        add_pin_location(component->pin(0), comp_props.m_location);
     } else if (comp_type == "Pin") {
         component = m_circuit->create_component<Connector>(1);
         add_pin_location(component->pin(0), comp_props.m_location);
