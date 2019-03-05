@@ -9,10 +9,10 @@ Circuit::Circuit(Simulator *sim) :
             m_sim(sim) {
 }
 
-pin_t Circuit::create_pin(Component *component) {
+pin_t Circuit::create_pin(Component *component, node_t connected_to) {
     auto len = m_pins.size();
     m_pins.push_back(component);
-    m_pin_nodes.push_back(NOT_CONNECTED);
+    m_pin_nodes.push_back(connected_to);
     return len;
 }
 
@@ -49,13 +49,17 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     }
 }
 
+void Circuit::add_interface_pin(const char *name, pin_t pin) {
+    m_interface_pins.push_back({name, pin});
+}
+
 void Circuit::write_value(pin_t pin, Value value) {
     auto node_id = m_pin_nodes[pin];
     if (node_id == NOT_CONNECTED) {
         return;
     }
 
-    m_sim->write_node(node_id, value);
+   m_sim->write_node(node_id, value);
 }
 
 Value Circuit::read_value(pin_t pin) {
@@ -85,6 +89,18 @@ node_t Circuit::pin_node(pin_t pin) const {
     return m_pin_nodes[pin];
 }
 
+CircuitComponent *Circuit::integrate_circuit(Circuit *sub) {
+    auto comp = create_component<CircuitComponent>(sub);
+
+    for (const auto &ipin : sub->m_interface_pins) {
+        const auto &sub_pin = std::get<1>(ipin);
+        const auto &sub_name = std::get<0>(ipin);
+        comp->add_pin(create_pin(comp, sub->m_pin_nodes[sub_pin]), sub_name.c_str());
+    }
+
+    return comp;
+}
+
 void Circuit::register_component_name(const std::string &name, Component *component) {
     assert(component);
     m_component_name_lut[name] = component;
@@ -103,4 +119,30 @@ void Circuit::process() {
     for (auto &component : m_components) {
         component->tick();
     }
+}
+
+CircuitComponent::CircuitComponent(Circuit *parent, Circuit *nested) : 
+                        Component(parent, 0),
+                        m_nested(nested) {
+}
+
+void CircuitComponent::add_pin(pin_t pin, const char *name) {
+    m_pins.push_back(pin);
+    if (name) {
+        m_interface_pins[std::string(name)] = pin;
+    }
+}
+
+pin_t CircuitComponent::interface_pin_by_name(const char *name) {
+    auto res = m_interface_pins.find(name);
+
+    if (res != std::end(m_interface_pins)) {    
+        return res->second;
+    } else {
+        return PIN_UNDEFINED;
+    }
+}
+
+void CircuitComponent::process() {
+    m_nested->process();
 }

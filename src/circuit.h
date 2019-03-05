@@ -8,10 +8,12 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
+#include <tuple>
+
 #include "basic.h"
 
-class Component;
 class Simulator;
+class CircuitComponent;
 
 const node_t NOT_CONNECTED = (node_t) -1;
 
@@ -26,8 +28,10 @@ class Circuit {
 public:
     Circuit(Simulator *sim);
 
-    pin_t create_pin(Component *component);
+    pin_t create_pin(Component *component, node_t connected_to = NOT_CONNECTED);
     void connect_pins(pin_t pin_a, pin_t pin_b);
+
+    void add_interface_pin(const char *name, pin_t pin);
 
     void write_value(pin_t pin, Value value);
     Value read_value(pin_t pin);
@@ -43,19 +47,41 @@ public:
         m_components.push_back(std::move(comp));
         return raw;
     }
+
+    CircuitComponent *integrate_circuit(Circuit *sub);
+
     void register_component_name(const std::string &name, Component *component);
     Component *component_by_name(const std::string &name);
 
     void process();
 
 private:
+    typedef std::tuple<std::string, pin_t>  interface_pin_t;
+    typedef std::vector<interface_pin_t>    interface_pin_container_t;
+
+private:
     Simulator *m_sim;
 
-    std::vector<Component *>        m_pins;
-    std::vector<node_t>             m_pin_nodes;
+    std::vector<Component *>    m_pins;
+    std::vector<node_t>         m_pin_nodes;
+    interface_pin_container_t   m_interface_pins;
 
-    component_container_t           m_components;
-    component_name_lut_t            m_component_name_lut;
+    component_container_t       m_components;
+    component_name_lut_t        m_component_name_lut;
+
+};
+
+class CircuitComponent : public Component {
+public: 
+    CircuitComponent(Circuit *parent, Circuit *nested);
+    void add_pin(pin_t pin, const char *name = nullptr);
+    pin_t interface_pin_by_name(const char *name);
+    void process();
+private:
+    typedef std::unordered_map<std::string, pin_t> named_pin_map_t;
+private:
+    class Circuit *m_nested;
+    named_pin_map_t m_interface_pins;
 };
 
 

@@ -46,6 +46,14 @@ Connector::Connector(Circuit *circuit, const char *name, size_t data_bits) :
             m_changed(false),
             m_name(name) {
     assert(data_bits > 0 && data_bits < 64);
+
+    if (data_bits == 1) {
+        circuit->add_interface_pin(name, m_pins[0]);
+    } else {
+        for (size_t idx = 0; idx < data_bits; ++idx) {
+            circuit->add_interface_pin((std::string(name) + "[" + std::to_string(idx) + "]").c_str(), m_pins[idx]);
+        }
+    }
 }
 
 void Connector::tick() {
