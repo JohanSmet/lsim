@@ -8,6 +8,7 @@
 
 Simulator::Simulator() : 
             m_time(0),
+            m_main_circuit(nullptr),
             m_read_idx(0),
             m_write_idx(1) {
 
@@ -16,6 +17,10 @@ Simulator::Simulator() :
 Circuit *Simulator::create_circuit() {
     m_circuits.push_back(std::make_unique<Circuit>(this));
     return m_circuits.back().get();
+}
+
+void Simulator::set_main_circuit(Circuit *main) {
+    m_main_circuit = main;
 }
 
 node_t Simulator::assign_node() {
@@ -77,14 +82,18 @@ void Simulator::init() {
     std::fill(std::begin(m_node_write_time), std::end(m_node_write_time), 0);
     std::fill(std::begin(m_node_change_time[0]), std::end(m_node_change_time[0]), 0);
     std::fill(std::begin(m_node_change_time[1]), std::end(m_node_change_time[1]), 0);
+
+    if (!m_main_circuit && !m_circuits.empty()) {
+        m_main_circuit = m_circuits.front().get();
+    }
 }
 
 void Simulator::step() {
+    assert(m_main_circuit);
+
     m_time = m_time + 1;
 
-    for (auto &circuit : m_circuits) {
-        circuit->process();
-    }
+    m_main_circuit->process();
 
     m_node_values[m_read_idx] = m_node_values[m_write_idx];
     m_node_change_time[m_read_idx] = m_node_change_time[m_write_idx];

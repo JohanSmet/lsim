@@ -21,6 +21,7 @@ public:
 
     // circuits
     Circuit *create_circuit();
+    void set_main_circuit(Circuit *main);
 
     // nodes
     node_t assign_node();
@@ -50,6 +51,7 @@ private:
     timestamp_t             m_time;
 
     circuit_container_t     m_circuits;
+    Circuit *               m_main_circuit;
 
     node_container_t                    m_free_nodes;
     std::array<value_container_t,2>     m_node_values;

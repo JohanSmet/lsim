@@ -408,6 +408,7 @@ TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     auto out = circuit->component_by_name("Out");
     REQUIRE(out);
 
+    sim->init();
     static_cast<Connector *>(in)->change_data(VALUE_TRUE);
     sim->run_until_stable(5);
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
@@ -455,6 +456,8 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
     };
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
+
+    sim->init();
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         pin_Ci->change_data(truth_table[test_idx][0]);
@@ -519,6 +522,8 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
 
+    sim->init();
+
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         pin_I1->change_data(truth_table[test_idx][0]);
         pin_I2->change_data(truth_table[test_idx][1]);
@@ -551,8 +556,6 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
     auto pin_O = static_cast<Connector *> (circuit->component_by_name("O"));
     REQUIRE(pin_O);
 
-    sim->init();
-
     Value truth_table[][3] = {
         // in           en           out 
         {VALUE_FALSE, VALUE_TRUE,  VALUE_FALSE},
@@ -562,6 +565,8 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
     };
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
+
+    sim->init();
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         pin_in->change_data(truth_table[test_idx][0]);
