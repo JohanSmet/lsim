@@ -17,7 +17,7 @@ TEST_CASE("Components are created correctly", "[circuit]") {
     auto constant = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(constant);
 
-    auto connector = circuit->create_component<Connector>(1);
+    auto connector = circuit->create_component<Connector>("Test", 1);
     REQUIRE(connector);
 }
 

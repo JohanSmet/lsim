@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <vector>
 #include <array>
+#include <string>
 
 class Circuit;
 
@@ -53,7 +54,7 @@ protected:
 // connector - I/O between circuits
 class Connector : public Component {
 public:
-    Connector(Circuit *circuit, size_t data_bits);
+    Connector(Circuit *circuit, const char *name, size_t data_bits);
 
     virtual void tick();
     virtual void process();
@@ -61,8 +62,9 @@ public:
     void change_data(uint64_t data);
 
 private: 
-    uint64_t m_data;
-    bool     m_changed;
+    uint64_t    m_data;
+    bool        m_changed;
+    std::string m_name;
 };
 
 

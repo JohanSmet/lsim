@@ -40,10 +40,11 @@ bool Component::is_dirty() const {
 // Connection - I/O between circuits
 //
 
-Connector::Connector(Circuit *circuit, size_t data_bits) : 
+Connector::Connector(Circuit *circuit, const char *name, size_t data_bits) : 
             Component(circuit, data_bits),
             m_data(0),
-            m_changed(false) {
+            m_changed(false),
+            m_name(name) {
     assert(data_bits > 0 && data_bits < 64);
 }
 
