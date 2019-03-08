@@ -7,69 +7,69 @@
 
 #include "basic.h"
 
-class Constant : public Component {
+class Constant : public CloneComponent<Constant> {
 public:
-    Constant(Circuit *circuit, Value value);
+    Constant(Value value);
     virtual void tick();
     virtual void process();
 private:
     Value m_value;
 };
 
-class Buffer : public Component {
+class Buffer : public CloneComponent<Buffer> {
 public:
-    Buffer(Circuit *circuit, size_t data_bits);
+    Buffer(size_t data_bits);
     virtual void process();
 };
 
-class TriStateBuffer : public Component {
+class TriStateBuffer : public CloneComponent<TriStateBuffer> {
 public:
-    TriStateBuffer(Circuit *circuit, size_t data_bits);
+    TriStateBuffer(size_t data_bits);
     virtual void process();
     pin_t enable_pin() const {return m_pins[m_enable_idx];}
 private:
     size_t  m_enable_idx;
 };
 
-class AndGate : public Component {
+class AndGate : public CloneComponent<AndGate> {
 public:
-    AndGate(Circuit *circuit, size_t num_inputs);
+    AndGate(size_t num_inputs);
     virtual void process();
 };
 
-class OrGate : public Component {
+class OrGate : public CloneComponent<OrGate> {
 public:
-    OrGate(Circuit *circuit, size_t num_inputs);
+    OrGate(size_t num_inputs);
     virtual void process();
 };
 
-class NotGate : public Component {
+class NotGate : public CloneComponent<NotGate> {
 public:
-    NotGate(Circuit *circuit);
+    NotGate();
     virtual void process();
 };
 
-class NandGate : public Component {
+class NandGate : public CloneComponent<NandGate> {
 public:
-    NandGate(Circuit *circuit, size_t num_inputs);
+    NandGate(size_t num_inputs);
     virtual void process();
 };
 
-class NorGate : public Component {
+class NorGate : public CloneComponent<NorGate> {
 public:
-    NorGate(Circuit *circuit, size_t num_inputs);
+    NorGate(size_t num_inputs);
     virtual void process();
 };
 
-class XorGate : public Component {
+class XorGate : public CloneComponent<XorGate> {
 public:
-    XorGate(Circuit *circuit);
+    XorGate();
     virtual void process();
 };
 
-class XnorGate : public Component {
+class XnorGate : public CloneComponent<XnorGate> {
 public:
-    XnorGate(Circuit *circuit);
+    XnorGate();
     virtual void process();
 };
 

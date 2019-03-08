@@ -39,13 +39,15 @@ public:
 
     template<typename T, typename... Args>
     inline T *create_component(Args&&... args) {
-        auto comp = std::make_unique<T>(this, std::forward<Args>(args)...);
+        auto comp = std::make_unique<T>(std::forward<Args>(args)...);
+        comp->materialize(this);
         auto raw = comp.get();
         m_components.push_back(std::move(comp));
         return raw;
     }
 
     CircuitComponent *integrate_circuit(Circuit *sub);
+    std::unique_ptr<Circuit> clone() const;
 
     void register_component_name(const std::string &name, Component *component);
     Component *component_by_name(const std::string &name);
@@ -68,12 +70,15 @@ private:
 
 };
 
-class CircuitComponent : public Component {
+class CircuitComponent : public CloneComponent<CircuitComponent> {
 public: 
-    CircuitComponent(Circuit *parent, Circuit *nested);
+    CircuitComponent(Circuit *nested);
     void add_pin(pin_t pin, const char *name = nullptr);
     pin_t interface_pin_by_name(const char *name);
-    void process();
+
+
+    void tick() override;
+    void process() override;
 private:
     typedef std::unordered_map<std::string, pin_t> named_pin_map_t;
 private:

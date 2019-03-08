@@ -11,10 +11,9 @@
 // constant
 //
 
-Constant::Constant(Circuit *circuit, Value value) : 
-            Component(circuit, 1),
+Constant::Constant(Value value) : 
+            CloneComponent(1),
             m_value(value) {
-    assert(circuit);
 }
 
 void Constant::tick() {
@@ -30,8 +29,7 @@ void Constant::process() {
 // Buffer
 //
 
-Buffer::Buffer(Circuit *circuit, size_t data_bits) : Component(circuit, data_bits * 2) {
-    assert(circuit);
+Buffer::Buffer(size_t data_bits) : CloneComponent(data_bits * 2) {
     assert(data_bits >= 1);
 }
 
@@ -49,10 +47,9 @@ void Buffer::process() {
 // TriStateBuffer
 //
 
-TriStateBuffer::TriStateBuffer(Circuit *circuit, size_t data_bits) : 
-                    Component(circuit, 1 + (data_bits * 2)),
+TriStateBuffer::TriStateBuffer(size_t data_bits) : 
+                    CloneComponent(1 + (data_bits * 2)),
                     m_enable_idx(data_bits) {
-    assert(circuit);
     assert(data_bits >= 1);
 }
 
@@ -77,8 +74,7 @@ void TriStateBuffer::process() {
 // AND gate
 //
 
-AndGate::AndGate(Circuit *circuit, size_t num_inputs) : Component(circuit, num_inputs + 1) {
-    assert(circuit);
+AndGate::AndGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
     assert(num_inputs >= 2);
 }
 
@@ -95,8 +91,7 @@ void AndGate::process() {
 // OR gate
 //
 
-OrGate::OrGate(Circuit *circuit, size_t num_inputs) : Component(circuit, num_inputs + 1) {
-    assert(circuit);
+OrGate::OrGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
     assert(num_inputs >= 2);
 }
 
@@ -113,8 +108,7 @@ void OrGate::process() {
 // NOT gate
 //
 
-NotGate::NotGate(Circuit *circuit) : Component(circuit, 2) {
-    assert(circuit);
+NotGate::NotGate() : CloneComponent(2) {
 }
 
 void NotGate::process() {
@@ -127,8 +121,7 @@ void NotGate::process() {
 // NAND gate
 //
 
-NandGate::NandGate(Circuit *circuit, size_t num_inputs) : Component(circuit, num_inputs + 1) {
-    assert(circuit);
+NandGate::NandGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
     assert(num_inputs >= 2);
 }
 
@@ -145,8 +138,7 @@ void NandGate::process() {
 // NOR gate
 //
 
-NorGate::NorGate(Circuit *circuit, size_t num_inputs) : Component(circuit, num_inputs + 1) {
-    assert(circuit);
+NorGate::NorGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
     assert(num_inputs >= 2);
 }
 
@@ -163,8 +155,7 @@ void NorGate::process() {
 // XOR gate
 //
 
-XorGate::XorGate(Circuit *circuit) : Component(circuit, 2 + 1) {
-    assert(circuit);
+XorGate::XorGate() : CloneComponent(2 + 1) {
 }
 
 void XorGate::process() {
@@ -178,8 +169,7 @@ void XorGate::process() {
 // XNOR gate
 //
 
-XnorGate::XnorGate(Circuit *circuit) : Component(circuit, 2 + 1) {
-    assert(circuit);
+XnorGate::XnorGate() : CloneComponent(2 + 1) {
 }
 
 void XnorGate::process() {

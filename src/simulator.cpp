@@ -19,6 +19,12 @@ Circuit *Simulator::create_circuit() {
     return m_circuits.back().get();
 }
 
+Circuit *Simulator::clone_circuit(Circuit *circuit) {
+    assert(circuit);
+    m_circuits.push_back(circuit->clone());
+    return m_circuits.back().get();
+}
+
 void Simulator::set_main_circuit(Circuit *main) {
     m_main_circuit = main;
 }

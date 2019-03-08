@@ -52,6 +52,45 @@ CircuitComponent *Circuit::integrate_circuit(Circuit *sub) {
     return comp;
 }
 
+std::unique_ptr<Circuit> Circuit::clone() const {
+    auto new_circuit = std::make_unique<Circuit>(m_sim);
+
+    std::unordered_map<Component *, Component *>    component_map;
+
+    // components
+    for (const auto &comp : m_components) { 
+        auto new_comp = comp->clone();
+        new_comp->materialize(new_circuit.get());
+        component_map[comp.get()] = new_comp.get();
+        new_circuit->m_components.push_back(std::move(new_comp));
+    }
+
+    // component - names
+    for (const auto &entry : m_component_name_lut) {
+        new_circuit->register_component_name(
+                entry.first,
+                component_map.find(entry.second)->second);
+    }
+
+    // connections
+    std::unordered_map<node_t, node_t> node_map;
+
+    for (size_t idx = 0; idx < m_pins.size(); ++idx) {
+        auto old_node = m_sim->pin_node(m_pins[idx]);
+
+        auto res = node_map.find(old_node);
+        if (res != std::end(node_map)) {
+            m_sim->pin_set_node(new_circuit->m_pins[idx], res->second);
+        } else {
+            auto new_node = m_sim->assign_node();
+            m_sim->pin_set_node(new_circuit->m_pins[idx], new_node);
+            node_map[old_node] = new_node;
+        }
+    }
+
+    return std::move(new_circuit);
+}
+
 void Circuit::register_component_name(const std::string &name, Component *component) {
     assert(component);
     m_component_name_lut[name] = component;
@@ -72,8 +111,8 @@ void Circuit::process() {
     }
 }
 
-CircuitComponent::CircuitComponent(Circuit *parent, Circuit *nested) : 
-                        Component(parent, 0),
+CircuitComponent::CircuitComponent(Circuit *nested) : 
+                        CloneComponent(0),
                         m_nested(nested) {
 }
 
@@ -92,6 +131,11 @@ pin_t CircuitComponent::interface_pin_by_name(const char *name) {
     } else {
         return PIN_UNDEFINED;
     }
+}
+
+void CircuitComponent::tick() {
+    // FIXME: check why is_dirty() check doesn't seem to work
+    process();
 }
 
 void CircuitComponent::process() {

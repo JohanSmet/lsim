@@ -9,6 +9,7 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <memory>
 
 class Circuit;
 
@@ -16,6 +17,7 @@ typedef uint32_t pin_t;
 typedef uint32_t node_t;
 
 const pin_t PIN_UNDEFINED = static_cast<pin_t>(-1);
+const node_t NOT_CONNECTED = (node_t) -1;
 
 enum Value {
     VALUE_FALSE         = 0,
@@ -35,10 +37,15 @@ inline Value negate_value(Value input) {
 
 class Component {
 public:
-    Component(Circuit *circuit, size_t pin_count);
+    Component(size_t pin_count);
+    Component(const Component &other);
+
+    virtual void materialize(Circuit *circuit);
 
     pin_t pin(uint32_t index);
     size_t num_pins() const {return m_pins.size();}
+
+    virtual std::unique_ptr<Component> clone() const = 0;
 
     virtual void tick();
     virtual void process() = 0;
@@ -48,13 +55,26 @@ private:
 
 protected:
     Circuit *m_circuit;
+    size_t m_pin_count;
     std::vector<pin_t>  m_pins;
 };
 
-// connector - I/O between circuits
-class Connector : public Component {
+template <class Derived>
+class CloneComponent : public Component {
 public:
-    Connector(Circuit *circuit, const char *name, size_t data_bits);
+    CloneComponent(size_t pin_count) : Component(pin_count) {
+    }
+
+    std::unique_ptr<Component> clone() const override {
+        return std::unique_ptr<Component>(new Derived(static_cast<Derived const &>(*this)));
+    }
+};
+
+// connector - I/O between circuits
+class Connector : public CloneComponent<Connector> {
+public:
+    Connector(const char *name, size_t data_bits);
+    void materialize(Circuit *circuit) override;
 
     virtual void tick();
     virtual void process();

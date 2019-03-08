@@ -12,8 +12,20 @@
 // Component
 //
 
-Component::Component(Circuit *circuit, size_t pin_count) : m_circuit(circuit) {
-    for (size_t i = 0; i < pin_count; ++i) {
+Component::Component(size_t pin_count) : 
+                m_circuit(nullptr),
+                m_pin_count(pin_count) {
+}
+
+Component::Component(const Component &other) : 
+                m_circuit(nullptr),
+                m_pin_count(other.m_pin_count) {
+}
+
+void Component::materialize(Circuit *circuit) {
+    m_circuit = circuit;
+
+    for (size_t i = 0; i < m_pin_count; ++i) {
         m_pins.push_back(circuit->create_pin(this));
     }
 }
@@ -40,20 +52,26 @@ bool Component::is_dirty() const {
 // Connection - I/O between circuits
 //
 
-Connector::Connector(Circuit *circuit, const char *name, size_t data_bits) : 
-            Component(circuit, data_bits),
+Connector::Connector(const char *name, size_t data_bits) : 
+            CloneComponent(data_bits),
             m_data(0),
             m_changed(false),
             m_name(name) {
     assert(data_bits > 0 && data_bits < 64);
+}
 
-    if (data_bits == 1) {
-        circuit->add_interface_pin(name, m_pins[0]);
+void Connector::materialize(Circuit *circuit) {
+    Component::materialize(circuit);
+
+    if (m_pin_count == 1) {
+        circuit->add_interface_pin(m_name.c_str(), m_pins[0]);
     } else {
-        for (size_t idx = 0; idx < data_bits; ++idx) {
-            circuit->add_interface_pin((std::string(name) + "[" + std::to_string(idx) + "]").c_str(), m_pins[idx]);
+        for (size_t idx = 0; idx < m_pin_count; ++idx) {
+            circuit->add_interface_pin((m_name + "[" + std::to_string(idx) + "]").c_str(), m_pins[idx]);
         }
     }
+
+    circuit->register_component_name(m_name, this);
 }
 
 void Connector::tick() {
