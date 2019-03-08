@@ -15,20 +15,18 @@
 class Simulator;
 class CircuitComponent;
 
-const node_t NOT_CONNECTED = (node_t) -1;
 
 typedef std::vector<Value> value_container_t;
 typedef std::vector<bool> bool_container_t;
 typedef std::vector<std::unique_ptr<Component>> component_container_t;
 typedef std::unordered_map<std::string, Component *> component_name_lut_t;
-typedef std::vector<pin_t> pin_container_t;
 typedef uint64_t sim_timestamp_t;
 
 class Circuit {
 public:
     Circuit(Simulator *sim);
 
-    pin_t create_pin(Component *component, node_t connected_to = NOT_CONNECTED);
+    pin_t create_pin(Component *component, pin_t connect_to_pin = PIN_UNDEFINED);
     void connect_pins(pin_t pin_a, pin_t pin_b);
 
     void add_interface_pin(const char *name, pin_t pin);
@@ -38,7 +36,6 @@ public:
     Value read_value(pin_t pin, Value value_for_undefined);
 
     bool value_changed(pin_t pin);
-    node_t pin_node(pin_t pin) const;
 
     template<typename T, typename... Args>
     inline T *create_component(Args&&... args) {
@@ -58,12 +55,12 @@ public:
 private:
     typedef std::tuple<std::string, pin_t>  interface_pin_t;
     typedef std::vector<interface_pin_t>    interface_pin_container_t;
+    typedef std::vector<pin_t>              pin_container_t;
 
 private:
     Simulator *m_sim;
 
-    std::vector<Component *>    m_pins;
-    std::vector<node_t>         m_pin_nodes;
+    pin_container_t             m_pins;
     interface_pin_container_t   m_interface_pins;
 
     component_container_t       m_components;

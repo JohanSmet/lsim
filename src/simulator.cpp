@@ -23,6 +23,93 @@ void Simulator::set_main_circuit(Circuit *main) {
     m_main_circuit = main;
 }
 
+pin_t Simulator::assign_pin(node_t connect_to_pin) {
+    node_t connect_to = NOT_CONNECTED;
+    if (connect_to_pin != PIN_UNDEFINED && connect_to_pin < m_pin_nodes.size()) {
+        connect_to = m_pin_nodes[connect_to_pin];
+    }
+
+    auto result = m_pin_nodes.size();
+    m_pin_nodes.push_back(connect_to);
+    return result;
+}
+
+void Simulator::connect_pins(pin_t pin_a, pin_t pin_b) {
+    const auto &node_a = m_pin_nodes[pin_a];
+    const auto &node_b = m_pin_nodes[pin_b];
+
+    // both pins not connected - create a new node
+    if (node_a == NOT_CONNECTED && node_b == NOT_CONNECTED) {
+        auto node_id = assign_node();
+        m_pin_nodes[pin_a] = node_id;
+        m_pin_nodes[pin_b] = node_id;
+        return;
+    }
+
+    // both pins connected - merge node b into node a
+    if (node_a != NOT_CONNECTED && node_b != NOT_CONNECTED) {
+        if (node_a == node_b) {
+            // pins already connected to each other
+            return;
+        }
+
+        release_node(node_b);
+        std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
+        return;
+    }
+
+    // one pin connected, the other node: add pin to node
+    if (node_a == NOT_CONNECTED) {
+        m_pin_nodes[pin_a] = node_b;
+    } else {
+        m_pin_nodes[pin_b] = node_a;
+    }
+}
+
+bool Simulator::write_pin(pin_t pin, Value value) {
+    assert(pin < m_pin_nodes.size());
+
+    auto node_id = m_pin_nodes[pin];
+    if (node_id == NOT_CONNECTED) {
+        return false;
+    }
+
+    return write_node(node_id, value);
+}
+
+Value Simulator::read_pin(pin_t pin) const {
+    assert(pin < m_pin_nodes.size());
+
+    auto node_id = m_pin_nodes[pin];
+    if (node_id == NOT_CONNECTED) {
+        return VALUE_UNDEFINED;
+    }
+
+    return read_node(node_id);
+}
+
+bool Simulator::pin_changed_last_step(pin_t pin) const {
+    assert(pin < m_pin_nodes.size());
+
+    auto node_id = m_pin_nodes[pin];
+    if (node_id == NOT_CONNECTED) {
+        return VALUE_UNDEFINED;
+    }
+
+    return node_changed_last_step(node_id);
+}
+
+node_t Simulator::pin_node(pin_t pin) {
+    assert(pin < m_pin_nodes.size());
+    return m_pin_nodes[pin];
+}
+
+void Simulator::pin_set_node(pin_t pin, node_t node) {
+    assert(pin < m_pin_nodes.size());
+    assert(node == NOT_CONNECTED || node < m_node_values[0].size());
+    m_pin_nodes[pin] = node;
+}
+
 node_t Simulator::assign_node() {
     if (!m_free_nodes.empty()) {
         auto id = m_free_nodes.back();
@@ -64,12 +151,12 @@ Value Simulator::read_node(node_t node_id) const {
 
 bool Simulator::node_changed(node_t node_id) const {
     assert(node_id < m_node_change_time[m_read_idx].size());
-    return m_node_change_time[m_read_idx][node_id] == m_time;
+    return m_time != 0 && m_node_change_time[m_read_idx][node_id] == m_time;
 }
 
 bool Simulator::node_changed_last_step(node_t node_id) const {
     assert(node_id < m_node_change_time[m_read_idx].size());
-    return m_node_change_time[m_read_idx][node_id] == m_time - 1;
+    return m_time != 1 && m_node_change_time[m_read_idx][node_id] == m_time - 1;
 }
 
 void Simulator::init() {

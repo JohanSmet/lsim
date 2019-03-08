@@ -23,6 +23,17 @@ public:
     Circuit *create_circuit();
     void set_main_circuit(Circuit *main);
 
+    // pins
+    pin_t assign_pin(node_t connect_to_pin = PIN_UNDEFINED);
+    void connect_pins(pin_t pin_a, pin_t pin_b);
+
+    bool write_pin(pin_t pin, Value value);
+    Value read_pin(pin_t pin) const;
+    bool pin_changed_last_step(pin_t pin) const;
+
+    node_t pin_node(pin_t pin);
+    void pin_set_node(pin_t pin, node_t node);
+
     // nodes
     node_t assign_node();
     void release_node(node_t node_id);
@@ -53,12 +64,15 @@ private:
     circuit_container_t     m_circuits;
     Circuit *               m_main_circuit;
 
+    node_container_t        m_pin_nodes;
+
     node_container_t                    m_free_nodes;
     std::array<value_container_t,2>     m_node_values;
     timestamp_container_t               m_node_write_time;          // timestamp when node was last written to
     std::array<timestamp_container_t,2> m_node_change_time;         // timestamp when node last changed value
     int                                 m_read_idx;
     int                                 m_write_idx;
+
 };
 
 #endif
