@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <cassert>
 
+struct CircuitCloneContext {
+    std::unordered_map<node_t, node_t> node_map;
+};
+
 Circuit::Circuit(Simulator *sim) : 
             m_sim(sim) {
 }
@@ -41,27 +45,44 @@ bool Circuit::value_changed(pin_t pin) {
 }
 
 CircuitComponent *Circuit::integrate_circuit(Circuit *sub) {
-    auto comp = create_component<CircuitComponent>(sub);
+    auto comp = std::make_unique<CircuitComponent>(sub);
+    comp->materialize(this);
 
     for (const auto &ipin : sub->m_interface_pins) {
         const auto &sub_pin = std::get<1>(ipin);
         const auto &sub_name = std::get<0>(ipin);
-        comp->add_pin(create_pin(comp, sub_pin), sub_name.c_str());
+        comp->add_pin(create_pin(comp.get(), sub_pin), sub_name.c_str());
     }
 
-    return comp;
+    m_nested_circuits.push_back(std::move(comp));
+    return m_nested_circuits.back().get();
 }
 
-std::unique_ptr<Circuit> Circuit::clone() const {
+std::unique_ptr<Circuit> Circuit::clone(CircuitCloneContext *context) const {
     auto new_circuit = std::make_unique<Circuit>(m_sim);
+    std::unique_ptr<CircuitCloneContext> context_ptr = nullptr;
+
+    if (!context) {
+        context_ptr = std::make_unique<CircuitCloneContext>();
+        context = context_ptr.get();
+    }
 
     std::unordered_map<Component *, Component *>    component_map;
+
+    // nested circuits
+    for (const auto &nest_comp : m_nested_circuits) {
+        auto cloned_circuit = nest_comp->nested_circuit()->clone(context);
+        auto cloned_comp = new_circuit->integrate_circuit(cloned_circuit.get());
+        clone_connections(nest_comp.get(), cloned_comp, context);
+        m_sim->add_circuit(std::move(cloned_circuit));
+    }
 
     // components
     for (const auto &comp : m_components) { 
         auto new_comp = comp->clone();
         new_comp->materialize(new_circuit.get());
         component_map[comp.get()] = new_comp.get();
+        clone_connections(comp.get(), new_comp.get(), context);
         new_circuit->m_components.push_back(std::move(new_comp));
     }
 
@@ -72,23 +93,23 @@ std::unique_ptr<Circuit> Circuit::clone() const {
                 component_map.find(entry.second)->second);
     }
 
-    // connections
-    std::unordered_map<node_t, node_t> node_map;
+    return std::move(new_circuit);
+}
 
-    for (size_t idx = 0; idx < m_pins.size(); ++idx) {
-        auto old_node = m_sim->pin_node(m_pins[idx]);
+void Circuit::clone_connections(Component *orig, Component *clone, CircuitCloneContext *context) const { 
 
-        auto res = node_map.find(old_node);
-        if (res != std::end(node_map)) {
-            m_sim->pin_set_node(new_circuit->m_pins[idx], res->second);
+    for (size_t idx = 0; idx < orig->num_pins(); ++idx) {
+        auto old_node = m_sim->pin_node(orig->pin(idx));
+
+        auto res = context->node_map.find(old_node);
+        if (res != std::end(context->node_map)) {
+            m_sim->pin_set_node(clone->pin(idx), res->second);
         } else {
             auto new_node = m_sim->assign_node();
-            m_sim->pin_set_node(new_circuit->m_pins[idx], new_node);
-            node_map[old_node] = new_node;
+            m_sim->pin_set_node(clone->pin(idx), new_node);
+            context->node_map[old_node] = new_node;
         }
     }
-
-    return std::move(new_circuit);
 }
 
 void Circuit::register_component_name(const std::string &name, Component *component) {
@@ -106,13 +127,18 @@ Component *Circuit::component_by_name(const std::string &name) {
 }
 
 void Circuit::process() {
+
+    for (auto &nested : m_nested_circuits) {
+        nested->tick();
+    }
+
     for (auto &component : m_components) {
         component->tick();
     }
 }
 
 CircuitComponent::CircuitComponent(Circuit *nested) : 
-                        CloneComponent(0),
+                        Component(0),
                         m_nested(nested) {
 }
 
@@ -131,6 +157,10 @@ pin_t CircuitComponent::interface_pin_by_name(const char *name) {
     } else {
         return PIN_UNDEFINED;
     }
+}
+
+std::unique_ptr<Component> CircuitComponent::clone() const {
+    return nullptr;
 }
 
 void CircuitComponent::tick() {
