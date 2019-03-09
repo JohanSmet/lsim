@@ -205,12 +205,7 @@ TEST_CASE("4bit adder (circuit cloning)", "[circuit]") {
                 adder_4bit.pin_B->change_data(b);
                 sim->run_until_stable(5);
 
-                int val = (int) sim->read_pin(adder_4bit.pin_O->pin(0));  
-                val |= ((int) sim->read_pin(adder_4bit.pin_O->pin(1))) << 1;
-                val |= ((int) sim->read_pin(adder_4bit.pin_O->pin(2))) << 2;
-                val |= ((int) sim->read_pin(adder_4bit.pin_O->pin(3))) << 3;
-
-                REQUIRE(val == req_O);
+                REQUIRE(sim->read_nibble(adder_4bit.pin_O->pins()) == req_O);
                 REQUIRE(sim->read_pin(adder_4bit.pin_Co->pin(0)) == req_Co);
             }
         }
@@ -277,16 +272,7 @@ TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
                 pin_B->change_data(b);
                 sim->run_until_stable(5);
 
-                int val = (int) sim->read_pin(pin_O->pin(0));  
-                val |= ((int) sim->read_pin(pin_O->pin(1))) << 1;
-                val |= ((int) sim->read_pin(pin_O->pin(2))) << 2;
-                val |= ((int) sim->read_pin(pin_O->pin(3))) << 3;
-                val |= ((int) sim->read_pin(pin_O->pin(4))) << 4;
-                val |= ((int) sim->read_pin(pin_O->pin(5))) << 5;
-                val |= ((int) sim->read_pin(pin_O->pin(6))) << 6;
-                val |= ((int) sim->read_pin(pin_O->pin(7))) << 7;
-
-                REQUIRE(val == req_O);
+                REQUIRE(sim->read_byte(pin_O->pins()) == req_O);
                 REQUIRE(sim->read_pin(pin_Co->pin(0)) == req_Co);
             }
         }

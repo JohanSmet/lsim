@@ -46,6 +46,10 @@ public:
     bool node_changed(node_t node_id) const;
     bool node_changed_last_step(node_t node_id) const;
 
+    // values
+    uint8_t read_nibble(std::vector<pin_t> pins) const;
+    uint8_t read_byte(std::vector<pin_t> pins) const;
+
     // simulation
     void init();
     void step();

@@ -169,6 +169,28 @@ bool Simulator::node_changed_last_step(node_t node_id) const {
     return m_time != 1 && m_node_change_time[m_read_idx][node_id] == m_time - 1;
 }
 
+uint8_t Simulator::read_nibble(std::vector<node_t> pins) const {
+    assert(pins.size() == 4);
+    uint8_t result = 0;
+
+    for (int i = 0; i < pins.size(); ++i) {
+        result |= ((int) read_pin(pins[i])) << i;
+    }
+
+    return result;
+}
+
+uint8_t Simulator::read_byte(std::vector<pin_t> pins) const {
+    assert(pins.size() == 8);
+    uint8_t result = 0;
+
+    for (int i = 0; i < pins.size(); ++i) {
+        result |= ((int) read_pin(pins[i])) << i;
+    }
+
+    return result;
+}
+
 void Simulator::init() {
     m_time = 0;
     m_read_idx = 0;

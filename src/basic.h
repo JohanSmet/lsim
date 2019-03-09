@@ -35,6 +35,8 @@ inline Value negate_value(Value input) {
     }
 }
 
+typedef std::vector<pin_t>  pin_container_t;
+
 class Component {
 public:
     Component(size_t pin_count);
@@ -44,6 +46,8 @@ public:
 
     pin_t pin(uint32_t index);
     size_t num_pins() const {return m_pins.size();}
+    const pin_container_t &pins() const {return m_pins;}
+    pin_container_t pins(size_t start, size_t end);
 
     virtual std::unique_ptr<Component> clone() const = 0;
 
@@ -56,7 +60,7 @@ private:
 protected:
     Circuit *m_circuit;
     size_t m_pin_count;
-    std::vector<pin_t>  m_pins;
+    pin_container_t  m_pins;
 };
 
 template <class Derived>
