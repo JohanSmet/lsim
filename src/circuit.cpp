@@ -15,7 +15,6 @@ Circuit::Circuit(Simulator *sim) :
 
 pin_t Circuit::create_pin(Component *component, pin_t connect_to_pin) {
     auto pin = m_sim->assign_pin(connect_to_pin);
-    m_pins.push_back(pin);
     return pin;
 }
 
@@ -51,7 +50,7 @@ CircuitComponent *Circuit::integrate_circuit(Circuit *sub) {
     for (const auto &ipin : sub->m_interface_pins) {
         const auto &sub_pin = std::get<1>(ipin);
         const auto &sub_name = std::get<0>(ipin);
-        comp->add_pin(create_pin(comp.get(), sub_pin), sub_name.c_str());
+        comp->add_pin(sub_pin, sub_name.c_str());
     }
 
     m_nested_circuits.push_back(std::move(comp));

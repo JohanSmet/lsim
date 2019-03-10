@@ -91,8 +91,7 @@ private:
 private:
     Simulator *m_sim;
 
-    pin_container_t             m_pins;
-    interface_pin_container_t   m_interface_pins;
+    interface_pin_container_t       m_interface_pins;
 
     component_container_t           m_components;
     circuit_component_container_t   m_nested_circuits;
