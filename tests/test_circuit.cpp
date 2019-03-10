@@ -163,19 +163,19 @@ AdderIO create_4bit_adder(Simulator *sim) {
     result.circuit->connect_pins(result.pin_B->pin(0), add1_0->interface_pin_by_name("B"));
     result.circuit->connect_pins(result.pin_O->pin(0), add1_0->interface_pin_by_name("O"));
 
-    auto add1_1 = result.circuit->integrate_circuit(sim->clone_circuit(adder_1bit.circuit));
+    auto add1_1 = result.circuit->integrate_circuit(adder_1bit.circuit->clone());
     result.circuit->connect_pins(add1_0->interface_pin_by_name("Co"), add1_1->interface_pin_by_name("Ci"));
     result.circuit->connect_pins(result.pin_A->pin(1), add1_1->interface_pin_by_name("A"));
     result.circuit->connect_pins(result.pin_B->pin(1), add1_1->interface_pin_by_name("B"));
     result.circuit->connect_pins(result.pin_O->pin(1), add1_1->interface_pin_by_name("O"));
 
-    auto add1_2 = result.circuit->integrate_circuit(sim->clone_circuit(adder_1bit.circuit));
+    auto add1_2 = result.circuit->integrate_circuit(adder_1bit.circuit->clone());
     result.circuit->connect_pins(add1_1->interface_pin_by_name("Co"), add1_2->interface_pin_by_name("Ci"));
     result.circuit->connect_pins(result.pin_A->pin(2), add1_2->interface_pin_by_name("A"));
     result.circuit->connect_pins(result.pin_B->pin(2), add1_2->interface_pin_by_name("B"));
     result.circuit->connect_pins(result.pin_O->pin(2), add1_2->interface_pin_by_name("O"));
 
-    auto add1_3 = result.circuit->integrate_circuit(sim->clone_circuit(adder_1bit.circuit));
+    auto add1_3 = result.circuit->integrate_circuit(adder_1bit.circuit->clone());
     result.circuit->connect_pins(add1_2->interface_pin_by_name("Co"), add1_3->interface_pin_by_name("Ci"));
     result.circuit->connect_pins(result.pin_A->pin(3), add1_3->interface_pin_by_name("A"));
     result.circuit->connect_pins(result.pin_B->pin(3), add1_3->interface_pin_by_name("B"));
@@ -241,7 +241,7 @@ TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
     circuit->connect_pins(pin_O->pin(2), add4_0->interface_pin_by_name("O[2]"));
     circuit->connect_pins(pin_O->pin(3), add4_0->interface_pin_by_name("O[3]"));
 
-    auto add4_1 = circuit->integrate_circuit(sim->clone_circuit(adder_4bit.circuit));
+    auto add4_1 = circuit->integrate_circuit(adder_4bit.circuit->clone());
     circuit->connect_pins(add4_0->interface_pin_by_name("Co"), add4_1->interface_pin_by_name("Ci"));
     circuit->connect_pins(pin_A->pin(4), add4_1->interface_pin_by_name("A[0]"));
     circuit->connect_pins(pin_A->pin(5), add4_1->interface_pin_by_name("A[1]"));

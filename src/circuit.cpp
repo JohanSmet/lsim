@@ -57,8 +57,8 @@ CircuitComponent *Circuit::integrate_circuit(Circuit *sub) {
     return m_nested_circuits.back().get();
 }
 
-std::unique_ptr<Circuit> Circuit::clone(CircuitCloneContext *context) const {
-    auto new_circuit = std::make_unique<Circuit>(m_sim);
+Circuit *Circuit::clone(CircuitCloneContext *context) const {
+    auto new_circuit = m_sim->create_circuit();
     std::unique_ptr<CircuitCloneContext> context_ptr = nullptr;
 
     if (!context) {
@@ -71,15 +71,14 @@ std::unique_ptr<Circuit> Circuit::clone(CircuitCloneContext *context) const {
     // nested circuits
     for (const auto &nest_comp : m_nested_circuits) {
         auto cloned_circuit = nest_comp->nested_circuit()->clone(context);
-        auto cloned_comp = new_circuit->integrate_circuit(cloned_circuit.get());
+        auto cloned_comp = new_circuit->integrate_circuit(cloned_circuit);
         clone_connections(nest_comp.get(), cloned_comp, context);
-        m_sim->add_circuit(std::move(cloned_circuit));
     }
 
     // components
     for (const auto &comp : m_components) { 
         auto new_comp = comp->clone();
-        new_comp->materialize(new_circuit.get());
+        new_comp->materialize(new_circuit);
         component_map[comp.get()] = new_comp.get();
         clone_connections(comp.get(), new_comp.get(), context);
         new_circuit->m_components.push_back(std::move(new_comp));

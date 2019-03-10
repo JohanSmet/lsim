@@ -21,8 +21,6 @@ public:
 
     // circuits
     Circuit *create_circuit();
-    Circuit *clone_circuit(Circuit *circuit);
-    void add_circuit(std::unique_ptr<Circuit> circuit);
     void set_main_circuit(Circuit *main);
 
     // pins

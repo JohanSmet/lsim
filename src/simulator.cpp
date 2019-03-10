@@ -19,16 +19,6 @@ Circuit *Simulator::create_circuit() {
     return m_circuits.back().get();
 }
 
-Circuit *Simulator::clone_circuit(Circuit *circuit) {
-    assert(circuit);
-    m_circuits.push_back(circuit->clone(nullptr));
-    return m_circuits.back().get();
-}
-
-void Simulator::add_circuit(std::unique_ptr<Circuit> circuit) {
-    m_circuits.push_back(std::move(circuit));
-}
-
 void Simulator::set_main_circuit(Circuit *main) {
     m_main_circuit = main;
 }

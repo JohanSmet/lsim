@@ -71,7 +71,7 @@ public:
     }
 
     CircuitComponent *integrate_circuit(Circuit *sub);
-    std::unique_ptr<Circuit> clone(CircuitCloneContext *context) const;
+    Circuit *clone(CircuitCloneContext *context = nullptr) const;
 
     void register_component_name(const std::string &name, Component *component);
     Component *component_by_name(const std::string &name);
