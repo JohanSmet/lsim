@@ -45,8 +45,8 @@ pin_t Simulator::assign_pin(node_t connect_to_pin) {
 }
 
 void Simulator::connect_pins(pin_t pin_a, pin_t pin_b) {
-    const auto &node_a = m_pin_nodes[pin_a];
-    const auto &node_b = m_pin_nodes[pin_b];
+    const auto node_a = m_pin_nodes[pin_a];
+    const auto node_b = m_pin_nodes[pin_b];
 
     // both pins not connected - create a new node
     if (node_a == NOT_CONNECTED && node_b == NOT_CONNECTED) {
