@@ -21,7 +21,9 @@ public:
 
     // circuits
     Circuit *create_circuit();
+
     void set_main_circuit(Circuit *main);
+    Circuit *get_main_circuit() const {return m_main_circuit;}
 
     // pins
     pin_t assign_pin(node_t connect_to_pin = PIN_UNDEFINED);

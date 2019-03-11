@@ -9,10 +9,10 @@
 #include <vector>
 
 // forward declarations
-class Circuit;
+class Simulator;
 
 // interface
-bool load_logisim(Circuit *circuit, const char *filename);
-bool load_logisim(Circuit *circuit, const char *data, size_t len);
+bool load_logisim(Simulator *sim, const char *filename);
+bool load_logisim(Simulator *sim, const char *data, size_t len);
 
 #endif // LSIM_LOAD_LOGISIM_H

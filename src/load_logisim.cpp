@@ -4,10 +4,12 @@
 
 #include <pugixml.hpp>
 #include <string>
+#include <map>
 #include <unordered_map>
 #include <algorithm>
 #include <cassert>
 
+#include "simulator.h"
 #include "circuit.h"
 #include "gate.h"
 
@@ -20,20 +22,22 @@
 
 class LogisimParser {
 public:
-    LogisimParser(pugi::xml_document *xml_doc, Circuit *circuit) : 
+    LogisimParser(pugi::xml_document *xml_doc, Simulator *sim) : 
             m_xml_doc(xml_doc), 
-            m_circuit(circuit) {
+            m_sim(sim) {
     }
 
     bool parse_xml();
 
 private:
     union Position {
+        Position() : m_x(0), m_y(0) {}
+        Position(int32_t x, int32_t y) : m_x(x), m_y(y) { }
         struct {
-            int32_t m_x;
             int32_t m_y;
+            int32_t m_x;
         };
-        int64_t m_full;
+        uint64_t m_full;
     };
 
     enum LogisimDirection {
@@ -54,17 +58,28 @@ private:
         bool                m_negate_input;
     };
 
-    typedef std::vector<int64_t>        wire_node_t;
+    struct CircuitConstruction {
+        Circuit *m_circuit;
+        std::unordered_map<uint64_t, pin_t> m_pin_locs;   
+        std::map<uint64_t, std::string> m_circuit_ipins[2];     
+        std::unordered_map<std::string, Position> m_ipin_offsets;
+    };
+
+    typedef std::unordered_map<std::string, CircuitConstruction> circuit_map_t;
+    typedef std::vector<uint64_t>       wire_node_t;
     typedef std::vector<wire_node_t>    wire_container_t;
 
 private:
+    bool parse_circuit(pugi::xml_node &circuit_node);
     bool parse_component(pugi::xml_node &comp_node);
     bool parse_wire(pugi::xml_node &wire_node);
     bool connect_components();
 
+    CircuitComponent *handle_sub_circuit(const std::string &name, ComponentProperties &props);
     void handle_gate(Component *component, ComponentProperties &props);
     void handle_not_gate(Component *component, ComponentProperties &props);
     void handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left);
+    void compute_ipin_offsets();
 
     bool parse_location(const std::string &loc_string, Position &pos);
     bool parse_facing(const std::string &facing_string, LogisimDirection &facing);
@@ -77,8 +92,9 @@ private:
 
 private: 
     pugi::xml_document *m_xml_doc;
-    Circuit *m_circuit;
-    std::unordered_map<int64_t, pin_t> m_pin_locs;
+    Simulator *m_sim;
+    circuit_map_t m_circuits;
+    CircuitConstruction m_context;
     wire_container_t m_wires;
 };
 
@@ -89,10 +105,36 @@ bool LogisimParser::parse_xml() {
         return false;
     }
 
-    auto circuit_node = project_node.child("circuit");
-    if (!circuit_node) {
+    /* iterate all circuits */
+    for (auto circuit_node : project_node.children("circuit")) {
+        parse_circuit(circuit_node);
+    }
+
+    /* set main circuit */
+    auto main_node = project_node.child("main");
+    if (!main_node) {
         return false;
     }
+
+    auto main_circuit = main_node.attribute("name").value();
+    m_sim->set_main_circuit(m_circuits[main_circuit].m_circuit);
+
+    return true;
+}
+
+bool LogisimParser::parse_circuit(pugi::xml_node &circuit_node) {
+
+    m_context.m_circuit = m_sim->create_circuit();
+    m_context.m_circuit_ipins[0].clear();
+    m_context.m_circuit_ipins[1].clear();
+    m_context.m_pin_locs.clear();
+
+    /* find name of the circuit */
+    auto name_node = circuit_node.find_child_by_attribute("a", "name", "circuit");
+    if (!name_node) {
+        return false;
+    }
+    auto circuit_name = name_node.attribute("val").value();
 
     /* iterate all components */
     for (auto comp : circuit_node.children("comp")) {
@@ -107,6 +149,10 @@ bool LogisimParser::parse_xml() {
     /* connect components */
     connect_components();
 
+    /* sub-circuit interface */
+    compute_ipin_offsets();
+
+    m_circuits[circuit_name] = m_context;
     return true;
 }
 
@@ -118,6 +164,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     comp_props.m_facing = LS_EAST;
     comp_props.m_inputs = 2;
     bool tristate_left = false;
+    bool pin_output = false;
     Value constant_val = VALUE_TRUE;
 
     if (!parse_location(comp_loc, comp_props.m_location)) {
@@ -140,57 +187,63 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
             tristate_left = (prop_val == "left");
         } else if (prop_name == "value") {
             constant_val = (prop_val == "0x0") ? VALUE_FALSE : VALUE_TRUE;
+        } else if (prop_name == "output") {
+            pin_output = (prop_val == "true");
         }
     }
 
     Component *component = nullptr;
     if (comp_type == "Buffer") {
-        component = m_circuit->create_component<Buffer>(1);
+        component = m_context.m_circuit->create_component<Buffer>(1);
         handle_buffer(component, comp_props, false, false);
     } else if (comp_type == "Controlled Buffer") {
-        component = m_circuit->create_component<TriStateBuffer>(1);
+        component = m_context.m_circuit->create_component<TriStateBuffer>(1);
         handle_buffer(component, comp_props, true, tristate_left);
     } else if (comp_type == "Constant") {
-        component = m_circuit->create_component<Constant>(constant_val);
+        component = m_context.m_circuit->create_component<Constant>(constant_val);
         add_pin_location(component->pin(0), comp_props.m_location);
     } else if (comp_type == "Pin") {
-        component = m_circuit->create_component<Connector>(comp_props.m_label.c_str(), 1);
+        component = m_context.m_circuit->create_component<Connector>(comp_props.m_label.c_str(), 1);
         add_pin_location(component->pin(0), comp_props.m_location);
+        m_context.m_circuit_ipins[pin_output ? 1 : 0][comp_props.m_location.m_full] = comp_props.m_label;
     } else if (comp_type == "AND Gate") {
-        component = m_circuit->create_component<AndGate>(comp_props.m_inputs);
+        component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
         handle_gate(component, comp_props);
     } else if (comp_type == "OR Gate") {
-        component = m_circuit->create_component<OrGate>(comp_props.m_inputs);
+        component = m_context.m_circuit->create_component<OrGate>(comp_props.m_inputs);
         handle_gate(component, comp_props);
     } else if (comp_type == "NOT Gate") {
-        component = m_circuit->create_component<NotGate>();
+        component = m_context.m_circuit->create_component<NotGate>();
         comp_props.m_inputs = 1;
         handle_not_gate(component, comp_props);
     } else if (comp_type == "NAND Gate") {
-        component = m_circuit->create_component<AndGate>(comp_props.m_inputs);
+        component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
         comp_props.m_negate_output = true;
         handle_gate(component, comp_props);
     } else if (comp_type == "NOR Gate") {
-        component = m_circuit->create_component<OrGate>(comp_props.m_inputs);
+        component = m_context.m_circuit->create_component<OrGate>(comp_props.m_inputs);
         comp_props.m_negate_output = true;
         handle_gate(component, comp_props);
     } else if (comp_type == "XOR Gate") {
-        component = m_circuit->create_component<XorGate>();
+        component = m_context.m_circuit->create_component<XorGate>();
         comp_props.m_extra_size = 10;
         comp_props.m_inputs = 2;                // FIXME: report violations
         handle_gate(component, comp_props);
     } else if (comp_type == "XNOR Gate") {
-        component = m_circuit->create_component<XnorGate>();
+        component = m_context.m_circuit->create_component<XnorGate>();
         comp_props.m_extra_size = 10;
         comp_props.m_inputs = 2;                // FIXME: report violations
         comp_props.m_negate_output = true;
         handle_gate(component, comp_props);
     } else {
-        return false;
+        component = handle_sub_circuit(comp_type, comp_props);
+        if (!component) {
+            return false;
+        }
     }
 
     if (!comp_props.m_label.empty()) {
-        m_circuit->register_component_name(comp_props.m_label, component);
+        m_context.m_circuit->register_component_name(comp_props.m_label, component);
     }
 
     return true;
@@ -245,18 +298,41 @@ bool LogisimParser::connect_components() {
         pin_t pin_1 = PIN_UNDEFINED;
 
         for (const auto &point : node) {
-            auto pin = m_pin_locs.find(point);
-            if (pin != std::end(m_pin_locs)) {
+            auto pin = m_context.m_pin_locs.find(point);
+            if (pin != std::end(m_context.m_pin_locs)) {
                 if (pin_1 == PIN_UNDEFINED) {
                     pin_1 = pin->second;
                 } else {
-                    m_circuit->connect_pins(pin_1, pin->second);
+                    m_context.m_circuit->connect_pins(pin_1, pin->second);
                 }
             }
         }
     }
 
     return true;
+}
+
+CircuitComponent *LogisimParser::handle_sub_circuit(const std::string &name, ComponentProperties &props) {
+
+    // find and clone the required circuit
+    auto result = m_circuits.find(name);
+    if (result == m_circuits.end()) {
+        return nullptr;
+    }
+    auto sub_context = &result->second;
+    auto cloned_circuit = sub_context->m_circuit->clone();
+
+    // add interface pins to the current circuit
+    for (const auto &offset : sub_context->m_ipin_offsets) {
+        auto p = Position({
+            props.m_location.m_x + offset.second.m_x, 
+            props.m_location.m_y + offset.second.m_y
+        });
+        auto cloned_pin = cloned_circuit->component_by_name(offset.first);
+        add_pin_location(cloned_pin->pin(0), p);
+    }
+
+    return m_context.m_circuit->integrate_circuit(cloned_circuit);
 }
 
 void LogisimParser::handle_gate(Component *component, ComponentProperties &props) {
@@ -312,6 +388,20 @@ void LogisimParser::handle_buffer(Component *component, ComponentProperties &pro
     add_pin_location(component->pin(component->num_pins() - 1), props.m_location);
 }
 
+void LogisimParser::compute_ipin_offsets() {
+    Position offsets[2] = {
+        {-100, 0},          // inputs (on the left)
+        {0,0}               // outputs (on the right)
+    };
+
+    for (int io = 0; io < 2; ++io) {
+        for (auto ipin : m_context.m_circuit_ipins[io]) {
+            m_context.m_ipin_offsets[ipin.second] = offsets[io];
+            offsets[io].m_y += 20;
+        }
+    }
+}
+
 bool LogisimParser::parse_location(const std::string &loc_string, Position &pos) {
     if (loc_string.front() != '(' || loc_string.back() != ')') {
         return false;
@@ -346,7 +436,7 @@ bool LogisimParser::parse_facing(const std::string &facing_string, LogisimDirect
 }
 
 void LogisimParser::add_pin_location(pin_t pin, const Position &loc) {
-    m_pin_locs[loc.m_full] = pin;
+    m_context.m_pin_locs[loc.m_full] = pin;
 }
 
 LogisimParser::Position LogisimParser::input_pin_location( 
@@ -422,7 +512,7 @@ LogisimParser::wire_node_t *LogisimParser::point_on_wire(Position position) {
 // interface
 //
 
-bool load_logisim(Circuit *circuit, const char *filename) {
+bool load_logisim(Simulator *sim, const char *filename) {
     pugi::xml_document xml_doc;
 
     auto result = xml_doc.load_file(filename);
@@ -430,11 +520,11 @@ bool load_logisim(Circuit *circuit, const char *filename) {
         return false;
     }
 
-    auto parser = LogisimParser(&xml_doc, circuit);
+    auto parser = LogisimParser(&xml_doc, sim);
     return parser.parse_xml();
 }
 
-bool load_logisim(Circuit *circuit, const char *data, size_t len) {
+bool load_logisim(Simulator *sim, const char *data, size_t len) {
     pugi::xml_document xml_doc;
 
     auto result = xml_doc.load_buffer(data, len);
@@ -442,6 +532,6 @@ bool load_logisim(Circuit *circuit, const char *data, size_t len) {
         return false;
     }
 
-    auto parser = LogisimParser(&xml_doc, circuit);
+    auto parser = LogisimParser(&xml_doc, sim);
     return parser.parse_xml();
 }
