@@ -157,9 +157,9 @@ TEST_CASE("OrGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
+    auto in_0 = circuit->create_component<Connector>("i0", 1);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
+    auto in_1 = circuit->create_component<Connector>("i1", 1);
     REQUIRE(in_1);
 
     auto or_gate = circuit->create_component<OrGate>(2);
@@ -168,39 +168,32 @@ TEST_CASE("OrGate", "[gate]") {
     auto out = circuit->create_component<Connector>("out", 1);
     REQUIRE(out);
 
-    sim->init();
+    circuit->connect_pins(or_gate->pin(0), in_0->pin(0));
+    circuit->connect_pins(or_gate->pin(1), in_1->pin(0));
     circuit->connect_pins(or_gate->pin(2), out->pin(0));
 
-    SECTION("all inputs are false") {
-        circuit->connect_pins(in_0->pin(0), or_gate->pin(0));
-        circuit->connect_pins(in_0->pin(0), or_gate->pin(1));
+    Value truth_table[][3] = {
+        // in_0         in_1         out
+        {VALUE_FALSE, VALUE_FALSE, VALUE_FALSE},
+        {VALUE_FALSE, VALUE_TRUE,  VALUE_TRUE},
+        {VALUE_TRUE,  VALUE_FALSE, VALUE_TRUE},
+        {VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE},
 
+        {VALUE_UNDEFINED, VALUE_FALSE,     VALUE_ERROR},
+        {VALUE_UNDEFINED, VALUE_TRUE,      VALUE_ERROR},
+        {VALUE_FALSE,     VALUE_UNDEFINED, VALUE_ERROR},
+        {VALUE_TRUE,      VALUE_UNDEFINED, VALUE_ERROR}
+    };
+
+    size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
+
+    sim->init();
+
+    for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
+        in_0->change_data(truth_table[test_idx][0]);
+        in_1->change_data(truth_table[test_idx][1]);
         sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
-    }
-
-    SECTION("all inputs are true") {
-        circuit->connect_pins(in_1->pin(0), or_gate->pin(0));
-        circuit->connect_pins(in_1->pin(0), or_gate->pin(1));
-
-        sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
-    }
-
-    SECTION("first input is true, second is false") {
-        circuit->connect_pins(in_1->pin(0), or_gate->pin(0));
-        circuit->connect_pins(in_0->pin(0), or_gate->pin(1));
-
-        sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
-    }
-
-    SECTION("first input is false, second is true") {
-        circuit->connect_pins(in_0->pin(0), or_gate->pin(0));
-        circuit->connect_pins(in_1->pin(0), or_gate->pin(1));
-
-        sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
+        REQUIRE(out->read_pin(0) == truth_table[test_idx][2]);
     }
 }
 
