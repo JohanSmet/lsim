@@ -74,9 +74,8 @@ bool Component::is_dirty() const {
 
 Connector::Connector(const char *name, size_t data_bits) : 
             CloneComponent(data_bits),
-            m_data(0),
-            m_changed(false),
-            m_name(name) {
+            m_name(name),
+            m_changed(false) {
     assert(data_bits > 0 && data_bits < 64);
 }
 
@@ -85,9 +84,11 @@ void Connector::materialize(Circuit *circuit) {
 
     if (m_pin_count == 1) {
         circuit->add_interface_pin(m_name.c_str(), m_pins[0]);
+        m_data.push_back(VALUE_UNDEFINED);
     } else {
         for (size_t idx = 0; idx < m_pin_count; ++idx) {
             circuit->add_interface_pin((m_name + "[" + std::to_string(idx) + "]").c_str(), m_pins[idx]);
+            m_data.push_back(VALUE_UNDEFINED);
         }
     }
 
@@ -103,12 +104,25 @@ void Connector::tick() {
 
 void Connector::process() {
     for (auto idx = 0u; idx < m_pins.size(); ++idx) {
-        int data = (m_data & (1 << idx)) >> idx;
-        write_pin(idx, static_cast<Value>(data));
+        write_pin(idx, m_data[idx]);
     }
 }
 
 void Connector::change_data(uint64_t data) {
+    for (auto idx = 0u; idx < m_pins.size(); ++idx) {
+        m_data[idx] = static_cast<Value>((data >> idx) & 1);
+    }
+    m_changed = true;
+}
+
+void Connector::change_data(Value value) {
+    assert(m_pins.size() == 1);
+    m_data[0] = value;
+    m_changed = true;
+}
+
+void Connector::change_data(Component::value_container_t data) {
+    assert(m_pins.size() == data.size());
     m_data = data;
     m_changed = true;
 }

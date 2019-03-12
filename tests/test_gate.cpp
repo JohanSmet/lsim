@@ -11,25 +11,25 @@ TEST_CASE("Buffer", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in = circuit->create_component<Connector>("in", 8);
+    auto in = circuit->create_component<Connector>("in", 4);
     REQUIRE(in);
 
-    auto out = circuit->create_component<Connector>("out", 8);
+    auto out = circuit->create_component<Connector>("out", 4);
     REQUIRE(out);
 
-    auto buffer = circuit->create_component<Buffer>(8);
+    auto buffer = circuit->create_component<Buffer>(4);
     REQUIRE(buffer);
 
-    for (int idx = 0; idx < 8; ++idx) {
+    for (int idx = 0; idx < 4; ++idx) {
         circuit->connect_pins(in->pin(idx), buffer->pin(idx));
-        circuit->connect_pins(buffer->pin(idx + 8), out->pin(idx));
+        circuit->connect_pins(buffer->pin(idx + 4), out->pin(idx));
     }
 
     sim->init();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
 
     // buffer takes a cycle to change output
-    in->change_data(VALUE_TRUE);
+    in->change_data({VALUE_TRUE, VALUE_FALSE, VALUE_FALSE, VALUE_FALSE});
     sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
     sim->step();
@@ -37,7 +37,7 @@ TEST_CASE("Buffer", "[gate]") {
     REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(2)) == VALUE_FALSE);
 
-    in->change_data(VALUE_TRUE << 2 | VALUE_FALSE);
+    in->change_data({VALUE_FALSE, VALUE_FALSE, VALUE_TRUE, VALUE_FALSE});
     sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
@@ -92,7 +92,7 @@ TEST_CASE("TriStateBuffer", "[gate]") {
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
-        in->change_data(truth_table[test_idx][0] | truth_table[test_idx][1] << 1);
+        in->change_data({truth_table[test_idx][0], truth_table[test_idx][1]});
         en->change_data(truth_table[test_idx][2]);
         sim->run_until_stable(5);
         REQUIRE(circuit->read_value(out->pin(0)) == truth_table[test_idx][3]);

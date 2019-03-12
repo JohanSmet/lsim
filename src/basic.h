@@ -90,11 +90,13 @@ public:
     virtual void process();
 
     void change_data(uint64_t data);
+    void change_data(Value data);
+    void change_data(value_container_t data);
 
 private: 
-    uint64_t    m_data;
-    bool        m_changed;
     std::string m_name;
+    value_container_t    m_data;
+    bool                 m_changed;
 };
 
 
