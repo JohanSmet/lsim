@@ -21,7 +21,7 @@ void Constant::tick() {
 }
 
 void Constant::process() {
-    m_circuit->write_value(m_pins[0], m_value);
+    write_pin(0, m_value);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ void Buffer::process() {
 
     for (auto pin = 0u; pin < data_bits; ++pin) {
         auto value = m_circuit->read_value(m_pins[pin]);
-        m_circuit->write_value(m_pins[pin + data_bits], value);
+        write_pin(pin + data_bits, value);
     }
 }
 
@@ -58,14 +58,14 @@ void TriStateBuffer::process() {
 
     if (m_circuit->read_value(m_pins[m_enable_idx]) != VALUE_TRUE) {
         for (auto pin = 0u; pin < data_bits; ++pin) {
-            m_circuit->write_value(m_pins[pin + data_bits + 1], VALUE_UNDEFINED);
+            write_pin(pin + data_bits + 1, VALUE_UNDEFINED);
         }
         return;
     }
 
     for (auto pin = 0u; pin < data_bits; ++pin) {
-        auto value = m_circuit->read_value(m_pins[pin]);
         m_circuit->write_value(m_pins[pin + data_bits + 1], value);
+        write_pin(pin + data_bits + 1, value);
     }
 }
 
@@ -83,7 +83,7 @@ void AndGate::process() {
     for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
         output &= m_circuit->read_value(m_pins[idx], VALUE_TRUE);
     }
-    m_circuit->write_value(m_pins.back(), static_cast<Value>(output));
+    write_pin(m_pins.size() - 1, static_cast<Value>(output));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ void OrGate::process() {
     for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
         output |= m_circuit->read_value(m_pins[idx], VALUE_TRUE);
     }
-    m_circuit->write_value(m_pins.back(), static_cast<Value>(output));
+    write_pin(m_pins.size() - 1, static_cast<Value>(output));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,8 +112,8 @@ NotGate::NotGate() : CloneComponent(2) {
 }
 
 void NotGate::process() {
-    auto input = m_circuit->read_value(m_pins[0]);
-    m_circuit->write_value(m_pins[1], negate_value(input));
+    auto input = m_circuit->read_value(m_pins[0]);  
+    write_pin(1, negate_value(input));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ void NandGate::process() {
     for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
         output &= m_circuit->read_value(m_pins[idx], VALUE_TRUE);
     }
-    m_circuit->write_value(m_pins.back(), negate_value(static_cast<Value>(output)));
+    write_pin(m_pins.size() - 1, negate_value(static_cast<Value>(output)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,7 +147,7 @@ void NorGate::process() {
     for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
         output |= m_circuit->read_value(m_pins[idx], VALUE_TRUE);
     }
-    m_circuit->write_value(m_pins.back(), negate_value(static_cast<Value>(output)));
+    write_pin(m_pins.size() - 1, negate_value(static_cast<Value>(output)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ XorGate::XorGate() : CloneComponent(2 + 1) {
 void XorGate::process() {
     int output = m_circuit->read_value(m_pins[0], VALUE_TRUE);
     output ^= m_circuit->read_value(m_pins[1], VALUE_TRUE);
-    m_circuit->write_value(m_pins[2], static_cast<Value>(output));
+    write_pin(2, static_cast<Value>(output));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -175,5 +175,5 @@ XnorGate::XnorGate() : CloneComponent(2 + 1) {
 void XnorGate::process() {
     int output = m_circuit->read_value(m_pins[0], VALUE_TRUE);
     output ^= m_circuit->read_value(m_pins[1], VALUE_TRUE);
-    m_circuit->write_value(m_pins[2], negate_value(static_cast<Value>(output)));
+    write_pin(2, negate_value(static_cast<Value>(output)));
 }

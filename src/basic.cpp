@@ -27,6 +27,7 @@ void Component::materialize(Circuit *circuit) {
 
     for (size_t i = 0; i < m_pin_count; ++i) {
         m_pins.push_back(circuit->create_pin(this));
+        m_values.push_back(VALUE_UNDEFINED);
     }
 }
 
@@ -35,16 +36,28 @@ pin_t Component::pin(uint32_t index) {
     return m_pins[index];
 }
 
-pin_container_t Component::pins(size_t start, size_t end) {
+Component::pin_container_t Component::pins(size_t start, size_t end) {
     assert(start < m_pins.size());
     assert(end < m_pins.size());
     assert(start <= end);
     return pin_container_t(m_pins.begin() + start, m_pins.begin() + end);
 }
 
+void Component::write_pin(uint32_t index, Value value) {
+    assert(index < m_pins.size());
+    m_values[index] = value;
+    m_circuit->write_value(m_pins[index], value);
+}
+
 void Component::tick() {
     if (is_dirty()) {
         process();
+    } else {
+        for (size_t i = 0; i < m_pins.size(); ++i) {
+            if (m_values[i] != VALUE_UNDEFINED) {
+                m_circuit->write_value(m_pins[i], m_values[i]);
+            }
+        }
     }
 }
 
@@ -91,7 +104,7 @@ void Connector::tick() {
 void Connector::process() {
     for (auto idx = 0u; idx < m_pins.size(); ++idx) {
         int data = (m_data & (1 << idx)) >> idx;
-        m_circuit->write_value(m_pins[idx], static_cast<Value>(data));
+        write_pin(idx, static_cast<Value>(data));
     }
 }
 
