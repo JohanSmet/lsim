@@ -14,7 +14,8 @@
 
 Component::Component(size_t pin_count) : 
                 m_circuit(nullptr),
-                m_pin_count(pin_count) {
+                m_pin_count(pin_count),
+                m_read_bad(false) {
 }
 
 Component::Component(const Component &other) : 
@@ -47,6 +48,23 @@ void Component::write_pin(uint32_t index, Value value) {
     assert(index < m_pins.size());
     m_values[index] = value;
     m_circuit->write_value(m_pins[index], value);
+}
+
+Value Component::read_pin(uint32_t index) const {
+    assert(index < m_pins.size());
+    return m_circuit->read_value(m_pins[index]);
+}
+
+void Component::write_pin_checked(uint32_t index, bool value) {
+    auto output = m_read_bad ? VALUE_ERROR : value;
+    write_pin(index, static_cast<Value>(output));
+}
+
+bool Component::read_pin_checked(uint32_t index) {
+    assert(index < m_pins.size());
+    auto value = m_circuit->read_value(m_pins[index]);
+    m_read_bad |= (value != VALUE_TRUE && value != VALUE_FALSE);
+    return static_cast<bool>(value);
 }
 
 void Component::tick() {

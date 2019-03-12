@@ -22,7 +22,8 @@ const node_t NOT_CONNECTED = (node_t) -1;
 enum Value {
     VALUE_FALSE         = 0,
     VALUE_TRUE          = 1,
-    VALUE_UNDEFINED     = 2
+    VALUE_UNDEFINED     = 2,
+    VALUE_ERROR         = 3,
 };
 
 inline Value negate_value(Value input) {
@@ -44,7 +45,6 @@ public:
 public:
     Component(size_t pin_count);
     Component(const Component &other);
-
     virtual void materialize(Circuit *circuit);
 
     pin_t pin(uint32_t index);
@@ -53,6 +53,11 @@ public:
     pin_container_t pins(size_t start, size_t end);
 
     void write_pin(uint32_t index, Value value);
+    Value read_pin(uint32_t index) const;
+
+    bool read_pin_checked(uint32_t index);
+    void write_pin_checked(uint32_t index, bool value);
+    void reset_bad_read_check() {m_read_bad = false;}
 
     virtual std::unique_ptr<Component> clone() const = 0;
 
@@ -67,6 +72,7 @@ protected:
     size_t m_pin_count;
     pin_container_t  m_pins;
     value_container_t m_values;
+    bool m_read_bad;
 };
 
 template <class Derived>
