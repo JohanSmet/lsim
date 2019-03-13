@@ -151,11 +151,13 @@ NorGate::NorGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
 }
 
 void NorGate::process() {
-    int output = m_circuit->read_value(m_pins[0], VALUE_TRUE);
+    reset_bad_read_check();
+
+    auto output = read_pin_checked(0);
     for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
-        output |= m_circuit->read_value(m_pins[idx], VALUE_TRUE);
+        output |= read_pin_checked(idx);
     }
-    write_pin(m_pins.size() - 1, negate_value(static_cast<Value>(output)));
+    write_pin_checked(m_pins.size() - 1, !output);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
