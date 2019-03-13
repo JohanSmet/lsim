@@ -185,7 +185,9 @@ XnorGate::XnorGate() : CloneComponent(2 + 1) {
 }
 
 void XnorGate::process() {
-    int output = m_circuit->read_value(m_pins[0], VALUE_TRUE);
-    output ^= m_circuit->read_value(m_pins[1], VALUE_TRUE);
-    write_pin(2, negate_value(static_cast<Value>(output)));
+    reset_bad_read_check();
+
+    auto output = read_pin_checked(0);
+    output ^= read_pin_checked(1);
+    write_pin_checked(2, !output);
 }
