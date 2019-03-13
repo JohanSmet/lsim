@@ -116,8 +116,10 @@ NotGate::NotGate() : CloneComponent(2) {
 }
 
 void NotGate::process() {
-    auto input = m_circuit->read_value(m_pins[0]);  
-    write_pin(1, negate_value(input));
+    reset_bad_read_check();
+
+    auto input = read_pin_checked(0);  
+    write_pin_checked(1, !input);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

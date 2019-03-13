@@ -205,10 +205,8 @@ TEST_CASE("NotGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Constant>(VALUE_FALSE);
-    REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Constant>(VALUE_TRUE);
-    REQUIRE(in_1);
+    auto in = circuit->create_component<Connector>("in", 1);
+    REQUIRE(in);
 
     auto not_gate = circuit->create_component<NotGate>();
     REQUIRE(not_gate);
@@ -216,21 +214,22 @@ TEST_CASE("NotGate", "[gate]") {
     auto out = circuit->create_component<Connector>("out", 1);
     REQUIRE(out);
 
-    sim->init();
+    circuit->connect_pins(not_gate->pin(0), in->pin(0));
     circuit->connect_pins(not_gate->pin(1), out->pin(0));
 
-    SECTION("input is false") {
-        circuit->connect_pins(in_0->pin(0), not_gate->pin(0));
+    Value truth_table[][2] = {
+        // in               out
+        {VALUE_FALSE,     VALUE_TRUE},
+        {VALUE_TRUE,      VALUE_FALSE},
+        {VALUE_UNDEFINED, VALUE_ERROR}
+    };
 
+    sim->init();
+
+    for (auto test : truth_table) {
+        in->change_data(test[0]);
         sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
-    }
-
-    SECTION("input is true") {
-        circuit->connect_pins(in_1->pin(0), not_gate->pin(0));
-
-        sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
+        REQUIRE(out->read_pin(0) == test[1]);
     }
 }
 
