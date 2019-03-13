@@ -142,6 +142,7 @@ CircuitComponent::CircuitComponent(Circuit *nested) :
 
 void CircuitComponent::add_pin(pin_t pin, const char *name) {
     m_pins.push_back(pin);
+    m_values.push_back(VALUE_UNDEFINED);
     if (name) {
         m_interface_pins[std::string(name)] = pin;
     }
@@ -162,7 +163,9 @@ std::unique_ptr<Component> CircuitComponent::clone() const {
 }
 
 bool CircuitComponent::is_dirty() const {
-    // FIXME: check why is_dirty() check doesn't seem to work
+    // always consider this component is dirty to process the nested circuit
+    //  signals take time to propagate through the nested circuit and processing
+    //  of interal components take place even if the interface nodes haven't changed value.
     return true;
 }
 
