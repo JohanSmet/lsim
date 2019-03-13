@@ -37,7 +37,7 @@ void Buffer::process() {
     auto data_bits = m_pins.size() / 2;
 
     for (auto pin = 0u; pin < data_bits; ++pin) {
-        auto value = m_circuit->read_value(m_pins[pin]);
+        auto value = read_pin(pin);
         write_pin(pin + data_bits, value);
     }
 }
@@ -56,7 +56,7 @@ TriStateBuffer::TriStateBuffer(size_t data_bits) :
 void TriStateBuffer::process() {
     auto data_bits = (m_pins.size() - 1) / 2;
 
-    if (m_circuit->read_value(m_pins[m_enable_idx]) != VALUE_TRUE) {
+    if (read_pin(m_enable_idx) != VALUE_TRUE) {
         for (auto pin = 0u; pin < data_bits; ++pin) {
             write_pin(pin + data_bits + 1, VALUE_UNDEFINED);
         }
@@ -64,7 +64,7 @@ void TriStateBuffer::process() {
     }
 
     for (auto pin = 0u; pin < data_bits; ++pin) {
-        m_circuit->write_value(m_pins[pin + data_bits + 1], value);
+        auto value = read_pin(pin);
         write_pin(pin + data_bits + 1, value);
     }
 }

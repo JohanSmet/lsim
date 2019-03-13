@@ -29,23 +29,26 @@ TEST_CASE("Buffer", "[gate]") {
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
 
     // buffer takes a cycle to change output
-    in->change_data({VALUE_TRUE, VALUE_FALSE, VALUE_FALSE, VALUE_FALSE});
+    in->change_data({VALUE_TRUE, VALUE_FALSE, VALUE_FALSE, VALUE_UNDEFINED});
     sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
     sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(2)) == VALUE_FALSE);
+    REQUIRE(circuit->read_value(out->pin(3)) == VALUE_UNDEFINED);
 
-    in->change_data({VALUE_FALSE, VALUE_FALSE, VALUE_TRUE, VALUE_FALSE});
+    in->change_data({VALUE_FALSE, VALUE_FALSE, VALUE_TRUE, VALUE_ERROR});
     sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_TRUE);
     REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(2)) == VALUE_FALSE);
+    REQUIRE(circuit->read_value(out->pin(3)) == VALUE_UNDEFINED);
     sim->step();
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_value(out->pin(2)) == VALUE_TRUE);
+    REQUIRE(circuit->read_value(out->pin(3)) == VALUE_ERROR);
 }
 
 TEST_CASE("TriStateBuffer", "[gate]") {
@@ -86,7 +89,11 @@ TEST_CASE("TriStateBuffer", "[gate]") {
         {VALUE_TRUE,  VALUE_FALSE, VALUE_TRUE,  VALUE_TRUE,      VALUE_FALSE},
         {VALUE_TRUE,  VALUE_FALSE, VALUE_FALSE, VALUE_UNDEFINED, VALUE_UNDEFINED},
         {VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE,      VALUE_TRUE},
-        {VALUE_TRUE,  VALUE_TRUE,  VALUE_FALSE, VALUE_UNDEFINED, VALUE_UNDEFINED}
+        {VALUE_TRUE,  VALUE_TRUE,  VALUE_FALSE, VALUE_UNDEFINED, VALUE_UNDEFINED},
+
+        {VALUE_ERROR, VALUE_UNDEFINED, VALUE_TRUE,      VALUE_ERROR,     VALUE_UNDEFINED},
+        {VALUE_ERROR, VALUE_UNDEFINED, VALUE_FALSE,     VALUE_UNDEFINED, VALUE_UNDEFINED},
+        {VALUE_ERROR, VALUE_UNDEFINED, VALUE_UNDEFINED, VALUE_UNDEFINED, VALUE_UNDEFINED}
     };
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
