@@ -61,11 +61,11 @@ public:
 
     virtual std::unique_ptr<Component> clone() const = 0;
 
-    virtual void tick();
+    void tick();
     virtual void process() = 0;
 
-private:
-    bool is_dirty() const;
+protected:
+    virtual bool is_dirty() const;
 
 protected:
     Circuit *m_circuit;
@@ -92,8 +92,8 @@ public:
     Connector(const char *name, size_t data_bits);
     void materialize(Circuit *circuit) override;
 
-    virtual void tick();
-    virtual void process();
+    virtual bool is_dirty() const override;
+    virtual void process() override;
 
     void change_data(uint64_t data);
     void change_data(Value data);

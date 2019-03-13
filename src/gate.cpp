@@ -16,8 +16,8 @@ Constant::Constant(Value value) :
             m_value(value) {
 }
 
-void Constant::tick() {
-    process();
+bool Constant::is_dirty() const {
+    return true;
 }
 
 void Constant::process() {

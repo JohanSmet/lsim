@@ -33,7 +33,7 @@ public:
 
     std::unique_ptr<Component> clone() const override;
 
-    void tick() override;
+    bool is_dirty() const override;
     void process() override;
 
 public:

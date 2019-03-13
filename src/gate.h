@@ -10,7 +10,7 @@
 class Constant : public CloneComponent<Constant> {
 public:
     Constant(Value value);
-    virtual void tick();
+    virtual bool is_dirty() const override;
     virtual void process();
 private:
     Value m_value;

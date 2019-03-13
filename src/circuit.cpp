@@ -161,9 +161,9 @@ std::unique_ptr<Component> CircuitComponent::clone() const {
     return nullptr;
 }
 
-void CircuitComponent::tick() {
+bool CircuitComponent::is_dirty() const {
     // FIXME: check why is_dirty() check doesn't seem to work
-    process();
+    return true;
 }
 
 void CircuitComponent::process() {

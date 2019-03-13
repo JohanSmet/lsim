@@ -113,17 +113,15 @@ void Connector::materialize(Circuit *circuit) {
     circuit->register_component_name(m_name, this);
 }
 
-void Connector::tick() {
-    if (m_changed) {
-        process();
-        m_changed = false;
-    }
+bool Connector::is_dirty() const {
+    return m_changed;
 }
 
 void Connector::process() {
     for (auto idx = 0u; idx < m_pins.size(); ++idx) {
         write_pin(idx, m_data[idx]);
     }
+    m_changed = false;
 }
 
 void Connector::change_data(uint64_t data) {
