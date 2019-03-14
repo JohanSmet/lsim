@@ -1,6 +1,6 @@
 // gate.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
-// base for gates
+// basic gates
 
 #ifndef LSIM_GATE_H
 #define LSIM_GATE_H
@@ -11,7 +11,7 @@ class Constant : public CloneComponent<Constant> {
 public:
     Constant(Value value);
     virtual bool is_dirty() const override;
-    virtual void process();
+    virtual void process() override;
 private:
     Value m_value;
 };

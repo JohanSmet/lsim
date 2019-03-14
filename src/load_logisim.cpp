@@ -1,6 +1,15 @@
 // load_logisim.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 //
-// Load circuit from a LogiSim circuit
+// Load circuit from a LogiSim circuit file
+//  This is not intended to be a fully compatible with all the features of Logisim.
+//  We're basically using Logisim as an easy way to construct our circuits.
+//  Current restrictions / not supported features:
+//  - only basic gates
+//  - gates are always 1 bit
+//  - connectors (Logisim: Pin) and buffers support > 1 data bits but have a pin per bit
+//  - XOR gates are limited to two inputs
+//  - no custom subcircuit appearance, just the standard inputs on the left and outputs on the right
+//  - probably lots of other stuff that I'm not aware of 8-)
 
 #include <pugixml.hpp>
 #include <string>
@@ -8,10 +17,12 @@
 #include <unordered_map>
 #include <algorithm>
 #include <cassert>
+#include <cstdlib>
 
 #include "simulator.h"
 #include "circuit.h"
 #include "gate.h"
+#include "error.h"
 
 #define DEF_REQUIRED_ATTR(res, node, attr) \
     auto attr_##attr = (node).attribute(#attr); \
@@ -54,6 +65,7 @@ private:
         Position            m_location;
         LogisimDirection    m_facing;
         std::string         m_label;
+        size_t              m_width;
         bool                m_negate_output;
         bool                m_negate_input;
     };
@@ -76,8 +88,8 @@ private:
     bool connect_components();
 
     CircuitComponent *handle_sub_circuit(const std::string &name, ComponentProperties &props);
-    void handle_gate(Component *component, ComponentProperties &props);
-    void handle_not_gate(Component *component, ComponentProperties &props);
+    bool handle_gate(Component *component, ComponentProperties &props);
+    bool handle_not_gate(Component *component, ComponentProperties &props);
     void handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left);
     void compute_ipin_offsets();
 
@@ -163,6 +175,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     ComponentProperties comp_props = {0};
     comp_props.m_facing = LS_EAST;
     comp_props.m_inputs = 2;
+    comp_props.m_width = 1;
     bool tristate_left = false;
     bool pin_output = false;
     Value constant_val = VALUE_TRUE;
@@ -178,21 +191,25 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         if (prop_name == "label") {
             comp_props.m_label = prop_val;
         } else if (prop_name == "size") {
-            comp_props.m_size = std::stoi(prop_val);
+            comp_props.m_size = attr_val.as_int(comp_props.m_size);
         } else if (prop_name == "facing") {
             parse_facing(prop_val, comp_props.m_facing);
         } else if (prop_name == "inputs") {
-            comp_props.m_inputs = std::stoi(prop_val);
+            comp_props.m_inputs = attr_val.as_int(comp_props.m_inputs);
         } else if (prop_name == "control") {
             tristate_left = (prop_val == "left");
         } else if (prop_name == "value") {
             constant_val = (prop_val == "0x0") ? VALUE_FALSE : VALUE_TRUE;
         } else if (prop_name == "output") {
             pin_output = (prop_val == "true");
+        } else if (prop_name == "width") {
+            comp_props.m_width = attr_val.as_int(comp_props.m_width);
         }
     }
 
     Component *component = nullptr;
+    bool error = false;
+
     if (comp_type == "Buffer") {
         component = m_context.m_circuit->create_component<Buffer>(1);
         handle_buffer(component, comp_props, false, false);
@@ -208,45 +225,54 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         m_context.m_circuit_ipins[pin_output ? 1 : 0][comp_props.m_location.m_full] = comp_props.m_label;
     } else if (comp_type == "AND Gate") {
         component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
-        handle_gate(component, comp_props);
+        error = handle_gate(component, comp_props);
     } else if (comp_type == "OR Gate") {
         component = m_context.m_circuit->create_component<OrGate>(comp_props.m_inputs);
-        handle_gate(component, comp_props);
+        error = handle_gate(component, comp_props);
     } else if (comp_type == "NOT Gate") {
         component = m_context.m_circuit->create_component<NotGate>();
         comp_props.m_inputs = 1;
-        handle_not_gate(component, comp_props);
+        error = handle_not_gate(component, comp_props);
     } else if (comp_type == "NAND Gate") {
         component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
         comp_props.m_negate_output = true;
-        handle_gate(component, comp_props);
+        error = handle_gate(component, comp_props);
     } else if (comp_type == "NOR Gate") {
         component = m_context.m_circuit->create_component<OrGate>(comp_props.m_inputs);
         comp_props.m_negate_output = true;
-        handle_gate(component, comp_props);
+        error = handle_gate(component, comp_props);
     } else if (comp_type == "XOR Gate") {
+        if (comp_props.m_inputs != 2) {
+            ERROR_MSG("XOR-gates with %d inputs are not supported", comp_props.m_inputs);
+            return false;
+        }
         component = m_context.m_circuit->create_component<XorGate>();
         comp_props.m_extra_size = 10;
-        comp_props.m_inputs = 2;                // FIXME: report violations
-        handle_gate(component, comp_props);
+        error = handle_gate(component, comp_props);
     } else if (comp_type == "XNOR Gate") {
+        if (comp_props.m_inputs != 2) {
+            ERROR_MSG("XOR-gates with %d inputs are not supported", comp_props.m_inputs);
+            return false;
+        }
         component = m_context.m_circuit->create_component<XnorGate>();
         comp_props.m_extra_size = 10;
-        comp_props.m_inputs = 2;                // FIXME: report violations
         comp_props.m_negate_output = true;
-        handle_gate(component, comp_props);
+        error = handle_gate(component, comp_props);
+    } else if (comp_type == "Text") {
+        // ignore
     } else {
         component = handle_sub_circuit(comp_type, comp_props);
         if (!component) {
+            ERROR_MSG("Unsupport component (%s) - loading failed", comp_type.c_str());
             return false;
         }
     }
 
-    if (!comp_props.m_label.empty()) {
+    if (!error && !comp_props.m_label.empty()) {
         m_context.m_circuit->register_component_name(comp_props.m_label, component);
     }
 
-    return true;
+    return error;
 }
 
 bool LogisimParser::parse_wire(pugi::xml_node &wire_node) {
@@ -335,7 +361,13 @@ CircuitComponent *LogisimParser::handle_sub_circuit(const std::string &name, Com
     return m_context.m_circuit->integrate_circuit(cloned_circuit);
 }
 
-void LogisimParser::handle_gate(Component *component, ComponentProperties &props) {
+bool LogisimParser::handle_gate(Component *component, ComponentProperties &props) {
+
+    if (props.m_width != 1) {
+        ERROR_MSG("%d-bit gates are not supported", props.m_width);
+        return false;
+    }
+
     // default size = MEDIUM (50)
     if (props.m_size == 0) {
         props.m_size = 50;
@@ -350,9 +382,16 @@ void LogisimParser::handle_gate(Component *component, ComponentProperties &props
 
     // output
     add_pin_location(component->pin(component->num_pins() - 1), props.m_location);
+    return true;
 }
 
-void LogisimParser::handle_not_gate(Component *component, ComponentProperties &props) {
+bool LogisimParser::handle_not_gate(Component *component, ComponentProperties &props) {
+
+    if (props.m_width != 1) {
+        ERROR_MSG("%d-bit gates are not supported", props.m_width);
+        return false;
+    }
+
     // default size = WIDE (30)
     if (props.m_size == 0) {
         props.m_size = 30;
@@ -365,6 +404,7 @@ void LogisimParser::handle_not_gate(Component *component, ComponentProperties &p
 
     // output
     add_pin_location(component->pin(1), props.m_location);
+    return true;
 }
 
 void LogisimParser::handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left) {
@@ -404,17 +444,18 @@ void LogisimParser::compute_ipin_offsets() {
 
 bool LogisimParser::parse_location(const std::string &loc_string, Position &pos) {
     if (loc_string.front() != '(' || loc_string.back() != ')') {
+        ERROR_MSG("Unparseable location \"%s\"; should start/end with parentheses", loc_string);
         return false;
     }
 
     auto comma = loc_string.find_first_of(",");
     if (comma == loc_string.npos) {
+        ERROR_MSG("Unparseable location \"%s\"; should contain a comma", loc_string);
         return false;
     }
 
-    pos.m_x = std::stoi(loc_string.substr(1, comma - 1));
-    pos.m_y = std::stoi(loc_string.substr(comma + 1));
-
+    pos.m_x = std::strtol(loc_string.c_str() + 1, nullptr, 0);
+    pos.m_y = std::strtol(loc_string.c_str() + comma + 1, nullptr, 0);
     return true;
 }
 
@@ -429,6 +470,7 @@ bool LogisimParser::parse_facing(const std::string &facing_string, LogisimDirect
     } else if (facing_string == "west") {
         facing = LS_WEST;
     } else {
+        ERROR_MSG("Invalid facing \"%s\"", facing_string);
         return false;
     }
 
