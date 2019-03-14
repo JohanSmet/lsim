@@ -141,8 +141,6 @@ CircuitComponent::CircuitComponent(Circuit *nested) :
 }
 
 void CircuitComponent::add_pin(pin_t pin, const char *name) {
-    m_pins.push_back(pin);
-    m_values.push_back(VALUE_UNDEFINED);
     if (name) {
         m_interface_pins[std::string(name)] = pin;
     }
