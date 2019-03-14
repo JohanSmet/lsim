@@ -34,7 +34,7 @@ Buffer::Buffer(size_t data_bits) : CloneComponent(data_bits * 2) {
 }
 
 void Buffer::process() {
-    auto data_bits = m_pins.size() / 2;
+    auto data_bits = num_pins() / 2;
 
     for (auto pin = 0u; pin < data_bits; ++pin) {
         auto value = read_pin(pin);
@@ -54,7 +54,7 @@ TriStateBuffer::TriStateBuffer(size_t data_bits) :
 }
 
 void TriStateBuffer::process() {
-    auto data_bits = (m_pins.size() - 1) / 2;
+    auto data_bits = (num_pins() - 1) / 2;
 
     if (read_pin(m_enable_idx) != VALUE_TRUE) {
         for (auto pin = 0u; pin < data_bits; ++pin) {
@@ -79,13 +79,14 @@ AndGate::AndGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
 }
 
 void AndGate::process() {
+    const auto OUTPUT_PIN = num_pins() - 1;
     reset_bad_read_check();
 
     bool output = read_pin_checked(0);
-    for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
+    for (auto idx = 1u; idx < OUTPUT_PIN; ++idx) {
         output &= read_pin_checked(idx);
     }
-    write_pin_checked(m_pins.size() - 1, output);
+    write_pin_checked(OUTPUT_PIN, output);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,13 +99,14 @@ OrGate::OrGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
 }
 
 void OrGate::process() {
+    const auto OUTPUT_PIN = num_pins() - 1;
     reset_bad_read_check();
 
     bool output = read_pin_checked(0);
-    for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
+    for (auto idx = 1u; idx < OUTPUT_PIN; ++idx) {
         output |= read_pin_checked(idx);
     }
-    write_pin_checked(m_pins.size() - 1, output);
+    write_pin_checked(OUTPUT_PIN, output);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,13 +134,14 @@ NandGate::NandGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
 }
 
 void NandGate::process() {
+    const auto OUTPUT_PIN = num_pins() - 1;
     reset_bad_read_check();
 
     auto output = read_pin_checked(0);
-    for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
+    for (auto idx = 1u; idx < OUTPUT_PIN; ++idx) {
         output &= read_pin_checked(idx);
     }
-    write_pin_checked(m_pins.size() - 1, !output);
+    write_pin_checked(OUTPUT_PIN, !output);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -151,13 +154,14 @@ NorGate::NorGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
 }
 
 void NorGate::process() {
+    const auto OUTPUT_PIN = num_pins() - 1;
     reset_bad_read_check();
 
     auto output = read_pin_checked(0);
-    for (auto idx = 1u; idx < m_pins.size() - 1; ++idx) {
+    for (auto idx = 1u; idx < OUTPUT_PIN; ++idx) {
         output |= read_pin_checked(idx);
     }
-    write_pin_checked(m_pins.size() - 1, !output);
+    write_pin_checked(OUTPUT_PIN, !output);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

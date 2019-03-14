@@ -26,7 +26,7 @@ class TriStateBuffer : public CloneComponent<TriStateBuffer> {
 public:
     TriStateBuffer(size_t data_bits);
     virtual void process() override;
-    pin_t enable_pin() const {return m_pins[m_enable_idx];}
+    pin_t enable_pin() const {return pin(m_enable_idx);}
 private:
     size_t  m_enable_idx;
 };
