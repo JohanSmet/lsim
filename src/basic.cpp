@@ -24,6 +24,7 @@ Component::Component(const Component &other) :
 }
 
 void Component::materialize(Circuit *circuit) {
+    assert(m_circuit == nullptr);
     m_circuit = circuit;
 
     for (size_t i = 0; i < m_pin_count; ++i) {
@@ -32,7 +33,7 @@ void Component::materialize(Circuit *circuit) {
     }
 }
 
-pin_t Component::pin(uint32_t index) {
+pin_t Component::pin(uint32_t index) const {
     assert(index < m_pins.size());
     return m_pins[index];
 }

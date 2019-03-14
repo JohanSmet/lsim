@@ -5,9 +5,7 @@
 #ifndef LSIM_BASIC_H
 #define LSIM_BASIC_H
 
-#include <cstdint>
 #include <vector>
-#include <array>
 #include <string>
 #include <memory>
 
@@ -36,38 +34,55 @@ inline Value negate_value(Value input) {
     }
 }
 
-
 class Component {
 public:
+    // nested types
     typedef std::vector<pin_t>  pin_container_t;
     typedef std::vector<Value>  value_container_t;
+    typedef std::unique_ptr<Component> uptr_t;
 
 public:
+    // construction
     Component(size_t pin_count);
     Component(const Component &other);
+
+    // materialize: integrate the component in the specified circuit
     virtual void materialize(Circuit *circuit);
 
-    pin_t pin(uint32_t index);
+    // clone: create a copy of this component to integrate in another circuit
+    virtual Component::uptr_t clone() const = 0;
+
+    // access pins
+    pin_t pin(uint32_t index) const;
     size_t num_pins() const {return m_pins.size();}
     const pin_container_t &pins() const {return m_pins;}
     pin_container_t pins(size_t start, size_t end);
 
-    void write_pin(uint32_t index, Value value);
+    // tick: execute one simulation cycle if the value of any of the connected
+    //       nodes changed in the previous cycle. If not, no processing is done 
+    //       but the cached values are written to the pins
+    void tick();
+    virtual void process() = 0;
+
+    // read_pin: read the value of the node the specified pin connects to
     Value read_pin(uint32_t index) const;
 
+protected:
+    // write_pin: set the value of the node the specified pin connects to
+    void write_pin(uint32_t index, Value value);
+
+    // read/write_checked: convenience functions that make it easy to check if 
+    //      all the read nodes (since last bad-read reset) had a valid boolean
+    //      value (not undefined or error)
     bool read_pin_checked(uint32_t index);
     void write_pin_checked(uint32_t index, bool value);
     void reset_bad_read_check() {m_read_bad = false;}
 
-    virtual std::unique_ptr<Component> clone() const = 0;
-
-    void tick();
-    virtual void process() = 0;
-
-protected:
+    // is_dirty() : used by tick() to check if processing should occur.
+    //      default version checks all input nodes - override if other conditions apply
     virtual bool is_dirty() const;
 
-protected:
+private:
     Circuit *m_circuit;
     size_t m_pin_count;
     pin_container_t  m_pins;
@@ -75,14 +90,16 @@ protected:
     bool m_read_bad;
 };
 
+// CloneComponent: helper class to prevent every derived class from implementing the same 
+//                 clone function
 template <class Derived>
 class CloneComponent : public Component {
 public:
     CloneComponent(size_t pin_count) : Component(pin_count) {
     }
 
-    std::unique_ptr<Component> clone() const override {
-        return std::unique_ptr<Component>(new Derived(static_cast<Derived const &>(*this)));
+    Component::uptr_t clone() const override {
+        return std::make_unique<Derived>(static_cast<Derived const &>(*this));
     }
 };
 
@@ -100,9 +117,9 @@ public:
     void change_data(value_container_t data);
 
 private: 
-    std::string m_name;
-    value_container_t    m_data;
-    bool                 m_changed;
+    std::string         m_name;
+    value_container_t   m_data;
+    bool                m_changed;
 };
 
 
