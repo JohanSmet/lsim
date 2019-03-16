@@ -42,7 +42,7 @@ Component::pin_container_t Component::pins(size_t start, size_t end) {
     assert(start < m_pins.size());
     assert(end < m_pins.size());
     assert(start <= end);
-    return pin_container_t(m_pins.begin() + start, m_pins.begin() + end);
+    return pin_container_t(m_pins.begin() + start, m_pins.begin() + end + 1);
 }
 
 void Component::write_pin(uint32_t index, Value value) {
