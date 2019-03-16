@@ -684,6 +684,107 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
 </project>
 )FILE";
 
+const char *logisim_bus_data = R"FILE(
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project source="2.15.0" version="1.0">
+This file is intended to be loaded by Logisim-evolution (https://github.com/reds-heig/logisim-evolution).
+<lib desc="#Wiring" name="0"/>
+  <lib desc="#Gates" name="1"/>
+  <lib desc="#Plexers" name="2">
+    <tool name="Multiplexer">
+      <a name="enable" val="false"/>
+    </tool>
+    <tool name="Demultiplexer">
+      <a name="enable" val="false"/>
+    </tool>
+  </lib>
+  <lib desc="#Arithmetic" name="3"/>
+  <main name="main"/>
+  <options>
+    <a name="gateUndefined" val="ignore"/>
+    <a name="simlimit" val="1000"/>
+    <a name="simrand" val="0"/>
+    <a name="tickmain" val="half_period"/>
+  </options>
+  <mappings>
+    <tool lib="9" map="Button2" name="Menu Tool"/>
+    <tool lib="9" map="Button3" name="Menu Tool"/>
+    <tool lib="9" map="Ctrl Button1" name="Menu Tool"/>
+  </mappings>
+  <toolbar>
+    <tool lib="9" name="Poke Tool"/>
+    <tool lib="9" name="Edit Tool"/>
+    <tool lib="9" name="Text Tool">
+      <a name="text" val=""/>
+      <a name="font" val="SansSerif plain 12"/>
+      <a name="halign" val="center"/>
+      <a name="valign" val="base"/>
+    </tool>
+    <sep/>
+    <tool lib="0" name="Pin"/>
+    <tool lib="0" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+    </tool>
+    <tool lib="1" name="NOT Gate"/>
+    <tool lib="1" name="AND Gate"/>
+    <tool lib="1" name="OR Gate"/>
+  </toolbar>
+  <circuit name="main">
+    <a name="circuit" val="main"/>
+    <a name="clabel" val=""/>
+    <a name="clabelup" val="east"/>
+    <a name="clabelfont" val="SansSerif bold 16"/>
+    <a name="circuitnamedbox" val="true"/>
+    <a name="circuitnamedboxfixedsize" val="true"/>
+    <a name="circuitvhdlpath" val=""/>
+    <wire from="(170,90)" to="(200,90)"/>
+    <wire from="(220,90)" to="(250,90)"/>
+    <wire from="(270,60)" to="(300,60)"/>
+    <wire from="(280,110)" to="(310,110)"/>
+    <wire from="(270,70)" to="(290,70)"/>
+    <wire from="(290,90)" to="(310,90)"/>
+    <wire from="(300,60)" to="(300,70)"/>
+    <wire from="(290,70)" to="(290,90)"/>
+    <wire from="(300,70)" to="(310,70)"/>
+    <wire from="(270,80)" to="(280,80)"/>
+    <wire from="(280,80)" to="(280,110)"/>
+    <wire from="(270,50)" to="(310,50)"/>
+    <comp lib="0" loc="(170,90)" name="Pin">
+      <a name="width" val="4"/>
+      <a name="label" val="I"/>
+    </comp>
+    <comp lib="1" loc="(220,90)" name="Buffer">
+      <a name="width" val="4"/>
+    </comp>
+    <comp lib="0" loc="(250,90)" name="Splitter">
+      <a name="fanout" val="4"/>
+      <a name="incoming" val="4"/>
+    </comp>
+    <comp lib="0" loc="(310,50)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="O0"/>
+    </comp>
+    <comp lib="0" loc="(310,70)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="O1"/>
+    </comp>
+    <comp lib="0" loc="(310,110)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="O3"/>
+    </comp>
+    <comp lib="0" loc="(310,90)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="O2"/>
+    </comp>
+  </circuit>
+</project>
+)FILE";
+
 TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
@@ -914,5 +1015,32 @@ TEST_CASE ("Logisim nested circuit", "[logisim]") {
                 REQUIRE(sim->read_pin(pin_Co) == req_Co);
             }
         }
+    }
+}
+
+TEST_CASE ("Logisim +1 databits", "[logisim]") {
+
+    // load circuit
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    REQUIRE(load_logisim(sim.get(), logisim_bus_data, std::strlen(logisim_bus_data)));
+    auto circuit = sim->get_main_circuit();
+    REQUIRE(circuit);
+
+    auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
+    REQUIRE(pin_I);
+
+    auto pin_O = {static_cast<Connector *> (circuit->component_by_name("O0"))->pin(0),
+                  static_cast<Connector *> (circuit->component_by_name("O1"))->pin(0),
+                  static_cast<Connector *> (circuit->component_by_name("O2"))->pin(0),
+                  static_cast<Connector *> (circuit->component_by_name("O3"))->pin(0)};
+
+    sim->init();
+
+    for (int i = 0; i < 16; ++i) {
+        pin_I->change_data(i);
+        sim->run_until_stable(5);
+        REQUIRE(sim->read_nibble(pin_O) == i);
     }
 }

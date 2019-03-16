@@ -51,6 +51,11 @@ private:
         uint64_t m_full;
     };
 
+    struct LogisimConnection {
+        Position                    m_position;
+        Component::pin_container_t  m_pins;
+    };
+
     enum LogisimDirection {
         LS_NORTH,
         LS_EAST,
@@ -68,11 +73,14 @@ private:
         size_t              m_width;
         bool                m_negate_output;
         bool                m_negate_input;
+        size_t              m_splitter_fanout;
+        size_t              m_splitter_incoming;
+        int                 m_splitter_justify;
     };
 
     struct CircuitConstruction {
         Circuit *m_circuit;
-        std::unordered_map<uint64_t, pin_t> m_pin_locs;   
+        std::unordered_map<uint64_t, LogisimConnection> m_pin_locs;
         std::map<uint64_t, std::string> m_circuit_ipins[2];     
         std::unordered_map<std::string, Position> m_ipin_offsets;
     };
@@ -85,17 +93,24 @@ private:
     bool parse_circuit(pugi::xml_node &circuit_node);
     bool parse_component(pugi::xml_node &comp_node);
     bool parse_wire(pugi::xml_node &wire_node);
+
     bool connect_components();
+    bool make_connection(const LogisimConnection &c1, const LogisimConnection &c2);
 
     CircuitComponent *handle_sub_circuit(const std::string &name, ComponentProperties &props);
     bool handle_gate(Component *component, ComponentProperties &props);
     bool handle_not_gate(Component *component, ComponentProperties &props);
     void handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left);
+    bool handle_pin(Component *component, ComponentProperties &props, bool output);
+    bool handle_splitter(ComponentProperties &props);
     void compute_ipin_offsets();
 
     bool parse_location(const std::string &loc_string, Position &pos);
     bool parse_facing(const std::string &facing_string, LogisimDirection &facing);
-    void add_pin_location(pin_t pin, const Position &loc);
+    bool parse_splitter_appearance(const std::string &appear_string, int &justify);
+
+    void add_pin_location(const Position &loc, pin_t pin);
+    void add_pin_location(const Position &loc, const Component::pin_container_t &pins);
 
     Position input_pin_location(Position base, 
                                 size_t index, 
@@ -176,6 +191,9 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     comp_props.m_facing = LS_EAST;
     comp_props.m_inputs = 2;
     comp_props.m_width = 1;
+    comp_props.m_splitter_incoming = 2;
+    comp_props.m_splitter_fanout = 2;
+    comp_props.m_splitter_justify = -1;
     bool tristate_left = false;
     bool pin_output = false;
     Value constant_val = VALUE_TRUE;
@@ -204,43 +222,48 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
             pin_output = (prop_val == "true");
         } else if (prop_name == "width") {
             comp_props.m_width = attr_val.as_int(comp_props.m_width);
+        } else if (prop_name == "fanout") {
+            comp_props.m_splitter_fanout = attr_val.as_int(0);
+        } else if (prop_name == "incoming") {
+            comp_props.m_splitter_incoming = attr_val.as_int(0);
+        } else if (prop_name == "appear") {
+            parse_splitter_appearance(prop_val, comp_props.m_splitter_justify);
         }
     }
 
     Component *component = nullptr;
-    bool error = false;
+    bool ok = false;
 
     if (comp_type == "Buffer") {
-        component = m_context.m_circuit->create_component<Buffer>(1);
+        component = m_context.m_circuit->create_component<Buffer>(comp_props.m_width);
         handle_buffer(component, comp_props, false, false);
     } else if (comp_type == "Controlled Buffer") {
-        component = m_context.m_circuit->create_component<TriStateBuffer>(1);
+        component = m_context.m_circuit->create_component<TriStateBuffer>(comp_props.m_width);
         handle_buffer(component, comp_props, true, tristate_left);
     } else if (comp_type == "Constant") {
         component = m_context.m_circuit->create_component<Constant>(constant_val);
-        add_pin_location(component->pin(0), comp_props.m_location);
+        add_pin_location(comp_props.m_location, component->pin(0));
     } else if (comp_type == "Pin") {
-        component = m_context.m_circuit->create_component<Connector>(comp_props.m_label.c_str(), 1);
-        add_pin_location(component->pin(0), comp_props.m_location);
-        m_context.m_circuit_ipins[pin_output ? 1 : 0][comp_props.m_location.m_full] = comp_props.m_label;
+        component = m_context.m_circuit->create_component<Connector>(comp_props.m_label.c_str(), comp_props.m_width);
+        ok = handle_pin(component, comp_props, pin_output);
     } else if (comp_type == "AND Gate") {
         component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
-        error = handle_gate(component, comp_props);
+        ok = handle_gate(component, comp_props);
     } else if (comp_type == "OR Gate") {
         component = m_context.m_circuit->create_component<OrGate>(comp_props.m_inputs);
-        error = handle_gate(component, comp_props);
+        ok = handle_gate(component, comp_props);
     } else if (comp_type == "NOT Gate") {
         component = m_context.m_circuit->create_component<NotGate>();
         comp_props.m_inputs = 1;
-        error = handle_not_gate(component, comp_props);
+        ok = handle_not_gate(component, comp_props);
     } else if (comp_type == "NAND Gate") {
         component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
         comp_props.m_negate_output = true;
-        error = handle_gate(component, comp_props);
+        ok = handle_gate(component, comp_props);
     } else if (comp_type == "NOR Gate") {
         component = m_context.m_circuit->create_component<OrGate>(comp_props.m_inputs);
         comp_props.m_negate_output = true;
-        error = handle_gate(component, comp_props);
+        ok = handle_gate(component, comp_props);
     } else if (comp_type == "XOR Gate") {
         if (comp_props.m_inputs != 2) {
             ERROR_MSG("XOR-gates with %d inputs are not supported", comp_props.m_inputs);
@@ -248,7 +271,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         }
         component = m_context.m_circuit->create_component<XorGate>();
         comp_props.m_extra_size = 10;
-        error = handle_gate(component, comp_props);
+        ok = handle_gate(component, comp_props);
     } else if (comp_type == "XNOR Gate") {
         if (comp_props.m_inputs != 2) {
             ERROR_MSG("XOR-gates with %d inputs are not supported", comp_props.m_inputs);
@@ -257,7 +280,9 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         component = m_context.m_circuit->create_component<XnorGate>();
         comp_props.m_extra_size = 10;
         comp_props.m_negate_output = true;
-        error = handle_gate(component, comp_props);
+        ok = handle_gate(component, comp_props);
+    } else if (comp_type == "Splitter") {
+        ok = handle_splitter(comp_props);
     } else if (comp_type == "Text") {
         // ignore
     } else {
@@ -268,11 +293,11 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         }
     }
 
-    if (!error && !comp_props.m_label.empty()) {
+    if (ok && !comp_props.m_label.empty()) {
         m_context.m_circuit->register_component_name(comp_props.m_label, component);
     }
 
-    return error;
+    return ok;
 }
 
 bool LogisimParser::parse_wire(pugi::xml_node &wire_node) {
@@ -321,20 +346,34 @@ bool LogisimParser::parse_wire(pugi::xml_node &wire_node) {
 bool LogisimParser::connect_components() {
 
     for (const auto &node : m_wires) {
-        pin_t pin_1 = PIN_UNDEFINED;
+        const LogisimConnection *c1 = nullptr;
 
         for (const auto &point : node) {
             auto pin = m_context.m_pin_locs.find(point);
             if (pin != std::end(m_context.m_pin_locs)) {
-                if (pin_1 == PIN_UNDEFINED) {
-                    pin_1 = pin->second;
+                if (c1 == nullptr) {
+                    c1 = &pin->second;
                 } else {
-                    m_context.m_circuit->connect_pins(pin_1, pin->second);
+                    if (!make_connection(*c1, pin->second)) {
+                        return false;
+                    }
                 }
             }
         }
     }
 
+    return true;
+}
+
+bool LogisimParser::make_connection(const LogisimConnection &c1, const LogisimConnection &c2) {
+    if (c1.m_pins.size() != c2.m_pins.size()) {
+        ERROR_MSG("Connection has incompatible widths (%d vs %d", c1.m_pins.size(), c2.m_pins.size());
+        return false;
+    }
+
+    for (size_t i = 0; i < c1.m_pins.size(); ++i) {
+        m_context.m_circuit->connect_pins(c1.m_pins[i], c2.m_pins[i]);
+    }
     return true;
 }
 
@@ -355,7 +394,7 @@ CircuitComponent *LogisimParser::handle_sub_circuit(const std::string &name, Com
             props.m_location.m_y + offset.second.m_y
         });
         auto cloned_pin = cloned_circuit->component_by_name(offset.first);
-        add_pin_location(cloned_pin->pin(0), p);
+        add_pin_location(p, cloned_pin->pin(0));
     }
 
     return m_context.m_circuit->integrate_circuit(cloned_circuit);
@@ -375,13 +414,13 @@ bool LogisimParser::handle_gate(Component *component, ComponentProperties &props
 
     // inputs
     for (auto idx = 0u; idx < props.m_inputs; ++idx) {
-        add_pin_location(component->pin(idx), 
-                         input_pin_location( props.m_location, idx, props)
+        add_pin_location(input_pin_location(props.m_location, idx, props),
+                         component->pin(idx)
         );
     }
 
     // output
-    add_pin_location(component->pin(component->num_pins() - 1), props.m_location);
+    add_pin_location(props.m_location, component->pin(component->num_pins() - 1));
     return true;
 }
 
@@ -398,34 +437,114 @@ bool LogisimParser::handle_not_gate(Component *component, ComponentProperties &p
     }
 
     // input
-    add_pin_location(component->pin(0), 
-                     input_pin_location(props.m_location, 0, props)
+    add_pin_location(input_pin_location(props.m_location, 0, props),
+                     component->pin(0)
     );
 
     // output
-    add_pin_location(component->pin(1), props.m_location);
+    add_pin_location(props.m_location, component->pin(1));
     return true;
 }
 
 void LogisimParser::handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left) {
 
     // buffers have a fixed size
-    props.m_size = 20;
     props.m_inputs = 1;
+    props.m_size = 20;
 
     // input
-    add_pin_location(component->pin(0), input_pin_location(props.m_location, 0, props));
+    add_pin_location(input_pin_location(props.m_location, 0, props), component->pins(0, props.m_width - 1));
 
     // enable pin
     if (tri_state) {
         auto en_loc = props.m_location;
         en_loc.m_x -= props.m_size / 2;
         en_loc.m_y += (left) ? -10 : 10;
-        add_pin_location(component->pin(1), en_loc);
+        add_pin_location(en_loc, component->pin(props.m_width));
     }
 
     // output
-    add_pin_location(component->pin(component->num_pins() - 1), props.m_location);
+    add_pin_location(props.m_location, component->pins(component->num_pins() - props.m_width, component->num_pins() - 1));
+}
+
+bool LogisimParser::handle_pin(Component *component, ComponentProperties &props, bool output) {
+    add_pin_location(props.m_location, component->pins());
+    m_context.m_circuit_ipins[output ? 1 : 0][props.m_location.m_full] = props.m_label;
+    return true;
+}
+
+bool LogisimParser::handle_splitter(ComponentProperties &props) {
+
+    // input
+    Component::pin_container_t input_pins;
+
+    for (int i = 0; i < props.m_splitter_incoming; ++i) {
+        input_pins.push_back(m_context.m_circuit->create_pin(nullptr));
+    }
+
+    add_pin_location(props.m_location, input_pins);
+
+    // output pins
+    int width = 20;
+
+    int start_x = 0, start_y = 0;
+    int dx = 0, dy = 0;
+
+    if (props.m_facing == LS_NORTH || props.m_facing == LS_SOUTH) {
+        int m = (props.m_facing == LS_NORTH) ? 1 : -1;
+        if (props.m_splitter_justify == 0) {
+            start_x =  10 * (((props.m_splitter_fanout + 1) / 2) - 1);
+        } else if (m * props.m_splitter_justify < 0) {
+			start_x = -10 ;
+        } else {
+            start_x = 10 * props.m_splitter_fanout;
+        }
+        start_y = -m * width;
+        dx = -10;
+        dy = 0;
+    } else {
+        int m = props.m_facing == LS_WEST ? -1 : 1;
+        start_x = m * width;
+        if (props.m_splitter_justify == 0) {
+            start_y = -10 * (props.m_splitter_fanout / 2);
+        } else if (m * props.m_splitter_justify > 0) {
+            start_y = 10;
+        } else {
+			start_y = -10 * props.m_splitter_fanout;
+        }
+		dx = 0;
+		dy = 10;
+    }
+
+    // calculate the number of pins per fanout connection
+    std::vector<size_t> fanout_pins(props.m_splitter_fanout);
+    size_t pins_left = props.m_splitter_incoming;
+
+    for (int i = 0; i < props.m_splitter_fanout; ++i) {
+        size_t num = pins_left / (props.m_splitter_fanout - i);
+        if (num * (props.m_splitter_fanout - i) < pins_left) {
+            num += 1;
+        }
+
+        fanout_pins[i] = num;
+        pins_left -= num;
+    }
+
+    Position p(props.m_location.m_x + start_x, props.m_location.m_y + start_y);
+    int input_idx = 0;
+
+    for (int i = 0; i < props.m_splitter_fanout; ++i) {
+        Component::pin_container_t pins;
+
+        for (int j = 0; j < fanout_pins[i]; ++j) {
+            pins.push_back(m_context.m_circuit->create_pin(nullptr, input_pins[input_idx++]));
+        }
+        add_pin_location(p, pins);
+        p.m_x += dx;
+        p.m_y += dy;
+    }
+
+    return true;
 }
 
 void LogisimParser::compute_ipin_offsets() {
@@ -477,8 +596,36 @@ bool LogisimParser::parse_facing(const std::string &facing_string, LogisimDirect
     return true;
 }
 
-void LogisimParser::add_pin_location(pin_t pin, const Position &loc) {
-    m_context.m_pin_locs[loc.m_full] = pin;
+bool LogisimParser::parse_splitter_appearance(const std::string &appear_string, int &justify) {
+
+    if (appear_string == "center" || appear_string == "legacy") {
+        justify = 0;
+    } else if (appear_string == "right") {
+        justify = 1;
+    } else if (appear_string == "left") {
+        justify = -1;
+    } else {
+        ERROR_MSG("Invalid splitter appearance \"%s\"", appear_string);
+        return false;
+    }
+
+    return true;
+}
+
+void LogisimParser::add_pin_location(const Position &loc, pin_t pin) {
+    LogisimConnection connection;
+    connection.m_position = loc;
+    connection.m_pins.push_back(pin);
+
+    m_context.m_pin_locs[loc.m_full] = connection;
+}
+
+void LogisimParser::add_pin_location(const Position &loc, const Component::pin_container_t &pins) {
+    LogisimConnection connection;
+    connection.m_position = loc;
+    connection.m_pins = pins;
+
+    m_context.m_pin_locs[loc.m_full] = connection;
 }
 
 LogisimParser::Position LogisimParser::input_pin_location( 
