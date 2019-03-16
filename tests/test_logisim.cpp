@@ -785,6 +785,68 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
 </project>
 )FILE";
 
+const char *logisim_tunnel_data = R"FILE(
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project source="2.15.0" version="1.0">
+This file is intended to be loaded by Logisim-evolution (https://github.com/reds-heig/logisim-evolution).
+<lib desc="#Wiring" name="0"/>
+  <lib desc="#Gates" name="1"/>
+  <lib desc="#Plexers" name="2">
+    <tool name="Multiplexer">
+      <a name="enable" val="false"/>
+    </tool>
+    <tool name="Demultiplexer">
+      <a name="enable" val="false"/>
+    </tool>
+  </lib>
+  <main name="main"/>
+  <options>
+    <a name="gateUndefined" val="ignore"/>
+    <a name="simlimit" val="1000"/>
+    <a name="simrand" val="0"/>
+    <a name="tickmain" val="half_period"/>
+  </options>
+  <circuit name="main">
+    <a name="circuit" val="main"/>
+    <a name="clabel" val=""/>
+    <a name="clabelup" val="east"/>
+    <a name="clabelfont" val="SansSerif bold 16"/>
+    <a name="circuitnamedbox" val="true"/>
+    <a name="circuitnamedboxfixedsize" val="true"/>
+    <a name="circuitvhdlpath" val=""/>
+    <wire from="(110,90)" to="(150,90)"/>
+    <wire from="(110,130)" to="(130,130)"/>
+    <wire from="(130,50)" to="(150,50)"/>
+    <wire from="(160,130)" to="(180,130)"/>
+    <comp lib="0" loc="(130,50)" name="Pin">
+      <a name="label" val="I"/>
+    </comp>
+    <comp lib="0" loc="(150,50)" name="Tunnel">
+      <a name="label" val="T"/>
+    </comp>
+    <comp lib="0" loc="(110,90)" name="Tunnel">
+      <a name="facing" val="east"/>
+      <a name="label" val="T"/>
+    </comp>
+    <comp lib="0" loc="(150,90)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="O0"/>
+    </comp>
+    <comp lib="0" loc="(110,130)" name="Tunnel">
+      <a name="facing" val="east"/>
+      <a name="label" val="T"/>
+    </comp>
+    <comp lib="1" loc="(160,130)" name="NOT Gate"/>
+    <comp lib="0" loc="(180,130)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="O1"/>
+    </comp>
+  </circuit>
+</project>
+)FILE";
+
 TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
@@ -1042,5 +1104,40 @@ TEST_CASE ("Logisim +1 databits", "[logisim]") {
         pin_I->change_data(i);
         sim->run_until_stable(5);
         REQUIRE(sim->read_nibble(pin_O) == i);
+    }
+}
+
+TEST_CASE ("Logisim Tunnel", "[logisim]") {
+
+    // load circuit
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    REQUIRE(load_logisim(sim.get(), logisim_tunnel_data, std::strlen(logisim_tunnel_data)));
+    auto circuit = sim->get_main_circuit();
+    REQUIRE(circuit);
+
+    auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
+    REQUIRE(pin_I);
+
+    auto pin_O0 = static_cast<Connector *> (circuit->component_by_name("O0"));
+    REQUIRE(pin_O0);
+    auto pin_O1 = static_cast<Connector *> (circuit->component_by_name("O1"));
+    REQUIRE(pin_O1);
+
+    sim->init();
+
+    Value truth_table[][3] = {
+        // I                O0                O1
+        {VALUE_FALSE,     VALUE_FALSE,      VALUE_TRUE},
+        {VALUE_TRUE,      VALUE_TRUE,       VALUE_FALSE},
+        {VALUE_UNDEFINED, VALUE_UNDEFINED,  VALUE_ERROR}
+    };
+
+    for (const auto &test: truth_table) {
+        pin_I->change_data(test[0]);
+        sim->run_until_stable(5);
+        REQUIRE(pin_O0->read_pin(0) == test[1]);
+        REQUIRE(pin_O1->read_pin(0) == test[2]);
     }
 }

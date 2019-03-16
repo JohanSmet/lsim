@@ -88,6 +88,7 @@ private:
     typedef std::unordered_map<std::string, CircuitConstruction> circuit_map_t;
     typedef std::vector<uint64_t>       wire_node_t;
     typedef std::vector<wire_node_t>    wire_container_t;
+    typedef std::unordered_map<std::string, size_t> tunnel_wire_map_t;
 
 private:
     bool parse_circuit(pugi::xml_node &circuit_node);
@@ -103,6 +104,7 @@ private:
     void handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left);
     bool handle_pin(Component *component, ComponentProperties &props, bool output);
     bool handle_splitter(ComponentProperties &props);
+    bool handle_tunnel(ComponentProperties &props);
     void compute_ipin_offsets();
 
     bool parse_location(const std::string &loc_string, Position &pos);
@@ -123,6 +125,7 @@ private:
     circuit_map_t m_circuits;
     CircuitConstruction m_context;
     wire_container_t m_wires;
+    tunnel_wire_map_t m_tunnels;
 };
 
 bool LogisimParser::parse_xml() {
@@ -283,6 +286,8 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         ok = handle_gate(component, comp_props);
     } else if (comp_type == "Splitter") {
         ok = handle_splitter(comp_props);
+    } else if (comp_type == "Tunnel") {
+        ok = handle_tunnel(comp_props);
     } else if (comp_type == "Text") {
         // ignore
     } else {
@@ -293,7 +298,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         }
     }
 
-    if (ok && !comp_props.m_label.empty()) {
+    if (ok && component && !comp_props.m_label.empty()) {
         m_context.m_circuit->register_component_name(comp_props.m_label, component);
     }
 
@@ -394,7 +399,7 @@ CircuitComponent *LogisimParser::handle_sub_circuit(const std::string &name, Com
             props.m_location.m_y + offset.second.m_y
         });
         auto cloned_pin = cloned_circuit->component_by_name(offset.first);
-        add_pin_location(p, cloned_pin->pin(0));
+        add_pin_location(p, cloned_pin->pins());
     }
 
     return m_context.m_circuit->integrate_circuit(cloned_circuit);
@@ -544,6 +549,24 @@ bool LogisimParser::handle_splitter(ComponentProperties &props) {
         p.m_y += dy;
     }
 
+    return true;
+}
+
+bool LogisimParser::handle_tunnel(ComponentProperties &props) {
+    if (props.m_label.empty()) {
+        ERROR_MSG("Cannot process tunnel with an empty label (%s)", props.m_label);
+        return false;
+    }
+    
+    auto res = m_tunnels.find(props.m_label);
+    if (res != m_tunnels.end()) {
+        m_wires[res->second].push_back(props.m_location.m_full);
+        return true;
+    }
+
+    wire_node_t new_node = {props.m_location.m_full};
+    m_wires.push_back(new_node);
+    m_tunnels[props.m_label] = m_wires.size() - 1;
     return true;
 }
 
