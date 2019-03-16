@@ -24,13 +24,12 @@ void Simulator::set_main_circuit(Circuit *main) {
 }
 
 pin_t Simulator::assign_pin(node_t connect_to_pin) {
-    node_t connect_to = NOT_CONNECTED;
+    auto result = m_pin_nodes.size();
+    m_pin_nodes.push_back(NOT_CONNECTED);
     if (connect_to_pin != PIN_UNDEFINED && connect_to_pin < m_pin_nodes.size()) {
-        connect_to = m_pin_nodes[connect_to_pin];
+        connect_pins(result, connect_to_pin);
     }
 
-    auto result = m_pin_nodes.size();
-    m_pin_nodes.push_back(connect_to);
     return result;
 }
 
