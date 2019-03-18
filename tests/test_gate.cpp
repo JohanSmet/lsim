@@ -107,6 +107,57 @@ TEST_CASE("TriStateBuffer", "[gate]") {
     }
 }
 
+TEST_CASE("Multiple TriState Buffers", "[gate]") {
+
+    auto sim = std::make_unique<Simulator>();
+    REQUIRE (sim);
+
+    auto circuit = sim->create_circuit();
+    REQUIRE(circuit);
+
+    auto pin_A = circuit->create_component<Connector>("A", 1);
+    auto pin_B = circuit->create_component<Connector>("B", 1);
+    auto pin_Sel = circuit->create_component<Connector>("Sel", 1);
+    auto pin_O = circuit->create_component<Connector>("O", 1);
+
+    auto buf_0 = circuit->create_component<TriStateBuffer>(1);
+    auto buf_1 = circuit->create_component<TriStateBuffer>(1);
+    auto not_gate = circuit->create_component<NotGate>();
+    auto buf_2 = circuit->create_component<Buffer>(1);
+
+    sim->connect_pins(pin_A->pin(0), buf_0->pin(0));
+    sim->connect_pins(pin_B->pin(0), buf_1->pin(0));
+    sim->connect_pins(pin_Sel->pin(0), not_gate->pin(0));
+    sim->connect_pins(not_gate->pin(1), buf_0->pin(1));
+    sim->connect_pins(pin_Sel->pin(0), buf_2->pin(0));
+    sim->connect_pins(buf_2->pin(1), buf_1->pin(1));
+    sim->connect_pins(buf_0->pin(2), pin_O->pin(0));
+    sim->connect_pins(buf_1->pin(2), pin_O->pin(0));
+    sim->init();
+
+    Value truth_table[][4] = {
+        // A            B            Sel          O
+        {VALUE_FALSE, VALUE_FALSE, VALUE_FALSE, VALUE_FALSE},
+        {VALUE_FALSE, VALUE_FALSE, VALUE_TRUE,  VALUE_FALSE},
+        {VALUE_FALSE, VALUE_TRUE,  VALUE_FALSE, VALUE_FALSE},
+        {VALUE_FALSE, VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE},
+        {VALUE_TRUE,  VALUE_FALSE, VALUE_FALSE, VALUE_TRUE},
+        {VALUE_TRUE,  VALUE_FALSE, VALUE_TRUE,  VALUE_FALSE},
+        {VALUE_TRUE,  VALUE_TRUE,  VALUE_FALSE, VALUE_TRUE},
+        {VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE}
+    };
+
+    for (const auto &test : truth_table) {
+        pin_A->change_data(test[0]);
+        pin_B->change_data(test[1]);
+        pin_Sel->change_data(test[2]);
+        sim->run_until_stable(5);
+        REQUIRE(pin_O->read_pin(0) == test[3]);
+    }
+}
+
+
+
 
 TEST_CASE("AndGate", "[gate]") {
 
