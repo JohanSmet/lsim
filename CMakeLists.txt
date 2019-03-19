@@ -13,6 +13,7 @@ string(CONCAT PLATFORM_DEF "PLATFORM_" ${PLATFORM_NAME})
 # external dependencies
 #
 
+set (BUILD_SHARED_LIBS ON)
 add_subdirectory("libs/pugixml")
 set (PUGIXML_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/pugixml/src)
 list (APPEND EXTRA_LIBS pugixml)
@@ -44,6 +45,20 @@ set (LIB_HEADERS
 add_library(${LIB_TARGET} STATIC ${LIB_SOURCES} ${LIB_HEADERS})
 target_include_directories(${LIB_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${PUGIXML_INCLUDE})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
+
+#
+# python bindings
+#
+
+set (PYTHON_TARGET lsimpy)
+
+set (PYTHON_SOURCES ${LIB_SOURCES})
+list (APPEND PYTHON_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/python.cpp")
+
+add_subdirectory(libs/pybind11)
+pybind11_add_module(${PYTHON_TARGET} ${PYTHON_SOURCES})
+target_include_directories(${PYTHON_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${PUGIXML_INCLUDE})
+target_link_libraries(${PYTHON_TARGET} PRIVATE ${EXTRA_LIBS})
 
 #
 # MAIN executable
