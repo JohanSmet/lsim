@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.11)
 
 project(lsim)
 
@@ -17,6 +17,10 @@ set (BUILD_SHARED_LIBS ON)
 add_subdirectory("libs/pugixml")
 set (PUGIXML_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/pugixml/src)
 list (APPEND EXTRA_LIBS pugixml)
+
+find_package(SDL2 REQUIRED)
+find_package(OpenGL REQUIRED)
+	
 
 #
 # simulator library
@@ -64,20 +68,32 @@ target_link_libraries(${PYTHON_TARGET} PRIVATE ${EXTRA_LIBS})
 # MAIN executable
 #
 
-#set(APP_TARGET lsim_cli)
-#
-#set(APP_SOURCES
-#	"${CMAKE_CURRENT_SOURCE_DIR}/src/cli/main.cpp"
-#)
-#
-#set(APP_HEADERS
-#	""
-#)
-#
-#add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
-#target_include_directories(${APP_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${CMAKE_CURRENT_SOURCE_DIR}/src)
-#target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
-#target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS})
+set(APP_TARGET lsim_gui)
+
+set(APP_SOURCES
+	"src/gui/gl3w/GL/gl3w.c"
+	"src/gui/imgui/imgui_draw.cpp"
+	"src/gui/imgui/imgui_impl_sdl_gl3.cpp"
+	"src/gui/imgui/imgui.cpp"
+	"src/gui/main.cpp"
+	"src/gui/main_gui.cpp"
+)
+
+set(APP_HEADERS
+	"src/gui/gl3w/GL/gl3w.h"
+	"src/gui/gl3w/GL/glcorearb.h"
+	"src/gui/imgui/imgui_impl_sdl_gl3.h"
+	"src/gui/imgui/imgui_internal.h"
+	"src/gui/imgui/imgui.h"
+	"src/gui/imgui/stb_rect_pack.h"
+	"src/gui/imgui/stb_textedit.h"
+	"src/gui/imgui/stb_truetype.h"
+)
+
+add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
+target_include_directories(${APP_TARGET} PRIVATE libs src src/gui/gl3w ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
+target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
+target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS})
 
 #
 # Unit tests
