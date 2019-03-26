@@ -92,6 +92,7 @@ set(APP_HEADERS
 	"src/gui/imgui/stb_textedit.h"
 	"src/gui/imgui/stb_truetype.h"
 	"src/gui/algebra.h"
+	"src/gui/shapes.h"
 )
 
 add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
