@@ -77,6 +77,7 @@ set(APP_SOURCES
 	"src/gui/imgui/imgui_draw.cpp"
 	"src/gui/imgui/imgui_impl_sdl_gl3.cpp"
 	"src/gui/imgui/imgui.cpp"
+	"src/gui/algebra.cpp"
 	"src/gui/main.cpp"
 	"src/gui/main_gui.cpp"
 )
@@ -90,6 +91,7 @@ set(APP_HEADERS
 	"src/gui/imgui/stb_rect_pack.h"
 	"src/gui/imgui/stb_textedit.h"
 	"src/gui/imgui/stb_truetype.h"
+	"src/gui/algebra.h"
 )
 
 add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
