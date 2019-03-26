@@ -12,10 +12,11 @@
 // Component
 //
 
-Component::Component(size_t pin_count) : 
+Component::Component(size_t pin_count, VisualComponent::Type type) : 
                 m_circuit(nullptr),
                 m_pin_count(pin_count),
-                m_read_bad(false) {
+                m_read_bad(false),
+                m_visual_type(type) {
 }
 
 Component::Component(const Component &other) : 
@@ -86,13 +87,20 @@ bool Component::is_dirty() const {
     );
 }
 
+VisualComponent *Component::create_visual(VisualComponent::point_t position, VisualComponent::Orientation orientation) {
+    auto vis = m_circuit->create_visual_component(m_visual_type, this);
+    vis->set_position(position);
+    vis->set_orientation(orientation);
+    return vis;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Connection - I/O between circuits
 //
 
 Connector::Connector(const char *name, size_t data_bits) : 
-            CloneComponent(data_bits),
+            CloneComponent(data_bits, VisualComponent::CONNECTOR),
             m_name(name),
             m_changed(false) {
     assert(data_bits > 0 && data_bits < 64);

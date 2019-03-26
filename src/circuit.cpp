@@ -136,7 +136,7 @@ void Circuit::process() {
 }
 
 CircuitComponent::CircuitComponent(Circuit *nested) : 
-                        Component(0),
+                        Component(0, VisualComponent::SUB_CIRCUIT),
                         m_nested(nested) {
 }
 
@@ -169,4 +169,9 @@ bool CircuitComponent::is_dirty() const {
 
 void CircuitComponent::process() {
     m_nested->process();
+}
+
+VisualComponent *Circuit::create_visual_component(VisualComponent::Type type, Component *comp) {
+    m_visual_components.push_back(std::make_unique<VisualComponent>(type, comp));
+    return m_visual_components.back().get();
 }

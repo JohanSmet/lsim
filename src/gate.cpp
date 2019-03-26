@@ -12,7 +12,7 @@
 //
 
 Constant::Constant(Value value) : 
-            CloneComponent(1),
+            CloneComponent(1, VisualComponent::CONSTANT),
             m_value(value) {
 }
 
@@ -29,7 +29,7 @@ void Constant::process() {
 // Buffer
 //
 
-Buffer::Buffer(size_t data_bits) : CloneComponent(data_bits * 2) {
+Buffer::Buffer(size_t data_bits) : CloneComponent(data_bits * 2, VisualComponent::BUFFER) {
     assert(data_bits >= 1);
 }
 
@@ -48,7 +48,7 @@ void Buffer::process() {
 //
 
 TriStateBuffer::TriStateBuffer(size_t data_bits) : 
-                    CloneComponent(1 + (data_bits * 2)),
+                    CloneComponent(1 + (data_bits * 2), VisualComponent::BUFFER),
                     m_enable_idx(data_bits) {
     assert(data_bits >= 1);
 }
@@ -74,7 +74,7 @@ void TriStateBuffer::process() {
 // AND gate
 //
 
-AndGate::AndGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
+AndGate::AndGate(size_t num_inputs) : CloneComponent(num_inputs + 1, VisualComponent::AND_GATE) {
     assert(num_inputs >= 2);
 }
 
@@ -94,7 +94,7 @@ void AndGate::process() {
 // OR gate
 //
 
-OrGate::OrGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
+OrGate::OrGate(size_t num_inputs) : CloneComponent(num_inputs + 1, VisualComponent::OR_GATE) {
     assert(num_inputs >= 2);
 }
 
@@ -114,7 +114,7 @@ void OrGate::process() {
 // NOT gate
 //
 
-NotGate::NotGate() : CloneComponent(2) {
+NotGate::NotGate() : CloneComponent(2, VisualComponent::NOT_GATE) {
 }
 
 void NotGate::process() {
@@ -129,7 +129,7 @@ void NotGate::process() {
 // NAND gate
 //
 
-NandGate::NandGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
+NandGate::NandGate(size_t num_inputs) : CloneComponent(num_inputs + 1, VisualComponent::NAND_GATE) {
     assert(num_inputs >= 2);
 }
 
@@ -149,7 +149,7 @@ void NandGate::process() {
 // NOR gate
 //
 
-NorGate::NorGate(size_t num_inputs) : CloneComponent(num_inputs + 1) {
+NorGate::NorGate(size_t num_inputs) : CloneComponent(num_inputs + 1, VisualComponent::NOR_GATE) {
     assert(num_inputs >= 2);
 }
 
@@ -169,7 +169,7 @@ void NorGate::process() {
 // XOR gate
 //
 
-XorGate::XorGate() : CloneComponent(2 + 1) {
+XorGate::XorGate() : CloneComponent(2 + 1, VisualComponent::XOR_GATE) {
 }
 
 void XorGate::process() {
@@ -185,7 +185,7 @@ void XorGate::process() {
 // XNOR gate
 //
 
-XnorGate::XnorGate() : CloneComponent(2 + 1) {
+XnorGate::XnorGate() : CloneComponent(2 + 1, VisualComponent::XNOR_GATE) {
 }
 
 void XnorGate::process() {

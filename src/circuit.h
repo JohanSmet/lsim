@@ -21,6 +21,7 @@ typedef std::vector<Value> value_container_t;
 typedef std::vector<bool> bool_container_t;
 typedef std::vector<std::unique_ptr<Component>> component_container_t;
 typedef std::unordered_map<std::string, Component *> component_name_lut_t;
+typedef std::vector<VisualComponent::uptr_t>    visual_component_container_t;
 typedef uint64_t sim_timestamp_t;
 
 class CircuitComponent : public Component {
@@ -78,6 +79,9 @@ public:
 
     void process();
 
+    VisualComponent *create_visual_component(VisualComponent::Type type, Component *comp);
+    visual_component_container_t &visual_components() {return m_visual_components;}
+
 private:
     void clone_connections(Component *orig, Component *clone, CircuitCloneContext *context) const;
 
@@ -88,6 +92,7 @@ private:
 
     typedef std::vector<CircuitComponent::uptr_t>   circuit_component_container_t;
 
+
 private:
     Simulator *m_sim;
 
@@ -96,6 +101,8 @@ private:
     component_container_t           m_components;
     circuit_component_container_t   m_nested_circuits;
     component_name_lut_t            m_component_name_lut;
+
+    visual_component_container_t    m_visual_components;
 };
 
 #endif // LSIM_CIRCUIT_H

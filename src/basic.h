@@ -9,6 +9,8 @@
 #include <string>
 #include <memory>
 
+#include "visual_component.h"
+
 class Circuit;
 
 typedef uint32_t pin_t;
@@ -43,7 +45,7 @@ public:
 
 public:
     // construction
-    Component(size_t pin_count);
+    Component(size_t pin_count, VisualComponent::Type type);
     Component(const Component &other);
 
     // materialize: integrate the component in the specified circuit
@@ -67,6 +69,9 @@ public:
     // read_pin: read the value of the node the specified pin connects to
     Value read_pin(uint32_t index) const;
 
+    // visual component
+    VisualComponent *create_visual(VisualComponent::point_t position, VisualComponent::Orientation orientation);
+
 protected:
     // write_pin: set the value of the node the specified pin connects to
     void write_pin(uint32_t index, Value value);
@@ -88,6 +93,7 @@ private:
     pin_container_t  m_pins;
     value_container_t m_values;
     bool m_read_bad;
+    VisualComponent::Type m_visual_type;
 };
 
 // CloneComponent: helper class to prevent every derived class from implementing the same 
@@ -95,7 +101,7 @@ private:
 template <class Derived>
 class CloneComponent : public Component {
 public:
-    CloneComponent(size_t pin_count) : Component(pin_count) {
+    CloneComponent(size_t pin_count, VisualComponent::Type type) : Component(pin_count, type) {
     }
 
     Component::uptr_t clone() const override {

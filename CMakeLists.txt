@@ -35,6 +35,7 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.cpp"
 )
 
 set (LIB_HEADERS
@@ -44,6 +45,7 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.h"
 )
 
 add_library(${LIB_TARGET} STATIC ${LIB_SOURCES} ${LIB_HEADERS})
