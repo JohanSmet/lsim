@@ -11,6 +11,9 @@
 
 #include "main_gui.h"
 
+#include "simulator.h"
+#include "circuit.h"
+
 const char *WINDOW_TITLE = "LSim";
 
 int main(int, char**)
@@ -32,7 +35,7 @@ int main(int, char**)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_DisplayMode current;
     SDL_GetCurrentDisplayMode(0, &current);
-    SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
+    SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
     gl3wInit();
 
@@ -61,6 +64,11 @@ int main(int, char**)
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    // create the simulator here, it should last the lifetime of the application
+    auto sim = std::make_unique<Simulator>();
+
+    main_gui_setup(sim.get());
+
     // Main loop
     bool done = false;
     while (!done)
@@ -79,7 +87,7 @@ int main(int, char**)
         ImGui_ImplSdlGL3_NewFrame(window);
 
 		// Gui
-		main_gui();
+		main_gui(sim.get());
 
         // Rendering
         glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
