@@ -48,6 +48,8 @@ public:
     Component(size_t pin_count, VisualComponent::Type type);
     Component(const Component &other);
 
+    Circuit *get_circuit() const {return m_circuit;}
+
     // materialize: integrate the component in the specified circuit
     virtual void materialize(Circuit *circuit);
 
