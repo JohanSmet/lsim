@@ -7,6 +7,8 @@
 #include "nanosvg.h"
 
 #include "colors.h"
+#include "simulator.h"
+#include "circuit.h"
 
 constexpr const ImVec2 &imvec2(const Point &p) {
     return *reinterpret_cast<const ImVec2 *>(&p);
@@ -21,7 +23,9 @@ constexpr const Point &point(const ImVec2 &v) {
 // UICircuit
 //
 
-UICircuit::UICircuit(const char *name) : m_name(name) {
+UICircuit::UICircuit(Circuit *circuit, const char *name) : 
+			m_circuit(circuit),
+			m_name(name) {
 
 }
 
@@ -45,6 +49,10 @@ void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_co
         add_endpoint(pins[i], to_circuit.apply(pos));
         pos = pos + (inc * segment_len);
 	}
+}
+
+void UICircuit::add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2) {
+	m_ui_connections.push_back({node, pin_1, pin_2});
 }
 
 void UICircuit::draw() {
@@ -86,7 +94,29 @@ void UICircuit::draw() {
 		draw_list->AddCircleFilled(imvec2(pair.second + offset), 2, COLOR_ENDPOINT);
 	}
 
+	// connections
+	for (const auto &conn : m_ui_connections) {
+		Point p0 = endpoint_position(conn.m_pin_a) + offset;
+		Point p1 = endpoint_position(conn.m_pin_b) + offset;
+		Point dp = {(p1.x - p0.x) * 0.25f, 0.0f};
+		draw_list->AddBezierCurve(
+			imvec2(p0), imvec2(p0 + dp), 
+			imvec2(p1 - dp), imvec2(p1),
+			COLOR_CONNECTION[m_circuit->sim()->read_node(conn.m_node)], 
+			2.0f
+		);
+	}
+
 	draw_list->ChannelsMerge();
+}
+
+Point UICircuit::endpoint_position(uint32_t pin) {
+	auto res = m_endpoints.find(pin);
+	if (res != m_endpoints.end()) {
+		return res->second;
+	} else {
+		return {0, 0};
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,6 +137,28 @@ void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent
 		comp.m_visual_comp = visual_comp;
 		mat_func->second(visual_comp->get_component(), &comp, circuit);
 		circuit->add_component(comp);
+	}
+
+	// connections
+	typedef std::unordered_map<node_t, pin_t> node_origin_container_t;
+	static node_origin_container_t node_origin_pins;
+
+	auto *sim = visual_comp->get_component()->get_circuit()->sim();
+
+	for (auto pin : visual_comp->get_component()->pins()) {
+		auto node = sim->pin_node(pin);
+		if (node == NOT_CONNECTED) {
+			continue;
+		}
+
+		auto res = node_origin_pins.find(node);
+		if (res != node_origin_pins.end()) {
+			auto origin = res->second;
+			circuit->add_connection(node, origin, pin);
+		} else {
+			node_origin_pins[node] = pin;
+		}
+
 	}
 }
 

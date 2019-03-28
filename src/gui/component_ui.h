@@ -28,27 +28,40 @@ struct UIComponent {
     ui_component_func_t m_custom_ui_callback;
 };
 
+struct UIConnection {
+    uint32_t m_node;
+    uint32_t m_pin_a;
+    uint32_t m_pin_b;
+};
+
 class UICircuit {
 public:
     typedef std::unique_ptr<UICircuit>  uptr_t;
 
 public:
-    UICircuit(const char *name);
+    UICircuit(class Circuit *circuit, const char *name);
 
     void add_component(const UIComponent &comp);
     void add_endpoint(uint32_t pin, Point location);
     void add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_count, float size, Point origin, Point inc);
+    void add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2);
 
     void draw();
 
 private:
-    typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
-    typedef std::vector<UIComponent>            ui_component_container_t;
+    Point endpoint_position(uint32_t pin);
 
 private:
+    typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
+    typedef std::vector<UIComponent>            ui_component_container_t;
+    typedef std::vector<UIConnection>           ui_connection_container_t;
+
+private:
+    class Circuit *          m_circuit;
     std::string              m_name;
     endpoint_map_t           m_endpoints;
-    ui_component_container_t m_ui_components;
+    ui_component_container_t  m_ui_components;
+    ui_connection_container_t m_ui_connections;
 };
 
 
@@ -59,15 +72,15 @@ public:
     static void register_materialize_func(VisualComponent::Type type, materialize_func_t func);
 
     template <class CompIt>
-    static UICircuit::uptr_t create_circuit(const char *name, CompIt comp_begin, CompIt comp_end) {
-        auto circuit = std::make_unique<UICircuit>(name);
+    static UICircuit::uptr_t create_circuit(Circuit *circuit, const char *name, CompIt comp_begin, CompIt comp_end) {
+        auto ui_circuit = std::make_unique<UICircuit>(circuit, name);
 
         for (auto iter = comp_begin; iter != comp_end; ++iter) {
             const auto &visual_comp = *iter;
-            materialize_component(circuit.get(), visual_comp.get());
+            materialize_component(ui_circuit.get(), visual_comp.get());
         }
 
-        return std::move(circuit);
+        return std::move(ui_circuit);
     }
 
 private:

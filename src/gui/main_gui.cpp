@@ -22,7 +22,7 @@ void main_gui_setup(Simulator *sim) {
 
 
 	const auto &comps = sim->get_main_circuit()->visual_components();
-	ui_circuit = UICircuitBuilder::create_circuit("main", comps.begin(), comps.end());
+	ui_circuit = UICircuitBuilder::create_circuit(circuit, "main", comps.begin(), comps.end());
 
 	sim->init();
 }
