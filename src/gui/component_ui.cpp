@@ -50,9 +50,17 @@ void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_co
 void UICircuit::draw() {
 
 	auto draw_list = ImGui::GetWindowDrawList();
+	draw_list->ChannelsSplit(2);
+
     auto offset = point(ImGui::GetCursorScreenPos() /* + scrolling */);
 
 	for (const auto &comp : m_ui_components) {
+
+		if (comp.m_custom_ui_callback) {
+			ImGui::SetCursorScreenPos(imvec2(comp.m_circuit_min + offset));
+			draw_list->ChannelsSetCurrent(1);
+			comp.m_custom_ui_callback(&comp);
+		}
 
 		draw_list->ChannelsSetCurrent(0);         // background
 		ImGui::SetCursorScreenPos(imvec2(comp.m_circuit_min + offset));
@@ -75,6 +83,8 @@ void UICircuit::draw() {
 	for (const auto &pair : m_pin_locations) {
 		draw_list->AddCircleFilled(imvec2(pair.second + offset), 2, COLOR_ENDPOINT);
 	}
+
+	draw_list->ChannelsMerge();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

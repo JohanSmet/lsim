@@ -13,6 +13,10 @@
 
 class ImDrawList;
 class ComponentIcon;
+class UIComponent;
+
+
+typedef std::function<void (const UIComponent *)> ui_component_func_t;
 
 struct UIComponent {
     VisualComponent *   m_visual_comp;
@@ -21,6 +25,7 @@ struct UIComponent {
     Point               m_circuit_min;
     Point               m_circuit_max;
     const ComponentIcon *m_icon;
+    ui_component_func_t m_custom_ui_callback;
 };
 
 class UICircuit {

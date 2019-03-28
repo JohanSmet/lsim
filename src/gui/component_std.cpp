@@ -4,7 +4,9 @@
 
 #include "component_std.h"
 #include "component_ui.h"
+#include "imgui/imgui.h"
 #include "shapes.h"
+#include "colors.h"
 
 #include "basic.h"
 
@@ -13,11 +15,12 @@
 void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit, 
                       Component::pin_container_t pins_input,
                       Component::pin_container_t pins_output,
-                      Component::pin_container_t pins_control) {
+                      Component::pin_container_t pins_control,
+                      float min_width = 80, float min_height = 60) {
 
     // size of component box depends on pin count
-    const float width = std::max(80ul, 15 * pins_control.size());
-    const float height = std::max(60ul, 15 * std::max(pins_input.size(), pins_output.size()));
+    const float width = std::max(min_width, 15.0f * pins_control.size());
+    const float height = std::max(min_height, 15.0f * std::max(pins_input.size(), pins_output.size()));
     const float h_width = width / 2.0f;
     const float h_height = height / 2.0f;
 
@@ -47,9 +50,59 @@ void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit,
                              width, {-h_width, -h_height}, {1, 0});
 }
 
+const char *connector_data_label(Value value) {
+    switch (value) {
+        case VALUE_FALSE:
+            return "0";
+        case VALUE_TRUE:
+            return "1";
+        case VALUE_UNDEFINED:
+            return "?";
+        default:
+            return "E";
+    }
+}
+
 void component_register_basic() {
 
     // connector
+    UICircuitBuilder::register_materialize_func(
+        VisualComponent::CONNECTOR, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+            auto connector = dynamic_cast<Connector *>(comp);
+            ui_comp->m_tooltip = "Connector";
+            materialize_gate(ui_comp, ui_circuit,
+                connector->is_output() ? comp->pins() : Component::pin_container_t(),
+                connector->is_input() ? comp->pins() : Component::pin_container_t(),
+                {}, 26, comp->num_pins() * 24);
+
+            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
+
+                ImGui::BeginGroup();
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
+                for (size_t i = 0; i < comp->num_pins(); ++ i) {
+                    ImGui::PushID(i);
+                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
+                    auto cur_val = connector->get_data(i);
+                    if (connector->is_input() && ImGui::Button(connector_data_label(cur_val), {18,18})) {
+                        connector->change_data(i, static_cast<Value>((cur_val + 1) % (connector->is_tristate() ? 3 : 2)));
+                    }
+                    if (connector->is_output()) {
+                        auto screen_pos = ImGui::GetCursorScreenPos();
+                        ImGui::GetWindowDrawList()->AddRectFilled(
+                            screen_pos, {screen_pos.x + 20, screen_pos.y + 20},
+                            COLOR_CONNECTION[cur_val]);
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5);
+                        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4);
+                        ImGui::Text(connector_data_label(cur_val));
+                    }
+
+                    ImGui::PopID();
+                }
+                ImGui::EndGroup();
+            };
+        }
+    );
 
     // constant
 
@@ -59,7 +112,6 @@ void component_register_gates() {
 
     // buffer
     ComponentIcon icon_buffer(SHAPE_BUFFER, sizeof(SHAPE_BUFFER));
-
     UICircuitBuilder::register_materialize_func(
         VisualComponent::BUFFER, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "Buffer";
