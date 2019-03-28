@@ -29,8 +29,8 @@ void UICircuit::add_component(const UIComponent &comp) {
 	m_ui_components.push_back(comp);
 }
 
-void UICircuit::add_pin_location(uint32_t pin, Point location) {
-	m_pin_locations[pin] = location;
+void UICircuit::add_endpoint(uint32_t pin, Point location) {
+	m_endpoints[pin] = location;
 }
 
 void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_count, float size, Point origin, Point inc) {
@@ -42,7 +42,7 @@ void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_co
     Point pos = origin + (inc * segment_len);
 
     for (size_t i = 0; i < pin_count; ++i) {
-        add_pin_location(pins[i], to_circuit.apply(pos));
+        add_endpoint(pins[i], to_circuit.apply(pos));
         pos = pos + (inc * segment_len);
 	}
 }
@@ -54,6 +54,7 @@ void UICircuit::draw() {
 
     auto offset = point(ImGui::GetCursorScreenPos() /* + scrolling */);
 
+	// components
 	for (const auto &comp : m_ui_components) {
 
 		if (comp.m_custom_ui_callback) {
@@ -80,7 +81,8 @@ void UICircuit::draw() {
 		}
 	}
 
-	for (const auto &pair : m_pin_locations) {
+	// pins
+	for (const auto &pair : m_endpoints) {
 		draw_list->AddCircleFilled(imvec2(pair.second + offset), 2, COLOR_ENDPOINT);
 	}
 

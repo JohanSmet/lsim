@@ -36,18 +36,18 @@ public:
     UICircuit(const char *name);
 
     void add_component(const UIComponent &comp);
-    void add_pin_location(uint32_t pin, Point location);
+    void add_endpoint(uint32_t pin, Point location);
     void add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_count, float size, Point origin, Point inc);
 
     void draw();
 
 private:
-    typedef std::unordered_map<uint32_t, Point> connection_map_t;
+    typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
     typedef std::vector<UIComponent>            ui_component_container_t;
 
 private:
     std::string              m_name;
-    connection_map_t         m_pin_locations;
+    endpoint_map_t           m_endpoints;
     ui_component_container_t m_ui_components;
 };
 
