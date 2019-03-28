@@ -19,6 +19,11 @@ Circuit *Simulator::create_circuit(const char *name) {
     return m_circuits.back().get();
 }
 
+Circuit *Simulator::circuit_by_idx(size_t idx) const {
+    assert(idx < m_circuits.size());
+    return m_circuits[idx].get();
+}
+
 void Simulator::set_main_circuit(Circuit *main) {
     m_main_circuit = main;
 }

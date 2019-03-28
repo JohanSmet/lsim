@@ -21,6 +21,8 @@ public:
 
     // circuits
     Circuit *create_circuit(const char *name);
+    size_t num_circuits() const {return m_circuits.size();}
+    Circuit *circuit_by_idx(size_t idx) const;
 
     void set_main_circuit(Circuit *main);
     Circuit *get_main_circuit() const {return m_main_circuit;}
@@ -28,6 +30,7 @@ public:
     // pins
     pin_t assign_pin(node_t connect_to_pin = PIN_UNDEFINED);
     void connect_pins(pin_t pin_a, pin_t pin_b);
+
 
     void write_pin(pin_t pin, Value value);
     Value read_pin(pin_t pin) const;

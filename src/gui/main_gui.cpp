@@ -47,6 +47,19 @@ void main_gui(Simulator *sim)
 		sim->step();
 	}
 
+	ImGui::BeginChild("left_pane", ImVec2(150, 0), true);
+	ImGui::Text("Circuits");
+	static size_t selected_circuit = 0;
+	for (size_t i = 0; i < sim->num_circuits(); ++i) {
+		auto circuit = sim->circuit_by_idx(i);
+		if (ImGui::Selectable(circuit->name(), selected_circuit == i)) {
+			selected_circuit = i;
+			sim->set_main_circuit(circuit);
+		}
+	}
+	ImGui::EndChild();
+	ImGui::SameLine();
+
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
 
 	ui_circuit->draw();
