@@ -20,7 +20,7 @@ public:
     Simulator();
 
     // circuits
-    Circuit *create_circuit();
+    Circuit *create_circuit(const char *name);
 
     void set_main_circuit(Circuit *main);
     Circuit *get_main_circuit() const {return m_main_circuit;}

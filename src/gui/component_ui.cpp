@@ -23,9 +23,9 @@ constexpr const Point &point(const ImVec2 &v) {
 // UICircuit
 //
 
-UICircuit::UICircuit(Circuit *circuit, const char *name) : 
+UICircuit::UICircuit(Circuit *circuit) : 
 			m_circuit(circuit),
-			m_name(name) {
+			m_name(circuit->name()) {
 
 }
 

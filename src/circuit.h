@@ -26,8 +26,8 @@ typedef uint64_t sim_timestamp_t;
 
 class CircuitComponent : public Component {
 public: 
-    CircuitComponent(Circuit *nested);
-    Circuit *nested_circuit() const {return m_nested;}
+    CircuitComponent(std::unique_ptr<Circuit> nested);
+    Circuit *nested_circuit() const {return m_nested.get();}
 
     void add_pin(pin_t pin, const char *name = nullptr);
     pin_t interface_pin_by_name(const char *name);
@@ -42,14 +42,18 @@ public:
 private:
     typedef std::unordered_map<std::string, pin_t> named_pin_map_t;
 private:
-    class Circuit *m_nested;
+    std::unique_ptr<Circuit> m_nested;
     named_pin_map_t m_interface_pins;
 };
 
 class Circuit {
 public:
-    Circuit(Simulator *sim);
+    typedef std::unique_ptr<Circuit> uptr_t;
+public:
+    Circuit(Simulator *sim, const char *name);
+
     Simulator *sim() const {return m_sim;}
+    const char *name() const {return m_name.c_str();}
 
     pin_t create_pin(Component *component, pin_t connect_to_pin = PIN_UNDEFINED);
     void connect_pins(pin_t pin_a, pin_t pin_b);
@@ -71,8 +75,8 @@ public:
         return raw;
     }
 
-    CircuitComponent *integrate_circuit(Circuit *sub);
-    Circuit *clone(CircuitCloneContext *context = nullptr) const;
+    CircuitComponent *integrate_circuit(Circuit::uptr_t sub);
+    Circuit::uptr_t clone(CircuitCloneContext *context = nullptr) const;
 
     void register_component_name(const std::string &name, Component *component);
     Component *component_by_name(const std::string &name);
@@ -95,6 +99,8 @@ private:
 
 private:
     Simulator *m_sim;
+    std::string m_name;
+    mutable size_t m_clone_count;
 
     interface_pin_container_t       m_interface_pins;
 

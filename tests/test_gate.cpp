@@ -8,7 +8,7 @@ TEST_CASE("Buffer", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>("in", 4, Connector::INPUT);
@@ -56,7 +56,7 @@ TEST_CASE("TriStateBuffer", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>("in", 2, Connector::INPUT);
@@ -112,7 +112,7 @@ TEST_CASE("Multiple TriState Buffers", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto pin_A = circuit->create_component<Connector>("A", 1, Connector::INPUT);
@@ -164,7 +164,7 @@ TEST_CASE("AndGate", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("i0", 1, Connector::INPUT);
@@ -212,7 +212,7 @@ TEST_CASE("OrGate", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("i0", 1, Connector::INPUT);
@@ -260,7 +260,7 @@ TEST_CASE("NotGate", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>("in", 1, Connector::INPUT);
@@ -296,7 +296,7 @@ TEST_CASE("NandGate", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
@@ -342,7 +342,7 @@ TEST_CASE("NorGate", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
@@ -388,7 +388,7 @@ TEST_CASE("XorGate", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
@@ -434,7 +434,7 @@ TEST_CASE("XnorGate", "[gate]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);

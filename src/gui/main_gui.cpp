@@ -15,14 +15,14 @@ void main_gui_setup(Simulator *sim) {
 	component_register_gates();
 
 	// create a test circuit for now
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     sim->set_main_circuit(circuit);
     auto buffer = circuit->create_component<Buffer>(8);
     buffer->create_visual({100,100}, VisualComponent::SOUTH);
 
 
 	const auto &comps = sim->get_main_circuit()->visual_components();
-	ui_circuit = UICircuitBuilder::create_circuit(circuit, "main", comps.begin(), comps.end());
+	ui_circuit = UICircuitBuilder::create_circuit(circuit, comps.begin(), comps.end());
 
 	sim->init();
 }

@@ -154,17 +154,18 @@ bool LogisimParser::parse_xml() {
 
 bool LogisimParser::parse_circuit(pugi::xml_node &circuit_node) {
 
-    m_context.m_circuit = m_sim->create_circuit();
-    m_context.m_circuit_ipins[0].clear();
-    m_context.m_circuit_ipins[1].clear();
-    m_context.m_pin_locs.clear();
-
     /* find name of the circuit */
     auto name_node = circuit_node.find_child_by_attribute("a", "name", "circuit");
     if (!name_node) {
         return false;
     }
     auto circuit_name = name_node.attribute("val").value();
+
+    /* create the circuit */
+    m_context.m_circuit = m_sim->create_circuit(circuit_name);
+    m_context.m_circuit_ipins[0].clear();
+    m_context.m_circuit_ipins[1].clear();
+    m_context.m_pin_locs.clear();
 
     /* iterate all components */
     for (auto comp : circuit_node.children("comp")) {
@@ -402,7 +403,7 @@ CircuitComponent *LogisimParser::handle_sub_circuit(const std::string &name, Com
         add_pin_location(p, cloned_pin->pins());
     }
 
-    return m_context.m_circuit->integrate_circuit(cloned_circuit);
+    return m_context.m_circuit->integrate_circuit(std::move(cloned_circuit));
 }
 
 bool LogisimParser::handle_gate(Component *component, ComponentProperties &props) {

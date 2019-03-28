@@ -14,8 +14,8 @@ Simulator::Simulator() :
 
 }
 
-Circuit *Simulator::create_circuit() {
-    m_circuits.push_back(std::make_unique<Circuit>(this));
+Circuit *Simulator::create_circuit(const char *name) {
+    m_circuits.push_back(std::make_unique<Circuit>(this, name));
     return m_circuits.back().get();
 }
 

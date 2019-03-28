@@ -9,8 +9,10 @@ struct CircuitCloneContext {
     std::unordered_map<node_t, node_t> node_map;
 };
 
-Circuit::Circuit(Simulator *sim) : 
-            m_sim(sim) {
+Circuit::Circuit(Simulator *sim, const char *name) : 
+            m_sim(sim),
+            m_name(name),
+            m_clone_count(0) {
 }
 
 pin_t Circuit::create_pin(Component *component, pin_t connect_to_pin) {
@@ -43,11 +45,11 @@ bool Circuit::value_changed(pin_t pin) {
     return m_sim->pin_changed_last_step(pin);
 }
 
-CircuitComponent *Circuit::integrate_circuit(Circuit *sub) {
-    auto comp = std::make_unique<CircuitComponent>(sub);
+CircuitComponent *Circuit::integrate_circuit(Circuit::uptr_t sub) {
+    auto comp = std::make_unique<CircuitComponent>(std::move(sub));
     comp->materialize(this);
 
-    for (const auto &ipin : sub->m_interface_pins) {
+    for (const auto &ipin : comp->nested_circuit()->m_interface_pins) {
         const auto &sub_pin = std::get<1>(ipin);
         const auto &sub_name = std::get<0>(ipin);
         comp->add_pin(sub_pin, sub_name.c_str());
@@ -57,8 +59,9 @@ CircuitComponent *Circuit::integrate_circuit(Circuit *sub) {
     return m_nested_circuits.back().get();
 }
 
-Circuit *Circuit::clone(CircuitCloneContext *context) const {
-    auto new_circuit = m_sim->create_circuit();
+Circuit::uptr_t Circuit::clone(CircuitCloneContext *context) const {
+    m_clone_count += 1;
+    auto new_circuit = std::make_unique<Circuit>(m_sim, (m_name + "#" + std::to_string(m_clone_count)).c_str());
     std::unique_ptr<CircuitCloneContext> context_ptr = nullptr;
 
     if (!context) {
@@ -71,14 +74,14 @@ Circuit *Circuit::clone(CircuitCloneContext *context) const {
     // nested circuits
     for (const auto &nest_comp : m_nested_circuits) {
         auto cloned_circuit = nest_comp->nested_circuit()->clone(context);
-        auto cloned_comp = new_circuit->integrate_circuit(cloned_circuit);
+        auto cloned_comp = new_circuit->integrate_circuit(std::move(cloned_circuit));
         clone_connections(nest_comp.get(), cloned_comp, context);
     }
 
     // components
     for (const auto &comp : m_components) { 
         auto new_comp = comp->clone();
-        new_comp->materialize(new_circuit);
+        new_comp->materialize(new_circuit.get());
         component_map[comp.get()] = new_comp.get();
         clone_connections(comp.get(), new_comp.get(), context);
         new_circuit->m_components.push_back(std::move(new_comp));
@@ -135,9 +138,9 @@ void Circuit::process() {
     }
 }
 
-CircuitComponent::CircuitComponent(Circuit *nested) : 
+CircuitComponent::CircuitComponent(Circuit::uptr_t nested) : 
                         Component(0, VisualComponent::SUB_CIRCUIT),
-                        m_nested(nested) {
+                        m_nested(std::move(nested)) {
 }
 
 void CircuitComponent::add_pin(pin_t pin, const char *name) {

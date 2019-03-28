@@ -8,7 +8,7 @@ TEST_CASE("Components are created correctly", "[circuit]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("main");
     REQUIRE(circuit);
 
     auto and_gate = circuit->create_component<AndGate>(2);
@@ -27,7 +27,7 @@ TEST_CASE("Test nested circuits", "[circuit]") {
     REQUIRE (sim);
 
     // create a simple sub circuit
-    auto circuit_1 = sim->create_circuit();
+    auto circuit_1 = sim->create_circuit("circuit_1");
     REQUIRE(circuit_1);
 
     auto xor_gate = circuit_1->create_component<XorGate>();
@@ -43,12 +43,12 @@ TEST_CASE("Test nested circuits", "[circuit]") {
     circuit_1->connect_pins(and_gate->pin(2), out_1->pin(0));
 
     // create a circuit to hold circuit_1
-    auto circuit_2 = sim->create_circuit();
+    auto circuit_2 = sim->create_circuit("circuit_2");
     REQUIRE (circuit_2);
 
     auto s_in = circuit_2->create_component<Connector>("s_in", 1, Connector::INPUT);
     auto s_out = circuit_2->create_component<Connector>("s_out", 1, Connector::OUTPUT);
-    auto sub = circuit_2->integrate_circuit(circuit_1);
+    auto sub = circuit_2->integrate_circuit(circuit_1->clone());
 
     circuit_2->connect_pins(s_in->pin(0), sub->interface_pin_by_name("in"));
     circuit_2->connect_pins(s_out->pin(0), sub->interface_pin_by_name("out"));
@@ -72,7 +72,7 @@ struct AdderIO {
 AdderIO create_1bit_adder(Simulator *sim) {
     AdderIO result = {0};
 
-    result.circuit = sim->create_circuit();
+    result.circuit = sim->create_circuit("adder_1bit");
 
     result.pin_Ci = result.circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
     result.pin_A  = result.circuit->create_component<Connector>("A", 1, Connector::INPUT);
@@ -149,7 +149,7 @@ AdderIO create_4bit_adder(Simulator *sim) {
     auto adder_1bit = create_1bit_adder(sim);
 
     // create a 4bit adder circuit
-    result.circuit = sim->create_circuit();
+    result.circuit = sim->create_circuit("adder_4bit");
 
     result.pin_Ci = result.circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
     result.pin_A = result.circuit->create_component<Connector>("A", 4, Connector::INPUT);
@@ -157,7 +157,7 @@ AdderIO create_4bit_adder(Simulator *sim) {
     result.pin_O = result.circuit->create_component<Connector>("O", 4, Connector::OUTPUT);
     result.pin_Co = result.circuit->create_component<Connector>("Co", 1, Connector::OUTPUT);
 
-    auto add1_0 = result.circuit->integrate_circuit(adder_1bit.circuit);
+    auto add1_0 = result.circuit->integrate_circuit(adder_1bit.circuit->clone());
     result.circuit->connect_pins(result.pin_Ci->pin(0), add1_0->interface_pin_by_name("Ci"));
     result.circuit->connect_pins(result.pin_A->pin(0), add1_0->interface_pin_by_name("A"));
     result.circuit->connect_pins(result.pin_B->pin(0), add1_0->interface_pin_by_name("B"));
@@ -217,7 +217,7 @@ TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
     auto sim = std::make_unique<Simulator>();
     REQUIRE (sim);
 
-    auto circuit = sim->create_circuit();
+    auto circuit = sim->create_circuit("adder_8bit");
     auto pin_Ci = circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
     auto pin_A = circuit->create_component<Connector>("A", 8, Connector::INPUT);
     auto pin_B = circuit->create_component<Connector>("B", 8, Connector::INPUT);
@@ -226,7 +226,7 @@ TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
 
     auto adder_4bit = create_4bit_adder(sim.get());
 
-    auto add4_0 = circuit->integrate_circuit(adder_4bit.circuit);
+    auto add4_0 = circuit->integrate_circuit(adder_4bit.circuit->clone());
     circuit->connect_pins(pin_Ci->pin(0), add4_0->interface_pin_by_name("Ci"));
     circuit->connect_pins(pin_A->pin(0), add4_0->interface_pin_by_name("A[0]"));
     circuit->connect_pins(pin_A->pin(1), add4_0->interface_pin_by_name("A[1]"));
