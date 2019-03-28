@@ -6,6 +6,8 @@
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"
 
+#include "colors.h"
+
 constexpr const ImVec2 &imvec2(const Point &p) {
     return *reinterpret_cast<const ImVec2 *>(&p);
 }
@@ -61,18 +63,17 @@ void UICircuit::draw() {
 		}
 
     	draw_list->AddRect(imvec2(comp.m_circuit_min + offset), imvec2(comp.m_circuit_max + offset), 
-						   IM_COL32(100, 100, 100, 255));
+						   COLOR_COMPONENT_BORDER);
 
 		if (comp.m_icon) {
 			Transform to_window = comp.m_to_circuit;
 			to_window.translate(offset);
-    		comp.m_icon->draw(to_window, draw_list, 2, IM_COL32(100, 100, 100, 255));
+    		comp.m_icon->draw(to_window, draw_list, 2, COLOR_COMPONENT_ICON);
 		}
 	}
 
 	for (const auto &pair : m_pin_locations) {
-		draw_list->AddCircleFilled(imvec2(pair.second + offset), 2, IM_COL32(150, 150, 150, 150));
-
+		draw_list->AddCircleFilled(imvec2(pair.second + offset), 2, COLOR_ENDPOINT);
 	}
 }
 
