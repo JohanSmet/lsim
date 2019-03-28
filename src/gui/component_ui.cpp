@@ -56,7 +56,7 @@ void UICircuit::draw() {
 
 		draw_list->ChannelsSetCurrent(0);         // background
 		ImGui::SetCursorScreenPos(imvec2(comp.m_circuit_min + offset));
-		ImGui::InvisibleButton("node", imvec2(comp.m_circuit_max - comp.m_circuit_max));
+		ImGui::InvisibleButton("node", imvec2(comp.m_circuit_max - comp.m_circuit_min));
 
 		if (!comp.m_tooltip.empty() && ImGui::IsItemHovered()) {
 			ImGui::SetTooltip(comp.m_tooltip.c_str());
