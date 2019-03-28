@@ -99,10 +99,12 @@ VisualComponent *Component::create_visual(VisualComponent::point_t position, Vis
 // Connection - I/O between circuits
 //
 
-Connector::Connector(const char *name, size_t data_bits) : 
+Connector::Connector(const char *name, size_t data_bits, bool input) : 
             CloneComponent(data_bits, VisualComponent::CONNECTOR),
             m_name(name),
-            m_changed(false) {
+            m_changed(false),
+            m_input(input),
+            m_tristate(false) {
     assert(data_bits > 0 && data_bits < 64);
 }
 
@@ -123,17 +125,35 @@ void Connector::materialize(Circuit *circuit) {
 }
 
 bool Connector::is_dirty() const {
-    return m_changed;
+    if (m_input) {
+        return m_changed;
+    } else {
+        return Component::is_dirty();
+    }
 }
 
 void Connector::process() {
-    for (auto idx = 0u; idx < num_pins(); ++idx) {
-        write_pin(idx, m_data[idx]);
+    if (m_input) {
+        // write values to the node
+        for (auto idx = 0u; idx < num_pins(); ++idx) {
+            write_pin(idx, m_data[idx]);
+        }
+        m_changed = false;
+    } else {
+        // read values from the nodes
+        for (auto idx = 0u; idx < num_pins(); ++idx) {
+            m_data[idx] = read_pin(idx);
+        }
     }
-    m_changed = false;
+}
+
+Value Connector::get_data(size_t index) const {
+    assert(index < num_pins());
+    return m_data[index];
 }
 
 void Connector::change_data(uint64_t data) {
+    assert(m_input);
     for (auto idx = 0u; idx < num_pins(); ++idx) {
         m_data[idx] = static_cast<Value>((data >> idx) & 1);
     }
@@ -142,13 +162,22 @@ void Connector::change_data(uint64_t data) {
 
 void Connector::change_data(Value value) {
     assert(num_pins() == 1);
+    assert(m_input);
     m_data[0] = value;
     m_changed = true;
 }
 
 void Connector::change_data(Component::value_container_t data) {
     assert(num_pins() == data.size());
+    assert(m_input);
     m_data = data;
+    m_changed = true;
+}
+
+void Connector::change_data(size_t index, Value data) {
+    assert(index < num_pins());
+    assert(m_input);
+    m_data[index] = data;
     m_changed = true;
 }
 

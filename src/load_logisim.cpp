@@ -247,7 +247,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         component = m_context.m_circuit->create_component<Constant>(constant_val);
         add_pin_location(comp_props.m_location, component->pin(0));
     } else if (comp_type == "Pin") {
-        component = m_context.m_circuit->create_component<Connector>(comp_props.m_label.c_str(), comp_props.m_width);
+        component = m_context.m_circuit->create_component<Connector>(comp_props.m_label.c_str(), comp_props.m_width, !pin_output);
         ok = handle_pin(component, comp_props, pin_output);
     } else if (comp_type == "AND Gate") {
         component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);

@@ -17,7 +17,7 @@ TEST_CASE("Components are created correctly", "[circuit]") {
     auto constant = circuit->create_component<Constant>(VALUE_TRUE);
     REQUIRE(constant);
 
-    auto connector = circuit->create_component<Connector>("Test", 1);
+    auto connector = circuit->create_component<Connector>("Test", 1, Connector::INPUT);
     REQUIRE(connector);
 }
 
@@ -33,8 +33,8 @@ TEST_CASE("Test nested circuits", "[circuit]") {
     auto xor_gate = circuit_1->create_component<XorGate>();
     auto and_gate = circuit_1->create_component<AndGate>(2);
     auto const_1  = circuit_1->create_component<Constant>(VALUE_TRUE);
-    auto in_1 = circuit_1->create_component<Connector>("in", 1);
-    auto out_1 = circuit_1->create_component<Connector>("out", 1);
+    auto in_1 = circuit_1->create_component<Connector>("in", 1, Connector::INPUT);
+    auto out_1 = circuit_1->create_component<Connector>("out", 1, Connector::OUTPUT);
 
     circuit_1->connect_pins(in_1->pin(0), xor_gate->pin(0));
     circuit_1->connect_pins(const_1->pin(0), xor_gate->pin(1));
@@ -46,8 +46,8 @@ TEST_CASE("Test nested circuits", "[circuit]") {
     auto circuit_2 = sim->create_circuit();
     REQUIRE (circuit_2);
 
-    auto s_in = circuit_2->create_component<Connector>("s_in", 1);
-    auto s_out = circuit_2->create_component<Connector>("s_out", 1);
+    auto s_in = circuit_2->create_component<Connector>("s_in", 1, Connector::INPUT);
+    auto s_out = circuit_2->create_component<Connector>("s_out", 1, Connector::OUTPUT);
     auto sub = circuit_2->integrate_circuit(circuit_1);
 
     circuit_2->connect_pins(s_in->pin(0), sub->interface_pin_by_name("in"));
@@ -74,11 +74,11 @@ AdderIO create_1bit_adder(Simulator *sim) {
 
     result.circuit = sim->create_circuit();
 
-    result.pin_Ci = result.circuit->create_component<Connector>("Ci", 1);
-    result.pin_A  = result.circuit->create_component<Connector>("A", 1);
-    result.pin_B  = result.circuit->create_component<Connector>("B", 1);
-    result.pin_O  = result.circuit->create_component<Connector>("O", 1);
-    result.pin_Co = result.circuit->create_component<Connector>("Co", 1);
+    result.pin_Ci = result.circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
+    result.pin_A  = result.circuit->create_component<Connector>("A", 1, Connector::INPUT);
+    result.pin_B  = result.circuit->create_component<Connector>("B", 1, Connector::INPUT);
+    result.pin_O  = result.circuit->create_component<Connector>("O", 1, Connector::OUTPUT);
+    result.pin_Co = result.circuit->create_component<Connector>("Co", 1, Connector::OUTPUT);
 
     auto xor_1 = result.circuit->create_component<XorGate>();
     result.circuit->connect_pins(result.pin_A->pin(0), xor_1->pin(0));
@@ -151,11 +151,11 @@ AdderIO create_4bit_adder(Simulator *sim) {
     // create a 4bit adder circuit
     result.circuit = sim->create_circuit();
 
-    result.pin_Ci = result.circuit->create_component<Connector>("Ci", 1);
-    result.pin_A = result.circuit->create_component<Connector>("A", 4);
-    result.pin_B = result.circuit->create_component<Connector>("B", 4);
-    result.pin_O = result.circuit->create_component<Connector>("O", 4);
-    result.pin_Co = result.circuit->create_component<Connector>("Co", 1);
+    result.pin_Ci = result.circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
+    result.pin_A = result.circuit->create_component<Connector>("A", 4, Connector::INPUT);
+    result.pin_B = result.circuit->create_component<Connector>("B", 4, Connector::INPUT);
+    result.pin_O = result.circuit->create_component<Connector>("O", 4, Connector::OUTPUT);
+    result.pin_Co = result.circuit->create_component<Connector>("Co", 1, Connector::OUTPUT);
 
     auto add1_0 = result.circuit->integrate_circuit(adder_1bit.circuit);
     result.circuit->connect_pins(result.pin_Ci->pin(0), add1_0->interface_pin_by_name("Ci"));
@@ -218,11 +218,11 @@ TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
     REQUIRE (sim);
 
     auto circuit = sim->create_circuit();
-    auto pin_Ci = circuit->create_component<Connector>("Ci", 1);
-    auto pin_A = circuit->create_component<Connector>("A", 8);
-    auto pin_B = circuit->create_component<Connector>("B", 8);
-    auto pin_O = circuit->create_component<Connector>("O", 8);
-    auto pin_Co = circuit->create_component<Connector>("Co", 1);
+    auto pin_Ci = circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
+    auto pin_A = circuit->create_component<Connector>("A", 8, Connector::INPUT);
+    auto pin_B = circuit->create_component<Connector>("B", 8, Connector::INPUT);
+    auto pin_O = circuit->create_component<Connector>("O", 8, Connector::OUTPUT);
+    auto pin_Co = circuit->create_component<Connector>("Co", 1, Connector::OUTPUT);
 
     auto adder_4bit = create_4bit_adder(sim.get());
 

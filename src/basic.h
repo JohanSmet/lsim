@@ -112,20 +112,40 @@ public:
 // connector - I/O between circuits
 class Connector : public CloneComponent<Connector> {
 public:
-    Connector(const char *name, size_t data_bits);
+    enum TYPE {
+        OUTPUT = false,
+        INPUT = true
+    };
+
+public:
+    Connector(const char *name, size_t data_bits, bool input);
     void materialize(Circuit *circuit) override;
 
     virtual bool is_dirty() const override;
     virtual void process() override;
 
+    // data
+    Value get_data(size_t index) const;
+
     void change_data(uint64_t data);
     void change_data(Value data);
     void change_data(value_container_t data);
+    void change_data(size_t index, Value data);
+
+    // properties
+    bool is_input() const {return m_input;}
+    bool is_output() const {return !m_input;}
+    bool is_tristate() const {return m_tristate;}
+
+    void set_input(bool input) {m_input = input;}
+    void set_tristate(bool tristate) {m_tristate = tristate;}
 
 private: 
     std::string         m_name;
     value_container_t   m_data;
     bool                m_changed;
+    bool                m_input;
+    bool                m_tristate;
 };
 
 

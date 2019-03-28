@@ -11,10 +11,10 @@ TEST_CASE("Buffer", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in = circuit->create_component<Connector>("in", 4);
+    auto in = circuit->create_component<Connector>("in", 4, Connector::INPUT);
     REQUIRE(in);
 
-    auto out = circuit->create_component<Connector>("out", 4);
+    auto out = circuit->create_component<Connector>("out", 4, Connector::OUTPUT);
     REQUIRE(out);
 
     auto buffer = circuit->create_component<Buffer>(4);
@@ -59,13 +59,13 @@ TEST_CASE("TriStateBuffer", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in = circuit->create_component<Connector>("in", 2);
+    auto in = circuit->create_component<Connector>("in", 2, Connector::INPUT);
     REQUIRE(in);
 
-    auto out = circuit->create_component<Connector>("out", 2);
+    auto out = circuit->create_component<Connector>("out", 2, Connector::OUTPUT);
     REQUIRE(out);
 
-    auto en = circuit->create_component<Connector>("en", 1);
+    auto en = circuit->create_component<Connector>("en", 1, Connector::INPUT);
     REQUIRE(en);
 
     auto buffer = circuit->create_component<TriStateBuffer>(2);
@@ -115,10 +115,10 @@ TEST_CASE("Multiple TriState Buffers", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto pin_A = circuit->create_component<Connector>("A", 1);
-    auto pin_B = circuit->create_component<Connector>("B", 1);
-    auto pin_Sel = circuit->create_component<Connector>("Sel", 1);
-    auto pin_O = circuit->create_component<Connector>("O", 1);
+    auto pin_A = circuit->create_component<Connector>("A", 1, Connector::INPUT);
+    auto pin_B = circuit->create_component<Connector>("B", 1, Connector::INPUT);
+    auto pin_Sel = circuit->create_component<Connector>("Sel", 1, Connector::INPUT);
+    auto pin_O = circuit->create_component<Connector>("O", 1, Connector::OUTPUT);
 
     auto buf_0 = circuit->create_component<TriStateBuffer>(1);
     auto buf_1 = circuit->create_component<TriStateBuffer>(1);
@@ -167,15 +167,15 @@ TEST_CASE("AndGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Connector>("i0", 1);
+    auto in_0 = circuit->create_component<Connector>("i0", 1, Connector::INPUT);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Connector>("i1", 1);
+    auto in_1 = circuit->create_component<Connector>("i1", 1, Connector::INPUT);
     REQUIRE(in_1);
 
     auto and_gate = circuit->create_component<AndGate>(2);
     REQUIRE(and_gate);
 
-    auto out = circuit->create_component<Connector>("out", 1);
+    auto out = circuit->create_component<Connector>("out", 1, Connector::OUTPUT);
     REQUIRE(out);
 
     circuit->connect_pins(and_gate->pin(0), in_0->pin(0));
@@ -215,15 +215,15 @@ TEST_CASE("OrGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Connector>("i0", 1);
+    auto in_0 = circuit->create_component<Connector>("i0", 1, Connector::INPUT);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Connector>("i1", 1);
+    auto in_1 = circuit->create_component<Connector>("i1", 1, Connector::INPUT);
     REQUIRE(in_1);
 
     auto or_gate = circuit->create_component<OrGate>(2);
     REQUIRE(or_gate);
 
-    auto out = circuit->create_component<Connector>("out", 1);
+    auto out = circuit->create_component<Connector>("out", 1, Connector::OUTPUT);
     REQUIRE(out);
 
     circuit->connect_pins(or_gate->pin(0), in_0->pin(0));
@@ -263,13 +263,13 @@ TEST_CASE("NotGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in = circuit->create_component<Connector>("in", 1);
+    auto in = circuit->create_component<Connector>("in", 1, Connector::INPUT);
     REQUIRE(in);
 
     auto not_gate = circuit->create_component<NotGate>();
     REQUIRE(not_gate);
 
-    auto out = circuit->create_component<Connector>("out", 1);
+    auto out = circuit->create_component<Connector>("out", 1, Connector::OUTPUT);
     REQUIRE(out);
 
     circuit->connect_pins(not_gate->pin(0), in->pin(0));
@@ -299,15 +299,15 @@ TEST_CASE("NandGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Connector>("in_0", 1);
+    auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Connector>("in_1", 1);
+    auto in_1 = circuit->create_component<Connector>("in_1", 1, Connector::INPUT);
     REQUIRE(in_1);
 
     auto nand_gate = circuit->create_component<NandGate>(2);
     REQUIRE(nand_gate);
 
-    auto out = circuit->create_component<Connector>("out", 1);
+    auto out = circuit->create_component<Connector>("out", 1, Connector::OUTPUT);
     REQUIRE(out);
 
     circuit->connect_pins(in_0->pin(0), nand_gate->pin(0));
@@ -345,15 +345,15 @@ TEST_CASE("NorGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Connector>("in_0", 1);
+    auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Connector>("in_1", 1);
+    auto in_1 = circuit->create_component<Connector>("in_1", 1, Connector::INPUT);
     REQUIRE(in_1);
 
     auto nor_gate = circuit->create_component<NorGate>(2);
     REQUIRE(nor_gate);
 
-    auto out = circuit->create_component<Connector>("out", 1);
+    auto out = circuit->create_component<Connector>("out", 1, Connector::OUTPUT);
     REQUIRE(out);
 
     circuit->connect_pins(in_0->pin(0), nor_gate->pin(0));
@@ -391,15 +391,15 @@ TEST_CASE("XorGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Connector>("in_0", 1);
+    auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Connector>("in_1", 1);
+    auto in_1 = circuit->create_component<Connector>("in_1", 1, Connector::INPUT);
     REQUIRE(in_1);
 
     auto xor_gate = circuit->create_component<XorGate>();
     REQUIRE(xor_gate);
 
-    auto out = circuit->create_component<Connector>("out", 1);
+    auto out = circuit->create_component<Connector>("out", 1, Connector::OUTPUT);
     REQUIRE(out);
 
     circuit->connect_pins(in_0->pin(0), xor_gate->pin(0));
@@ -437,15 +437,15 @@ TEST_CASE("XnorGate", "[gate]") {
     auto circuit = sim->create_circuit();
     REQUIRE(circuit);
 
-    auto in_0 = circuit->create_component<Connector>("in_0", 1);
+    auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
     REQUIRE(in_0);
-    auto in_1 = circuit->create_component<Connector>("in_1", 1);
+    auto in_1 = circuit->create_component<Connector>("in_1", 1, Connector::INPUT);
     REQUIRE(in_1);
 
     auto xnor_gate = circuit->create_component<XnorGate>();
     REQUIRE(xnor_gate);
 
-    auto out = circuit->create_component<Connector>("out", 1);
+    auto out = circuit->create_component<Connector>("out", 1, Connector::OUTPUT);
     REQUIRE(out);
 
     circuit->connect_pins(in_0->pin(0), xnor_gate->pin(0));
