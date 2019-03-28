@@ -23,12 +23,29 @@ void main_gui_setup(Simulator *sim) {
 
 	const auto &comps = sim->get_main_circuit()->visual_components();
 	ui_circuit = UICircuitBuilder::create_circuit("main", comps.begin(), comps.end());
+
+	sim->init();
 }
 
 void main_gui(Simulator *sim)
 {
 	ImGui::SetNextWindowSize(ImVec2(700,600), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Circuit");
+
+	static bool sim_running = true;
+	ImGui::Checkbox("Run simulation", &sim_running);
+	ImGui::SameLine();
+	if (ImGui::Button("Reset simulation")) {
+		sim->init();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Step")) {
+		sim->step();
+	}
+
+	if (sim_running) {
+		sim->step();
+	}
 
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
 
