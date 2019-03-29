@@ -299,6 +299,18 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         }
     }
 
+    if (ok && component) {
+        auto convert_facing = [](LogisimDirection facing) {
+            switch (facing) {
+                case LS_NORTH : return VisualComponent::NORTH;
+                case LS_EAST : return VisualComponent::EAST;
+                case LS_SOUTH : return VisualComponent::SOUTH;
+                default: return VisualComponent::WEST;
+            }
+        };
+        component->create_visual({1.5f * comp_props.m_location.m_x, 1.5f * comp_props.m_location.m_y}, convert_facing(comp_props.m_facing));
+    }
+
     if (ok && component && !comp_props.m_label.empty()) {
         m_context.m_circuit->register_component_name(comp_props.m_label, component);
     }
