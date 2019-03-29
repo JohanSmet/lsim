@@ -135,6 +135,7 @@ public:
     void change_data(size_t index, Value data);
 
     // properties
+    const char *name() const {return m_name.c_str();}
     bool is_input() const {return m_input;}
     bool is_output() const {return !m_input;}
     bool is_tristate() const {return m_tristate;}

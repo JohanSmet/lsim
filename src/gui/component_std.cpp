@@ -78,6 +78,7 @@ void component_register_basic() {
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
 
                 ImGui::BeginGroup();
+                ImGui::PushID(connector->name());
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
                 for (size_t i = 0; i < comp->num_pins(); ++ i) {
                     ImGui::PushID(i);
@@ -99,6 +100,7 @@ void component_register_basic() {
 
                     ImGui::PopID();
                 }
+                ImGui::PopID();
                 ImGui::EndGroup();
             };
         }
