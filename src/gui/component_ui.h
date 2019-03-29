@@ -70,19 +70,7 @@ public:
     typedef std::function<void(Component *, UIComponent *, UICircuit *)> materialize_func_t;
 public:
     static void register_materialize_func(VisualComponent::Type type, materialize_func_t func);
-
-    template <class CompIt>
-    static UICircuit::uptr_t create_circuit(Circuit *circuit, CompIt comp_begin, CompIt comp_end) {
-        auto ui_circuit = std::make_unique<UICircuit>(circuit);
-
-        for (auto iter = comp_begin; iter != comp_end; ++iter) {
-            const auto &visual_comp = *iter;
-            materialize_component(ui_circuit.get(), visual_comp.get());
-        }
-
-        return std::move(ui_circuit);
-    }
-
+    static UICircuit::uptr_t create_circuit(Circuit *circuit);
 private:
     static void materialize_component(UICircuit *circuit, VisualComponent *visual_comp);
 

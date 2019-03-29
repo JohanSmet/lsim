@@ -130,6 +130,16 @@ void UICircuitBuilder::register_materialize_func(VisualComponent::Type type, mat
 	m_materialize_funcs[type] = func;
 }
 
+UICircuit::uptr_t UICircuitBuilder::create_circuit(Circuit *circuit) {
+	auto ui_circuit = std::make_unique<UICircuit>(circuit);
+
+    for (const auto &visual_comp : circuit->visual_components()) {
+		materialize_component(ui_circuit.get(), visual_comp.get());
+	}
+
+    return std::move(ui_circuit);
+}
+
 void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent *visual_comp) {
 	auto mat_func = m_materialize_funcs.find(visual_comp->get_type());
 	if (mat_func != m_materialize_funcs.end()) {

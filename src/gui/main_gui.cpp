@@ -13,8 +13,7 @@ static UICircuit::uptr_t ui_circuit = nullptr;
 
 void handle_main_circuit_changed(Simulator *sim) {
 	auto active_circuit = sim->active_circuit();
-	const auto &comps = active_circuit->visual_components();
-	ui_circuit = UICircuitBuilder::create_circuit(active_circuit, comps.begin(), comps.end()); 
+	ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
 	active_circuit->initialize_interface_pins();
 	sim->init();
 }
