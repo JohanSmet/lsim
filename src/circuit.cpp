@@ -28,6 +28,19 @@ void Circuit::add_interface_pin(const char *name, pin_t pin) {
     m_interface_pins.push_back({name, pin});
 }
 
+void Circuit::initialize_interface_pins() {
+    for (const auto &comp : m_components) {
+        auto connector = dynamic_cast<Connector *>(comp.get());
+        if (connector && connector->is_input() && !connector->is_tristate()) {
+            for (size_t i = 0; i < connector->num_pins(); ++i) {
+                if (connector->get_data(i) == VALUE_UNDEFINED) {
+                    connector->change_data(i, VALUE_FALSE);
+                }
+            }
+        }
+    }
+}
+
 void Circuit::write_value(pin_t pin, Value value) {
     m_sim->write_pin(pin, value);
 }

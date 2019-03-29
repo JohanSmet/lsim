@@ -59,6 +59,7 @@ public:
     void connect_pins(pin_t pin_a, pin_t pin_b);
 
     void add_interface_pin(const char *name, pin_t pin);
+    void initialize_interface_pins();
 
     void write_value(pin_t pin, Value value);
     Value read_value(pin_t pin);
