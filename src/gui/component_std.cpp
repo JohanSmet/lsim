@@ -77,6 +77,8 @@ void component_register_basic() {
 
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
 
+                auto origin = ImGui::GetCursorPos();
+
                 ImGui::BeginGroup();
                 ImGui::PushID(connector->name());
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
@@ -101,6 +103,8 @@ void component_register_basic() {
                     ImGui::PopID();
                 }
                 ImGui::PopID();
+                ImGui::SetCursorPos({origin.x, origin.y - 14});
+                ImGui::Text(connector->name());
                 ImGui::EndGroup();
             };
         }
