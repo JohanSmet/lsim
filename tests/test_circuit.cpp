@@ -53,7 +53,7 @@ TEST_CASE("Test nested circuits", "[circuit]") {
     circuit_2->connect_pins(s_in->pin(0), sub->interface_pin_by_name("in"));
     circuit_2->connect_pins(s_out->pin(0), sub->interface_pin_by_name("out"));
 
-    sim->set_main_circuit(circuit_2);
+    sim->set_active_circuit(circuit_2);
     sim->init();
     s_in->change_data(VALUE_TRUE);
     sim->run_until_stable(5);
@@ -112,7 +112,7 @@ TEST_CASE("1bit Adder", "[circuit]") {
 
     auto adder_1bit = create_1bit_adder(sim.get());
 
-    sim->set_main_circuit(adder_1bit.circuit);
+    sim->set_active_circuit(adder_1bit.circuit);
     sim->init();
 
     Value truth_table[][5] = {
@@ -191,7 +191,7 @@ TEST_CASE("4bit adder (circuit cloning)", "[circuit]") {
     REQUIRE (sim);
 
     auto adder_4bit = create_4bit_adder(sim.get());
-    sim->set_main_circuit(adder_4bit.circuit);
+    sim->set_active_circuit(adder_4bit.circuit);
 
     for (int ci = 0; ci < 2; ++ci) {
         adder_4bit.pin_Ci->change_data(ci);
@@ -257,7 +257,7 @@ TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
     circuit->connect_pins(pin_O->pin(7), add4_1->interface_pin_by_name("O[3]"));
     circuit->connect_pins(add4_1->interface_pin_by_name("Co"), pin_Co->pin(0)); 
 
-    sim->set_main_circuit(circuit);
+    sim->set_active_circuit(circuit);
     sim->init();
 
     for (int ci = 0; ci < 2; ++ci) {

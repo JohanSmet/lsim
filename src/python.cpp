@@ -40,11 +40,11 @@ PYBIND11_MODULE(lsimpy, m) {
 
         .def("component_by_name",
                 [](const Simulator &sim, const char *name) {
-                    return sim.get_main_circuit()->component_by_name(name);
+                    return sim.active_circuit()->component_by_name(name);
                 })
         .def("connector_by_name",
                 [](const Simulator &sim, const char *name) {
-                    return dynamic_cast<Connector *>(sim.get_main_circuit()->component_by_name(name));
+                    return dynamic_cast<Connector *>(sim.active_circuit()->component_by_name(name));
                 })
         ;
 

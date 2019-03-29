@@ -8,7 +8,7 @@
 
 Simulator::Simulator() : 
             m_time(0),
-            m_main_circuit(nullptr),
+            m_active_circuit(nullptr),
             m_read_idx(0),
             m_write_idx(1) {
 
@@ -24,8 +24,17 @@ Circuit *Simulator::circuit_by_idx(size_t idx) const {
     return m_circuits[idx].get();
 }
 
-void Simulator::set_main_circuit(Circuit *main) {
-    m_main_circuit = main;
+void Simulator::set_active_circuit(Circuit *circuit) {
+    m_active_circuit = circuit;
+}
+
+size_t Simulator::active_circuit_index() const {
+    for (size_t i = 0; i < m_circuits.size(); ++i) {
+        if (m_circuits[i].get() == m_active_circuit) {
+            return i;
+        }
+    }
+    return m_circuits.size();
 }
 
 pin_t Simulator::assign_pin(node_t connect_to_pin) {
@@ -191,17 +200,17 @@ void Simulator::init() {
     std::fill(std::begin(m_node_write_time), std::end(m_node_write_time), 0);
     std::fill(std::begin(m_node_change_time), std::end(m_node_change_time), 0);
 
-    if (!m_main_circuit && !m_circuits.empty()) {
-        m_main_circuit = m_circuits.front().get();
+    if (!m_active_circuit && !m_circuits.empty()) {
+        m_active_circuit = m_circuits.front().get();
     }
 }
 
 void Simulator::step() {
-    assert(m_main_circuit);
+    assert(m_active_circuit);
 
     m_time = m_time + 1;
 
-    m_main_circuit->process();
+    m_active_circuit->process();
 
     for (int i = 0; i < m_node_change_time.size(); ++i) {
         if (m_node_values[m_write_idx][i] != m_node_values[m_read_idx][i]) {

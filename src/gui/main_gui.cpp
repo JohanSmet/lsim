@@ -11,6 +11,13 @@
 
 static UICircuit::uptr_t ui_circuit = nullptr;
 
+void handle_main_circuit_changed(Simulator *sim) {
+	const auto &comps = sim->active_circuit()->visual_components();
+	ui_circuit = UICircuitBuilder::create_circuit(sim->active_circuit(), comps.begin(), comps.end()); 
+
+	sim->init();
+}
+
 void main_gui_setup(Simulator *sim, const char *circuit_file) {
 	component_register_basic();
 	component_register_gates();
@@ -18,11 +25,7 @@ void main_gui_setup(Simulator *sim, const char *circuit_file) {
 	// try to load the circuit specified on the command line
 	if (circuit_file) {
 		load_logisim(sim, circuit_file);
-
-		const auto &comps = sim->get_main_circuit()->visual_components();
-		ui_circuit = UICircuitBuilder::create_circuit(sim->get_main_circuit(), comps.begin(), comps.end()); 
-
-		sim->init();
+		handle_main_circuit_changed(sim);
 	}
 }
 
@@ -48,12 +51,13 @@ void main_gui(Simulator *sim)
 
 	ImGui::BeginChild("left_pane", ImVec2(150, 0), true);
 	ImGui::Text("Circuits");
-	static size_t selected_circuit = 0;
+	static size_t selected_circuit = sim->active_circuit_index();
 	for (size_t i = 0; i < sim->num_circuits(); ++i) {
 		auto circuit = sim->circuit_by_idx(i);
 		if (ImGui::Selectable(circuit->name(), selected_circuit == i)) {
 			selected_circuit = i;
-			sim->set_main_circuit(circuit);
+			sim->set_active_circuit(circuit);
+			handle_main_circuit_changed(sim);
 		}
 	}
 	ImGui::EndChild();

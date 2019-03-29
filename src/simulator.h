@@ -24,8 +24,9 @@ public:
     size_t num_circuits() const {return m_circuits.size();}
     Circuit *circuit_by_idx(size_t idx) const;
 
-    void set_main_circuit(Circuit *main);
-    Circuit *get_main_circuit() const {return m_main_circuit;}
+    void set_active_circuit(Circuit *circuit);
+    Circuit *active_circuit() const {return m_active_circuit;}
+    size_t active_circuit_index() const;
 
     // pins
     pin_t assign_pin(node_t connect_to_pin = PIN_UNDEFINED);
@@ -71,7 +72,7 @@ private:
     timestamp_t             m_time;
 
     circuit_container_t     m_circuits;
-    Circuit *               m_main_circuit;
+    Circuit *               m_active_circuit;
 
     node_container_t        m_pin_nodes;
 

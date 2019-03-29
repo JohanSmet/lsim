@@ -917,7 +917,7 @@ TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     REQUIRE (sim);
 
     REQUIRE(load_logisim(sim.get(), logisim_test_data, std::strlen(logisim_test_data)));
-    auto circuit = sim->get_main_circuit();
+    auto circuit = sim->active_circuit();
     REQUIRE(circuit);
 
     auto in = circuit->component_by_name("In");
@@ -939,7 +939,7 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
     REQUIRE (sim);
 
     REQUIRE(load_logisim(sim.get(), logisim_adder_data, std::strlen(logisim_adder_data)));
-    auto circuit = sim->get_main_circuit();
+    auto circuit = sim->active_circuit();
     REQUIRE(circuit);
 
     // input pins
@@ -993,7 +993,7 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
     REQUIRE (sim);
 
     REQUIRE(load_logisim(sim.get(), logisim_multi_data, std::strlen(logisim_multi_data)));
-    auto circuit = sim->get_main_circuit();
+    auto circuit = sim->active_circuit();
     REQUIRE(circuit);
 
     // input pins
@@ -1057,7 +1057,7 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
     REQUIRE (sim);
 
     REQUIRE(load_logisim(sim.get(), logisim_tristate_data, std::strlen(logisim_tristate_data)));
-    auto circuit = sim->get_main_circuit();
+    auto circuit = sim->active_circuit();
     REQUIRE(circuit);
 
     // input pins
@@ -1098,7 +1098,7 @@ TEST_CASE ("Logisim nested circuit", "[logisim]") {
     REQUIRE (sim);
 
     REQUIRE(load_logisim(sim.get(), logisim_nested_data, std::strlen(logisim_nested_data)));
-    auto circuit = sim->get_main_circuit();
+    auto circuit = sim->active_circuit();
     REQUIRE(circuit);
 
     // input pins
@@ -1152,7 +1152,7 @@ TEST_CASE ("Logisim +1 databits", "[logisim]") {
     REQUIRE (sim);
 
     REQUIRE(load_logisim(sim.get(), logisim_bus_data, std::strlen(logisim_bus_data)));
-    auto circuit = sim->get_main_circuit();
+    auto circuit = sim->active_circuit();
     REQUIRE(circuit);
 
     auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
@@ -1179,7 +1179,7 @@ TEST_CASE ("Logisim Tunnel", "[logisim]") {
     REQUIRE (sim);
 
     REQUIRE(load_logisim(sim.get(), logisim_tunnel_data, std::strlen(logisim_tunnel_data)));
-    auto circuit = sim->get_main_circuit();
+    auto circuit = sim->active_circuit();
     REQUIRE(circuit);
 
     auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
@@ -1214,7 +1214,7 @@ TEST_CASE ("Logisim Multi-bit tunnel", "[logisim]") {
     REQUIRE (sim);
 
     REQUIRE(load_logisim(sim.get(), logisim_multi_tunnel_data, std::strlen(logisim_multi_tunnel_data)));
-    auto circuit = sim->get_main_circuit();
+    auto circuit = sim->active_circuit();
     REQUIRE(circuit);
 
     auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
