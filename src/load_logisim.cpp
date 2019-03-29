@@ -76,6 +76,8 @@ private:
         size_t              m_splitter_fanout;
         size_t              m_splitter_incoming;
         int                 m_splitter_justify;
+        bool                m_pin_output;
+        bool                m_pin_tristate;
     };
 
     struct CircuitConstruction {
@@ -102,7 +104,7 @@ private:
     bool handle_gate(Component *component, ComponentProperties &props);
     bool handle_not_gate(Component *component, ComponentProperties &props);
     void handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left);
-    bool handle_pin(Component *component, ComponentProperties &props, bool output);
+    bool handle_pin(Connector *connector, ComponentProperties &props);
     bool handle_splitter(ComponentProperties &props);
     bool handle_tunnel(ComponentProperties &props);
     void compute_ipin_offsets();
@@ -198,8 +200,9 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     comp_props.m_splitter_incoming = 2;
     comp_props.m_splitter_fanout = 2;
     comp_props.m_splitter_justify = -1;
+    comp_props.m_pin_output = false;
+    comp_props.m_pin_tristate = false;
     bool tristate_left = false;
-    bool pin_output = false;
     Value constant_val = VALUE_TRUE;
 
     if (!parse_location(comp_loc, comp_props.m_location)) {
@@ -223,7 +226,9 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         } else if (prop_name == "value") {
             constant_val = (prop_val == "0x0") ? VALUE_FALSE : VALUE_TRUE;
         } else if (prop_name == "output") {
-            pin_output = (prop_val == "true");
+            comp_props.m_pin_output = (prop_val == "true");
+        } else if (prop_name == "tristate") {
+            comp_props.m_pin_tristate = (prop_val == "true");
         } else if (prop_name == "width") {
             comp_props.m_width = attr_val.as_int(comp_props.m_width);
         } else if (prop_name == "fanout") {
@@ -248,8 +253,9 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         component = m_context.m_circuit->create_component<Constant>(constant_val);
         add_pin_location(comp_props.m_location, component->pin(0));
     } else if (comp_type == "Pin") {
-        component = m_context.m_circuit->create_component<Connector>(comp_props.m_label.c_str(), comp_props.m_width, !pin_output);
-        ok = handle_pin(component, comp_props, pin_output);
+        auto connector = m_context.m_circuit->create_component<Connector>(comp_props.m_label.c_str(), comp_props.m_width, !comp_props.m_pin_output);
+        component = connector;
+        ok = handle_pin(connector, comp_props);
     } else if (comp_type == "AND Gate") {
         component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
         ok = handle_gate(component, comp_props);
@@ -485,9 +491,14 @@ void LogisimParser::handle_buffer(Component *component, ComponentProperties &pro
     add_pin_location(props.m_location, component->pins(component->num_pins() - props.m_width, component->num_pins() - 1));
 }
 
-bool LogisimParser::handle_pin(Component *component, ComponentProperties &props, bool output) {
-    add_pin_location(props.m_location, component->pins());
-    m_context.m_circuit_ipins[output ? 1 : 0][props.m_location.m_full] = props.m_label;
+bool LogisimParser::handle_pin(Connector *connector, ComponentProperties &props) {
+    add_pin_location(props.m_location, connector->pins());
+    m_context.m_circuit_ipins[props.m_pin_output ? 1 : 0][props.m_location.m_full] = props.m_label;
+
+    if (props.m_pin_tristate) {
+        connector->set_tristate(true);
+    }
+
     return true;
 }
 
