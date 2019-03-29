@@ -7,24 +7,23 @@
 #include "simulator.h"
 #include "circuit.h"
 #include "gate.h"
+#include "load_logisim.h"
 
 static UICircuit::uptr_t ui_circuit = nullptr;
 
-void main_gui_setup(Simulator *sim) {
+void main_gui_setup(Simulator *sim, const char *circuit_file) {
 	component_register_basic();
 	component_register_gates();
 
-	// create a test circuit for now
-    auto circuit = sim->create_circuit("main");
-    sim->set_main_circuit(circuit);
-    auto buffer = circuit->create_component<Buffer>(8);
-    buffer->create_visual({100,100}, VisualComponent::SOUTH);
+	// try to load the circuit specified on the command line
+	if (circuit_file) {
+		load_logisim(sim, circuit_file);
 
+		const auto &comps = sim->get_main_circuit()->visual_components();
+		ui_circuit = UICircuitBuilder::create_circuit(sim->get_main_circuit(), comps.begin(), comps.end()); 
 
-	const auto &comps = sim->get_main_circuit()->visual_components();
-	ui_circuit = UICircuitBuilder::create_circuit(circuit, comps.begin(), comps.end());
-
-	sim->init();
+		sim->init();
+	}
 }
 
 void main_gui(Simulator *sim)
@@ -32,7 +31,7 @@ void main_gui(Simulator *sim)
 	ImGui::SetNextWindowSize(ImVec2(700,600), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Circuit");
 
-	static bool sim_running = true;
+	static bool sim_running = ui_circuit.get() != nullptr;
 	ImGui::Checkbox("Run simulation", &sim_running);
 	ImGui::SameLine();
 	if (ImGui::Button("Reset simulation")) {
@@ -62,7 +61,9 @@ void main_gui(Simulator *sim)
 
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
 
-	ui_circuit->draw();
+	if (ui_circuit) {
+		ui_circuit->draw();
+	}
 
 	ImGui::EndChild();
 

@@ -16,8 +16,13 @@
 
 const char *WINDOW_TITLE = "LSim";
 
-int main(int, char**)
+int main(int argc, char **argv)
 {
+    const char *arg_circuit = "";
+    if (argc > 1) {
+        arg_circuit = argv[1];
+    }
+
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
     {
@@ -67,7 +72,7 @@ int main(int, char**)
     // create the simulator here, it should last the lifetime of the application
     auto sim = std::make_unique<Simulator>();
 
-    main_gui_setup(sim.get());
+    main_gui_setup(sim.get(), arg_circuit);
 
     // Main loop
     bool done = false;

@@ -28,7 +28,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/lsim_gui",
-            "args": [],
+            "args": ["examples/1bit_adder.circ"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
