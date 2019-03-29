@@ -495,6 +495,16 @@ bool LogisimParser::handle_pin(Connector *connector, ComponentProperties &props)
     add_pin_location(props.m_location, connector->pins());
     m_context.m_circuit_ipins[props.m_pin_output ? 1 : 0][props.m_location.m_full] = props.m_label;
 
+    // flip the orientation of output pins
+    if (props.m_pin_output) {
+        switch (props.m_facing) {
+            case LS_NORTH : props.m_facing = LS_SOUTH;
+            case LS_EAST : props.m_facing = LS_WEST;
+            case LS_SOUTH : props.m_facing = LS_NORTH;
+            case LS_WEST : props.m_facing = LS_EAST;
+        }
+    }
+
     if (props.m_pin_tristate) {
         connector->set_tristate(true);
     }
