@@ -241,7 +241,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     }
 
     Component *component = nullptr;
-    bool ok = false;
+    bool ok = true;
 
     if (comp_type == "Buffer") {
         component = m_context.m_circuit->create_component<Buffer>(comp_props.m_width);
@@ -301,7 +301,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         component = handle_sub_circuit(comp_type, comp_props);
         if (!component) {
             ERROR_MSG("Unsupport component (%s) - loading failed", comp_type.c_str());
-            return false;
+            ok = false;
         }
     }
 
