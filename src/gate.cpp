@@ -48,7 +48,7 @@ void Buffer::process() {
 //
 
 TriStateBuffer::TriStateBuffer(size_t data_bits) : 
-                    CloneComponent(1 + (data_bits * 2), VisualComponent::BUFFER),
+                    CloneComponent(1 + (data_bits * 2), VisualComponent::TRISTATE_BUFFER),
                     m_enable_idx(data_bits) {
     assert(data_bits >= 1);
 }
