@@ -112,11 +112,11 @@ void Connector::materialize(Circuit *circuit) {
     Component::materialize(circuit);
 
     if (num_pins() == 1) {
-        circuit->add_interface_pin(m_name.c_str(), pin(0));
+        circuit->add_interface_pin(m_name.c_str(), this, 0);
         m_data.push_back(VALUE_UNDEFINED);
     } else {
         for (size_t idx = 0; idx < num_pins(); ++idx) {
-            circuit->add_interface_pin((m_name + "[" + std::to_string(idx) + "]").c_str(), pin(idx));
+            circuit->add_interface_pin((m_name + "[" + std::to_string(idx) + "]").c_str(), this, idx);
             m_data.push_back(VALUE_UNDEFINED);
         }
     }

@@ -24,21 +24,32 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     return m_sim->connect_pins(pin_a, pin_b);
 }
 
-void Circuit::add_interface_pin(const char *name, pin_t pin) {
-    m_interface_pins.push_back({name, pin});
+void Circuit::add_interface_pin(const char *name, Connector *connector, uint32_t pin_index) {
+    m_interface_pins.push_back({name, connector, pin_index});
 }
 
 void Circuit::initialize_interface_pins() {
-    for (const auto &comp : m_components) {
-        auto connector = dynamic_cast<Connector *>(comp.get());
-        if (connector && connector->is_input() && !connector->is_tristate()) {
-            for (size_t i = 0; i < connector->num_pins(); ++i) {
-                if (connector->get_data(i) == VALUE_UNDEFINED) {
-                    connector->change_data(i, VALUE_FALSE);
-                }
-            }
+    for (const auto &ipin : m_interface_pins) {
+        if (ipin.m_connector->is_input() && !ipin.m_connector->is_tristate() &&
+            ipin.m_connector->get_data(ipin.m_pin_index) == VALUE_UNDEFINED) {
+            ipin.m_connector->change_data(ipin.m_pin_index, VALUE_FALSE);
         }
     }
+}
+
+bool Circuit::interface_pin_is_input(size_t index) const {
+    assert(index < m_interface_pins.size());
+    return m_interface_pins[index].m_connector->is_input();
+}
+
+const char *Circuit::interface_pin_name(size_t index) const {
+    assert(index < m_interface_pins.size());
+    return m_interface_pins[index].m_name.c_str();
+}
+
+pin_t Circuit::interface_pin(size_t index) const {
+    assert(index < m_interface_pins.size());
+    return m_interface_pins[index].m_connector->pin(m_interface_pins[index].m_pin_index);
 }
 
 void Circuit::write_value(pin_t pin, Value value) {
@@ -63,9 +74,8 @@ CircuitComponent *Circuit::integrate_circuit(Circuit::uptr_t sub) {
     comp->materialize(this);
 
     for (const auto &ipin : comp->nested_circuit()->m_interface_pins) {
-        const auto &sub_pin = std::get<1>(ipin);
-        const auto &sub_name = std::get<0>(ipin);
-        comp->add_pin(sub_pin, sub_name.c_str());
+        auto sub_pin = ipin.m_connector->pin(ipin.m_pin_index);
+        comp->add_pin(sub_pin, ipin.m_name.c_str());
     }
 
     m_nested_circuits.push_back(std::move(comp));
@@ -159,6 +169,7 @@ CircuitComponent::CircuitComponent(Circuit::uptr_t nested) :
 void CircuitComponent::add_pin(pin_t pin, const char *name) {
     if (name) {
         m_interface_pins[std::string(name)] = pin;
+        Component::add_pin(pin);
     }
 }
 

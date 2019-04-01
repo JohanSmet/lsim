@@ -8,7 +8,6 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
-#include <tuple>
 
 #include "basic.h"
 
@@ -58,8 +57,12 @@ public:
     pin_t create_pin(Component *component, pin_t connect_to_pin = PIN_UNDEFINED);
     void connect_pins(pin_t pin_a, pin_t pin_b);
 
-    void add_interface_pin(const char *name, pin_t pin);
+    void add_interface_pin(const char *name, Connector *connector, uint32_t pin_index);
     void initialize_interface_pins();
+    size_t num_interface_pins() const {return m_interface_pins.size();}
+    bool interface_pin_is_input(size_t index) const;
+    const char *interface_pin_name(size_t index) const;
+    pin_t interface_pin(size_t index) const;
 
     void write_value(pin_t pin, Value value);
     Value read_value(pin_t pin);
@@ -91,7 +94,12 @@ private:
     void clone_connections(Component *orig, Component *clone, CircuitCloneContext *context) const;
 
 private:
-    typedef std::tuple<std::string, pin_t>  interface_pin_t;
+    struct interface_pin_t {
+        std::string m_name;
+        Connector * m_connector;
+        uint32_t    m_pin_index;
+    };
+
     typedef std::vector<interface_pin_t>    interface_pin_container_t;
     typedef std::vector<pin_t>              pin_container_t;
 

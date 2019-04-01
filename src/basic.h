@@ -61,6 +61,7 @@ public:
     size_t num_pins() const {return m_pins.size();}
     const pin_container_t &pins() const {return m_pins;}
     pin_container_t pins(size_t start, size_t end);
+    void add_pin(pin_t pin) {m_pins.push_back(pin);}
 
     // tick: execute one simulation cycle if the value of any of the connected
     //       nodes changed in the previous cycle. If not, no processing is done 
