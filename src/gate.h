@@ -12,6 +12,9 @@ public:
     Constant(Value value);
     virtual bool is_dirty() const override;
     virtual void process() override;
+
+    Value value() const {return m_value;}
+
 private:
     Value m_value;
 };

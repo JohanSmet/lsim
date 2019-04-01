@@ -10,6 +10,7 @@
 
 #include "basic.h"
 #include "circuit.h"
+#include "gate.h"
 
 #include <algorithm>
 
@@ -126,6 +127,28 @@ void component_register_basic() {
     );
 
     // constant
+    UICircuitBuilder::register_materialize_func(
+        VisualComponent::CONSTANT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+            Constant *constant = dynamic_cast<Constant *>(comp);
+
+            const float width = 26;
+            const float height = 26;
+            materialize_rectangle(ui_comp, ui_circuit, width, height);
+            ui_circuit->add_pin_line(ui_comp->m_to_circuit, comp->pins().data(), comp->num_pins(), 
+                                     {0.5f * width, -height * 0.5f + 12}, {0, 24});
+
+            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
+                auto origin = ImGui::GetCursorPos();
+                auto val = constant->value();
+
+                auto screen_pos = ImGui::GetCursorScreenPos();
+                ImGui::GetWindowDrawList()->AddRectFilled(
+                    {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
+                    COLOR_CONNECTION[val]);
+                ImGuiEx::TextCentered(ImVec2(origin.x + 13, origin.y + 5), connector_data_label(val));
+            };
+        }
+    );
 
     // sub circuit
     UICircuitBuilder::register_materialize_func(
