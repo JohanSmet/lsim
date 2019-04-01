@@ -80,6 +80,7 @@ set(APP_SOURCES
 	"src/gui/algebra.cpp"
 	"src/gui/component_std.cpp"
 	"src/gui/component_ui.cpp"
+	"src/gui/imgui_ex.cpp"
 	"src/gui/main.cpp"
 	"src/gui/main_gui.cpp"
 )
@@ -96,6 +97,7 @@ set(APP_HEADERS
 	"src/gui/algebra.h"
 	"src/gui/component_std.h"
 	"src/gui/component_ui.h"
+	"src/gui/imgui_ex.h"
 	"src/gui/shapes.h"
 )
 
