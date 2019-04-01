@@ -37,7 +37,7 @@ void UICircuit::add_endpoint(uint32_t pin, Point location) {
 	m_endpoints[pin] = location;
 }
 
-void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_count, float size, Point origin, Point inc) {
+void UICircuit::add_pin_line(Transform to_circuit, const uint32_t *pins, size_t pin_count, float size, Point origin, Point inc) {
 	if (pin_count == 0) {
 		return;
 	}
@@ -51,7 +51,7 @@ void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_co
 	}
 }
 
-void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_count, Point origin, Point delta) {
+void UICircuit::add_pin_line(Transform to_circuit, const uint32_t *pins, size_t pin_count, Point origin, Point delta) {
 	if (pin_count == 0) {
 		return;
 	}

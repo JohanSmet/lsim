@@ -79,10 +79,13 @@ void component_register_basic() {
         VisualComponent::CONNECTOR, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             auto connector = dynamic_cast<Connector *>(comp);
             ui_comp->m_tooltip = "Connector";
-            materialize_gate(ui_comp, ui_circuit,
-                connector->is_output() ? comp->pins() : Component::pin_container_t(),
-                connector->is_input() ? comp->pins() : Component::pin_container_t(),
-                {}, 26, comp->num_pins() * 24);
+
+            const float width = 26;
+            const float height = comp->num_pins() * 24;
+            materialize_rectangle(ui_comp, ui_circuit, width, height);
+            ui_circuit->add_pin_line(ui_comp->m_to_circuit, comp->pins().data(), comp->num_pins(), 
+                                     {(connector->is_input() ? 0.5f : -0.5f) * width, -height * 0.5f + 12},
+                                     {0, 24});
 
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
 
@@ -90,30 +93,33 @@ void component_register_basic() {
 
                 ImGui::BeginGroup();
                 ImGui::PushID(connector->name());
-                ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
                 for (size_t i = 0; i < comp->num_pins(); ++ i) {
                     ImGui::PushID(i);
-                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 3);
-                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2);
                     auto cur_val = connector->get_data(i);
-                    if (connector->is_input() && ImGui::Button(connector_data_label(cur_val), {18,18})) {
-                        connector->change_data(i, static_cast<Value>((cur_val + 1) % (connector->is_tristate() ? 3 : 2)));
+
+                    if (connector->is_input()) {
+                        ImGui::SetCursorPos(ImVec2(origin.x + 3, origin.y + (i * 24) + 2));
+                        if (ImGui::Button(connector_data_label(cur_val), {18,18})) {
+                            connector->change_data(i, static_cast<Value>((cur_val + 1) % (connector->is_tristate() ? 3 : 2)));
+                        }
                     }
+
                     if (connector->is_output()) {
                         auto screen_pos = ImGui::GetCursorScreenPos();
                         ImGui::GetWindowDrawList()->AddRectFilled(
-                            screen_pos, {screen_pos.x + 20, screen_pos.y + 20},
+                            {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
                             COLOR_CONNECTION[cur_val]);
-                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5);
-                        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4);
-                        ImGui::Text(connector_data_label(cur_val));
+                        ImGuiEx::TextCentered(ImVec2(origin.x + 13, origin.y + 5 + (i * 24)), connector_data_label(cur_val));
                     }
 
                     ImGui::PopID();
                 }
                 ImGui::PopID();
-                ImGui::SetCursorPos({origin.x, origin.y - 14});
-                ImGui::Text(connector->name());
+                if (connector->is_input()) {
+                    ImGuiEx::TextRightJustify({origin.x - 5, origin.y + (height / 2.0f) - 3}, connector->name());
+                } else {
+                    ImGuiEx::TextLeftJustify({origin.x + width + 5, origin.y + (height / 2.0f) - 3}, connector->name());
+                }
                 ImGui::EndGroup();
             };
         }

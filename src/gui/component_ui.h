@@ -43,8 +43,8 @@ public:
 
     void add_component(const UIComponent &comp);
     void add_endpoint(uint32_t pin, Point location);
-    void add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_count, float size, Point origin, Point inc);
-    void add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_count, Point origin, Point delta);
+    void add_pin_line(Transform to_circuit, const uint32_t *pins, size_t pin_count, float size, Point origin, Point inc);
+    void add_pin_line(Transform to_circuit, const uint32_t *pins, size_t pin_count, Point origin, Point delta);
     void add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2);
 
     void draw();
