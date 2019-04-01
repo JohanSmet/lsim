@@ -51,6 +51,18 @@ void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_co
 	}
 }
 
+void UICircuit::add_pin_line(Transform to_circuit, uint32_t *pins, size_t pin_count, Point origin, Point delta) {
+	if (pin_count == 0) {
+		return;
+	}
+
+	Point pos = origin;
+    for (size_t i = 0; i < pin_count; ++i) {
+        add_endpoint(pins[i], to_circuit.apply(pos));
+		pos = pos + delta;
+	}
+}
+
 void UICircuit::add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2) {
 	m_ui_connections.push_back({node, pin_1, pin_2});
 }

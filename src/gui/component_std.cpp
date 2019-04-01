@@ -4,23 +4,17 @@
 
 #include "component_std.h"
 #include "component_ui.h"
-#include "imgui/imgui.h"
+#include "imgui_ex.h"
 #include "shapes.h"
 #include "colors.h"
 
 #include "basic.h"
+#include "circuit.h"
 
 #include <algorithm>
 
-void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit, 
-                      Component::pin_container_t pins_input,
-                      Component::pin_container_t pins_output,
-                      Component::pin_container_t pins_control,
-                      float min_width = 80, float min_height = 60) {
+void materialize_rectangle(UIComponent *ui_comp, UICircuit *ui_circuit, float width, float height) {
 
-    // size of component box depends on pin count
-    const float width = std::max(min_width, 15.0f * pins_control.size());
-    const float height = std::max(min_height, 15.0f * std::max(pins_input.size(), pins_output.size()));
     const float h_width = width / 2.0f;
     const float h_height = height / 2.0f;
 
@@ -40,6 +34,21 @@ void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit,
 	if (ui_comp->m_circuit_max.y < ui_comp->m_circuit_min.y) {
         std::swap(ui_comp->m_circuit_min.y, ui_comp->m_circuit_max.y);
 	}
+}
+
+void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit, 
+                      Component::pin_container_t pins_input,
+                      Component::pin_container_t pins_output,
+                      Component::pin_container_t pins_control,
+                      float min_width = 80, float min_height = 60) {
+
+    // size of component box depends on pin count
+    const float width = std::max(min_width, 15.0f * pins_control.size());
+    const float height = std::max(min_height, 15.0f * std::max(pins_input.size(), pins_output.size()));
+    const float h_width = width / 2.0f;
+    const float h_height = height / 2.0f;
+
+    materialize_rectangle(ui_comp, ui_circuit, width, height);
 
     // pins
     ui_circuit->add_pin_line(ui_comp->m_to_circuit, pins_input.data(), pins_input.size(), 
@@ -111,6 +120,59 @@ void component_register_basic() {
     );
 
     // constant
+
+    // sub circuit
+    UICircuitBuilder::register_materialize_func(
+        VisualComponent::SUB_CIRCUIT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+            CircuitComponent *wrapper = dynamic_cast<CircuitComponent *>(comp);
+            Circuit *nested = wrapper->nested_circuit();
+            ui_comp->m_tooltip = "Circuit";
+
+            // sort sub-circuit pins into inputs (on the left) and outputs (on the right) 
+            Component::pin_container_t input_pins, output_pins;
+            std::vector<const char *> input_names, output_names;
+
+            for (int i = nested->num_interface_pins() - 1; i >= 0; --i) {
+                if (nested->interface_pin_is_input(i)) {
+                    input_pins.push_back(nested->interface_pin(i));
+                    input_names.push_back(nested->interface_pin_name(i));
+                } else {
+                    output_pins.push_back(nested->interface_pin(i));
+                    output_names.push_back(nested->interface_pin_name(i));
+                }
+            }
+
+            // materialize the sub-circuit
+            float width = 100;
+            float height = (std::max(input_pins.size(), output_pins.size()) + 1) * 24 + 24;
+
+            materialize_rectangle(ui_comp, ui_circuit, width, height);
+            ui_circuit->add_pin_line(ui_comp->m_to_circuit, input_pins.data(), input_pins.size(),
+                                     {-width/2.0f, -height/2.0f + 24}, {0.0f, 24.0f});
+            ui_circuit->add_pin_line(ui_comp->m_to_circuit, output_pins.data(), output_pins.size(),
+                                     {width/2.0f, -height/2.0f + 24}, {0.0f, 24.0f});
+
+            // custom draw function for pin labels
+            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
+                auto origin = ImGui::GetCursorPos();
+
+                auto cursor = ImVec2(origin.x + 5, origin.y + 18);
+                for (const auto &name : input_names) {
+                    ImGuiEx::TextLeftJustify(cursor, name);
+                    cursor.y += 24;
+                }
+
+                cursor = ImVec2(origin.x + width - 5, origin.y + 18);
+                for (const auto &name : output_names) {
+                    ImGuiEx::TextRightJustify(cursor, name);
+                    cursor.y += 24;
+                }
+
+                cursor = ImVec2(origin.x + width/2.0f, origin.y + height - 18);
+                ImGuiEx::TextCentered(cursor, nested->name());
+            };
+        }
+    );
 
 }
 
