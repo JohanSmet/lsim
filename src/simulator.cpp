@@ -147,10 +147,14 @@ void Simulator::write_node(node_t node_id, Value value) {
         return;
     }
 
-    assert(m_node_write_time[node_id] < m_time);
+    // assert(m_node_write_time[node_id] < m_time);
 
-    m_node_write_time[node_id] = m_time;
-    m_node_values[m_write_idx][node_id] = value;
+    if (m_node_write_time[node_id] < m_time) {
+        m_node_write_time[node_id] = m_time;
+        m_node_values[m_write_idx][node_id] = value;
+    } else {
+        m_node_values[m_write_idx][node_id] = VALUE_ERROR;
+    }
 }
 
 Value Simulator::read_node(node_t node_id) const {
