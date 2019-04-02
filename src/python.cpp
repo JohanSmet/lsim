@@ -50,7 +50,10 @@ PYBIND11_MODULE(lsimpy, m) {
                 }, 
                 py::return_value_policy::reference)
 
+        .def("read_nibble", &Simulator::read_nibble)
+        .def("read_byte", &Simulator::read_byte)
         ;
+
 
     m.def("load_logisim",(bool (*)(Simulator *, const char *)) &load_logisim);
 }
