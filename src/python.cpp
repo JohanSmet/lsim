@@ -42,11 +42,14 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("component_by_name",
                 [](const Simulator &sim, const char *name) {
                     return sim.active_circuit()->component_by_name(name);
-                })
+                },
+                py::return_value_policy::reference)
         .def("connector_by_name",
                 [](const Simulator &sim, const char *name) {
                     return dynamic_cast<Connector *>(sim.active_circuit()->component_by_name(name));
-                })
+                }, 
+                py::return_value_policy::reference)
+
         ;
 
     m.def("load_logisim",(bool (*)(Simulator *, const char *)) &load_logisim);
