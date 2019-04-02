@@ -2,10 +2,27 @@
 
 import lsimpy
 
+count_check = 0
+count_failure = 0
+
+def CHECK(was, expected, op_str):
+    global count_check, count_failure
+    count_check = count_check + 1
+    if was != expected:
+        count_failure = count_failure + 1
+        print("FAILURE: {} = {} (expected {})".format(op_str, was, expected))
+
+def print_stats():
+    global count_check, count_failure
+    print("======================================================")
+    if count_failure == 0:
+        print("All tests passed ({} checks executed)".format(count_check))
+    else:
+        print("{} out of {} checks failed!".format(count_failure, count_check))
 
 def main():
     sim = lsimpy.Simulator()
-    
+   
     if (not lsimpy.load_logisim(sim, "../../examples/shifter.circ")):
         print("Unable to load circuit\n")
         exit(-1)
@@ -15,10 +32,18 @@ def main():
     pin_S = sim.connector_by_name("S")
     pin_O = sim.connector_by_name("O")
 
-    pin_D.change_data(16)
-    pin_S.change_data(1)
-    pin_SHL.change_data(lsimpy.ValueFalse)
-    sim.run_until_stable(5)
+    for shl in range(0, 2):
+        pin_SHL.change_data(shl)
+        for d in range (0, 2**4):
+            pin_D.change_data(d)
+            for s in range (0, 2**3):
+                pin_S.change_data(s)
+                sim.run_until_stable(5)
+                result = sim.read_nibble(pin_O.pins())
+                expected = (d << s if shl else d >> s) & (2**4-1)
+                CHECK(result, expected, "SHL({}), D({}), S({})".format(shl,d,s))
+
+    print_stats()
 
 if __name__ == "__main__":
     main()
