@@ -3,6 +3,7 @@
 // Python bindings
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include "simulator.h"
 #include "circuit.h"
 #include "basic.h"
@@ -21,8 +22,8 @@ PYBIND11_MODULE(lsimpy, m) {
     py::class_<Component>(m, "Component")
         .def("pin", &Component::pin)
         .def("num_pins", &Component::num_pins)
-        .def("pins", (const Component::pin_container_t &(Component::*)())&Component::pin)
-        .def("pins", (Component::pin_container_t (Component::*)(size_t,size_t))&Component::pin)
+        .def("pins", (const Component::pin_container_t &(Component::*)() const)&Component::pins)
+        .def("pins", (Component::pin_container_t (Component::*)(size_t,size_t))&Component::pins)
         .def("read_pin", &Component::read_pin)
         ;
 
