@@ -97,7 +97,8 @@ void UICircuit::draw() {
 		if (comp.m_icon) {
 			Transform to_window = comp.m_to_circuit;
 			to_window.translate(offset);
-    		comp.m_icon->draw(to_window, draw_list, 2, COLOR_COMPONENT_ICON);
+    		comp.m_icon->draw(to_window, comp.m_circuit_max - comp.m_circuit_min - Point(10,10), 
+							  draw_list, 2, COLOR_COMPONENT_ICON);
 		}
 	}
 
@@ -189,12 +190,12 @@ void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent
 // ComponentIcon
 //
 
-
 ComponentIcon::ComponentIcon(const char *data, size_t len) {
     std::vector<char> dummy(data, data + len);
 	auto img = nsvgParse(dummy.data(), "px", 96);
 
 	Point offset(img->width / 2.0f, img->height / 2.0f);
+	m_size = {img->width, img->height};
 
 	for (auto shape = img->shapes; shape != nullptr; shape = shape->next) {
 		for (auto path = shape->paths; path != nullptr; path = path->next) {
@@ -209,13 +210,17 @@ ComponentIcon::ComponentIcon(const char *data, size_t len) {
 	}
 }
 
-void ComponentIcon::draw(Transform transform, ImDrawList *draw_list, size_t line_width, uint32_t color) const {
+void ComponentIcon::draw(Transform transform, Point draw_size, ImDrawList *draw_list, size_t line_width, uint32_t color) const {
+
+	Point scale_xy = draw_size / m_size;
+	float scale = std::min(scale_xy.x, scale_xy.y);
+
     for (const auto &curve : m_curves) {
 		draw_list->AddBezierCurve(
-			imvec2(transform.apply(curve[0])), 
-			imvec2(transform.apply(curve[1])), 
-			imvec2(transform.apply(curve[2])), 
-			imvec2(transform.apply(curve[3])), 
+			imvec2(transform.apply(curve[0] * scale)), 
+			imvec2(transform.apply(curve[1] * scale)), 
+			imvec2(transform.apply(curve[2] * scale)), 
+			imvec2(transform.apply(curve[3] * scale)), 
 			color, 
 			line_width);
 	}
