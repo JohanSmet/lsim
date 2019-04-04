@@ -20,6 +20,8 @@ public:
     Point operator-(const Point &p) const;
     Point operator-() const;
     Point operator*(float scale) const;
+    Point operator*(const Point &p) const;
+    Point operator/(const Point &p) const;
 
 public:
     float x;
