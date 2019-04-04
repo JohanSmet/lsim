@@ -41,7 +41,7 @@ void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit,
                       Component::pin_container_t pins_input,
                       Component::pin_container_t pins_output,
                       Component::pin_container_t pins_control,
-                      float min_width = 80, float min_height = 60) {
+                      float min_width = 60, float min_height = 50) {
 
     // size of component box depends on pin count
     const float width = std::max(min_width, 15.0f * pins_control.size());
@@ -258,7 +258,7 @@ void component_register_gates() {
             ui_comp->m_tooltip = "NOT";
             ui_comp->m_icon = &icon_not;
             int inputs = comp->num_pins() - 1;
-            materialize_gate(ui_comp, ui_circuit, comp->pins(0, inputs-1), comp->pins(inputs, inputs), {});
+            materialize_gate(ui_comp, ui_circuit, comp->pins(0, inputs-1), comp->pins(inputs, inputs), {}, 60, 40);
         }
     );
 

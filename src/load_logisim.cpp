@@ -314,7 +314,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
                 default: return VisualComponent::WEST;
             }
         };
-        component->create_visual({1.5f * comp_props.m_location.m_x, 1.5f * comp_props.m_location.m_y}, convert_facing(comp_props.m_facing));
+        component->create_visual({2.0f * comp_props.m_location.m_x, 2.0f * comp_props.m_location.m_y}, convert_facing(comp_props.m_facing));
     }
 
     if (ok && component && !comp_props.m_label.empty()) {
