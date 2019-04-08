@@ -674,7 +674,13 @@ void LogisimParser::add_pin_location(const Position &loc, pin_t pin) {
     connection.m_position = loc;
     connection.m_pins.push_back(pin);
 
-    m_context.m_pin_locs[loc.m_full] = connection;
+    // connect if there is already a pin in the same location
+    auto res = m_context.m_pin_locs.find(loc.m_full);
+    if (res != m_context.m_pin_locs.end()) {
+        make_connection(connection, res->second);
+    } else {
+       m_context.m_pin_locs[loc.m_full] = connection;
+    }      
 }
 
 void LogisimParser::add_pin_location(const Position &loc, const Component::pin_container_t &pins) {
@@ -682,7 +688,13 @@ void LogisimParser::add_pin_location(const Position &loc, const Component::pin_c
     connection.m_position = loc;
     connection.m_pins = pins;
 
-    m_context.m_pin_locs[loc.m_full] = connection;
+    // connect if there is already a pin in the same location
+    auto res = m_context.m_pin_locs.find(loc.m_full);
+    if (res != m_context.m_pin_locs.end()) {
+        make_connection(connection, res->second);
+    } else {
+       m_context.m_pin_locs[loc.m_full] = connection;
+    }
 }
 
 LogisimParser::Position LogisimParser::input_pin_location( 
