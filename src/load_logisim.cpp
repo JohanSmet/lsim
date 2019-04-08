@@ -80,17 +80,20 @@ private:
         bool                m_pin_tristate;
     };
 
+    typedef std::vector<uint64_t>       wire_node_t;
+    typedef std::vector<wire_node_t>    wire_container_t;
+    typedef std::unordered_map<std::string, size_t> tunnel_wire_map_t;
+
     struct CircuitConstruction {
         Circuit *m_circuit;
         std::unordered_map<uint64_t, LogisimConnection> m_pin_locs;
         std::map<uint64_t, std::string> m_circuit_ipins[2];     
         std::unordered_map<std::string, Position> m_ipin_offsets;
+        wire_container_t m_wires;
+        tunnel_wire_map_t m_tunnels;
     };
 
     typedef std::unordered_map<std::string, CircuitConstruction> circuit_map_t;
-    typedef std::vector<uint64_t>       wire_node_t;
-    typedef std::vector<wire_node_t>    wire_container_t;
-    typedef std::unordered_map<std::string, size_t> tunnel_wire_map_t;
 
 private:
     bool parse_circuit(pugi::xml_node &circuit_node);
@@ -126,8 +129,6 @@ private:
     Simulator *m_sim;
     circuit_map_t m_circuits;
     CircuitConstruction m_context;
-    wire_container_t m_wires;
-    tunnel_wire_map_t m_tunnels;
 };
 
 bool LogisimParser::parse_xml() {
@@ -168,6 +169,9 @@ bool LogisimParser::parse_circuit(pugi::xml_node &circuit_node) {
     m_context.m_circuit_ipins[0].clear();
     m_context.m_circuit_ipins[1].clear();
     m_context.m_pin_locs.clear();
+    m_context.m_ipin_offsets.clear();
+    m_context.m_wires.clear();
+    m_context.m_tunnels.clear();
 
     /* iterate all components */
     for (auto comp : circuit_node.children("comp")) {
@@ -185,7 +189,7 @@ bool LogisimParser::parse_circuit(pugi::xml_node &circuit_node) {
     /* sub-circuit interface */
     compute_ipin_offsets();
 
-    m_circuits[circuit_name] = m_context;
+    m_circuits[circuit_name] = std::move(m_context);
     return true;
 }
 
@@ -340,7 +344,7 @@ bool LogisimParser::parse_wire(pugi::xml_node &wire_node) {
 
     if (!node_1 && !node_2) {
         wire_node_t new_node = {w1.m_full, w2.m_full};
-        m_wires.push_back(new_node);
+        m_context.m_wires.push_back(new_node);
         return true;
     }
 
@@ -350,7 +354,7 @@ bool LogisimParser::parse_wire(pugi::xml_node &wire_node) {
             node_1->push_back(w);
         }
         node_2->clear();
-        m_wires.erase(std::find(std::begin(m_wires), std::end(m_wires), *node_2));
+        m_context.m_wires.erase(std::find(std::begin(m_context.m_wires), std::end(m_context.m_wires), *node_2));
         return true;
     }
 
@@ -369,7 +373,7 @@ bool LogisimParser::parse_wire(pugi::xml_node &wire_node) {
 
 bool LogisimParser::connect_components() {
 
-    for (const auto &node : m_wires) {
+    for (const auto &node : m_context.m_wires) {
         const LogisimConnection *c1 = nullptr;
 
         for (const auto &point : node) {
@@ -592,15 +596,15 @@ bool LogisimParser::handle_tunnel(ComponentProperties &props) {
         return false;
     }
     
-    auto res = m_tunnels.find(props.m_label);
-    if (res != m_tunnels.end()) {
-        m_wires[res->second].push_back(props.m_location.m_full);
+    auto res = m_context.m_tunnels.find(props.m_label);
+    if (res != m_context.m_tunnels.end()) {
+        m_context.m_wires[res->second].push_back(props.m_location.m_full);
         return true;
     }
 
     wire_node_t new_node = {props.m_location.m_full};
-    m_wires.push_back(new_node);
-    m_tunnels[props.m_label] = m_wires.size() - 1;
+    m_context.m_wires.push_back(new_node);
+    m_context.m_tunnels[props.m_label] = m_context.m_wires.size() - 1;
     return true;
 }
 
@@ -756,7 +760,7 @@ LogisimParser::Position LogisimParser::input_pin_location(
 
 LogisimParser::wire_node_t *LogisimParser::point_on_wire(Position position) {
 
-    for (auto &node : m_wires) {
+    for (auto &node : m_context.m_wires) {
         auto res = std::find(std::begin(node), std::end(node), position.m_full);
         if (res != std::end(node)) {
             return &node;
