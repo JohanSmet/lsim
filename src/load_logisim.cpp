@@ -301,7 +301,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         ok = handle_splitter(comp_props);
     } else if (comp_type == "Tunnel") {
         ok = handle_tunnel(comp_props);
-    } else if (comp_type == "Text") {
+    } else if (comp_type == "Text" || comp_type == "Probe") {
         // ignore
     } else {
         component = handle_sub_circuit(comp_type, comp_props);
