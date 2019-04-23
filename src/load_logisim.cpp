@@ -271,11 +271,11 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         comp_props.m_inputs = 1;
         ok = handle_not_gate(component, comp_props);
     } else if (comp_type == "NAND Gate") {
-        component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
+        component = m_context.m_circuit->create_component<NandGate>(comp_props.m_inputs);
         comp_props.m_negate_output = true;
         ok = handle_gate(component, comp_props);
     } else if (comp_type == "NOR Gate") {
-        component = m_context.m_circuit->create_component<OrGate>(comp_props.m_inputs);
+        component = m_context.m_circuit->create_component<NorGate>(comp_props.m_inputs);
         comp_props.m_negate_output = true;
         ok = handle_gate(component, comp_props);
     } else if (comp_type == "XOR Gate") {
