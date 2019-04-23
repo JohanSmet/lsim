@@ -9,6 +9,8 @@
 //  - connectors (Logisim: Pin) and buffers support > 1 data bits but have a pin per bit
 //  - XOR gates are limited to two inputs
 //  - no custom subcircuit appearance, just the standard inputs on the left and outputs on the right
+//      - circuits to be nested should have "Use new box layout" (circuitnamedbox) and 
+//        "Use fixed box-size" (circuitnameboxfixedsize) set to Yes (true)
 //  - probably lots of other stuff that I'm not aware of 8-)
 
 #include <pugixml.hpp>
@@ -610,7 +612,7 @@ bool LogisimParser::handle_tunnel(ComponentProperties &props) {
 
 void LogisimParser::compute_ipin_offsets() {
     Position offsets[2] = {
-        {-100, 0},          // inputs (on the left)
+        {-220, 0},          // inputs (on the left)
         {0,0}               // outputs (on the right)
     };
 

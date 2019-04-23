@@ -453,6 +453,7 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
     <a name="clabelup" val="east"/>
     <a name="clabelfont" val="SansSerif bold 16"/>
     <a name="circuitnamedbox" val="true"/>
+    <a name="circuitnamedboxfixedsize" val="true"/>
     <a name="circuitvhdlpath" val=""/>
     <wire from="(130,130)" to="(130,200)"/>
     <wire from="(90,90)" to="(150,90)"/>
@@ -521,19 +522,15 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
     <a name="clabelup" val="east"/>
     <a name="clabelfont" val="SansSerif bold 16"/>
     <a name="circuitnamedbox" val="true"/>
+    <a name="circuitnamedboxfixedsize" val="true"/>
     <a name="circuitvhdlpath" val=""/>
-    <wire from="(350,80)" to="(350,150)"/>
-    <wire from="(350,200)" to="(350,270)"/>
-    <wire from="(350,320)" to="(350,390)"/>
-    <wire from="(330,420)" to="(380,420)"/>
-    <wire from="(330,440)" to="(380,440)"/>
-    <wire from="(330,300)" to="(380,300)"/>
-    <wire from="(330,60)" to="(380,60)"/>
-    <wire from="(330,180)" to="(380,180)"/>
+    <wire from="(470,80)" to="(470,150)"/>
+    <wire from="(470,200)" to="(470,270)"/>
+    <wire from="(470,320)" to="(470,390)"/>
+    <wire from="(180,200)" to="(230,200)"/>
     <wire from="(180,60)" to="(230,60)"/>
     <wire from="(180,80)" to="(230,80)"/>
     <wire from="(180,100)" to="(230,100)"/>
-    <wire from="(180,200)" to="(230,200)"/>
     <wire from="(180,220)" to="(230,220)"/>
     <wire from="(180,320)" to="(230,320)"/>
     <wire from="(180,340)" to="(230,340)"/>
@@ -542,19 +539,20 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
     <wire from="(210,150)" to="(210,180)"/>
     <wire from="(210,270)" to="(210,300)"/>
     <wire from="(210,390)" to="(210,420)"/>
-    <wire from="(330,80)" to="(350,80)"/>
-    <wire from="(330,200)" to="(350,200)"/>
-    <wire from="(330,320)" to="(350,320)"/>
+    <wire from="(450,80)" to="(470,80)"/>
+    <wire from="(450,320)" to="(470,320)"/>
+    <wire from="(450,200)" to="(470,200)"/>
     <wire from="(210,180)" to="(230,180)"/>
     <wire from="(210,300)" to="(230,300)"/>
     <wire from="(210,420)" to="(230,420)"/>
-    <wire from="(210,150)" to="(350,150)"/>
-    <wire from="(210,270)" to="(350,270)"/>
-    <wire from="(210,390)" to="(350,390)"/>
-    <comp loc="(330,60)" name="adder1bit"/>
-    <comp loc="(330,180)" name="adder1bit"/>
-    <comp loc="(330,300)" name="adder1bit"/>
-    <comp loc="(330,420)" name="adder1bit"/>
+    <wire from="(450,60)" to="(500,60)"/>
+    <wire from="(450,300)" to="(500,300)"/>
+    <wire from="(450,180)" to="(500,180)"/>
+    <wire from="(450,420)" to="(500,420)"/>
+    <wire from="(450,440)" to="(500,440)"/>
+    <wire from="(210,270)" to="(470,270)"/>
+    <wire from="(210,150)" to="(470,150)"/>
+    <wire from="(210,390)" to="(470,390)"/>
     <comp lib="0" loc="(180,60)" name="Pin">
       <a name="label" val="Ci"/>
     </comp>
@@ -563,9 +561,6 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
     </comp>
     <comp lib="0" loc="(180,100)" name="Pin">
       <a name="label" val="B1"/>
-    </comp>
-    <comp lib="0" loc="(180,200)" name="Pin">
-      <a name="label" val="A2"/>
     </comp>
     <comp lib="0" loc="(180,220)" name="Pin">
       <a name="label" val="B2"/>
@@ -582,42 +577,8 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
     <comp lib="0" loc="(180,440)" name="Pin">
       <a name="label" val="A4"/>
     </comp>
-    <comp lib="0" loc="(380,60)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="label" val="S1"/>
-      <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="0" loc="(380,300)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="label" val="S3"/>
-      <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="0" loc="(380,420)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="label" val="S4"/>
-      <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="0" loc="(380,440)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="label" val="Co"/>
-      <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="0" loc="(380,180)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="label" val="S2"/>
-      <a name="labelloc" val="east"/>
-    </comp>
     <comp lib="8" loc="(193,51)" name="Text">
       <a name="text" val="8"/>
-      <a name="font" val="SansSerif plain 12"/>
-    </comp>
-    <comp lib="8" loc="(352,55)" name="Text">
-      <a name="text" val="11"/>
       <a name="font" val="SansSerif plain 12"/>
     </comp>
     <comp lib="8" loc="(200,74)" name="Text">
@@ -628,24 +589,12 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
       <a name="text" val="10"/>
       <a name="font" val="SansSerif plain 12"/>
     </comp>
-    <comp lib="8" loc="(401,119)" name="Text">
-      <a name="text" val="12 (merge 16)"/>
-      <a name="font" val="SansSerif plain 12"/>
-    </comp>
     <comp lib="8" loc="(194,196)" name="Text">
       <a name="text" val="17"/>
       <a name="font" val="SansSerif plain 12"/>
     </comp>
     <comp lib="8" loc="(207,219)" name="Text">
       <a name="text" val="18"/>
-      <a name="font" val="SansSerif plain 12"/>
-    </comp>
-    <comp lib="8" loc="(349,174)" name="Text">
-      <a name="text" val="19"/>
-      <a name="font" val="SansSerif plain 12"/>
-    </comp>
-    <comp lib="8" loc="(411,237)" name="Text">
-      <a name="text" val="20 (merge 24)"/>
       <a name="font" val="SansSerif plain 12"/>
     </comp>
     <comp lib="8" loc="(199,310)" name="Text">
@@ -656,14 +605,6 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
       <a name="text" val="26"/>
       <a name="font" val="SansSerif plain 12"/>
     </comp>
-    <comp lib="8" loc="(351,297)" name="Text">
-      <a name="text" val="27"/>
-      <a name="font" val="SansSerif plain 12"/>
-    </comp>
-    <comp lib="8" loc="(409,357)" name="Text">
-      <a name="text" val="28 (merge 32)"/>
-      <a name="font" val="SansSerif plain 12"/>
-    </comp>
     <comp lib="8" loc="(200,433)" name="Text">
       <a name="text" val="33"/>
       <a name="font" val="SansSerif plain 12"/>
@@ -672,12 +613,68 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
       <a name="text" val="34"/>
       <a name="font" val="SansSerif plain 12"/>
     </comp>
-    <comp lib="8" loc="(344,415)" name="Text">
-      <a name="text" val="35"/>
+    <comp lib="0" loc="(180,200)" name="Pin">
+      <a name="label" val="A2"/>
+    </comp>
+    <comp loc="(450,60)" name="adder1bit"/>
+    <comp loc="(450,180)" name="adder1bit"/>
+    <comp loc="(450,300)" name="adder1bit"/>
+    <comp loc="(450,420)" name="adder1bit"/>
+    <comp lib="0" loc="(500,60)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="S1"/>
+    </comp>
+    <comp lib="0" loc="(500,420)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="S4"/>
+    </comp>
+    <comp lib="8" loc="(531,237)" name="Text">
+      <a name="text" val="20 (merge 24)"/>
       <a name="font" val="SansSerif plain 12"/>
     </comp>
-    <comp lib="8" loc="(343,450)" name="Text">
+    <comp lib="0" loc="(500,300)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="S3"/>
+    </comp>
+    <comp lib="8" loc="(469,174)" name="Text">
+      <a name="text" val="19"/>
+      <a name="font" val="SansSerif plain 12"/>
+    </comp>
+    <comp lib="8" loc="(529,357)" name="Text">
+      <a name="text" val="28 (merge 32)"/>
+      <a name="font" val="SansSerif plain 12"/>
+    </comp>
+    <comp lib="0" loc="(500,440)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="Co"/>
+    </comp>
+    <comp lib="8" loc="(463,450)" name="Text">
       <a name="text" val="36"/>
+      <a name="font" val="SansSerif plain 12"/>
+    </comp>
+    <comp lib="8" loc="(521,119)" name="Text">
+      <a name="text" val="12 (merge 16)"/>
+      <a name="font" val="SansSerif plain 12"/>
+    </comp>
+    <comp lib="0" loc="(500,180)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="S2"/>
+    </comp>
+    <comp lib="8" loc="(472,55)" name="Text">
+      <a name="text" val="11"/>
+      <a name="font" val="SansSerif plain 12"/>
+    </comp>
+    <comp lib="8" loc="(471,297)" name="Text">
+      <a name="text" val="27"/>
+      <a name="font" val="SansSerif plain 12"/>
+    </comp>
+    <comp lib="8" loc="(464,415)" name="Text">
+      <a name="text" val="35"/>
       <a name="font" val="SansSerif plain 12"/>
     </comp>
   </circuit>
