@@ -15,7 +15,7 @@ class ImDrawList;
 class ComponentIcon;
 class UIComponent;
 
-typedef std::function<void (const UIComponent *)> ui_component_func_t;
+typedef std::function<void (const UIComponent *, Transform)> ui_component_func_t;
 
 struct UIComponent {
     VisualComponent *   m_visual_comp;

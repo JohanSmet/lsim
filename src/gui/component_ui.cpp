@@ -69,10 +69,13 @@ void UICircuit::draw() {
 	// components
 	for (const auto &comp : m_ui_components) {
 
+		Transform to_window = comp.m_to_circuit;
+		to_window.translate(offset);
+
 		if (comp.m_custom_ui_callback) {
 			ImGui::SetCursorScreenPos(comp.m_circuit_min + offset);
 			draw_list->ChannelsSetCurrent(1);
-			comp.m_custom_ui_callback(&comp);
+			comp.m_custom_ui_callback(&comp, to_window);
 		}
 
 		draw_list->ChannelsSetCurrent(0);         // background
@@ -87,8 +90,6 @@ void UICircuit::draw() {
 						   COLOR_COMPONENT_BORDER);
 
 		if (comp.m_icon) {
-			Transform to_window = comp.m_to_circuit;
-			to_window.translate(offset);
     		comp.m_icon->draw(to_window, comp.m_circuit_max - comp.m_circuit_min - Point(10,10), 
 							  draw_list, 2, COLOR_COMPONENT_ICON);
 		}

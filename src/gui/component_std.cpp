@@ -88,9 +88,18 @@ void component_register_basic() {
                                      {(connector->is_input() ? 0.5f : -0.5f) * width, -height * 0.5f + 12},
                                      {0, 24});
 
-            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
+            // custor draw function
+            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
 
-                auto origin = ImGui::GetCursorPos();
+                auto origin = Point(-width / 2.0f, -height / 2.0f);
+
+                // hack to get ImGui::Button to display at the right position
+                auto orient = ui_comp->m_visual_comp->get_orientation();
+                Point button_offset = 
+                    (orient == VisualComponent::WEST) ? Point(18, 18) : 
+                    (orient == VisualComponent::NORTH) ? Point(0, 18) :
+                    (orient == VisualComponent::SOUTH) ? Point(18, 0) :
+                    Point(0, 0);
 
                 ImGui::BeginGroup();
                 ImGui::PushID(connector->name());
@@ -99,28 +108,42 @@ void component_register_basic() {
                     auto cur_val = connector->get_data(i);
 
                     if (connector->is_input()) {
-                        ImGui::SetCursorPos(ImVec2(origin.x + 3, origin.y + (i * 24) + 2));
+                        auto screen_pos = to_window.apply(Point(origin.x + 4, origin.y + (i * 24) + 2));
+                        ImGui::SetCursorScreenPos(screen_pos - button_offset);
+
                         if (ImGui::Button(connector_data_label(cur_val), {18,18})) {
                             connector->change_data(i, static_cast<Value>((cur_val + 1) % (connector->is_tristate() ? 3 : 2)));
                         }
                     }
 
                     if (connector->is_output()) {
-                        auto screen_pos = ImGui::GetCursorScreenPos();
+                        auto screen_pos = to_window.apply(Point(origin.x, origin.y + (i * 24)));
+
                         ImGui::GetWindowDrawList()->AddRectFilled(
                             {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
                             COLOR_CONNECTION[cur_val]);
-                        ImGuiEx::TextCentered(ImVec2(origin.x + 13, origin.y + 5 + (i * 24)), connector_data_label(cur_val));
+                        ImGuiEx::TextCentered(screen_pos + Point(width / 2, 5), connector_data_label(cur_val));
                     }
-
                     ImGui::PopID();
                 }
                 ImGui::PopID();
-                if (connector->is_input()) {
-                    ImGuiEx::TextRightJustify({origin.x - 5, origin.y + (height / 2.0f) - 3}, connector->name());
-                } else {
-                    ImGuiEx::TextLeftJustify({origin.x + width + 5, origin.y + (height / 2.0f) - 3}, connector->name());
+
+                // label for connector
+                Point anchor = to_window.apply(Point(
+                    connector->is_input() ? origin.x - 5 : origin.x + width + 5,
+                    origin.y + (height / 2.0f) - 4
+                ));
+                ImGuiEx::TextJustify justify = ImGuiEx::CENTER;
+                if (orient == VisualComponent::EAST) {
+                    justify = (connector->is_input() ? ImGuiEx::RIGHT : ImGuiEx::LEFT);
+                } else if (orient == VisualComponent::WEST) {
+                    justify = (connector->is_input() ? ImGuiEx::LEFT : ImGuiEx::RIGHT);
+                } else if (orient == VisualComponent::SOUTH) {
+                    anchor.y -= 10;
                 }
+
+                ImGuiEx::Text(anchor, justify, connector->name());
+
                 ImGui::EndGroup();
             };
         }
@@ -137,15 +160,14 @@ void component_register_basic() {
             ui_circuit->add_pin_line(ui_comp->m_to_circuit, comp->pins().data(), comp->num_pins(), 
                                      {0.5f * width, -height * 0.5f + 12}, {0, 24});
 
-            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
-                auto origin = ImGui::GetCursorPos();
+            // custor draw function
+            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
                 auto val = constant->value();
-
-                auto screen_pos = ImGui::GetCursorScreenPos();
+                auto screen_pos = to_window.apply(Point(-width / 2.0f, -height / 2.0f));
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
                     COLOR_CONNECTION[val]);
-                ImGuiEx::TextCentered(ImVec2(origin.x + 13, origin.y + 5), connector_data_label(val));
+                ImGuiEx::TextCentered(screen_pos + Point(13, 5), connector_data_label(val));
             };
         }
     );
@@ -172,7 +194,7 @@ void component_register_basic() {
             }
 
             // materialize the sub-circuit
-            float width = 100;
+            float width = 200;
             float height = (std::max(input_pins.size(), output_pins.size()) + 1) * 24 + 24;
 
             materialize_rectangle(ui_comp, ui_circuit, width, height);
@@ -182,22 +204,22 @@ void component_register_basic() {
                                      {width/2.0f, -height/2.0f + 24}, {0.0f, 24.0f});
 
             // custom draw function for pin labels
-            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp) {
-                auto origin = ImGui::GetCursorPos();
-
-                auto cursor = ImVec2(origin.x + 5, origin.y + 18);
+            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
+                auto cursor = to_window.apply(Point((-width / 2.0f) + 5, (-height / 2.0f) + 18));
+                auto delta = Point(0, 24);
+            
                 for (const auto &name : input_names) {
                     ImGuiEx::TextLeftJustify(cursor, name);
-                    cursor.y += 24;
+                    cursor = cursor + delta;
                 }
 
-                cursor = ImVec2(origin.x + width - 5, origin.y + 18);
+                cursor = to_window.apply(Point((width / 2.0f) - 5, (-height / 2.0f) + 18));
                 for (const auto &name : output_names) {
                     ImGuiEx::TextRightJustify(cursor, name);
-                    cursor.y += 24;
+                    cursor = cursor + delta;
                 }
 
-                cursor = ImVec2(origin.x + width/2.0f, origin.y + height - 18);
+                cursor = to_window.apply(Point(0, (height / 2.0f) - 18));
                 ImGuiEx::TextCentered(cursor, nested->name());
             };
         }
