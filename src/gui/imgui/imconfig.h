@@ -37,6 +37,12 @@
 //#define IMGUI_STB_NAMESPACE     ImGuiStb
 
 //---- Define constructor and implicit cast operators to convert back<>forth from your math types and ImVec2/ImVec4.
+
+#include "../algebra.h"
+
+#define IM_VEC2_CLASS_EXTRA                                                 \
+    ImVec2(const Point &p) { x = p.x; y = p.y;}                             \
+    operator Point() const { return Point(x, y);}
 /*
 #define IM_VEC2_CLASS_EXTRA                                                 \
         ImVec2(const MyVec2& f) { x = f.x; y = f.y; }                       \

@@ -10,14 +10,6 @@
 #include "simulator.h"
 #include "circuit.h"
 
-constexpr const ImVec2 &imvec2(const Point &p) {
-    return *reinterpret_cast<const ImVec2 *>(&p);
-}
-
-constexpr const Point &point(const ImVec2 &v) {
-    return *reinterpret_cast<const Point *>(&v);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // UICircuit
@@ -72,26 +64,26 @@ void UICircuit::draw() {
 	auto draw_list = ImGui::GetWindowDrawList();
 	draw_list->ChannelsSplit(2);
 
-    auto offset = point(ImGui::GetCursorScreenPos() /* + scrolling */);
+    Point offset = ImGui::GetCursorScreenPos() /* + scrolling */;
 
 	// components
 	for (const auto &comp : m_ui_components) {
 
 		if (comp.m_custom_ui_callback) {
-			ImGui::SetCursorScreenPos(imvec2(comp.m_circuit_min + offset));
+			ImGui::SetCursorScreenPos(comp.m_circuit_min + offset);
 			draw_list->ChannelsSetCurrent(1);
 			comp.m_custom_ui_callback(&comp);
 		}
 
 		draw_list->ChannelsSetCurrent(0);         // background
-		ImGui::SetCursorScreenPos(imvec2(comp.m_circuit_min + offset));
-		ImGui::InvisibleButton("node", imvec2(comp.m_circuit_max - comp.m_circuit_min));
+		ImGui::SetCursorScreenPos(comp.m_circuit_min + offset);
+		ImGui::InvisibleButton("node", comp.m_circuit_max - comp.m_circuit_min);
 
 		if (!comp.m_tooltip.empty() && ImGui::IsItemHovered()) {
 			ImGui::SetTooltip(comp.m_tooltip.c_str());
 		}
 
-    	draw_list->AddRect(imvec2(comp.m_circuit_min + offset), imvec2(comp.m_circuit_max + offset), 
+    	draw_list->AddRect(comp.m_circuit_min + offset, comp.m_circuit_max + offset, 
 						   COLOR_COMPONENT_BORDER);
 
 		if (comp.m_icon) {
@@ -104,7 +96,7 @@ void UICircuit::draw() {
 
 	// pins
 	for (const auto &pair : m_endpoints) {
-		draw_list->AddCircleFilled(imvec2(pair.second + offset), 2, COLOR_ENDPOINT);
+		draw_list->AddCircleFilled(pair.second + offset, 2, COLOR_ENDPOINT);
 	}
 
 	// connections
@@ -113,8 +105,7 @@ void UICircuit::draw() {
 		Point p1 = endpoint_position(conn.m_pin_b) + offset;
 		Point dp = {(p1.x - p0.x) * 0.25f, 0.0f};
 		draw_list->AddBezierCurve(
-			imvec2(p0), imvec2(p0 + dp), 
-			imvec2(p1 - dp), imvec2(p1),
+			p0, p0 + dp, p1 - dp, p1,
 			COLOR_CONNECTION[m_circuit->sim()->read_node(conn.m_node)], 
 			2.0f
 		);
@@ -217,10 +208,10 @@ void ComponentIcon::draw(Transform transform, Point draw_size, ImDrawList *draw_
 
     for (const auto &curve : m_curves) {
 		draw_list->AddBezierCurve(
-			imvec2(transform.apply(curve[0] * scale)), 
-			imvec2(transform.apply(curve[1] * scale)), 
-			imvec2(transform.apply(curve[2] * scale)), 
-			imvec2(transform.apply(curve[3] * scale)), 
+			transform.apply(curve[0] * scale), 
+			transform.apply(curve[1] * scale), 
+			transform.apply(curve[2] * scale), 
+			transform.apply(curve[3] * scale), 
 			color, 
 			line_width);
 	}
