@@ -8,6 +8,7 @@
 class ComponentUI;
 
 void component_register_basic();
+void component_register_extra();
 void component_register_gates();
 
 #endif // LSIM_GUI_COMPONENT_STD_H

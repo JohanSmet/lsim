@@ -109,6 +109,17 @@ Value Simulator::read_pin(pin_t pin) const {
     return read_node(node_id);
 }
 
+Value Simulator::read_pin_current_step(pin_t pin) const {
+    assert(pin < m_pin_nodes.size());
+
+    auto node_id = m_pin_nodes[pin];
+    if (node_id == NOT_CONNECTED) {
+        return VALUE_UNDEFINED;
+    }
+
+    return read_node_current_step(node_id);
+}
+
 bool Simulator::pin_changed_last_step(pin_t pin) const {
     assert(pin < m_pin_nodes.size());
 
@@ -170,6 +181,11 @@ void Simulator::write_node(node_t node_id, Value value) {
 Value Simulator::read_node(node_t node_id) const {
     assert(node_id < m_node_values[m_read_idx].size());
     return m_node_values[m_read_idx][node_id];
+}
+
+Value Simulator::read_node_current_step(node_t node_id) const {
+    assert(node_id < m_node_values[m_write_idx].size());
+    return m_node_values[m_write_idx][node_id];
 }
 
 bool Simulator::node_changed(node_t node_id) const {

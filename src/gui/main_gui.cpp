@@ -20,6 +20,7 @@ void handle_main_circuit_changed(Simulator *sim) {
 
 void main_gui_setup(Simulator *sim, const char *circuit_file) {
 	component_register_basic();
+	component_register_extra();
 	component_register_gates();
 
 	// try to load the circuit specified on the command line

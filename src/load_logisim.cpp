@@ -24,6 +24,7 @@
 #include "simulator.h"
 #include "circuit.h"
 #include "gate.h"
+#include "extra.h"
 #include "error.h"
 
 #define DEF_REQUIRED_ATTR(res, node, attr) \
@@ -210,6 +211,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     comp_props.m_pin_tristate = false;
     bool tristate_left = false;
     Value constant_val = VALUE_TRUE;
+    Value pull_val = VALUE_FALSE;
 
     if (!parse_location(comp_loc, comp_props.m_location)) {
         return false;
@@ -243,6 +245,8 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
             comp_props.m_splitter_incoming = attr_val.as_int(0);
         } else if (prop_name == "appear") {
             parse_splitter_appearance(prop_val, comp_props.m_splitter_justify);
+        } else if (prop_name == "pull") {
+            pull_val = (prop_val == "1") ? VALUE_TRUE : (prop_val == "X") ? VALUE_ERROR : VALUE_FALSE;
         }
     }
 
@@ -301,6 +305,9 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         ok = handle_splitter(comp_props);
     } else if (comp_type == "Tunnel") {
         ok = handle_tunnel(comp_props);
+    } else if (comp_type == "Pull Resistor") {
+        component = m_context.m_circuit->create_component<PullResistor>(pull_val);
+        add_pin_location(comp_props.m_location, component->pin(0));
     } else if (comp_type == "Text" || comp_type == "Probe") {
         // ignore
     } else {

@@ -37,6 +37,7 @@ public:
 
     void write_pin(pin_t pin, Value value);
     Value read_pin(pin_t pin) const;
+    Value read_pin_current_step(pin_t pin) const;
     bool pin_changed_last_step(pin_t pin) const;
 
     node_t pin_node(pin_t pin);
@@ -48,6 +49,7 @@ public:
 
     void write_node(node_t node_id, Value value);
     Value read_node(node_t node_id) const;
+    Value read_node_current_step(node_t node_id) const;
 
     bool node_changed(node_t node_id) const;
     bool node_changed_last_step(node_t node_id) const;

@@ -31,4 +31,19 @@ void TextCentered(ImVec2 at, const char *text) {
     ImGui::Text(text);
 }
 
+void RectFilled(ImVec2 p1, ImVec2 p2, ImU32 col) {
+    auto min = p1;
+    auto max = p2;
+
+	if (max.x < min.x) {
+        std::swap(min.x, max.x);
+	}
+
+	if (max.y < min.y) {
+        std::swap(min.y, max.y);
+	}
+
+    ImGui::GetWindowDrawList()->AddRectFilled(min, max, col);
+}
+
 } // namespace ImGuiEx

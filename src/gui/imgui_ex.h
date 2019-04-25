@@ -18,4 +18,6 @@ void TextLeftJustify(ImVec2 at, const char *text);
 void TextRightJustify(ImVec2 at, const char *text);
 void TextCentered(ImVec2 at, const char *text);
 
+void RectFilled(ImVec2 p1, ImVec2 p2, ImU32 col);
+
 } // namespace ImGuiEx

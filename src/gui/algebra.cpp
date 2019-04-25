@@ -96,3 +96,8 @@ Point Transform::apply(const Point &p) const {
     return Point(m_el[0][0] * p.x + m_el[1][0] * p.y + m_el[2][0],
                  m_el[0][1] * p.x + m_el[1][1] * p.y + m_el[2][1]);
 }
+
+Point Transform::apply_to_vector(const Point &v) const {
+    return Point(m_el[0][0] * v.x + m_el[1][0] * v.y,
+                 m_el[0][1] * v.x + m_el[1][1] * v.y);
+}

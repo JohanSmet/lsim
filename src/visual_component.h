@@ -14,6 +14,7 @@ public:
     enum Type {
         CONNECTOR = 0,
         CONSTANT,
+        PULL_RESISTOR,
         BUFFER,
         TRISTATE_BUFFER,
         AND_GATE,

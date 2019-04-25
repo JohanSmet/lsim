@@ -38,6 +38,7 @@ public:
     void translate(const Point &delta);
 
     Point apply(const Point &p) const;
+    Point apply_to_vector(const Point &v) const;
 
 private:
     float m_el[3][2];       // 3 columns, 2 rows

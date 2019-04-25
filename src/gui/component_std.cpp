@@ -10,6 +10,7 @@
 
 #include "basic.h"
 #include "circuit.h"
+#include "extra.h"
 #include "gate.h"
 
 #include <algorithm>
@@ -224,7 +225,33 @@ void component_register_basic() {
             };
         }
     );
+}
 
+void component_register_extra() {
+
+    // Pull Resistor
+    UICircuitBuilder::register_materialize_func(
+        VisualComponent::PULL_RESISTOR, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+            PullResistor *pull = dynamic_cast<PullResistor *>(comp);
+
+            const float width = 26;
+            const float height = 26;
+            materialize_rectangle(ui_comp, ui_circuit, width, height);
+            ui_circuit->add_pin_line(ui_comp->m_to_circuit, comp->pins().data(), comp->num_pins(), 
+                                     {0.5f * width, -height * 0.5f + 12}, {0, 24});
+
+            // custor draw function
+            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
+                auto val = pull->pull_value();
+                auto screen_origin = to_window.apply(Point(-width / 2.0f, -height / 2.0f));
+                ImGuiEx::RectFilled(
+                    screen_origin + to_window.apply_to_vector({3, 3}),
+                    screen_origin + to_window.apply_to_vector({22, 22}),
+                    COLOR_CONNECTION[val]);
+                ImGuiEx::TextCentered(screen_origin + to_window.apply_to_vector({13, 5}), connector_data_label(val));
+            };
+        }
+    );
 }
 
 void component_register_gates() {
