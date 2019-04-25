@@ -26,6 +26,11 @@ enum Value {
     VALUE_ERROR         = 3,
 };
 
+enum Priority {
+    PRIORITY_NORMAL     = 0,
+    PRIORITY_DEFERRED   = 1
+};
+
 inline Value negate_value(Value input) {
     if (input == VALUE_TRUE) {
         return VALUE_FALSE; 
@@ -45,10 +50,11 @@ public:
 
 public:
     // construction
-    Component(size_t pin_count, VisualComponent::Type type);
+    Component(size_t pin_count, VisualComponent::Type type, Priority priority = PRIORITY_NORMAL);
     Component(const Component &other);
 
     Circuit *get_circuit() const {return m_circuit;}
+    Priority get_priority() const {return m_priority;}
 
     // materialize: integrate the component in the specified circuit
     virtual void materialize(Circuit *circuit);
@@ -97,6 +103,7 @@ private:
     value_container_t m_values;
     bool m_read_bad;
     VisualComponent::Type m_visual_type;
+    Priority m_priority;
 };
 
 // CloneComponent: helper class to prevent every derived class from implementing the same 
@@ -104,7 +111,12 @@ private:
 template <class Derived>
 class CloneComponent : public Component {
 public:
-    CloneComponent(size_t pin_count, VisualComponent::Type type) : Component(pin_count, type) {
+    CloneComponent(size_t pin_count, VisualComponent::Type type) : 
+        Component(pin_count, type) {
+    }
+
+    CloneComponent(size_t pin_count, VisualComponent::Type type, Priority priority) : 
+        Component(pin_count, type, priority) {
     }
 
     Component::uptr_t clone() const override {

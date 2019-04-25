@@ -12,16 +12,20 @@
 // Component
 //
 
-Component::Component(size_t pin_count, VisualComponent::Type type) : 
+Component::Component(size_t pin_count, VisualComponent::Type type, Priority priority) : 
                 m_circuit(nullptr),
                 m_pin_count(pin_count),
                 m_read_bad(false),
-                m_visual_type(type) {
+                m_visual_type(type),
+                m_priority(priority) {
 }
 
 Component::Component(const Component &other) : 
                 m_circuit(nullptr),
-                m_pin_count(other.m_pin_count) {
+                m_pin_count(other.m_pin_count),
+                m_read_bad(false),
+                m_visual_type(other.m_visual_type),
+                m_priority(other.m_priority) {
 }
 
 void Component::materialize(Circuit *circuit) {
