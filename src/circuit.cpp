@@ -150,15 +150,15 @@ Component *Circuit::component_by_name(const std::string &name) {
     }
 }
 
-void Circuit::process() {
+void Circuit::activate() {
 
     for (auto &nested : m_nested_circuits) {
-        nested->tick();
+        nested->nested_circuit()->activate();
     }
 
     for (auto &component : m_components) {
-        component->tick();
-    }
+        m_sim->add_active_component(component.get());
+    } 
 }
 
 CircuitComponent::CircuitComponent(Circuit::uptr_t nested) : 
@@ -188,14 +188,7 @@ std::unique_ptr<Component> CircuitComponent::clone() const {
 }
 
 bool CircuitComponent::is_dirty() const {
-    // always consider this component is dirty to process the nested circuit
-    //  signals take time to propagate through the nested circuit and processing
-    //  of interal components take place even if the interface nodes haven't changed value.
-    return true;
-}
-
-void CircuitComponent::process() {
-    m_nested->process();
+    return false;
 }
 
 VisualComponent *Circuit::create_visual_component(VisualComponent::Type type, Component *comp) {

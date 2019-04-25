@@ -28,10 +28,12 @@ public:
     Circuit *active_circuit() const {return m_active_circuit;}
     size_t active_circuit_index() const;
 
+    // components
+    void add_active_component(Component *comp);
+
     // pins
     pin_t assign_pin(node_t connect_to_pin = PIN_UNDEFINED);
     void connect_pins(pin_t pin_a, pin_t pin_b);
-
 
     void write_pin(pin_t pin, Value value);
     Value read_pin(pin_t pin) const;
@@ -64,6 +66,8 @@ private:
     typedef std::vector<std::unique_ptr<Circuit>> circuit_container_t;
     typedef std::vector<Value> value_container_t;
     typedef std::vector<node_t> node_container_t;
+    typedef std::vector<Component *> component_container_t;
+    typedef std::array<component_container_t, 2> component_prio_container_t;
 
     typedef uint64_t timestamp_t;
     typedef std::vector<timestamp_t> timestamp_container_t;
@@ -83,6 +87,7 @@ private:
     int                                 m_read_idx;
     int                                 m_write_idx;
 
+    component_prio_container_t          m_active_components;
 };
 
 #endif

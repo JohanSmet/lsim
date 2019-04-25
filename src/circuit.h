@@ -34,7 +34,7 @@ public:
     std::unique_ptr<Component> clone() const override;
 
     bool is_dirty() const override;
-    void process() override;
+    void process() override {};
 
 public:
     typedef std::unique_ptr<CircuitComponent> uptr_t;
@@ -85,7 +85,7 @@ public:
     void register_component_name(const std::string &name, Component *component);
     Component *component_by_name(const std::string &name);
 
-    void process();
+    void activate();
 
     VisualComponent *create_visual_component(VisualComponent::Type type, Component *comp);
     visual_component_container_t &visual_components() {return m_visual_components;}

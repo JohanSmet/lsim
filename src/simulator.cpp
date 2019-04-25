@@ -11,7 +11,6 @@ Simulator::Simulator() :
             m_active_circuit(nullptr),
             m_read_idx(0),
             m_write_idx(1) {
-
 }
 
 Circuit *Simulator::create_circuit(const char *name) {
@@ -26,6 +25,12 @@ Circuit *Simulator::circuit_by_idx(size_t idx) const {
 
 void Simulator::set_active_circuit(Circuit *circuit) {
     m_active_circuit = circuit;
+    m_active_components[PRIORITY_NORMAL].clear();
+    m_active_components[PRIORITY_DEFERRED].clear();
+
+    if (circuit) {
+        circuit->activate();
+    }
 }
 
 size_t Simulator::active_circuit_index() const {
@@ -35,6 +40,11 @@ size_t Simulator::active_circuit_index() const {
         }
     }
     return m_circuits.size();
+}
+
+void Simulator::add_active_component(Component *comp) {
+    assert(comp);
+    m_active_components[comp->get_priority()].push_back(comp);
 }
 
 pin_t Simulator::assign_pin(node_t connect_to_pin) {
@@ -205,7 +215,7 @@ void Simulator::init() {
     std::fill(std::begin(m_node_change_time), std::end(m_node_change_time), 0);
 
     if (!m_active_circuit && !m_circuits.empty()) {
-        m_active_circuit = m_circuits.front().get();
+        set_active_circuit(m_circuits.front().get());
     }
 }
 
@@ -214,15 +224,19 @@ void Simulator::step() {
 
     m_time = m_time + 1;
 
-    m_active_circuit->process();
+    for (const auto &prio_comps : m_active_components) {
+        for (auto &comp : prio_comps) {
+            comp->tick();
+        }
+    }
 
     for (int i = 0; i < m_node_change_time.size(); ++i) {
         if (m_node_values[m_write_idx][i] != m_node_values[m_read_idx][i]) {
             m_node_change_time[i] = m_time;
         }
     }
-    m_node_values[m_read_idx] = m_node_values[m_write_idx];
 
+    m_node_values[m_read_idx] = m_node_values[m_write_idx];
     std::fill(std::begin(m_node_values[m_write_idx]), std::end(m_node_values[m_write_idx]), VALUE_UNDEFINED);
 }
 
