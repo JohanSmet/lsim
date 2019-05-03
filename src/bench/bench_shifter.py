@@ -32,6 +32,10 @@ def main():
     pin_D = sim.connector_by_name("D")
     pin_S = sim.connector_by_name("S")
     pin_O = sim.connector_by_name("O")
+    pin_CE = sim.connector_by_name("CE")
+    pin_OE = sim.connector_by_name("OE")
+
+    pin_OE.change_data(lsimpy.ValueTrue)
 
     for shl in range(0, 2):
         pin_SHL.change_data(shl)
@@ -40,6 +44,10 @@ def main():
             for s in range (0, 2**3):
                 pin_S.change_data(s)
                 sim.run_until_stable(5)
+                pin_CE.change_data(lsimpy.ValueTrue)
+                sim.run_until_stable(5)
+                pin_CE.change_data(lsimpy.ValueFalse)
+
                 result = sim.read_nibble(pin_O.pins())
                 expected = (d << s if shl else d >> s) & (2**4-1)
                 CHECK(result, expected, "SHL({}), D({}), S({})".format(shl,d,s))
