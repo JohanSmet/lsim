@@ -4,8 +4,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include "simulator.h"
-#include "circuit.h"
+#include "lsim_context.h"
 #include "basic.h"
 #include "load_logisim.h"
 
@@ -35,7 +34,6 @@ PYBIND11_MODULE(lsimpy, m) {
 
     py::class_<Simulator>(m, "Simulator")
         .def(py::init<>())
-        .def("init", &Simulator::init)
         .def("step", &Simulator::step)
         .def("run_until_stable", &Simulator::run_until_stable)
 
@@ -54,6 +52,25 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("read_byte", &Simulator::read_byte)
         ;
 
+    py::class_<CircuitLibrary>(m, "CircuitLibrary")
+        .def(py::init<const char *, Simulator *>())
+        ;
 
-    m.def("load_logisim",(bool (*)(Simulator *, const char *)) &load_logisim);
+    py::class_<LSimContext>(m, "LSimContext")
+        .def(py::init<>())
+        .def("sim", &LSimContext::sim, py::return_value_policy::reference)
+        .def("user_library", &LSimContext::user_library, py::return_value_policy::reference)
+        ;
+
+    m.def("load_logisim",
+            [](LSimContext *lsim_context, const char *name) -> bool {
+                auto circuit = load_logisim(lsim_context, name);
+                if (!circuit) {
+                    return false;
+                }
+
+                lsim_context->sim()->init(circuit);
+                return true;
+            }
+    );
 }

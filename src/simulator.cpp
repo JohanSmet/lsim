@@ -13,35 +13,6 @@ Simulator::Simulator() :
             m_write_idx(1) {
 }
 
-Circuit *Simulator::create_circuit(const char *name) {
-    m_circuits.push_back(std::make_unique<Circuit>(this, name));
-    return m_circuits.back().get();
-}
-
-Circuit *Simulator::circuit_by_idx(size_t idx) const {
-    assert(idx < m_circuits.size());
-    return m_circuits[idx].get();
-}
-
-void Simulator::set_active_circuit(Circuit *circuit) {
-    m_active_circuit = circuit;
-    m_active_components[PRIORITY_NORMAL].clear();
-    m_active_components[PRIORITY_DEFERRED].clear();
-
-    if (circuit) {
-        circuit->activate();
-    }
-}
-
-size_t Simulator::active_circuit_index() const {
-    for (size_t i = 0; i < m_circuits.size(); ++i) {
-        if (m_circuits[i].get() == m_active_circuit) {
-            return i;
-        }
-    }
-    return m_circuits.size();
-}
-
 void Simulator::add_active_component(Component *comp) {
     assert(comp);
     m_active_components[comp->get_priority()].push_back(comp);
@@ -220,7 +191,7 @@ uint8_t Simulator::read_byte(std::vector<pin_t> pins) const {
     return result;
 }
 
-void Simulator::init() {
+void Simulator::init(Circuit *circuit) {
     m_time = 0;
     m_read_idx = 0;
     m_write_idx = 1;
@@ -230,8 +201,16 @@ void Simulator::init() {
     std::fill(std::begin(m_node_write_time), std::end(m_node_write_time), 0);
     std::fill(std::begin(m_node_change_time), std::end(m_node_change_time), 0);
 
-    if (!m_active_circuit && !m_circuits.empty()) {
-        set_active_circuit(m_circuits.front().get());
+    change_active_circuit(circuit);
+}
+
+void Simulator::change_active_circuit(Circuit *circuit) {
+    m_active_circuit = circuit;
+    m_active_components[PRIORITY_NORMAL].clear();
+    m_active_components[PRIORITY_DEFERRED].clear();
+
+    if (circuit) {
+        circuit->activate();
     }
 }
 

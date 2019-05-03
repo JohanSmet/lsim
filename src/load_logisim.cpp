@@ -21,8 +21,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "simulator.h"
-#include "circuit.h"
+#include "lsim_context.h"
 #include "gate.h"
 #include "extra.h"
 #include "error.h"
@@ -36,12 +35,12 @@
 
 class LogisimParser {
 public:
-    LogisimParser(pugi::xml_document *xml_doc, Simulator *sim) : 
+    LogisimParser(pugi::xml_document *xml_doc, LSimContext *lsim_context) : 
             m_xml_doc(xml_doc), 
-            m_sim(sim) {
+            m_lsim_context(lsim_context) {
     }
 
-    bool parse_xml();
+    Circuit *parse_xml();
 
 private:
     union Position {
@@ -129,16 +128,16 @@ private:
 
 private: 
     pugi::xml_document *m_xml_doc;
-    Simulator *m_sim;
+    LSimContext *m_lsim_context;
     circuit_map_t m_circuits;
     CircuitConstruction m_context;
 };
 
-bool LogisimParser::parse_xml() {
+Circuit *LogisimParser::parse_xml() {
 
     auto project_node = m_xml_doc->child("project");
     if (!project_node) {
-        return false;
+        return nullptr;
     }
 
     /* iterate all circuits */
@@ -146,16 +145,14 @@ bool LogisimParser::parse_xml() {
         parse_circuit(circuit_node);
     }
 
-    /* set main circuit */
+    /* get main circuit */
     auto main_node = project_node.child("main");
     if (!main_node) {
-        return false;
+        return nullptr;
     }
 
     auto main_circuit = main_node.attribute("name").value();
-    m_sim->set_active_circuit(m_circuits[main_circuit].m_circuit);
-
-    return true;
+    return m_circuits[main_circuit].m_circuit;
 }
 
 bool LogisimParser::parse_circuit(pugi::xml_node &circuit_node) {
@@ -168,7 +165,7 @@ bool LogisimParser::parse_circuit(pugi::xml_node &circuit_node) {
     auto circuit_name = name_node.attribute("val").value();
 
     /* create the circuit */
-    m_context.m_circuit = m_sim->create_circuit(circuit_name);
+    m_context.m_circuit = m_lsim_context->user_library()->create_circuit(circuit_name);
     m_context.m_circuit_ipins[0].clear();
     m_context.m_circuit_ipins[1].clear();
     m_context.m_pin_locs.clear();
@@ -783,26 +780,26 @@ LogisimParser::wire_node_t *LogisimParser::point_on_wire(Position position) {
 // interface
 //
 
-bool load_logisim(Simulator *sim, const char *filename) {
+Circuit *load_logisim(LSimContext *lsim_context, const char *filename) {
     pugi::xml_document xml_doc;
 
     auto result = xml_doc.load_file(filename);
     if (!result) {
-        return false;
+        return nullptr;
     }
 
-    auto parser = LogisimParser(&xml_doc, sim);
+    auto parser = LogisimParser(&xml_doc, lsim_context);
     return parser.parse_xml();
 }
 
-bool load_logisim(Simulator *sim, const char *data, size_t len) {
+Circuit *load_logisim(LSimContext *lsim_context, const char *data, size_t len) {
     pugi::xml_document xml_doc;
 
     auto result = xml_doc.load_buffer(data, len);
     if (!result) {
-        return false;
+        return nullptr;
     }
 
-    auto parser = LogisimParser(&xml_doc, sim);
+    auto parser = LogisimParser(&xml_doc, lsim_context);
     return parser.parse_xml();
 }

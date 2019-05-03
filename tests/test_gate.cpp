@@ -1,14 +1,13 @@
 #include "catch.hpp"
-#include "simulator.h"
-#include "circuit.h"
+#include "lsim_context.h"
 #include "gate.h"
 
 TEST_CASE("Buffer", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>("in", 4, Connector::INPUT);
@@ -25,7 +24,7 @@ TEST_CASE("Buffer", "[gate]") {
         circuit->connect_pins(buffer->pin(idx + 4), out->pin(idx));
     }
 
-    sim->init();
+    sim->init(circuit);
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_UNDEFINED);
 
     // buffer takes a cycle to change output
@@ -53,10 +52,10 @@ TEST_CASE("Buffer", "[gate]") {
 
 TEST_CASE("TriStateBuffer", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>("in", 2, Connector::INPUT);
@@ -77,7 +76,7 @@ TEST_CASE("TriStateBuffer", "[gate]") {
         circuit->connect_pins(buffer->pin(idx + 3), out->pin(idx));
     }
 
-    sim->init();
+    sim->init(circuit);
 
     Value truth_table[][5] = {
         // in[0]        in[1]         en          out[0]           out[1]
@@ -109,10 +108,10 @@ TEST_CASE("TriStateBuffer", "[gate]") {
 
 TEST_CASE("Multiple TriState Buffers", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto pin_A = circuit->create_component<Connector>("A", 1, Connector::INPUT);
@@ -133,7 +132,7 @@ TEST_CASE("Multiple TriState Buffers", "[gate]") {
     sim->connect_pins(buf_2->pin(1), buf_1->pin(1));
     sim->connect_pins(buf_0->pin(2), pin_O->pin(0));
     sim->connect_pins(buf_1->pin(2), pin_O->pin(0));
-    sim->init();
+    sim->init(circuit);
 
     Value truth_table[][4] = {
         // A            B            Sel          O
@@ -156,15 +155,12 @@ TEST_CASE("Multiple TriState Buffers", "[gate]") {
     }
 }
 
-
-
-
 TEST_CASE("AndGate", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("i0", 1, Connector::INPUT);
@@ -197,7 +193,7 @@ TEST_CASE("AndGate", "[gate]") {
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         in_0->change_data(truth_table[test_idx][0]);
@@ -209,10 +205,10 @@ TEST_CASE("AndGate", "[gate]") {
 
 TEST_CASE("OrGate", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("i0", 1, Connector::INPUT);
@@ -245,7 +241,7 @@ TEST_CASE("OrGate", "[gate]") {
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         in_0->change_data(truth_table[test_idx][0]);
@@ -257,10 +253,10 @@ TEST_CASE("OrGate", "[gate]") {
 
 TEST_CASE("NotGate", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>("in", 1, Connector::INPUT);
@@ -282,7 +278,7 @@ TEST_CASE("NotGate", "[gate]") {
         {VALUE_UNDEFINED, VALUE_ERROR}
     };
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test : truth_table) {
         in->change_data(test[0]);
@@ -293,10 +289,10 @@ TEST_CASE("NotGate", "[gate]") {
 
 TEST_CASE("NandGate", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
@@ -327,7 +323,7 @@ TEST_CASE("NandGate", "[gate]") {
         {VALUE_TRUE,      VALUE_UNDEFINED, VALUE_ERROR}
     };
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test : truth_table) {
         in_0->change_data(test[0]);
@@ -339,10 +335,10 @@ TEST_CASE("NandGate", "[gate]") {
 
 TEST_CASE("NorGate", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
@@ -373,7 +369,7 @@ TEST_CASE("NorGate", "[gate]") {
         {VALUE_TRUE,      VALUE_UNDEFINED, VALUE_ERROR}
     };
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test : truth_table) {
         in_0->change_data(test[0]);
@@ -385,10 +381,10 @@ TEST_CASE("NorGate", "[gate]") {
 
 TEST_CASE("XorGate", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
@@ -406,7 +402,7 @@ TEST_CASE("XorGate", "[gate]") {
     circuit->connect_pins(in_1->pin(0), xor_gate->pin(1));
     circuit->connect_pins(xor_gate->pin(2), out->pin(0));
 
-     Value truth_table[][3] = {
+    Value truth_table[][3] = {
         // in_0         in_1         out
         {VALUE_FALSE, VALUE_FALSE, VALUE_FALSE},
         {VALUE_FALSE, VALUE_TRUE,  VALUE_TRUE},
@@ -419,7 +415,7 @@ TEST_CASE("XorGate", "[gate]") {
         {VALUE_TRUE,      VALUE_UNDEFINED, VALUE_ERROR}
     };
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test : truth_table) {
         in_0->change_data(test[0]);
@@ -431,10 +427,10 @@ TEST_CASE("XorGate", "[gate]") {
 
 TEST_CASE("XnorGate", "[gate]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in_0 = circuit->create_component<Connector>("in_0", 1, Connector::INPUT);
@@ -452,7 +448,7 @@ TEST_CASE("XnorGate", "[gate]") {
     circuit->connect_pins(in_1->pin(0), xnor_gate->pin(1));
     circuit->connect_pins(xnor_gate->pin(2), out->pin(0));
 
-     Value truth_table[][3] = {
+    Value truth_table[][3] = {
         // in_0         in_1         out
         {VALUE_FALSE, VALUE_FALSE, VALUE_TRUE},
         {VALUE_FALSE, VALUE_TRUE,  VALUE_FALSE},
@@ -465,7 +461,7 @@ TEST_CASE("XnorGate", "[gate]") {
         {VALUE_TRUE,      VALUE_UNDEFINED, VALUE_ERROR}
     };
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test : truth_table) {
         in_0->change_data(test[0]);

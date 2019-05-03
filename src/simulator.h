@@ -19,15 +19,6 @@ class Simulator {
 public:
     Simulator();
 
-    // circuits
-    Circuit *create_circuit(const char *name);
-    size_t num_circuits() const {return m_circuits.size();}
-    Circuit *circuit_by_idx(size_t idx) const;
-
-    void set_active_circuit(Circuit *circuit);
-    Circuit *active_circuit() const {return m_active_circuit;}
-    size_t active_circuit_index() const;
-
     // components
     void add_active_component(Component *comp);
 
@@ -59,13 +50,15 @@ public:
     uint8_t read_byte(std::vector<pin_t> pins) const;
 
     // simulation
-    void init();
+    void init(Circuit *circuit);
+    void change_active_circuit(Circuit *circuit);
+    Circuit *active_circuit() const {return m_active_circuit;}
     void step();
     void run_until_change(node_t node_id);
     void run_until_stable(size_t stable_ticks);
 
 private:
-    typedef std::vector<std::unique_ptr<Circuit>> circuit_container_t;
+    //typedef std::vector<std::unique_ptr<Circuit>> circuit_container_t;
     typedef std::vector<Value> value_container_t;
     typedef std::vector<node_t> node_container_t;
     typedef std::vector<Component *> component_container_t;
@@ -77,7 +70,7 @@ private:
 private:
     timestamp_t             m_time;
 
-    circuit_container_t     m_circuits;
+    // circuit_container_t     m_circuits;
     Circuit *               m_active_circuit;
 
     node_container_t        m_pin_nodes;

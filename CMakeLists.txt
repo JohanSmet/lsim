@@ -31,6 +31,7 @@ set (LIB_TARGET lsim)
 set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/basic.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/extra.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.cpp"
@@ -42,10 +43,12 @@ set (LIB_SOURCES
 set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/basic.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/extra.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.h"
 )

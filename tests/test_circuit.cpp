@@ -1,14 +1,13 @@
 #include "catch.hpp"
-#include "circuit.h"
-#include "simulator.h"
+#include "lsim_context.h"
 #include "gate.h"
 
 TEST_CASE("Components are created correctly", "[circuit]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto and_gate = circuit->create_component<AndGate>(2);
@@ -23,11 +22,11 @@ TEST_CASE("Components are created correctly", "[circuit]") {
 
 TEST_CASE("Test nested circuits", "[circuit]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
     // create a simple sub circuit
-    auto circuit_1 = sim->create_circuit("circuit_1");
+    auto circuit_1 = lsim_context.user_library()->create_circuit("circuit_1");
     REQUIRE(circuit_1);
 
     auto xor_gate = circuit_1->create_component<XorGate>();
@@ -43,7 +42,7 @@ TEST_CASE("Test nested circuits", "[circuit]") {
     circuit_1->connect_pins(and_gate->pin(2), out_1->pin(0));
 
     // create a circuit to hold circuit_1
-    auto circuit_2 = sim->create_circuit("circuit_2");
+    auto circuit_2 = lsim_context.user_library()->create_circuit("circuit_2");
     REQUIRE (circuit_2);
 
     auto s_in = circuit_2->create_component<Connector>("s_in", 1, Connector::INPUT);
@@ -53,8 +52,7 @@ TEST_CASE("Test nested circuits", "[circuit]") {
     circuit_2->connect_pins(s_in->pin(0), sub->interface_pin_by_name("in"));
     circuit_2->connect_pins(s_out->pin(0), sub->interface_pin_by_name("out"));
 
-    sim->set_active_circuit(circuit_2);
-    sim->init();
+    sim->init(circuit_2);
     s_in->change_data(VALUE_TRUE);
     sim->run_until_stable(5);
     REQUIRE(circuit_2->read_value(s_out->pin(0)) == VALUE_FALSE);
@@ -69,10 +67,10 @@ struct AdderIO {
     Connector *pin_Co;
 };
 
-AdderIO create_1bit_adder(Simulator *sim) {
+AdderIO create_1bit_adder(LSimContext *lsim_context) {
     AdderIO result = {0};
 
-    result.circuit = sim->create_circuit("adder_1bit");
+    result.circuit = lsim_context->user_library()->create_circuit("adder_1bit");
 
     result.pin_Ci = result.circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
     result.pin_A  = result.circuit->create_component<Connector>("A", 1, Connector::INPUT);
@@ -107,13 +105,11 @@ AdderIO create_1bit_adder(Simulator *sim) {
 
 TEST_CASE("1bit Adder", "[circuit]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto adder_1bit = create_1bit_adder(sim.get());
-
-    sim->set_active_circuit(adder_1bit.circuit);
-    sim->init();
+    auto adder_1bit = create_1bit_adder(&lsim_context);
+    sim->init(adder_1bit.circuit);
 
     Value truth_table[][5] = {
         //  Ci           A            B            Co          O
@@ -130,8 +126,6 @@ TEST_CASE("1bit Adder", "[circuit]") {
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
 
-    sim->init();
-
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         adder_1bit.pin_Ci->change_data(truth_table[test_idx][0]);
         adder_1bit.pin_A->change_data(truth_table[test_idx][1]);
@@ -142,14 +136,14 @@ TEST_CASE("1bit Adder", "[circuit]") {
     }
 }
 
-AdderIO create_4bit_adder(Simulator *sim) {
+AdderIO create_4bit_adder(LSimContext *lsim_context) {
     AdderIO result = {0};
 
     // create 1bit adder circuit
-    auto adder_1bit = create_1bit_adder(sim);
+    auto adder_1bit = create_1bit_adder(lsim_context);
 
     // create a 4bit adder circuit
-    result.circuit = sim->create_circuit("adder_4bit");
+    result.circuit = lsim_context->user_library()->create_circuit("adder_4bit");
 
     result.pin_Ci = result.circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
     result.pin_A = result.circuit->create_component<Connector>("A", 4, Connector::INPUT);
@@ -187,11 +181,11 @@ AdderIO create_4bit_adder(Simulator *sim) {
 
 TEST_CASE("4bit adder (circuit cloning)", "[circuit]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto adder_4bit = create_4bit_adder(sim.get());
-    sim->set_active_circuit(adder_4bit.circuit);
+    auto adder_4bit = create_4bit_adder(&lsim_context);
+    sim->init(adder_4bit.circuit);
 
     for (int ci = 0; ci < 2; ++ci) {
         adder_4bit.pin_Ci->change_data(ci);
@@ -214,17 +208,17 @@ TEST_CASE("4bit adder (circuit cloning)", "[circuit]") {
 
 TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("adder_8bit");
+    auto circuit = lsim_context.user_library()->create_circuit("adder_8bit");
     auto pin_Ci = circuit->create_component<Connector>("Ci", 1, Connector::INPUT);
     auto pin_A = circuit->create_component<Connector>("A", 8, Connector::INPUT);
     auto pin_B = circuit->create_component<Connector>("B", 8, Connector::INPUT);
     auto pin_O = circuit->create_component<Connector>("O", 8, Connector::OUTPUT);
     auto pin_Co = circuit->create_component<Connector>("Co", 1, Connector::OUTPUT);
 
-    auto adder_4bit = create_4bit_adder(sim.get());
+    auto adder_4bit = create_4bit_adder(&lsim_context);
 
     auto add4_0 = circuit->integrate_circuit(adder_4bit.circuit->clone());
     circuit->connect_pins(pin_Ci->pin(0), add4_0->interface_pin_by_name("Ci"));
@@ -257,8 +251,7 @@ TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
     circuit->connect_pins(pin_O->pin(7), add4_1->interface_pin_by_name("O[3]"));
     circuit->connect_pins(add4_1->interface_pin_by_name("Co"), pin_Co->pin(0)); 
 
-    sim->set_active_circuit(circuit);
-    sim->init();
+    sim->init(circuit);
 
     for (int ci = 0; ci < 2; ++ci) {
         pin_Ci->change_data(ci);

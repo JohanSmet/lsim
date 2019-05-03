@@ -21,9 +21,10 @@ def print_stats():
         print("{} out of {} checks failed!".format(count_failure, count_check))
 
 def main():
-    sim = lsimpy.Simulator()
+    lsim = lsimpy.LSimContext()
+    sim = lsim.sim()
    
-    if (not lsimpy.load_logisim(sim, "../../examples/shifter.circ")):
+    if (not lsimpy.load_logisim(lsim, "../../examples/shifter.circ")):
         print("Unable to load circuit\n")
         exit(-1)
 

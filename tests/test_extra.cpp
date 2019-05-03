@@ -1,15 +1,14 @@
 #include "catch.hpp"
-#include "simulator.h"
-#include "circuit.h"
+#include "lsim_context.h"
 #include "gate.h"
 #include "extra.h"
 
 TEST_CASE("PullResistor", "[extra]") {
 
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    auto circuit = sim->create_circuit("main");
+    auto circuit = lsim_context.user_library()->create_circuit("main");
     REQUIRE(circuit);
 
     auto in = circuit->create_component<Connector>("in", 1, Connector::INPUT);
@@ -25,7 +24,7 @@ TEST_CASE("PullResistor", "[extra]") {
     circuit->connect_pins(in->pin(0), out->pin(0));
     circuit->connect_pins(pull->pin(0), out->pin(0));
 
-    sim->init();
+    sim->init(circuit);
 
     Value truth_table[][2] = {
         // in               out

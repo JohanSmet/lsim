@@ -1,7 +1,6 @@
 #include "catch.hpp"
 #include "load_logisim.h"
-#include "simulator.h"
-#include "circuit.h"
+#include "lsim_context.h"
 
 #include <cstring>
 
@@ -910,11 +909,11 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
 )FILE";
 
 TEST_CASE ("Small Logisim Circuit", "[logisim]") {
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
 
-    REQUIRE(load_logisim(sim.get(), logisim_test_data, std::strlen(logisim_test_data)));
-    auto circuit = sim->active_circuit();
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
+
+    auto circuit = load_logisim(&lsim_context, logisim_test_data, std::strlen(logisim_test_data));
     REQUIRE(circuit);
 
     auto in = circuit->component_by_name("In");
@@ -923,7 +922,7 @@ TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     auto out = circuit->component_by_name("Out");
     REQUIRE(out);
 
-    sim->init();
+    sim->init(circuit);
     static_cast<Connector *>(in)->change_data(VALUE_TRUE);
     sim->run_until_stable(5);
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
@@ -932,11 +931,10 @@ TEST_CASE ("Small Logisim Circuit", "[logisim]") {
 TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
 
     // load circuit
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    REQUIRE(load_logisim(sim.get(), logisim_adder_data, std::strlen(logisim_adder_data)));
-    auto circuit = sim->active_circuit();
+    auto circuit = load_logisim(&lsim_context, logisim_adder_data, std::strlen(logisim_adder_data));
     REQUIRE(circuit);
 
     // input pins
@@ -971,7 +969,7 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         pin_Ci->change_data(truth_table[test_idx][0]);
@@ -986,11 +984,10 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
 TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
 
     // load circuit
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    REQUIRE(load_logisim(sim.get(), logisim_multi_data, std::strlen(logisim_multi_data)));
-    auto circuit = sim->active_circuit();
+    auto circuit = load_logisim(&lsim_context, logisim_multi_data, std::strlen(logisim_multi_data));
     REQUIRE(circuit);
 
     // input pins
@@ -1035,7 +1032,7 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         pin_I1->change_data(truth_table[test_idx][0]);
@@ -1050,11 +1047,10 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
 TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
 
     // load circuit
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    REQUIRE(load_logisim(sim.get(), logisim_tristate_data, std::strlen(logisim_tristate_data)));
-    auto circuit = sim->active_circuit();
+    auto circuit = load_logisim(&lsim_context, logisim_tristate_data, std::strlen(logisim_tristate_data));
     REQUIRE(circuit);
 
     // input pins
@@ -1078,7 +1074,7 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
 
     size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
 
-    sim->init();
+    sim->init(circuit);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
         pin_in->change_data(truth_table[test_idx][0]);
@@ -1091,11 +1087,10 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
 TEST_CASE ("Logisim nested circuit", "[logisim]") {
 
     // load circuit
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    REQUIRE(load_logisim(sim.get(), logisim_nested_data, std::strlen(logisim_nested_data)));
-    auto circuit = sim->active_circuit();
+    auto circuit = load_logisim(&lsim_context, logisim_nested_data, std::strlen(logisim_nested_data));
     REQUIRE(circuit);
 
     // input pins
@@ -1119,6 +1114,8 @@ TEST_CASE ("Logisim nested circuit", "[logisim]") {
                   static_cast<Connector *> (circuit->component_by_name("S3"))->pin(0),
                   static_cast<Connector *> (circuit->component_by_name("S4"))->pin(0)};
     auto pin_Co = static_cast<Connector *> (circuit->component_by_name("Co"))->pin(0);
+
+    sim->init(circuit);
 
     for (int ci = 0; ci < 2; ++ci) {
         pin_Ci->change_data(ci);
@@ -1145,11 +1142,10 @@ TEST_CASE ("Logisim nested circuit", "[logisim]") {
 TEST_CASE ("Logisim +1 databits", "[logisim]") {
 
     // load circuit
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    REQUIRE(load_logisim(sim.get(), logisim_bus_data, std::strlen(logisim_bus_data)));
-    auto circuit = sim->active_circuit();
+    auto circuit = load_logisim(&lsim_context, logisim_bus_data, std::strlen(logisim_bus_data));
     REQUIRE(circuit);
 
     auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
@@ -1160,7 +1156,7 @@ TEST_CASE ("Logisim +1 databits", "[logisim]") {
                   static_cast<Connector *> (circuit->component_by_name("O2"))->pin(0),
                   static_cast<Connector *> (circuit->component_by_name("O3"))->pin(0)};
 
-    sim->init();
+    sim->init(circuit);
 
     for (int i = 0; i < 16; ++i) {
         pin_I->change_data(i);
@@ -1172,11 +1168,10 @@ TEST_CASE ("Logisim +1 databits", "[logisim]") {
 TEST_CASE ("Logisim Tunnel", "[logisim]") {
 
     // load circuit
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    REQUIRE(load_logisim(sim.get(), logisim_tunnel_data, std::strlen(logisim_tunnel_data)));
-    auto circuit = sim->active_circuit();
+    auto circuit = load_logisim(&lsim_context, logisim_tunnel_data, std::strlen(logisim_tunnel_data));
     REQUIRE(circuit);
 
     auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
@@ -1187,7 +1182,7 @@ TEST_CASE ("Logisim Tunnel", "[logisim]") {
     auto pin_O1 = static_cast<Connector *> (circuit->component_by_name("O1"));
     REQUIRE(pin_O1);
 
-    sim->init();
+    sim->init(circuit);
 
     Value truth_table[][3] = {
         // I                O0                O1
@@ -1207,11 +1202,10 @@ TEST_CASE ("Logisim Tunnel", "[logisim]") {
 TEST_CASE ("Logisim Multi-bit tunnel", "[logisim]") {
 
     // load circuit
-    auto sim = std::make_unique<Simulator>();
-    REQUIRE (sim);
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
 
-    REQUIRE(load_logisim(sim.get(), logisim_multi_tunnel_data, std::strlen(logisim_multi_tunnel_data)));
-    auto circuit = sim->active_circuit();
+    auto circuit = load_logisim(&lsim_context, logisim_multi_tunnel_data, std::strlen(logisim_multi_tunnel_data));
     REQUIRE(circuit);
 
     auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
@@ -1222,7 +1216,7 @@ TEST_CASE ("Logisim Multi-bit tunnel", "[logisim]") {
     auto pin_O1 = static_cast<Connector *> (circuit->component_by_name("O1"));
     REQUIRE(pin_O1);
 
-    sim->init();
+    sim->init(circuit);
 
     Value truth_table[][4] = {
         // I[0]         I[1]         O0           O1
