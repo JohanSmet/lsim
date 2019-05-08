@@ -76,17 +76,16 @@ const char *connector_data_label(Value value) {
 
 void component_register_basic() {
 
-    // connector
+    // connector input
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::CONNECTOR, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
-            auto connector = dynamic_cast<Connector *>(comp);
-            ui_comp->m_tooltip = "Connector";
+        COMPONENT_CONNECTOR_IN, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+            ui_comp->m_tooltip = "Input";
 
             const float width = 26;
             const float height = comp->num_pins() * 24;
             materialize_rectangle(ui_comp, ui_circuit, width, height);
             ui_circuit->add_pin_line(ui_comp->m_to_circuit, comp->pins().data(), comp->num_pins(), 
-                                     {(connector->is_input() ? 0.5f : -0.5f) * width, -height * 0.5f + 12},
+                                     {0.5f * width, -height * 0.5f + 12},
                                      {0, 24});
 
             // custor draw function
@@ -103,58 +102,98 @@ void component_register_basic() {
                     Point(0, 0);
 
                 ImGui::BeginGroup();
-                ImGui::PushID(connector->name());
+                ImGui::PushID(comp);
                 for (size_t i = 0; i < comp->num_pins(); ++ i) {
                     ImGui::PushID(i);
-                    auto cur_val = connector->get_data(i);
+                    auto cur_val = comp->read_pin(comp->output_pin_index(i)); // XXX read_value or something?
+                    auto screen_pos = to_window.apply(Point(origin.x + 4, origin.y + (i * 24) + 2));
+                    ImGui::SetCursorScreenPos(screen_pos - button_offset);
 
-                    if (connector->is_input()) {
-                        auto screen_pos = to_window.apply(Point(origin.x + 4, origin.y + (i * 24) + 2));
-                        ImGui::SetCursorScreenPos(screen_pos - button_offset);
-
-                        if (ImGui::Button(connector_data_label(cur_val), {18,18})) {
-                            connector->change_data(i, static_cast<Value>((cur_val + 1) % (connector->is_tristate() ? 3 : 2)));
-                        }
-                    }
-
-                    if (connector->is_output()) {
-                        auto screen_pos = to_window.apply(Point(origin.x, origin.y + (i * 24)));
-
-                        ImGui::GetWindowDrawList()->AddRectFilled(
-                            {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
-                            COLOR_CONNECTION[cur_val]);
-                        ImGuiEx::TextCentered(screen_pos + Point(width / 2, 5), connector_data_label(cur_val));
+                    if (ImGui::Button(connector_data_label(cur_val), {18,18})) {
+                        comp->write_pin(comp->output_pin_index(i), 
+                                        static_cast<Value>((cur_val + 1) % 2 /*(connector->is_tristate() ? 3 : 2)*/));
                     }
                     ImGui::PopID();
                 }
                 ImGui::PopID();
 
                 // label for connector
-                Point anchor = to_window.apply(Point(
-                    connector->is_input() ? origin.x - 5 : origin.x + width + 5,
-                    origin.y + (height / 2.0f) - 4
-                ));
+                Point anchor = to_window.apply(Point(origin.x - 5, origin.y + (height / 2.0f) - 4));
                 ImGuiEx::TextJustify justify = ImGuiEx::CENTER;
                 if (orient == VisualComponent::EAST) {
-                    justify = (connector->is_input() ? ImGuiEx::RIGHT : ImGuiEx::LEFT);
+                    justify = ImGuiEx::RIGHT;
                 } else if (orient == VisualComponent::WEST) {
-                    justify = (connector->is_input() ? ImGuiEx::LEFT : ImGuiEx::RIGHT);
+                    justify = ImGuiEx::LEFT;
                 } else if (orient == VisualComponent::SOUTH) {
                     anchor.y -= 10;
                 }
 
-                ImGuiEx::Text(anchor, justify, connector->name());
+                // XXX ImGuiEx::Text(anchor, justify, comp->name());
 
                 ImGui::EndGroup();
             };
         }
     );
 
+    // connector output
+    UICircuitBuilder::register_materialize_func(
+        COMPONENT_CONNECTOR_OUT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+            ui_comp->m_tooltip = "Output";
+
+            const float width = 26;
+            const float height = comp->num_pins() * 24;
+            materialize_rectangle(ui_comp, ui_circuit, width, height);
+            ui_circuit->add_pin_line(ui_comp->m_to_circuit, comp->pins().data(), comp->num_pins(), 
+                                     {-0.5f * width, -height * 0.5f + 12},
+                                     {0, 24});
+
+            // custor draw function
+            ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
+
+                auto origin = Point(-width / 2.0f, -height / 2.0f);
+                auto orient = ui_comp->m_visual_comp->get_orientation();
+
+                ImGui::BeginGroup();
+                ImGui::PushID(comp);
+                for (size_t i = 0; i < comp->num_pins(); ++ i) {
+                    ImGui::PushID(i);
+                    auto cur_val = comp->read_pin(comp->input_pin_index(i));
+                    auto screen_pos = to_window.apply(Point(origin.x, origin.y + (i * 24)));
+
+                    ImGui::GetWindowDrawList()->AddRectFilled(
+                        {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
+                        COLOR_CONNECTION[cur_val]);
+                    ImGuiEx::TextCentered(screen_pos + Point(width / 2, 5), connector_data_label(cur_val));
+
+                    ImGui::PopID();
+                }
+                ImGui::PopID();
+
+                // label for connector
+                Point anchor = to_window.apply(Point(
+                    origin.x + width + 5,
+                    origin.y + (height / 2.0f) - 4
+                ));
+                ImGuiEx::TextJustify justify = ImGuiEx::CENTER;
+                if (orient == VisualComponent::EAST) {
+                    justify = ImGuiEx::LEFT;
+                } else if (orient == VisualComponent::WEST) {
+                    justify = ImGuiEx::RIGHT;
+                } else if (orient == VisualComponent::SOUTH) {
+                    anchor.y -= 10;
+                }
+
+                // ImGuiEx::Text(anchor, justify, connector->name());
+
+                ImGui::EndGroup();
+            };
+        }
+    );
+
+
     // constant
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::CONSTANT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
-            Constant *constant = dynamic_cast<Constant *>(comp);
-
+        COMPONENT_CONSTANT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             const float width = 26;
             const float height = 26;
             materialize_rectangle(ui_comp, ui_circuit, width, height);
@@ -163,7 +202,7 @@ void component_register_basic() {
 
             // custor draw function
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
-                auto val = constant->value();
+                auto val = comp->read_pin(comp->output_pin_index(0)); // XXX read_value???
                 auto screen_pos = to_window.apply(Point(-width / 2.0f, -height / 2.0f));
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
@@ -175,22 +214,21 @@ void component_register_basic() {
 
     // sub circuit
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::SUB_CIRCUIT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
-            CircuitComponent *wrapper = dynamic_cast<CircuitComponent *>(comp);
-            Circuit *nested = wrapper->nested_circuit();
+        COMPONENT_SUB_CIRCUIT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+            auto nested = ui_comp->m_visual_comp->get_circuit();
             ui_comp->m_tooltip = "Circuit";
 
             // sort sub-circuit pins into inputs (on the left) and outputs (on the right) 
             Component::pin_container_t input_pins, output_pins;
             std::vector<const char *> input_names, output_names;
 
-            for (int i = nested->num_interface_pins() - 1; i >= 0; --i) {
-                if (nested->interface_pin_is_input(i)) {
-                    input_pins.push_back(nested->interface_pin(i));
-                    input_names.push_back(nested->interface_pin_name(i));
+            for (int i = nested->num_external_pins() - 1; i >= 0; --i) {
+                if (nested->external_pin_is_input(i)) {
+                    input_pins.push_back(nested->external_pin(i));
+                    input_names.push_back(nested->external_pin_name(i));
                 } else {
-                    output_pins.push_back(nested->interface_pin(i));
-                    output_names.push_back(nested->interface_pin_name(i));
+                    output_pins.push_back(nested->external_pin(i));
+                    output_names.push_back(nested->external_pin_name(i));
                 }
             }
 
@@ -224,16 +262,14 @@ void component_register_basic() {
                 ImGuiEx::TextCentered(cursor, nested->name());
             };
         }
-    );
+    ); 
 }
 
 void component_register_extra() {
 
     // Pull Resistor
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::PULL_RESISTOR, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
-            PullResistor *pull = dynamic_cast<PullResistor *>(comp);
-
+        COMPONENT_PULL_RESISTOR, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             const float width = 26;
             const float height = 26;
             materialize_rectangle(ui_comp, ui_circuit, width, height);
@@ -242,7 +278,7 @@ void component_register_extra() {
 
             // custor draw function
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
-                auto val = pull->pull_value();
+                auto val = comp->read_pin(comp->output_pin_index(0)); // XXX read_value???
                 auto screen_origin = to_window.apply(Point(-width / 2.0f, -height / 2.0f));
                 ImGuiEx::RectFilled(
                     screen_origin + to_window.apply_to_vector({3, 3}),
@@ -259,7 +295,7 @@ void component_register_gates() {
     // buffer
     ComponentIcon icon_buffer(SHAPE_BUFFER, sizeof(SHAPE_BUFFER));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::BUFFER, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_BUFFER, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "Buffer";
             ui_comp->m_icon = &icon_buffer;
             int bits = comp->num_pins() / 2;
@@ -270,7 +306,7 @@ void component_register_gates() {
     // tristate buffer
 	ComponentIcon icon_tristate_buffer(SHAPE_TRISTATE_BUFFER, sizeof(SHAPE_TRISTATE_BUFFER));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::TRISTATE_BUFFER, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_TRISTATE_BUFFER, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "Tri-state Buffer";
             ui_comp->m_icon = &icon_tristate_buffer;
             int bits = (comp->num_pins() - 1) / 2;
@@ -281,7 +317,7 @@ void component_register_gates() {
     // AND gate
 	ComponentIcon icon_and(SHAPE_AND_GATE, sizeof(SHAPE_AND_GATE));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::AND_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_AND_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "AND";
             ui_comp->m_icon = &icon_and;
             int inputs = comp->num_pins() - 1;
@@ -292,7 +328,7 @@ void component_register_gates() {
     // OR gate
 	ComponentIcon icon_or(SHAPE_OR_GATE, sizeof(SHAPE_OR_GATE));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::OR_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_OR_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "OR";
             ui_comp->m_icon = &icon_or;
             int inputs = comp->num_pins() - 1;
@@ -303,7 +339,7 @@ void component_register_gates() {
     // NOT gate
 	ComponentIcon icon_not(SHAPE_NOT_GATE, sizeof(SHAPE_NOT_GATE));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::NOT_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_NOT_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "NOT";
             ui_comp->m_icon = &icon_not;
             int inputs = comp->num_pins() - 1;
@@ -314,7 +350,7 @@ void component_register_gates() {
     // NAND gate
 	ComponentIcon icon_nand(SHAPE_NAND_GATE, sizeof(SHAPE_NAND_GATE));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::NAND_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_NAND_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "NAND";
             ui_comp->m_icon = &icon_nand;
             int inputs = comp->num_pins() - 1;
@@ -325,7 +361,7 @@ void component_register_gates() {
     // NOR gate
 	ComponentIcon icon_nor(SHAPE_NOR_GATE, sizeof(SHAPE_NOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::NOR_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_NOR_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "NOR";
             ui_comp->m_icon = &icon_nor;
             int inputs = comp->num_pins() - 1;
@@ -336,7 +372,7 @@ void component_register_gates() {
     // XOR gate
 	ComponentIcon icon_xor(SHAPE_XOR_GATE, sizeof(SHAPE_XOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::XOR_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_XOR_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "XOR";
             ui_comp->m_icon = &icon_xor;
             int inputs = comp->num_pins() - 1;
@@ -347,7 +383,7 @@ void component_register_gates() {
     // XNOR gate
 	ComponentIcon icon_xnor(SHAPE_XNOR_GATE, sizeof(SHAPE_XNOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        VisualComponent::XNOR_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
+        COMPONENT_XNOR_GATE, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->m_tooltip = "XNOR";
             ui_comp->m_icon = &icon_xnor;
             int inputs = comp->num_pins() - 1;

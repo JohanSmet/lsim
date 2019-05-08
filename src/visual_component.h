@@ -7,25 +7,12 @@
 #include <memory>
 
 class Component;
+class Circuit;
 
 class VisualComponent {
 public:
     // nested types
-    enum Type {
-        CONNECTOR = 0,
-        CONSTANT,
-        PULL_RESISTOR,
-        BUFFER,
-        TRISTATE_BUFFER,
-        AND_GATE,
-        OR_GATE,
-        NOT_GATE,
-        NAND_GATE,
-        NOR_GATE,
-        XOR_GATE,
-        XNOR_GATE,
-        SUB_CIRCUIT
-    };
+    typedef uint32_t Type;
 
     enum Orientation {
         EAST = 0,
@@ -38,23 +25,23 @@ public:
     typedef std::unique_ptr<VisualComponent> uptr_t;
 
 public:
-    VisualComponent(Type type, Component *component);
+    VisualComponent(Component *component);
+    VisualComponent(Circuit *circuit);
     void set_orientation(Orientation orientation);
     void set_position(point_t pos);
 
-    Type get_type() const {return m_type;}
+    uint32_t get_type() const {return m_type;}
     Orientation get_orientation() const {return m_orientation;}
     point_t get_position() const {return m_position;}
     Component *get_component() const {return m_component;}
+    Circuit *get_circuit() const {return m_circuit;}
 
-
-
-
-private: 
+private:    
     Type        m_type;
     Orientation m_orientation;
     point_t     m_position;
     Component * m_component;
+    Circuit *   m_circuit;
 };
 
 

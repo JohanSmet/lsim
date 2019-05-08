@@ -22,14 +22,18 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("pin", &Component::pin)
         .def("num_pins", &Component::num_pins)
         .def("pins", (const Component::pin_container_t &(Component::*)() const)&Component::pins)
-        .def("pins", (Component::pin_container_t (Component::*)(size_t,size_t))&Component::pins)
+        .def("pins", (Component::pin_container_t (Component::*)(size_t,size_t) const)&Component::pins)
+        .def("input_pin", &Component::input_pin)
+        .def("output_pin", &Component::output_pin)
+        .def("control_pin", &Component::control_pin)
+        .def("input_pins", &Component::input_pins)
+        .def("output_pins", &Component::output_pins)
+        .def("control_pins", &Component::control_pins)
         .def("read_pin", &Component::read_pin)
-        ;
-
-    py::class_<Connector, Component>(m, "Connector")
-        .def("change_data", (void (Connector::*)(uint64_t))&Connector::change_data)
-        .def("change_data", (void (Connector::*)(Value))&Connector::change_data)
-        .def("change_data", (void (Connector::*)(Component::value_container_t))&Connector::change_data)
+        .def("write_pin", &Component::write_pin)
+        .def("write_output_pins", (void (Component::*)(Value))&Component::write_output_pins)
+        .def("write_output_pins", (void (Component::*)(value_container_t))&Component::write_output_pins)
+        .def("write_output_pins", (void (Component::*)(uint64_t))&Component::write_output_pins)
         ;
 
     py::class_<Simulator>(m, "Simulator")
@@ -42,12 +46,6 @@ PYBIND11_MODULE(lsimpy, m) {
                     return sim.active_circuit()->component_by_name(name);
                 },
                 py::return_value_policy::reference)
-        .def("connector_by_name",
-                [](const Simulator &sim, const char *name) {
-                    return dynamic_cast<Connector *>(sim.active_circuit()->component_by_name(name));
-                }, 
-                py::return_value_policy::reference)
-
         .def("read_nibble", &Simulator::read_nibble)
         .def("read_byte", &Simulator::read_byte)
         ;

@@ -923,7 +923,7 @@ TEST_CASE ("Small Logisim Circuit", "[logisim]") {
     REQUIRE(out);
 
     sim->init(circuit);
-    static_cast<Connector *>(in)->change_data(VALUE_TRUE);
+    in->write_output_pins({VALUE_TRUE});
     sim->run_until_stable(5);
     REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
 }
@@ -938,20 +938,20 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
     REQUIRE(circuit);
 
     // input pins
-    auto *pin_Ci = static_cast<Connector *> (circuit->component_by_name("Ci"));
+    auto *pin_Ci = circuit->component_by_name("Ci");
     REQUIRE(pin_Ci);
 
-    auto pin_A = static_cast<Connector *> (circuit->component_by_name("A"));
+    auto pin_A = circuit->component_by_name("A");
     REQUIRE(pin_A);
 
-    auto pin_B = static_cast<Connector *> (circuit->component_by_name("B"));
+    auto pin_B = circuit->component_by_name("B");
     REQUIRE(pin_B);
 
     // output pins
-    auto pin_Co = static_cast<Connector *> (circuit->component_by_name("Co"));
+    auto pin_Co = circuit->component_by_name("Co");
     REQUIRE(pin_Co);
 
-    auto pin_Sum = static_cast<Connector *> (circuit->component_by_name("Sum"));
+    auto pin_Sum = circuit->component_by_name("Sum");
     REQUIRE(pin_Sum);
 
     Value truth_table[][5] = {
@@ -972,9 +972,9 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
     sim->init(circuit);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
-        pin_Ci->change_data(truth_table[test_idx][0]);
-        pin_A->change_data(truth_table[test_idx][1]);
-        pin_B->change_data(truth_table[test_idx][2]);
+        pin_Ci->write_output_pins(truth_table[test_idx][0]);
+        pin_A->write_output_pins(truth_table[test_idx][1]);
+        pin_B->write_output_pins(truth_table[test_idx][2]);
         sim->run_until_stable(5);
         REQUIRE(circuit->read_value(pin_Co->pin(0)) == truth_table[test_idx][3]);
         REQUIRE(circuit->read_value(pin_Sum->pin(0)) == truth_table[test_idx][4]);
@@ -991,20 +991,20 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
     REQUIRE(circuit);
 
     // input pins
-    auto *pin_I1 = static_cast<Connector *> (circuit->component_by_name("I1"));
+    auto *pin_I1 = circuit->component_by_name("I1");
     REQUIRE(pin_I1);
 
-    auto *pin_I2 = static_cast<Connector *> (circuit->component_by_name("I2"));
+    auto *pin_I2 = circuit->component_by_name("I2");
     REQUIRE(pin_I2);
 
-    auto *pin_I3 = static_cast<Connector *> (circuit->component_by_name("I3"));
+    auto *pin_I3 = circuit->component_by_name("I3");
     REQUIRE(pin_I3);
 
-    auto *pin_I4 = static_cast<Connector *> (circuit->component_by_name("I4"));
+    auto *pin_I4 = circuit->component_by_name("I4");
     REQUIRE(pin_I4);
 
     // output pins
-    auto pin_O = static_cast<Connector *> (circuit->component_by_name("O"));
+    auto pin_O = circuit->component_by_name("O");
     REQUIRE(pin_O);
 
     Value truth_table[][5] = {
@@ -1035,10 +1035,10 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
     sim->init(circuit);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
-        pin_I1->change_data(truth_table[test_idx][0]);
-        pin_I2->change_data(truth_table[test_idx][1]);
-        pin_I3->change_data(truth_table[test_idx][2]);
-        pin_I4->change_data(truth_table[test_idx][3]);
+        pin_I1->write_output_pins(truth_table[test_idx][0]);
+        pin_I2->write_output_pins(truth_table[test_idx][1]);
+        pin_I3->write_output_pins(truth_table[test_idx][2]);
+        pin_I4->write_output_pins(truth_table[test_idx][3]);
         sim->run_until_stable(5);
         REQUIRE(circuit->read_value(pin_O->pin(0)) == truth_table[test_idx][4]);
     }
@@ -1054,14 +1054,14 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
     REQUIRE(circuit);
 
     // input pins
-    auto *pin_in = static_cast<Connector *> (circuit->component_by_name("A"));
+    auto *pin_in = circuit->component_by_name("A");
     REQUIRE(pin_in);
 
-    auto *pin_en = static_cast<Connector *> (circuit->component_by_name("en"));
+    auto *pin_en = circuit->component_by_name("en");
     REQUIRE(pin_en);
 
     // output pins
-    auto pin_O = static_cast<Connector *> (circuit->component_by_name("O"));
+    auto pin_O = circuit->component_by_name("O");
     REQUIRE(pin_O);
 
     Value truth_table[][3] = {
@@ -1077,8 +1077,8 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
     sim->init(circuit);
 
     for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
-        pin_in->change_data(truth_table[test_idx][0]);
-        pin_en->change_data(truth_table[test_idx][1]);
+        pin_in->write_output_pins(truth_table[test_idx][0]);
+        pin_en->write_output_pins(truth_table[test_idx][1]);
         sim->run_until_stable(5);
         REQUIRE(circuit->read_value(pin_O->pin(0)) == truth_table[test_idx][2]);
     }
@@ -1094,31 +1094,31 @@ TEST_CASE ("Logisim nested circuit", "[logisim]") {
     REQUIRE(circuit);
 
     // input pins
-    Connector *pin_A[] = {
-        static_cast<Connector *> (circuit->component_by_name("A1")),
-        static_cast<Connector *> (circuit->component_by_name("A2")),
-        static_cast<Connector *> (circuit->component_by_name("A3")),
-        static_cast<Connector *> (circuit->component_by_name("A4"))
+    Component *pin_A[] = {
+        circuit->component_by_name("A1"),
+        circuit->component_by_name("A2"),
+        circuit->component_by_name("A3"),
+        circuit->component_by_name("A4")
     };
-    Connector *pin_B[] = {
-        static_cast<Connector *> (circuit->component_by_name("B1")),
-        static_cast<Connector *> (circuit->component_by_name("B2")),
-        static_cast<Connector *> (circuit->component_by_name("B3")),
-        static_cast<Connector *> (circuit->component_by_name("B4"))
+    Component *pin_B[] = {
+        circuit->component_by_name("B1"),
+        circuit->component_by_name("B2"),
+        circuit->component_by_name("B3"),
+        circuit->component_by_name("B4")
     };
-    auto pin_Ci = static_cast<Connector *> (circuit->component_by_name("Ci"));
+    auto pin_Ci = circuit->component_by_name("Ci");
 
     // output pins
-    auto pin_O = {static_cast<Connector *> (circuit->component_by_name("S1"))->pin(0),
-                  static_cast<Connector *> (circuit->component_by_name("S2"))->pin(0),
-                  static_cast<Connector *> (circuit->component_by_name("S3"))->pin(0),
-                  static_cast<Connector *> (circuit->component_by_name("S4"))->pin(0)};
-    auto pin_Co = static_cast<Connector *> (circuit->component_by_name("Co"))->pin(0);
+    auto pin_O = {circuit->component_by_name("S1")->pin(0),
+                  circuit->component_by_name("S2")->pin(0),
+                  circuit->component_by_name("S3")->pin(0),
+                  circuit->component_by_name("S4")->pin(0)};
+    auto pin_Co = circuit->component_by_name("Co")->pin(0);
 
     sim->init(circuit);
 
     for (int ci = 0; ci < 2; ++ci) {
-        pin_Ci->change_data(ci);
+        pin_Ci->write_output_pins(ci);
 
         for (int a = 0; a < 16; ++a) {
             for (int b = 0; b < 16; ++b) {
@@ -1126,8 +1126,8 @@ TEST_CASE ("Logisim nested circuit", "[logisim]") {
                 int req_Co = ((a + b + ci) >> 4) & 0x1;
 
                 for (int i = 0; i < 4; ++i) {
-                    pin_A[i]->change_data((a >> i) & 1);
-                    pin_B[i]->change_data((b >> i) & 1);
+                    pin_A[i]->write_output_pins((a >> i) & 1);
+                    pin_B[i]->write_output_pins((b >> i) & 1);
                 }
 
                 sim->run_until_stable(5);
@@ -1148,18 +1148,18 @@ TEST_CASE ("Logisim +1 databits", "[logisim]") {
     auto circuit = load_logisim(&lsim_context, logisim_bus_data, std::strlen(logisim_bus_data));
     REQUIRE(circuit);
 
-    auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
+    auto *pin_I = circuit->component_by_name("I");
     REQUIRE(pin_I);
 
-    auto pin_O = {static_cast<Connector *> (circuit->component_by_name("O0"))->pin(0),
-                  static_cast<Connector *> (circuit->component_by_name("O1"))->pin(0),
-                  static_cast<Connector *> (circuit->component_by_name("O2"))->pin(0),
-                  static_cast<Connector *> (circuit->component_by_name("O3"))->pin(0)};
+    auto pin_O = {circuit->component_by_name("O0")->pin(0),
+                  circuit->component_by_name("O1")->pin(0),
+                  circuit->component_by_name("O2")->pin(0),
+                  circuit->component_by_name("O3")->pin(0)};
 
     sim->init(circuit);
 
     for (int i = 0; i < 16; ++i) {
-        pin_I->change_data(i);
+        pin_I->write_output_pins(i);
         sim->run_until_stable(5);
         REQUIRE(sim->read_nibble(pin_O) == i);
     }
@@ -1174,12 +1174,12 @@ TEST_CASE ("Logisim Tunnel", "[logisim]") {
     auto circuit = load_logisim(&lsim_context, logisim_tunnel_data, std::strlen(logisim_tunnel_data));
     REQUIRE(circuit);
 
-    auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
+    auto *pin_I = circuit->component_by_name("I");
     REQUIRE(pin_I);
 
-    auto pin_O0 = static_cast<Connector *> (circuit->component_by_name("O0"));
+    auto pin_O0 = circuit->component_by_name("O0");
     REQUIRE(pin_O0);
-    auto pin_O1 = static_cast<Connector *> (circuit->component_by_name("O1"));
+    auto pin_O1 = circuit->component_by_name("O1");
     REQUIRE(pin_O1);
 
     sim->init(circuit);
@@ -1192,7 +1192,7 @@ TEST_CASE ("Logisim Tunnel", "[logisim]") {
     };
 
     for (const auto &test: truth_table) {
-        pin_I->change_data(test[0]);
+        pin_I->write_output_pins(test[0]);
         sim->run_until_stable(5);
         REQUIRE(pin_O0->read_pin(0) == test[1]);
         REQUIRE(pin_O1->read_pin(0) == test[2]);
@@ -1208,12 +1208,12 @@ TEST_CASE ("Logisim Multi-bit tunnel", "[logisim]") {
     auto circuit = load_logisim(&lsim_context, logisim_multi_tunnel_data, std::strlen(logisim_multi_tunnel_data));
     REQUIRE(circuit);
 
-    auto *pin_I = static_cast<Connector *> (circuit->component_by_name("I"));
+    auto *pin_I = circuit->component_by_name("I");
     REQUIRE(pin_I);
 
-    auto pin_O0 = static_cast<Connector *> (circuit->component_by_name("O0"));
+    auto pin_O0 = circuit->component_by_name("O0");
     REQUIRE(pin_O0);
-    auto pin_O1 = static_cast<Connector *> (circuit->component_by_name("O1"));
+    auto pin_O1 = circuit->component_by_name("O1");
     REQUIRE(pin_O1);
 
     sim->init(circuit);
@@ -1227,7 +1227,7 @@ TEST_CASE ("Logisim Multi-bit tunnel", "[logisim]") {
     };
 
     for (const auto &test: truth_table) {
-        pin_I->change_data({test[0], test[1]});
+        pin_I->write_output_pins({test[0], test[1]});
         sim->run_until_stable(5);
         REQUIRE(pin_O0->read_pin(0) == test[2]);
         REQUIRE(pin_O1->read_pin(0) == test[3]);

@@ -131,7 +131,7 @@ Point UICircuit::endpoint_position(uint32_t pin) {
 
 UICircuitBuilder::materialize_func_map_t UICircuitBuilder::m_materialize_funcs;
 
-void UICircuitBuilder::register_materialize_func(VisualComponent::Type type, materialize_func_t func) {
+void UICircuitBuilder::register_materialize_func(ComponentType type, materialize_func_t func) {
 	m_materialize_funcs[type] = func;
 }
 
@@ -158,9 +158,10 @@ void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent
 	typedef std::unordered_map<node_t, pin_t> node_origin_container_t;
 	static node_origin_container_t node_origin_pins;
 
-	auto *sim = visual_comp->get_component()->get_circuit()->sim();
+	auto *sim = circuit->circuit()->sim();
+	const auto &pins = visual_comp->get_circuit() ? visual_comp->get_circuit()->external_pins() : visual_comp->get_component()->pins();
 
-	for (auto pin : visual_comp->get_component()->pins()) {
+	for (auto pin : pins) {
 		auto node = sim->pin_node(pin);
 		if (node == NOT_CONNECTED) {
 			continue;

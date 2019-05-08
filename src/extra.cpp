@@ -2,28 +2,26 @@
 //
 // various extra components
 
+#include "extra.h"
+#include "circuit.h"
+#include "simulator.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Pull Resistor - pull undefined nodes towards a value
 //
 
-#include "extra.h"
-#include "circuit.h"
-#include "simulator.h"
+Component *PullResistor(Circuit *circuit, Value pull_to) {
+    auto resistor = circuit->create_component(0, 1, 0, COMPONENT_PULL_RESISTOR, PRIORITY_DEFERRED);
+    resistor->write_pin(0, pull_to);
 
-PullResistor::PullResistor(Value pull_to) : 
-                CloneComponent(1, VisualComponent::PULL_RESISTOR, PRIORITY_DEFERRED),
-                m_pull_to(pull_to) {
-}
+    resistor->set_check_dirty_func([](Component *resistor) {
+        // returning false will cause the previous value to be output again
+        //  in this case we're abusing this to write the pull-value when the node is undefined
+        return resistor->sim()->read_pin_current_step(resistor->pin(0)) != VALUE_UNDEFINED;
+    });
 
-bool PullResistor::is_dirty() const {
-    return true;
-}
+    resistor->set_process_func([](Component *resistor) {});
 
-void PullResistor::process() {
-    Simulator *sim = get_circuit()->sim();
-
-    if (sim->read_pin_current_step(pin(0)) == VALUE_UNDEFINED) {
-        sim->write_pin(pin(0), m_pull_to);
-    }
+    return resistor;
 }

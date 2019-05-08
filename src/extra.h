@@ -7,16 +7,6 @@
 
 #include "basic.h"
 
-class PullResistor : public CloneComponent<PullResistor> {
-public:
-    PullResistor(Value pull_to);
-    virtual bool is_dirty() const override;
-    virtual void process() override;
-
-    Value pull_value() const {return m_pull_to;}
-private:
-    Value m_pull_to;
-};
-
+Component *PullResistor(Circuit *circuit, Value pull_to);
 
 #endif // LSIM_EXTRA_H

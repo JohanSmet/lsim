@@ -166,7 +166,7 @@ bool Simulator::node_changed(node_t node_id) const {
 
 bool Simulator::node_changed_last_step(node_t node_id) const {
     assert(node_id < m_node_change_time.size());
-    return m_time != 1 && m_node_change_time[node_id] == m_time - 1;
+    return /*m_time != 1 && */m_node_change_time[node_id] == m_time - 1;
 }
 
 uint8_t Simulator::read_nibble(std::vector<node_t> pins) const {
@@ -192,7 +192,7 @@ uint8_t Simulator::read_byte(std::vector<pin_t> pins) const {
 }
 
 void Simulator::init(Circuit *circuit) {
-    m_time = 0;
+    m_time = 1;
     m_read_idx = 0;
     m_write_idx = 1;
 

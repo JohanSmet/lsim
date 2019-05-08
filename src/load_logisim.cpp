@@ -105,11 +105,11 @@ private:
     bool connect_components();
     bool make_connection(const LogisimConnection &c1, const LogisimConnection &c2);
 
-    CircuitComponent *handle_sub_circuit(const std::string &name, ComponentProperties &props);
+    Circuit *handle_sub_circuit(const std::string &name, ComponentProperties &props);
     bool handle_gate(Component *component, ComponentProperties &props);
     bool handle_not_gate(Component *component, ComponentProperties &props);
     void handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left);
-    bool handle_pin(Connector *connector, ComponentProperties &props);
+    bool handle_pin(Component *connector, ComponentProperties &props);
     bool handle_splitter(ComponentProperties &props);
     bool handle_tunnel(ComponentProperties &props);
     void compute_ipin_offsets();
@@ -248,37 +248,41 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     }
 
     Component *component = nullptr;
+    Circuit *sub_circuit = nullptr;
     bool ok = true;
 
     if (comp_type == "Buffer") {
-        component = m_context.m_circuit->create_component<Buffer>(comp_props.m_width);
+        component = Buffer(m_context.m_circuit, comp_props.m_width);
         handle_buffer(component, comp_props, false, false);
     } else if (comp_type == "Controlled Buffer") {
-        component = m_context.m_circuit->create_component<TriStateBuffer>(comp_props.m_width);
+        component = TriStateBuffer(m_context.m_circuit, comp_props.m_width);
         handle_buffer(component, comp_props, true, tristate_left);
     } else if (comp_type == "Constant") {
-        component = m_context.m_circuit->create_component<Constant>(constant_val);
+        component = Constant(m_context.m_circuit, constant_val);
         add_pin_location(comp_props.m_location, component->pin(0));
     } else if (comp_type == "Pin") {
-        auto connector = m_context.m_circuit->create_component<Connector>(comp_props.m_label.c_str(), comp_props.m_width, !comp_props.m_pin_output);
-        component = connector;
-        ok = handle_pin(connector, comp_props);
+        if (!comp_props.m_pin_output) {
+            component = ConnectorInput(m_context.m_circuit, comp_props.m_label.c_str(), comp_props.m_width);
+        } else {
+            component = ConnectorOutput(m_context.m_circuit, comp_props.m_label.c_str(), comp_props.m_width);
+        }
+        ok = handle_pin(component, comp_props);
     } else if (comp_type == "AND Gate") {
-        component = m_context.m_circuit->create_component<AndGate>(comp_props.m_inputs);
+        component = AndGate(m_context.m_circuit, comp_props.m_inputs);
         ok = handle_gate(component, comp_props);
     } else if (comp_type == "OR Gate") {
-        component = m_context.m_circuit->create_component<OrGate>(comp_props.m_inputs);
+        component = OrGate(m_context.m_circuit, comp_props.m_inputs);
         ok = handle_gate(component, comp_props);
     } else if (comp_type == "NOT Gate") {
-        component = m_context.m_circuit->create_component<NotGate>();
+        component = NotGate(m_context.m_circuit);
         comp_props.m_inputs = 1;
         ok = handle_not_gate(component, comp_props);
     } else if (comp_type == "NAND Gate") {
-        component = m_context.m_circuit->create_component<NandGate>(comp_props.m_inputs);
+        component = NandGate(m_context.m_circuit, comp_props.m_inputs);
         comp_props.m_negate_output = true;
         ok = handle_gate(component, comp_props);
     } else if (comp_type == "NOR Gate") {
-        component = m_context.m_circuit->create_component<NorGate>(comp_props.m_inputs);
+        component = NorGate(m_context.m_circuit, comp_props.m_inputs);
         comp_props.m_negate_output = true;
         ok = handle_gate(component, comp_props);
     } else if (comp_type == "XOR Gate") {
@@ -286,7 +290,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
             ERROR_MSG("XOR-gates with %d inputs are not supported", comp_props.m_inputs);
             return false;
         }
-        component = m_context.m_circuit->create_component<XorGate>();
+        component = XorGate(m_context.m_circuit);
         comp_props.m_extra_size = 10;
         ok = handle_gate(component, comp_props);
     } else if (comp_type == "XNOR Gate") {
@@ -294,7 +298,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
             ERROR_MSG("XOR-gates with %d inputs are not supported", comp_props.m_inputs);
             return false;
         }
-        component = m_context.m_circuit->create_component<XnorGate>();
+        component = XnorGate(m_context.m_circuit);
         comp_props.m_extra_size = 10;
         comp_props.m_negate_output = true;
         ok = handle_gate(component, comp_props);
@@ -303,28 +307,37 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
     } else if (comp_type == "Tunnel") {
         ok = handle_tunnel(comp_props);
     } else if (comp_type == "Pull Resistor") {
-        component = m_context.m_circuit->create_component<PullResistor>(pull_val);
+        component = PullResistor(m_context.m_circuit, pull_val);
         add_pin_location(comp_props.m_location, component->pin(0));
     } else if (comp_type == "Text" || comp_type == "Probe") {
         // ignore
     } else {
-        component = handle_sub_circuit(comp_type, comp_props);
-        if (!component) {
+        sub_circuit = handle_sub_circuit(comp_type, comp_props); 
+        if (!sub_circuit) {
             ERROR_MSG("Unsupport component (%s) - loading failed", comp_type.c_str());
             ok = false;
         }
     }
 
+    auto convert_facing = [](LogisimDirection facing) {
+        switch (facing) {
+            case LS_NORTH : return VisualComponent::NORTH;
+            case LS_EAST : return VisualComponent::EAST;
+            case LS_SOUTH : return VisualComponent::SOUTH;
+            default: return VisualComponent::WEST;
+        }
+    };
+
     if (ok && component) {
-        auto convert_facing = [](LogisimDirection facing) {
-            switch (facing) {
-                case LS_NORTH : return VisualComponent::NORTH;
-                case LS_EAST : return VisualComponent::EAST;
-                case LS_SOUTH : return VisualComponent::SOUTH;
-                default: return VisualComponent::WEST;
-            }
-        };
-        component->create_visual({2.0f * comp_props.m_location.m_x, 2.0f * comp_props.m_location.m_y}, convert_facing(comp_props.m_facing));
+        auto visual = m_context.m_circuit->create_visual_component(component);
+        visual->set_position({2.0f * comp_props.m_location.m_x, 2.0f * comp_props.m_location.m_y});
+        visual->set_orientation(convert_facing(comp_props.m_facing));
+    }
+
+    if (ok && sub_circuit) {
+        auto visual = m_context.m_circuit->create_visual_component(sub_circuit);
+        visual->set_position({2.0f * comp_props.m_location.m_x, 2.0f * comp_props.m_location.m_y});
+        visual->set_orientation(convert_facing(comp_props.m_facing));
     }
 
     if (ok && component && !comp_props.m_label.empty()) {
@@ -411,7 +424,7 @@ bool LogisimParser::make_connection(const LogisimConnection &c1, const LogisimCo
     return true;
 }
 
-CircuitComponent *LogisimParser::handle_sub_circuit(const std::string &name, ComponentProperties &props) {
+Circuit *LogisimParser::handle_sub_circuit(const std::string &name, ComponentProperties &props) {
 
     // find and clone the required circuit
     auto result = m_circuits.find(name);
@@ -419,7 +432,7 @@ CircuitComponent *LogisimParser::handle_sub_circuit(const std::string &name, Com
         return nullptr;
     }
     auto sub_context = &result->second;
-    auto cloned_circuit = sub_context->m_circuit->clone();
+    auto cloned_circuit = m_context.m_circuit->integrate_circuit_clone(sub_context->m_circuit);
 
     // add interface pins to the current circuit
     for (const auto &offset : sub_context->m_ipin_offsets) {
@@ -431,7 +444,7 @@ CircuitComponent *LogisimParser::handle_sub_circuit(const std::string &name, Com
         add_pin_location(p, cloned_pin->pins());
     }
 
-    return m_context.m_circuit->integrate_circuit(std::move(cloned_circuit));
+    return cloned_circuit;
 }
 
 bool LogisimParser::handle_gate(Component *component, ComponentProperties &props) {
@@ -487,21 +500,21 @@ void LogisimParser::handle_buffer(Component *component, ComponentProperties &pro
     props.m_size = 20;
 
     // input
-    add_pin_location(input_pin_location(props.m_location, 0, props), component->pins(0, props.m_width - 1));
+    add_pin_location(input_pin_location(props.m_location, 0, props), component->input_pins());
 
     // enable pin
     if (tri_state) {
         auto en_loc = props.m_location;
         en_loc.m_x -= props.m_size / 2;
         en_loc.m_y += (left) ? -10 : 10;
-        add_pin_location(en_loc, component->pin(props.m_width));
+        add_pin_location(en_loc, component->control_pin(0));
     }
 
     // output
-    add_pin_location(props.m_location, component->pins(component->num_pins() - props.m_width, component->num_pins() - 1));
+    add_pin_location(props.m_location, component->output_pins());
 }
 
-bool LogisimParser::handle_pin(Connector *connector, ComponentProperties &props) {
+bool LogisimParser::handle_pin(Component *connector, ComponentProperties &props) {
     add_pin_location(props.m_location, connector->pins());
     m_context.m_circuit_ipins[props.m_pin_output ? 1 : 0][props.m_location.m_full] = props.m_label;
 
@@ -515,9 +528,9 @@ bool LogisimParser::handle_pin(Connector *connector, ComponentProperties &props)
         }
     }
 
-    if (props.m_pin_tristate) {
-        connector->set_tristate(true);
-    }
+    // XXX if (props.m_pin_tristate) {
+    //       connector->set_tristate(true);
+    //}
 
     return true;
 }

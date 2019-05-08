@@ -12,8 +12,10 @@ static UICircuit::uptr_t ui_circuit = nullptr;
 
 void handle_main_circuit_changed(Simulator *sim) {
 	auto active_circuit = sim->active_circuit();
-	ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
-	active_circuit->initialize_interface_pins();
+	if (active_circuit) {
+		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
+		active_circuit->initialize_external_pins();
+	}
 }
 
 void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
@@ -53,7 +55,7 @@ void main_gui(LSimContext *lsim_context)
 
 	ImGui::BeginChild("left_pane", ImVec2(150, 0), true);
 	ImGui::Text("Circuits");
-	static size_t selected_circuit = lib->circuit_idx(sim->active_circuit());
+	static size_t selected_circuit = (sim->active_circuit() == nullptr) ? -1 : lib->circuit_idx(sim->active_circuit());
 	for (size_t i = 0; i < lib->num_circuits(); ++i) {
 		auto circuit = lib->circuit_by_idx(i);
 		if (ImGui::Selectable(circuit->name(), selected_circuit == i)) {

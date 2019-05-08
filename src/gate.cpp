@@ -4,6 +4,7 @@
 
 #include "gate.h"
 #include "circuit.h"
+#include "simulator.h"
 #include <assert.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -11,17 +12,11 @@
 // constant
 //
 
-Constant::Constant(Value value) : 
-            CloneComponent(1, VisualComponent::CONSTANT),
-            m_value(value) {
-}
-
-bool Constant::is_dirty() const {
-    return true;
-}
-
-void Constant::process() {
-    write_pin(0, m_value);
+Component *Constant(Circuit *circuit, Value value) {
+    auto constant = circuit->create_component(0, 1, 0, COMPONENT_CONSTANT);
+    constant->set_check_dirty_func([](Component *constant) {return false;});
+    constant->write_pin(0, value);
+    return constant;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,17 +24,18 @@ void Constant::process() {
 // Buffer
 //
 
-Buffer::Buffer(size_t data_bits) : CloneComponent(data_bits * 2, VisualComponent::BUFFER) {
+Component *Buffer(Circuit *circuit, size_t data_bits) {
     assert(data_bits >= 1);
-}
+    auto buffer = circuit->create_component(data_bits, data_bits, 0, COMPONENT_BUFFER);
 
-void Buffer::process() {
-    auto data_bits = num_pins() / 2;
+    buffer->set_process_func([](Component *buffer) {
+        for (size_t pin = 0; pin < buffer->num_input_pins(); ++pin) {
+            auto value = buffer->read_pin(buffer->input_pin_index(pin));
+            buffer->write_pin(buffer->output_pin_index(pin), value);
+        }
+    });
 
-    for (auto pin = 0u; pin < data_bits; ++pin) {
-        auto value = read_pin(pin);
-        write_pin(pin + data_bits, value);
-    }
+    return buffer;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,101 +43,112 @@ void Buffer::process() {
 // TriStateBuffer
 //
 
-TriStateBuffer::TriStateBuffer(size_t data_bits) : 
-                    CloneComponent(1 + (data_bits * 2), VisualComponent::TRISTATE_BUFFER),
-                    m_enable_idx(data_bits) {
+
+Component *TriStateBuffer(Circuit *circuit, size_t data_bits) {
     assert(data_bits >= 1);
-}
+    auto buffer = circuit->create_component(data_bits, data_bits, 1, COMPONENT_TRISTATE_BUFFER);
 
-void TriStateBuffer::process() {
-    auto data_bits = (num_pins() - 1) / 2;
-
-    if (read_pin(m_enable_idx) != VALUE_TRUE) {
-        for (auto pin = 0u; pin < data_bits; ++pin) {
-            write_pin(pin + data_bits + 1, VALUE_UNDEFINED);
+    buffer->set_process_func([](Component *buffer) {
+        if (buffer->read_pin(buffer->control_pin_index(0)) != VALUE_TRUE) {
+            for (size_t pin = 0; pin < buffer->num_output_pins(); ++pin) {
+                buffer->write_pin(buffer->output_pin_index(pin), VALUE_UNDEFINED);
+            }
+        } else {
+            for (size_t pin = 0; pin < buffer->num_input_pins(); ++pin) {
+                auto value = buffer->read_pin(buffer->input_pin_index(pin));
+                buffer->write_pin(buffer->output_pin_index(pin), value);
+            }
         }
-        return;
-    }
+    });
 
-    for (auto pin = 0u; pin < data_bits; ++pin) {
-        auto value = read_pin(pin);
-        write_pin(pin + data_bits + 1, value);
-    }
+    return buffer;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // AND gate
 //
 
-AndGate::AndGate(size_t num_inputs) : CloneComponent(num_inputs + 1, VisualComponent::AND_GATE) {
+Component *AndGate(Circuit *circuit, size_t num_inputs) {
     assert(num_inputs >= 2);
+    auto gate = circuit->create_component(num_inputs, 1, 0, COMPONENT_AND_GATE);
+
+    gate->set_process_func([] (Component *gate) {
+        gate->reset_bad_read_check();
+
+        bool output = gate->read_pin_checked(0);
+        for (auto idx = 1u; idx < gate->num_input_pins(); ++idx) {
+            output &= gate->read_pin_checked(idx);
+        }
+        gate->write_pin_checked(gate->output_pin_index(0), output);
+    }); 
+
+    return gate;
 }
 
-void AndGate::process() {
-    const auto OUTPUT_PIN = num_pins() - 1;
-    reset_bad_read_check();
-
-    bool output = read_pin_checked(0);
-    for (auto idx = 1u; idx < OUTPUT_PIN; ++idx) {
-        output &= read_pin_checked(idx);
-    }
-    write_pin_checked(OUTPUT_PIN, output);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // OR gate
 //
 
-OrGate::OrGate(size_t num_inputs) : CloneComponent(num_inputs + 1, VisualComponent::OR_GATE) {
+Component *OrGate(Circuit *circuit, size_t num_inputs) {
     assert(num_inputs >= 2);
+    auto gate = circuit->create_component(num_inputs, 1, 0, COMPONENT_OR_GATE);
+
+    gate->set_process_func([] (Component *gate) {
+        gate->reset_bad_read_check();
+
+        bool output = gate->read_pin_checked(0);
+        for (auto idx = 1u; idx < gate->num_input_pins(); ++idx) {
+            output |= gate->read_pin_checked(idx);
+        }
+        gate->write_pin_checked(gate->output_pin_index(0), output);
+    }); 
+
+    return gate;
 }
 
-void OrGate::process() {
-    const auto OUTPUT_PIN = num_pins() - 1;
-    reset_bad_read_check();
-
-    bool output = read_pin_checked(0);
-    for (auto idx = 1u; idx < OUTPUT_PIN; ++idx) {
-        output |= read_pin_checked(idx);
-    }
-    write_pin_checked(OUTPUT_PIN, output);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // NOT gate
 //
 
-NotGate::NotGate() : CloneComponent(2, VisualComponent::NOT_GATE) {
+Component *NotGate(Circuit *circuit) {
+    auto gate = circuit->create_component(1, 1, 0, COMPONENT_NOT_GATE);
+
+    gate->set_process_func([] (Component *gate) {
+        gate->reset_bad_read_check();
+        auto input = gate->read_pin_checked(0);
+        gate->write_pin_checked(1, !input);
+    });
+
+    return gate;
 }
 
-void NotGate::process() {
-    reset_bad_read_check();
-
-    auto input = read_pin_checked(0);  
-    write_pin_checked(1, !input);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // NAND gate
 //
 
-NandGate::NandGate(size_t num_inputs) : CloneComponent(num_inputs + 1, VisualComponent::NAND_GATE) {
+Component *NandGate(Circuit *circuit, size_t num_inputs) {
     assert(num_inputs >= 2);
-}
+    auto gate = circuit->create_component(num_inputs, 1, 0, COMPONENT_NAND_GATE);
 
-void NandGate::process() {
-    const auto OUTPUT_PIN = num_pins() - 1;
-    reset_bad_read_check();
+    gate->set_process_func([] (Component *gate) {
+        gate->reset_bad_read_check();
 
-    auto output = read_pin_checked(0);
-    for (auto idx = 1u; idx < OUTPUT_PIN; ++idx) {
-        output &= read_pin_checked(idx);
-    }
-    write_pin_checked(OUTPUT_PIN, !output);
+        bool output = gate->read_pin_checked(0);
+        for (auto idx = 1u; idx < gate->num_input_pins(); ++idx) {
+            output &= gate->read_pin_checked(idx);
+        }
+        gate->write_pin_checked(gate->output_pin_index(0), !output);
+    }); 
+
+    return gate;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -149,19 +156,21 @@ void NandGate::process() {
 // NOR gate
 //
 
-NorGate::NorGate(size_t num_inputs) : CloneComponent(num_inputs + 1, VisualComponent::NOR_GATE) {
+Component *NorGate(Circuit *circuit, size_t num_inputs) {
     assert(num_inputs >= 2);
-}
+    auto gate = circuit->create_component(num_inputs, 1, 0, COMPONENT_NOR_GATE);
 
-void NorGate::process() {
-    const auto OUTPUT_PIN = num_pins() - 1;
-    reset_bad_read_check();
+    gate->set_process_func([] (Component *gate) {
+        gate->reset_bad_read_check();
 
-    auto output = read_pin_checked(0);
-    for (auto idx = 1u; idx < OUTPUT_PIN; ++idx) {
-        output |= read_pin_checked(idx);
-    }
-    write_pin_checked(OUTPUT_PIN, !output);
+        bool output = gate->read_pin_checked(0);
+        for (auto idx = 1u; idx < gate->num_input_pins(); ++idx) {
+            output |= gate->read_pin_checked(idx);
+        }
+        gate->write_pin_checked(gate->output_pin_index(0), !output);
+    }); 
+
+    return gate;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,15 +178,18 @@ void NorGate::process() {
 // XOR gate
 //
 
-XorGate::XorGate() : CloneComponent(2 + 1, VisualComponent::XOR_GATE) {
-}
+Component *XorGate(Circuit *circuit) {
+    auto gate = circuit->create_component(2, 1, 0, COMPONENT_XOR_GATE);
 
-void XorGate::process() {
-    reset_bad_read_check();
+    gate->set_process_func([] (Component *gate) {
+        gate->reset_bad_read_check();
 
-    auto output = read_pin_checked(0);
-    output ^= read_pin_checked(1);
-    write_pin_checked(2, output);
+        auto output = gate->read_pin_checked(0);
+        output ^= gate->read_pin_checked(1);
+        gate->write_pin_checked(2, output);
+    });
+
+    return gate;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,13 +197,16 @@ void XorGate::process() {
 // XNOR gate
 //
 
-XnorGate::XnorGate() : CloneComponent(2 + 1, VisualComponent::XNOR_GATE) {
-}
+Component *XnorGate(Circuit *circuit) {
+    auto gate = circuit->create_component(2, 1, 0, COMPONENT_XNOR_GATE);
 
-void XnorGate::process() {
-    reset_bad_read_check();
+    gate->set_process_func([] (Component *gate) {
+        gate->reset_bad_read_check();
 
-    auto output = read_pin_checked(0);
-    output ^= read_pin_checked(1);
-    write_pin_checked(2, !output);
+        auto output = gate->read_pin_checked(0);
+        output ^= gate->read_pin_checked(1);
+        gate->write_pin_checked(2, !output);
+    });
+
+    return gate;
 }

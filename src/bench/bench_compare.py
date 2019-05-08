@@ -28,16 +28,16 @@ def main():
         print("Unable to load circuit\n")
         exit(-1)
 
-    pin_A = sim.connector_by_name("A")
-    pin_B = sim.connector_by_name("B")
-    pin_LT = sim.connector_by_name("LT")
-    pin_EQ = sim.connector_by_name("EQ")
-    pin_GT = sim.connector_by_name("GT")
+    pin_A = sim.component_by_name("A")
+    pin_B = sim.component_by_name("B")
+    pin_LT = sim.component_by_name("LT")
+    pin_EQ = sim.component_by_name("EQ")
+    pin_GT = sim.component_by_name("GT")
 
     for a in range(0, 2**8):
-        pin_A.change_data(a)
+        pin_A.write_output_pins(a)
         for b in range(0, 2**8):
-            pin_B.change_data(b)
+            pin_B.write_output_pins(b)
             sim.run_until_stable(5)
             expected_LT = lsimpy.ValueTrue if a < b else lsimpy.ValueFalse
             expected_EQ = lsimpy.ValueTrue if a == b else lsimpy.ValueFalse
@@ -45,6 +45,8 @@ def main():
             CHECK(pin_LT.read_pin(0), expected_LT, "{} < {}".format(a, b))
             CHECK(pin_EQ.read_pin(0), expected_EQ, "{} == {}".format(a, b))
             CHECK(pin_GT.read_pin(0), expected_GT, "{} > {}".format(a, b))
+
+    print_stats()
 
 
 if __name__ == "__main__":

@@ -15,6 +15,8 @@ class ImDrawList;
 class ComponentIcon;
 class UIComponent;
 
+typedef uint32_t ComponentType;
+
 typedef std::function<void (const UIComponent *, Transform)> ui_component_func_t;
 
 struct UIComponent {
@@ -48,6 +50,8 @@ public:
 
     void draw();
 
+    class Circuit *circuit() {return m_circuit;}
+
 private:
     Point endpoint_position(uint32_t pin);
 
@@ -69,13 +73,13 @@ class UICircuitBuilder {
 public:
     typedef std::function<void(Component *, UIComponent *, UICircuit *)> materialize_func_t;
 public:
-    static void register_materialize_func(VisualComponent::Type type, materialize_func_t func);
+    static void register_materialize_func(ComponentType type, materialize_func_t func);
     static UICircuit::uptr_t create_circuit(Circuit *circuit);
 private:
     static void materialize_component(UICircuit *circuit, VisualComponent *visual_comp);
 
 private:
-    typedef std::unordered_map<VisualComponent::Type, materialize_func_t> materialize_func_map_t;
+    typedef std::unordered_map<ComponentType, materialize_func_t> materialize_func_map_t;
 
 private:
     static materialize_func_map_t m_materialize_funcs;
