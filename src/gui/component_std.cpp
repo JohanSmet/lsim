@@ -91,6 +91,7 @@ void component_register_basic() {
             // custor draw function
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
 
+                bool is_tristate = comp->property_value("tri_state", false);
                 auto origin = Point(-width / 2.0f, -height / 2.0f);
 
                 // hack to get ImGui::Button to display at the right position
@@ -111,7 +112,7 @@ void component_register_basic() {
 
                     if (ImGui::Button(connector_data_label(cur_val), {18,18})) {
                         comp->write_pin(comp->output_pin_index(i), 
-                                        static_cast<Value>((cur_val + 1) % 2 /*(connector->is_tristate() ? 3 : 2)*/));
+                                        static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2)));
                     }
                     ImGui::PopID();
                 }
@@ -128,7 +129,7 @@ void component_register_basic() {
                     anchor.y -= 10;
                 }
 
-                // XXX ImGuiEx::Text(anchor, justify, comp->name());
+                ImGuiEx::Text(anchor, justify, comp->property_value("name",""));
 
                 ImGui::EndGroup();
             };
@@ -183,7 +184,7 @@ void component_register_basic() {
                     anchor.y -= 10;
                 }
 
-                // ImGuiEx::Text(anchor, justify, connector->name());
+                ImGuiEx::Text(anchor, justify, comp->property_value("name", ""));
 
                 ImGui::EndGroup();
             };

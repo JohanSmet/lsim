@@ -9,6 +9,9 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <unordered_map>
+
+#include "property.h"
 
 class Circuit;
 class Simulator;
@@ -65,6 +68,8 @@ public:
     typedef std::vector<Value>  value_container_t;
     typedef std::unique_ptr<Component> uptr_t;
 
+    typedef std::unordered_map<std::string, Property::uptr_t> property_lut_t;
+
     typedef std::function<void(Component *comp)> process_func_t;
     typedef std::function<bool(Component *comp)> check_dirty_func_t;
 
@@ -105,6 +110,13 @@ public:
     pin_container_t output_pins() const;
     pin_container_t control_pins() const;
 
+    // properties
+    void add_property(Property::uptr_t &&prop);
+    Property *property(const char *key);
+    const char *property_value(const char *key, const char *def_value);
+    int64_t property_value(const char *key, int64_t def_value);
+    bool property_value(const char *key, bool def_value);
+
     // processing
     void tick();
 
@@ -131,6 +143,8 @@ private:
     size_t m_control_start;
     bool m_read_bad;
     Priority m_priority;
+
+    property_lut_t m_properties;
 
     process_func_t  m_process_func;
     check_dirty_func_t m_check_dirty_func;

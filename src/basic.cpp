@@ -113,6 +113,34 @@ Component::pin_container_t Component::control_pins() const {
     return pin_container_t(m_pins.begin() + m_control_start, m_pins.end());
 }
 
+void Component::add_property(Property::uptr_t &&prop) {
+    m_properties[prop->key()] = std::move(prop);
+}
+
+Property *Component::property(const char *key) {
+    auto result = m_properties.find(key);
+    if (result != m_properties.end()) {
+        return result->second.get();
+    } else {
+        return nullptr;
+    }
+}
+
+const char *Component::property_value(const char *key, const char *def_value) {
+    auto result = property(key);
+    return (result != nullptr) ? result->value_as_string() : def_value;
+}
+
+int64_t Component::property_value(const char *key, int64_t def_value) {
+    auto result = property(key);
+    return (result != nullptr) ? result->value_as_integer() : def_value;
+}
+
+bool Component::property_value(const char *key, bool def_value) {
+    auto result = property(key);
+    return (result != nullptr) ? result->value_as_boolean() : def_value;
+}
+
 void Component::tick() {
     if (m_check_dirty_func(this) && m_process_func != nullptr) {
         m_process_func(this);
@@ -172,6 +200,8 @@ void Component::write_pin_checked(uint32_t index, bool value) {
 
 Component *ConnectorInput(Circuit *circuit, const char *name, size_t data_bits, bool tri_state) {
     auto connector = circuit->create_component(0, data_bits, 0, COMPONENT_CONNECTOR_IN);
+    connector->add_property(make_property("name", name));
+    connector->add_property(make_property("tri_state", tri_state));
     connector->set_check_dirty_func([](Component *connector) {return false;});
     circuit->register_component_name(name, connector);
     circuit->add_external_pins(name, connector);
@@ -180,6 +210,8 @@ Component *ConnectorInput(Circuit *circuit, const char *name, size_t data_bits, 
 
 Component *ConnectorOutput(Circuit *circuit, const char *name, size_t data_bits, bool tri_state) {
     auto connector = circuit->create_component(data_bits, 0, 0, COMPONENT_CONNECTOR_OUT);
+    connector->add_property(make_property("name", name));
+    connector->add_property(make_property("tri_state", tri_state));
     circuit->register_component_name(name, connector);
     circuit->add_external_pins(name, connector);
     return connector;
