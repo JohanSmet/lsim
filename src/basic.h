@@ -134,6 +134,10 @@ public:
     void write_pin_checked(uint32_t index, bool value);
     void reset_bad_read_check() {m_read_bad = false;}
 
+    // read_value() : read value that was last written to the specified pin
+    //      i.e. to get the value of input connectors / constants etc.
+    Value read_value(uint32_t index) const;
+
 private:
     Simulator *m_sim;
     uint32_t m_type;

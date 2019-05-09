@@ -106,7 +106,7 @@ void component_register_basic() {
                 ImGui::PushID(comp);
                 for (size_t i = 0; i < comp->num_pins(); ++ i) {
                     ImGui::PushID(i);
-                    auto cur_val = comp->read_pin(comp->output_pin_index(i)); // XXX read_value or something?
+                    auto cur_val = comp->read_value(comp->output_pin_index(i)); 
                     auto screen_pos = to_window.apply(Point(origin.x + 4, origin.y + (i * 24) + 2));
                     ImGui::SetCursorScreenPos(screen_pos - button_offset);
 
@@ -203,7 +203,7 @@ void component_register_basic() {
 
             // custor draw function
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
-                auto val = comp->read_pin(comp->output_pin_index(0)); // XXX read_value???
+                auto val = comp->read_value(comp->output_pin_index(0));
                 auto screen_pos = to_window.apply(Point(-width / 2.0f, -height / 2.0f));
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
@@ -279,7 +279,7 @@ void component_register_extra() {
 
             // custor draw function
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
-                auto val = comp->read_pin(comp->output_pin_index(0)); // XXX read_value???
+                auto val = comp->read_value(comp->output_pin_index(0));
                 auto screen_origin = to_window.apply(Point(-width / 2.0f, -height / 2.0f));
                 ImGuiEx::RectFilled(
                     screen_origin + to_window.apply_to_vector({3, 3}),

@@ -193,6 +193,11 @@ void Component::write_pin_checked(uint32_t index, bool value) {
     write_pin(index, static_cast<Value>(output));
 }
 
+Value Component::read_value(uint32_t index) const {
+    assert(index < m_pins.size());
+    return m_values[index];
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Connector - I/O between circuits
