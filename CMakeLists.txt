@@ -37,6 +37,7 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.cpp"
 )
@@ -51,6 +52,7 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.h"
 )

@@ -70,7 +70,6 @@ private:
 private:
     timestamp_t             m_time;
 
-    // circuit_container_t     m_circuits;
     Circuit *               m_active_circuit;
 
     node_container_t        m_pin_nodes;

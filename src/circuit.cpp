@@ -159,6 +159,11 @@ Circuit::uptr_t Circuit::clone(CircuitCloneContext *context) const {
     return std::move(new_circuit);
 }
 
+Circuit *Circuit::nested_circuit_by_index(size_t idx) {
+    assert(idx < m_nested_circuits.size());
+    return m_nested_circuits[idx].get();
+}
+
 void Circuit::clone_connections(Component::pin_container_t orig_pins, Component::pin_container_t new_pins, CircuitCloneContext *context) const {
 
     for (size_t idx = 0; idx < orig_pins.size(); ++idx) {

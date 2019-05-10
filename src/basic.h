@@ -116,6 +116,7 @@ public:
     const char *property_value(const char *key, const char *def_value);
     int64_t property_value(const char *key, int64_t def_value);
     bool property_value(const char *key, bool def_value);
+    const property_lut_t &properties() const {return m_properties;}
 
     // processing
     void tick();

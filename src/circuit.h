@@ -53,9 +53,12 @@ public:
         size_t num_input, size_t num_output, size_t num_control,
         uint32_t type,
         Priority priority = PRIORITY_NORMAL);
+    const component_container_t &components() const {return m_components;}
 
     Circuit *integrate_circuit_clone(Circuit *sub, CircuitCloneContext *context = nullptr);
     Circuit::uptr_t clone(CircuitCloneContext *context = nullptr) const;
+    size_t num_nested_circuits() const {return m_nested_circuits.size();}
+    Circuit *nested_circuit_by_index(size_t idx);
 
     void register_component_name(const std::string &name, Component *component);
     Component *component_by_name(const std::string &name);

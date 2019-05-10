@@ -8,7 +8,10 @@
 #include "gate.h"
 #include "load_logisim.h"
 
+#include "serialize.h"
+
 static UICircuit::uptr_t ui_circuit = nullptr;
+static std::string ui_filename = "";
 
 void handle_main_circuit_changed(Simulator *sim) {
 	auto active_circuit = sim->active_circuit();
@@ -28,6 +31,9 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 		auto circuit = load_logisim(lsim_context, circuit_file);
 		lsim_context->sim()->change_active_circuit(circuit);
 		handle_main_circuit_changed(lsim_context->sim());
+
+		ui_filename = circuit_file;
+		ui_filename.replace(ui_filename.begin() + ui_filename.find_last_of('.'), ui_filename.end(), ".lsim");
 	}
 }
 
@@ -48,6 +54,10 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::SameLine();
 	if (ImGui::Button("Step")) {
 		sim->step();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Save")) {
+		serialize_library(lsim_context, lsim_context->user_library(), ui_filename.c_str());
 	}
 
 	if (sim_running) {
