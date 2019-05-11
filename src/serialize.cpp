@@ -144,7 +144,7 @@ private:
         for (const auto &prop : component->properties()) {
             auto prop_node = comp_node.append_child(XML_EL_PROPERTY);
             prop_node.append_attribute(XML_ATTR_KEY).set_value(prop.second->key());
-            prop_node.append_attribute(XML_ATTR_VALUE).set_value(prop.second->value_as_string());
+            prop_node.append_attribute(XML_ATTR_VALUE).set_value(prop.second->value_as_string().c_str());
         }
 
     }

@@ -129,7 +129,7 @@ void component_register_basic() {
                     anchor.y -= 10;
                 }
 
-                ImGuiEx::Text(anchor, justify, comp->property_value("name",""));
+                ImGuiEx::Text(anchor, justify, comp->property_value("name","").c_str());
 
                 ImGui::EndGroup();
             };
@@ -184,7 +184,7 @@ void component_register_basic() {
                     anchor.y -= 10;
                 }
 
-                ImGuiEx::Text(anchor, justify, comp->property_value("name", ""));
+                ImGuiEx::Text(anchor, justify, comp->property_value("name", "").c_str());
 
                 ImGui::EndGroup();
             };

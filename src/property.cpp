@@ -25,8 +25,8 @@ StringProperty::StringProperty(const char *key, const char *value) :
 
 }
 
-const char *StringProperty::value_as_string() const {
-    return m_value.c_str();
+std::string StringProperty::value_as_string() const {
+    return m_value;
 }
 
 int64_t StringProperty::value_as_integer() const {
@@ -59,8 +59,8 @@ IntegerProperty::IntegerProperty(const char *key, int64_t value) :
     m_value(value) {
 }
 
-const char *IntegerProperty::value_as_string() const {
-    return std::to_string(m_value).c_str();
+std::string IntegerProperty::value_as_string() const {
+    return std::to_string(m_value);
 }
 
 int64_t IntegerProperty::value_as_integer() const {
@@ -93,7 +93,7 @@ BoolProperty::BoolProperty(const char *key, bool value) :
     m_value(value) {
 }
 
-const char *BoolProperty::value_as_string() const {
+std::string BoolProperty::value_as_string() const {
     return (m_value) ? "true" : "false";
 }
 

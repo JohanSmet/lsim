@@ -16,7 +16,7 @@ public:
     virtual const char *key() const {return m_key.c_str();};
 
     // value accessors
-    virtual const char *value_as_string() const = 0;
+    virtual std::string value_as_string() const = 0;
     virtual int64_t value_as_integer() const = 0;
     virtual bool value_as_boolean() const = 0;
 
@@ -34,7 +34,7 @@ public:
     StringProperty(const char *key, const char *value);
 
     // value accessors
-    const char *value_as_string() const override;
+    std::string value_as_string() const override;
     int64_t value_as_integer() const override;
     bool value_as_boolean() const override;
 
@@ -52,7 +52,7 @@ public:
     IntegerProperty(const char *key, int64_t value);
 
     // value accessors
-    const char *value_as_string() const override;
+    std::string value_as_string() const override;
     int64_t value_as_integer() const override;
     bool value_as_boolean() const override;
 
@@ -70,7 +70,7 @@ public:
     BoolProperty(const char *key, bool value);
 
     // value accessors
-    const char *value_as_string() const override;
+    std::string value_as_string() const override;
     int64_t value_as_integer() const override;
     bool value_as_boolean() const override;
 

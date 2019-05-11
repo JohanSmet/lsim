@@ -126,7 +126,7 @@ Property *Component::property(const char *key) {
     }
 }
 
-const char *Component::property_value(const char *key, const char *def_value) {
+std::string Component::property_value(const char *key, const char *def_value) {
     auto result = property(key);
     return (result != nullptr) ? result->value_as_string() : def_value;
 }
