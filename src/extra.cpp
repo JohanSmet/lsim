@@ -13,6 +13,7 @@
 
 Component *PullResistor(Circuit *circuit, Value pull_to) {
     auto resistor = circuit->create_component(0, 1, 0, COMPONENT_PULL_RESISTOR, PRIORITY_DEFERRED);
+    resistor->add_property(make_property("pull_to", static_cast<int64_t>(pull_to)));
     resistor->write_pin(0, pull_to);
 
     resistor->set_check_dirty_func([](Component *resistor) {

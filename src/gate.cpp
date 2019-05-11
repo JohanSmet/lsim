@@ -15,6 +15,7 @@
 Component *Constant(Circuit *circuit, Value value) {
     auto constant = circuit->create_component(0, 1, 0, COMPONENT_CONSTANT);
     constant->set_check_dirty_func([](Component *constant) {return false;});
+    constant->add_property(make_property("value", static_cast<int64_t>(value)));
     constant->write_pin(0, value);
     return constant;
 }
