@@ -4,6 +4,8 @@
 
 #include "serialize.h"
 #include "lsim_context.h"
+#include "gate.h"
+#include "extra.h"
 
 #include <cassert>
 #include <unordered_map>
@@ -216,6 +218,260 @@ private:
     std::unordered_map<void *, pugi::xml_node> m_component_nodes;
 };
 
+#define REQUIRED_ATTR(var_name, node, attr_name)    \
+    auto var_name = (node).attribute((attr_name));  \
+    if (!var_name) {                                \
+        return false;                               \
+    }
+
+#define REQUIRED_PROP(var_name, node, prop_key)      \
+    auto var_name##_prop = (node).find_child_by_attribute(XML_EL_PROPERTY, XML_ATTR_KEY, (prop_key));   \
+    if (!var_name##_prop) {                         \
+        return false;                               \
+    }                                               \
+    REQUIRED_ATTR(var_name, var_name##_prop, XML_ATTR_VALUE);
+
+class Deserializer {
+public:
+    Deserializer(Simulator *sim) : m_sim(sim) {
+    }
+
+    bool load_from_file(const char *filename) {
+        auto result = m_xml.load_file(filename);
+        if (!result) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool parse_component(pugi::xml_node &comp_node, Circuit *circuit) {
+        // determine type of component
+        REQUIRED_ATTR(type_attr, comp_node, XML_ATTR_TYPE);
+
+        auto type_result = name_to_component_type.find(type_attr.as_string());
+        if (type_result == name_to_component_type.end()) {
+            return false;
+        }
+
+        auto type = type_result->second;
+
+        // determine number of pins
+        auto input_els = comp_node.child(XML_EL_INPUTS).children();
+        auto output_els = comp_node.child(XML_EL_OUTPUTS).children();
+        auto control_els = comp_node.child(XML_EL_CONTROLS).children();
+        size_t num_inputs = std::distance(input_els.begin(), input_els.end());
+        size_t num_outputs = std::distance(output_els.begin(), output_els.end());
+        size_t num_controls = std::distance(control_els.begin(), control_els.end());
+
+        Component *component = nullptr;
+        Circuit *sub_circuit = nullptr;
+
+        switch (type) {
+            case COMPONENT_CONNECTOR_IN : {
+                assert(num_inputs == 0);
+                assert(num_outputs > 0);
+                assert(num_controls == 0);
+                REQUIRED_PROP(prop_name, comp_node, "name");
+                REQUIRED_PROP(prop_tristate, comp_node, "tri_state");
+                component = ConnectorInput(circuit, prop_name.as_string(), num_outputs, prop_tristate.as_bool());
+                break;
+            }
+            case COMPONENT_CONNECTOR_OUT : {
+                assert(num_inputs > 0);
+                assert(num_outputs == 0);
+                assert(num_controls == 0);
+                REQUIRED_PROP(prop_name, comp_node, "name");
+                REQUIRED_PROP(prop_tristate, comp_node, "tri_state");
+                component = ConnectorOutput(circuit, prop_name.as_string(), num_inputs, prop_tristate.as_bool());
+                break;
+            }
+            case COMPONENT_CONSTANT : {
+                assert(num_inputs == 0);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                REQUIRED_PROP(prop_value, comp_node, "value");
+                component = Constant(circuit, static_cast<Value>(prop_value.as_int()));
+                break;
+            }
+            case COMPONENT_PULL_RESISTOR : {
+                assert(num_inputs == 0);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                REQUIRED_PROP(prop_value, comp_node, "pull_to");
+                component = PullResistor(circuit, static_cast<Value>(prop_value.as_int()));
+                break;
+            }
+            case COMPONENT_BUFFER : 
+                assert(num_inputs == num_outputs);
+                assert(num_controls == 0);
+                component = Buffer(circuit, num_inputs);
+                break;
+            case COMPONENT_TRISTATE_BUFFER :
+                assert(num_inputs == num_outputs);
+                assert(num_controls == 1);
+                component = TriStateBuffer(circuit, num_inputs);
+                break;
+            case COMPONENT_AND_GATE : 
+                assert(num_inputs > 0);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                component = AndGate(circuit, num_inputs);
+                break;
+            case COMPONENT_OR_GATE :
+                assert(num_inputs > 0);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                component = OrGate(circuit, num_inputs);
+                break;
+            case COMPONENT_NOT_GATE :
+                assert(num_inputs == 1);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                component = NotGate(circuit);
+                break;
+            case COMPONENT_NAND_GATE :
+                assert(num_inputs > 0);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                component = NandGate(circuit, num_inputs);
+                break;
+            case COMPONENT_NOR_GATE :
+                assert(num_inputs > 0);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                component = NorGate(circuit, num_inputs);
+                break;
+            case COMPONENT_XOR_GATE :
+                assert(num_inputs == 2);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                component = XorGate(circuit);
+                break;
+            case COMPONENT_XNOR_GATE :
+                assert(num_inputs == 2);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                component = XnorGate(circuit);
+                break;
+            case COMPONENT_SUB_CIRCUIT : {
+                REQUIRED_ATTR(attr_name, comp_node, "name");
+                auto template_circuit = m_lib->circuit_by_name(attr_name.as_string());
+                sub_circuit = circuit->integrate_circuit_clone(template_circuit);
+                break;
+            }
+            default :
+                return false;
+        }
+
+        // visual component
+        auto pos_node = comp_node.child(XML_EL_POSITION);
+        auto orient_node = comp_node.child(XML_EL_ORIENTATION);
+
+        if (!!pos_node && !!orient_node) {
+            VisualComponent *vis_comp = nullptr;
+            if (component) {
+                vis_comp = circuit->create_visual_component(component);
+            } else if (sub_circuit) {
+                vis_comp = circuit->create_visual_component(sub_circuit);
+            } 
+
+            if (vis_comp) {
+                REQUIRED_ATTR(x_attr, pos_node, XML_ATTR_X);
+                REQUIRED_ATTR(y_attr, pos_node, XML_ATTR_Y);
+                vis_comp->set_position({x_attr.as_float(), y_attr.as_float()});
+
+                REQUIRED_ATTR(angle_attr, orient_node, XML_ATTR_ANGLE);
+                vis_comp->set_orientation(static_cast<VisualComponent::Orientation>(angle_attr.as_int()));
+            }
+        }
+
+        // connections
+        auto connect_pin = [&component, this](pugi::xml_node el, std::function<pin_t(size_t idx)> get_pin) {
+            REQUIRED_ATTR(index_attr, el, XML_ATTR_INDEX);
+            REQUIRED_ATTR(node_attr, el, XML_ATTR_NODE);
+
+            pin_t pin = get_pin(index_attr.as_int());
+
+            auto result = m_node_pins.find(node_attr.as_int());
+            if (result == m_node_pins.end()) {
+                m_node_pins[node_attr.as_int()] = pin;
+            } else {
+                m_sim->connect_pins(result->second, pin);
+            }
+
+            return true;
+        };
+
+        if (component) {
+            for (auto el : input_els) {
+                connect_pin(el, [=](size_t idx) {return component->input_pin(idx);});
+            }
+
+            for (auto el : output_els) {
+                connect_pin(el, [=](size_t idx) {return component->output_pin(idx);});
+            }
+
+            for (auto el : control_els) {
+                connect_pin(el, [=](size_t idx) {return component->control_pin(idx);});
+            }
+        }
+
+        if (sub_circuit) {
+            const auto &input_pins = sub_circuit->input_ports_pins();
+            for (auto el : input_els) {
+                connect_pin(el, [=](size_t idx) {return input_pins[idx];});
+            }
+
+            const auto &output_pins = sub_circuit->output_ports_pins();
+            for (auto el : output_els) {
+                connect_pin(el, [=](size_t idx) {return output_pins[idx];});
+            }
+        }
+
+        return true;
+    }
+
+    bool parse_circuit(pugi::xml_node &circuit_node) {
+        const char *name = circuit_node.attribute(XML_ATTR_NAME).as_string();
+        if (!name) {
+            return false;
+        }
+
+        Circuit *circuit = m_lib->create_circuit(name);
+        if (!circuit) {
+            return false;
+        }
+
+        for (auto comp_node : circuit_node.children(XML_EL_COMPONENT)) {
+            parse_component(comp_node, circuit);
+        }
+
+        return true;
+    }
+
+    bool parse_library(CircuitLibrary *lib) {
+        m_lib = lib;
+
+        auto lsim_node = m_xml.child(XML_EL_LSIM);
+        if (!lsim_node) {
+            return false;
+        }
+
+        for (auto circuit_node : lsim_node.children(XML_EL_CIRCUIT)) {
+            parse_circuit(circuit_node);
+        }
+
+        return true;
+    }
+
+private: 
+    pugi::xml_document  m_xml;
+    CircuitLibrary *    m_lib;
+    Simulator *         m_sim;
+
+    std::unordered_map<node_t, pin_t>   m_node_pins;
+};
 
 
 bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename) {
@@ -226,6 +482,23 @@ bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *fi
     Serializer  serializer;
     serializer.serialize_library(lib);
     serializer.dump_to_file(filename);
+
+    return true;
+}
+
+
+bool deserialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename) {
+    assert(context);
+    assert(lib);
+    assert(filename);
+
+    Deserializer deserializer(context->sim());
+    
+    if (!deserializer.load_from_file(filename)) {
+        return false;
+    }
+
+    deserializer.parse_library(lib);
 
     return true;
 }
