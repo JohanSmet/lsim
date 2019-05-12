@@ -10,6 +10,8 @@
 #include "simulator.h"
 #include "circuit.h"
 
+static const float GRID_SIZE = 20.0f;
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // UICircuit
@@ -18,6 +20,7 @@
 UICircuit::UICircuit(Circuit *circuit) : 
 			m_circuit(circuit),
 			m_name(circuit->name()),
+			m_show_grid(true),
 			m_scroll_delta(0,0) {
 
 }
@@ -63,6 +66,10 @@ void UICircuit::add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2) {
 void UICircuit::draw() {
 
 	auto draw_list = ImGui::GetWindowDrawList();
+
+	// grid
+	draw_grid(draw_list);
+
 	draw_list->ChannelsSplit(2);
 
     Point offset = m_scroll_delta + ImGui::GetCursorScreenPos();
@@ -133,6 +140,23 @@ Point UICircuit::endpoint_position(uint32_t pin) {
 		return res->second;
 	} else {
 		return {0, 0};
+	}
+}
+
+void UICircuit::draw_grid(ImDrawList *draw_list) {
+	if (!m_show_grid) {
+		return;
+	}
+
+	Point win_pos = ImGui::GetCursorScreenPos();
+	Point win_size = ImGui::GetWindowSize();
+
+	for (float x = fmodf(m_scroll_delta.x, GRID_SIZE); x < win_size.x; x += GRID_SIZE) {
+		draw_list->AddLine(Point(x, 0.0f) + win_pos, Point(x, win_size.y) + win_pos, COLOR_GRID_LINE);
+	}
+
+	for (float y = fmodf(m_scroll_delta.y, GRID_SIZE); y < win_size.y; y += GRID_SIZE) {
+		draw_list->AddLine(Point(0.0f, y) + win_pos, Point(win_size.x, y) + win_pos, COLOR_GRID_LINE);
 	}
 }
 

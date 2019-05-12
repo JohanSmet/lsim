@@ -54,6 +54,7 @@ public:
 
 private:
     Point endpoint_position(uint32_t pin);
+    void draw_grid(ImDrawList *draw_list);
 
 private:
     typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
@@ -68,6 +69,7 @@ private:
     ui_connection_container_t m_ui_connections;
 
     Point   m_scroll_delta;
+    bool    m_show_grid;
 };
 
 

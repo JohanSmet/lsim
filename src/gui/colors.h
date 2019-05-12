@@ -24,4 +24,6 @@ const ImU32 COLOR_CONNECTION[] = {
     COLOR_CONNECTION_ERROR
 };
 
+constexpr const auto COLOR_GRID_LINE = IM_COL32(200, 200, 200, 40);
+
 #endif // LSIM_GUI_COLORS_H
