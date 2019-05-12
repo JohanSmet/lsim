@@ -66,6 +66,8 @@ private:
     endpoint_map_t           m_endpoints;
     ui_component_container_t  m_ui_components;
     ui_connection_container_t m_ui_connections;
+
+    Point   m_scroll_delta;
 };
 
 

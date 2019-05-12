@@ -51,7 +51,7 @@ void main_gui(LSimContext *lsim_context)
 	auto lib = lsim_context->user_library();
 
 	ImGui::SetNextWindowSize(ImVec2(700,600), ImGuiSetCond_FirstUseEver);
-	ImGui::Begin("Circuit");
+	ImGui::Begin("Circuit", nullptr, ImGuiWindowFlags_NoScrollWithMouse);
 
 	static bool sim_running = ui_circuit.get() != nullptr;
 	ImGui::Checkbox("Run simulation", &sim_running);

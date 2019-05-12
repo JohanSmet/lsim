@@ -17,7 +17,8 @@
 
 UICircuit::UICircuit(Circuit *circuit) : 
 			m_circuit(circuit),
-			m_name(circuit->name()) {
+			m_name(circuit->name()),
+			m_scroll_delta(0,0) {
 
 }
 
@@ -64,7 +65,7 @@ void UICircuit::draw() {
 	auto draw_list = ImGui::GetWindowDrawList();
 	draw_list->ChannelsSplit(2);
 
-    Point offset = ImGui::GetCursorScreenPos() /* + scrolling */;
+    Point offset = m_scroll_delta + ImGui::GetCursorScreenPos();
 
 	// components
 	for (const auto &comp : m_ui_components) {
@@ -113,6 +114,17 @@ void UICircuit::draw() {
 	}
 
 	draw_list->ChannelsMerge();
+
+	// scrolling
+    if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() && ImGui::IsMouseDragging(2, 0.0f)) {
+		m_scroll_delta = m_scroll_delta + ImGui::GetIO().MouseDelta;
+		if (m_scroll_delta.x < 0) { 
+			m_scroll_delta.x = 0;
+		}
+		if (m_scroll_delta.y < 0) { 
+			m_scroll_delta.y = 0;
+		}
+	}
 }
 
 Point UICircuit::endpoint_position(uint32_t pin) {
