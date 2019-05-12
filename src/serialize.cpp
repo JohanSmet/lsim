@@ -23,6 +23,7 @@ static const char *XML_EL_PIN = "pin";
 static const char *XML_EL_PROPERTY = "property";
 static const char *XML_EL_POSITION = "position";
 static const char *XML_EL_ORIENTATION = "orientation";
+static const char *XML_EL_MAIN = "main";
 
 static const char *XML_ATTR_VERSION = "version";
 static const char *XML_ATTR_NAME = "name";
@@ -94,6 +95,11 @@ public:
     void serialize_library(CircuitLibrary *library) {
         for (size_t idx = 0; idx < library->num_circuits(); ++idx) {
             serialize_circuit(library->circuit_by_idx(idx));
+        }
+
+        if (library->main_circuit()) {
+            auto main_node = m_root.append_child(XML_EL_MAIN);
+            main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit()->name());
         }
     }
 
@@ -209,7 +215,6 @@ private:
         }
 
     }
-
 
 private:
     pugi::xml_document  m_xml;
@@ -460,6 +465,12 @@ public:
 
         for (auto circuit_node : lsim_node.children(XML_EL_CIRCUIT)) {
             parse_circuit(circuit_node);
+        }
+
+        auto main_node = lsim_node.child(XML_EL_MAIN);
+        if (!!main_node) {
+            REQUIRED_ATTR(attr_name, main_node, XML_ATTR_NAME);
+            lib->set_main_circuit(lib->circuit_by_name(attr_name.as_string()));
         }
 
         return true;

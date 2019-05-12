@@ -28,12 +28,20 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 
 	// try to load the circuit specified on the command line
 	if (circuit_file) {
-		auto circuit = load_logisim(lsim_context, circuit_file);
-		lsim_context->sim()->change_active_circuit(circuit);
-		handle_main_circuit_changed(lsim_context->sim());
-
 		ui_filename = circuit_file;
-		ui_filename.replace(ui_filename.begin() + ui_filename.find_last_of('.'), ui_filename.end(), ".lsim");
+		auto ext = ui_filename.substr(ui_filename.find_last_of('.') + 1);
+
+		if (ext == "circ") {
+			auto circuit = load_logisim(lsim_context, circuit_file);
+			ui_filename.replace(ui_filename.begin() + ui_filename.find_last_of('.'), ui_filename.end(), ".lsim");
+		} else {
+			deserialize_library(lsim_context, lsim_context->user_library(), circuit_file);
+		}
+
+		if (lsim_context->user_library()->main_circuit()) {
+			lsim_context->sim()->change_active_circuit(lsim_context->user_library()->main_circuit());
+			handle_main_circuit_changed(lsim_context->sim());
+		}
 	}
 }
 

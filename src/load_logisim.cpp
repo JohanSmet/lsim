@@ -152,6 +152,7 @@ Circuit *LogisimParser::parse_xml() {
     }
 
     auto main_circuit = main_node.attribute("name").value();
+    m_lsim_context->user_library()->set_main_circuit(m_circuits[main_circuit].m_circuit);
     return m_circuits[main_circuit].m_circuit;
 }
 

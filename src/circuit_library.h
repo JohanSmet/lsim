@@ -26,6 +26,8 @@ public:
     Circuit *circuit_by_idx(size_t idx) const;
     Circuit *circuit_by_name(const char *name) const;
     size_t circuit_idx(Circuit *circuit) const;
+    void set_main_circuit(Circuit *circuit);
+    Circuit *main_circuit() const {return m_main_circuit;}
 
 private:
     typedef std::vector<Circuit::uptr_t>                circuit_container_t;
@@ -36,6 +38,7 @@ private:
     Simulator *             m_sim;
     circuit_container_t     m_circuits;
     circuit_map_t           m_circuit_lut;
+    Circuit *               m_main_circuit;
 };
 
 #endif // LSIM_CIRCUIT_LIBRARY_H

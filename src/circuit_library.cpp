@@ -3,11 +3,13 @@
 // a collection of circuits
 
 #include "circuit_library.h"
+#include <algorithm>
 #include <cassert>
 
 CircuitLibrary::CircuitLibrary(const char *name, Simulator *sim) : 
         m_name(name),
-        m_sim(sim) {
+        m_sim(sim),
+        m_main_circuit(nullptr) {
 }
 
 Circuit *CircuitLibrary::create_circuit(const char *name) {
@@ -16,6 +18,11 @@ Circuit *CircuitLibrary::create_circuit(const char *name) {
     m_circuits.push_back(std::make_unique<Circuit>(m_sim, name));
     auto circuit =  m_circuits.back().get();
     m_circuit_lut[name] = circuit;
+
+    if (!m_main_circuit) {
+        m_main_circuit = circuit;
+    }
+
     return circuit;
 }
 
@@ -45,4 +52,9 @@ size_t CircuitLibrary::circuit_idx(Circuit *circuit) const {
     }
 
     return m_circuits.size();
+}
+
+void CircuitLibrary::set_main_circuit(Circuit *circuit) {
+    assert (std::find_if(m_circuits.begin(), m_circuits.end(), [=](auto &other) {return other.get() == circuit;}) != m_circuits.end());
+    m_main_circuit = circuit;
 }
