@@ -209,7 +209,7 @@ Component *ConnectorInput(Circuit *circuit, const char *name, size_t data_bits, 
     connector->add_property(make_property("tri_state", tri_state));
     connector->set_check_dirty_func([](Component *connector) {return false;});
     circuit->register_component_name(name, connector);
-    circuit->add_external_pins(name, connector);
+    circuit->add_ports(name, connector);
     return connector;
 }
 
@@ -218,7 +218,7 @@ Component *ConnectorOutput(Circuit *circuit, const char *name, size_t data_bits,
     connector->add_property(make_property("name", name));
     connector->add_property(make_property("tri_state", tri_state));
     circuit->register_component_name(name, connector);
-    circuit->add_external_pins(name, connector);
+    circuit->add_ports(name, connector);
     return connector;
 }
 

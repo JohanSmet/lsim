@@ -17,7 +17,7 @@ void handle_main_circuit_changed(Simulator *sim) {
 	auto active_circuit = sim->active_circuit();
 	if (active_circuit) {
 		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
-		active_circuit->initialize_external_pins();
+		active_circuit->initialize_input_ports();
 	}
 }
 

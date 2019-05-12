@@ -159,7 +159,7 @@ void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent
 	static node_origin_container_t node_origin_pins;
 
 	auto *sim = circuit->circuit()->sim();
-	const auto &pins = visual_comp->get_circuit() ? visual_comp->get_circuit()->external_pins() : visual_comp->get_component()->pins();
+	const auto &pins = visual_comp->get_circuit() ? visual_comp->get_circuit()->ports_pins() : visual_comp->get_component()->pins();
 
 	for (auto pin : pins) {
 		auto node = sim->pin_node(pin);

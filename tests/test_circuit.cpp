@@ -49,8 +49,8 @@ TEST_CASE("Test nested circuits", "[circuit]") {
     auto s_out = ConnectorOutput(circuit_2, "s_out", 1);
     auto sub = circuit_2->integrate_circuit_clone(circuit_1);
 
-    circuit_2->connect_pins(s_in->pin(0), sub->external_pin_by_name("in"));
-    circuit_2->connect_pins(s_out->pin(0), sub->external_pin_by_name("out"));
+    circuit_2->connect_pins(s_in->pin(0), sub->pin_port_by_name("in"));
+    circuit_2->connect_pins(s_out->pin(0), sub->pin_port_by_name("out"));
 
     sim->init(circuit_2);
     s_in->write_pin(0, VALUE_TRUE);
@@ -152,29 +152,29 @@ AdderIO create_4bit_adder(LSimContext *lsim_context) {
     result.pin_Co = ConnectorOutput(result.circuit, "Co", 1);
 
     auto add1_0 = result.circuit->integrate_circuit_clone(adder_1bit.circuit);
-    result.circuit->connect_pins(result.pin_Ci->pin(0), add1_0->external_pin_by_name("Ci"));
-    result.circuit->connect_pins(result.pin_A->pin(0), add1_0->external_pin_by_name("A"));
-    result.circuit->connect_pins(result.pin_B->pin(0), add1_0->external_pin_by_name("B"));
-    result.circuit->connect_pins(result.pin_O->pin(0), add1_0->external_pin_by_name("O"));
+    result.circuit->connect_pins(result.pin_Ci->pin(0), add1_0->pin_port_by_name("Ci"));
+    result.circuit->connect_pins(result.pin_A->pin(0), add1_0->pin_port_by_name("A"));
+    result.circuit->connect_pins(result.pin_B->pin(0), add1_0->pin_port_by_name("B"));
+    result.circuit->connect_pins(result.pin_O->pin(0), add1_0->pin_port_by_name("O"));
 
     auto add1_1 = result.circuit->integrate_circuit_clone(adder_1bit.circuit);
-    result.circuit->connect_pins(add1_0->external_pin_by_name("Co"), add1_1->external_pin_by_name("Ci"));
-    result.circuit->connect_pins(result.pin_A->pin(1), add1_1->external_pin_by_name("A"));
-    result.circuit->connect_pins(result.pin_B->pin(1), add1_1->external_pin_by_name("B"));
-    result.circuit->connect_pins(result.pin_O->pin(1), add1_1->external_pin_by_name("O"));
+    result.circuit->connect_pins(add1_0->pin_port_by_name("Co"), add1_1->pin_port_by_name("Ci"));
+    result.circuit->connect_pins(result.pin_A->pin(1), add1_1->pin_port_by_name("A"));
+    result.circuit->connect_pins(result.pin_B->pin(1), add1_1->pin_port_by_name("B"));
+    result.circuit->connect_pins(result.pin_O->pin(1), add1_1->pin_port_by_name("O"));
 
     auto add1_2 = result.circuit->integrate_circuit_clone(adder_1bit.circuit);
-    result.circuit->connect_pins(add1_1->external_pin_by_name("Co"), add1_2->external_pin_by_name("Ci"));
-    result.circuit->connect_pins(result.pin_A->pin(2), add1_2->external_pin_by_name("A"));
-    result.circuit->connect_pins(result.pin_B->pin(2), add1_2->external_pin_by_name("B"));
-    result.circuit->connect_pins(result.pin_O->pin(2), add1_2->external_pin_by_name("O"));
+    result.circuit->connect_pins(add1_1->pin_port_by_name("Co"), add1_2->pin_port_by_name("Ci"));
+    result.circuit->connect_pins(result.pin_A->pin(2), add1_2->pin_port_by_name("A"));
+    result.circuit->connect_pins(result.pin_B->pin(2), add1_2->pin_port_by_name("B"));
+    result.circuit->connect_pins(result.pin_O->pin(2), add1_2->pin_port_by_name("O"));
 
     auto add1_3 = result.circuit->integrate_circuit_clone(adder_1bit.circuit);
-    result.circuit->connect_pins(add1_2->external_pin_by_name("Co"), add1_3->external_pin_by_name("Ci"));
-    result.circuit->connect_pins(result.pin_A->pin(3), add1_3->external_pin_by_name("A"));
-    result.circuit->connect_pins(result.pin_B->pin(3), add1_3->external_pin_by_name("B"));
-    result.circuit->connect_pins(result.pin_O->pin(3), add1_3->external_pin_by_name("O"));
-    result.circuit->connect_pins(add1_3->external_pin_by_name("Co"), result.pin_Co->pin(0));
+    result.circuit->connect_pins(add1_2->pin_port_by_name("Co"), add1_3->pin_port_by_name("Ci"));
+    result.circuit->connect_pins(result.pin_A->pin(3), add1_3->pin_port_by_name("A"));
+    result.circuit->connect_pins(result.pin_B->pin(3), add1_3->pin_port_by_name("B"));
+    result.circuit->connect_pins(result.pin_O->pin(3), add1_3->pin_port_by_name("O"));
+    result.circuit->connect_pins(add1_3->pin_port_by_name("Co"), result.pin_Co->pin(0));
 
     return result;
 }
@@ -221,35 +221,35 @@ TEST_CASE("8bit adder (multi-level cloning)", "[circuit]") {
     auto adder_4bit = create_4bit_adder(&lsim_context);
 
     auto add4_0 = circuit->integrate_circuit_clone(adder_4bit.circuit);
-    circuit->connect_pins(pin_Ci->pin(0), add4_0->external_pin_by_name("Ci"));
-    circuit->connect_pins(pin_A->pin(0), add4_0->external_pin_by_name("A[0]"));
-    circuit->connect_pins(pin_A->pin(1), add4_0->external_pin_by_name("A[1]"));
-    circuit->connect_pins(pin_A->pin(2), add4_0->external_pin_by_name("A[2]"));
-    circuit->connect_pins(pin_A->pin(3), add4_0->external_pin_by_name("A[3]"));
-    circuit->connect_pins(pin_B->pin(0), add4_0->external_pin_by_name("B[0]"));
-    circuit->connect_pins(pin_B->pin(1), add4_0->external_pin_by_name("B[1]"));
-    circuit->connect_pins(pin_B->pin(2), add4_0->external_pin_by_name("B[2]"));
-    circuit->connect_pins(pin_B->pin(3), add4_0->external_pin_by_name("B[3]"));
-    circuit->connect_pins(pin_O->pin(0), add4_0->external_pin_by_name("O[0]"));
-    circuit->connect_pins(pin_O->pin(1), add4_0->external_pin_by_name("O[1]"));
-    circuit->connect_pins(pin_O->pin(2), add4_0->external_pin_by_name("O[2]"));
-    circuit->connect_pins(pin_O->pin(3), add4_0->external_pin_by_name("O[3]"));
+    circuit->connect_pins(pin_Ci->pin(0), add4_0->pin_port_by_name("Ci"));
+    circuit->connect_pins(pin_A->pin(0), add4_0->pin_port_by_name("A[0]"));
+    circuit->connect_pins(pin_A->pin(1), add4_0->pin_port_by_name("A[1]"));
+    circuit->connect_pins(pin_A->pin(2), add4_0->pin_port_by_name("A[2]"));
+    circuit->connect_pins(pin_A->pin(3), add4_0->pin_port_by_name("A[3]"));
+    circuit->connect_pins(pin_B->pin(0), add4_0->pin_port_by_name("B[0]"));
+    circuit->connect_pins(pin_B->pin(1), add4_0->pin_port_by_name("B[1]"));
+    circuit->connect_pins(pin_B->pin(2), add4_0->pin_port_by_name("B[2]"));
+    circuit->connect_pins(pin_B->pin(3), add4_0->pin_port_by_name("B[3]"));
+    circuit->connect_pins(pin_O->pin(0), add4_0->pin_port_by_name("O[0]"));
+    circuit->connect_pins(pin_O->pin(1), add4_0->pin_port_by_name("O[1]"));
+    circuit->connect_pins(pin_O->pin(2), add4_0->pin_port_by_name("O[2]"));
+    circuit->connect_pins(pin_O->pin(3), add4_0->pin_port_by_name("O[3]"));
 
     auto add4_1 = circuit->integrate_circuit_clone(adder_4bit.circuit);
-    circuit->connect_pins(add4_0->external_pin_by_name("Co"), add4_1->external_pin_by_name("Ci"));
-    circuit->connect_pins(pin_A->pin(4), add4_1->external_pin_by_name("A[0]"));
-    circuit->connect_pins(pin_A->pin(5), add4_1->external_pin_by_name("A[1]"));
-    circuit->connect_pins(pin_A->pin(6), add4_1->external_pin_by_name("A[2]"));
-    circuit->connect_pins(pin_A->pin(7), add4_1->external_pin_by_name("A[3]"));
-    circuit->connect_pins(pin_B->pin(4), add4_1->external_pin_by_name("B[0]"));
-    circuit->connect_pins(pin_B->pin(5), add4_1->external_pin_by_name("B[1]"));
-    circuit->connect_pins(pin_B->pin(6), add4_1->external_pin_by_name("B[2]"));
-    circuit->connect_pins(pin_B->pin(7), add4_1->external_pin_by_name("B[3]"));
-    circuit->connect_pins(pin_O->pin(4), add4_1->external_pin_by_name("O[0]"));
-    circuit->connect_pins(pin_O->pin(5), add4_1->external_pin_by_name("O[1]"));
-    circuit->connect_pins(pin_O->pin(6), add4_1->external_pin_by_name("O[2]"));
-    circuit->connect_pins(pin_O->pin(7), add4_1->external_pin_by_name("O[3]"));
-    circuit->connect_pins(add4_1->external_pin_by_name("Co"), pin_Co->pin(0)); 
+    circuit->connect_pins(add4_0->pin_port_by_name("Co"), add4_1->pin_port_by_name("Ci"));
+    circuit->connect_pins(pin_A->pin(4), add4_1->pin_port_by_name("A[0]"));
+    circuit->connect_pins(pin_A->pin(5), add4_1->pin_port_by_name("A[1]"));
+    circuit->connect_pins(pin_A->pin(6), add4_1->pin_port_by_name("A[2]"));
+    circuit->connect_pins(pin_A->pin(7), add4_1->pin_port_by_name("A[3]"));
+    circuit->connect_pins(pin_B->pin(4), add4_1->pin_port_by_name("B[0]"));
+    circuit->connect_pins(pin_B->pin(5), add4_1->pin_port_by_name("B[1]"));
+    circuit->connect_pins(pin_B->pin(6), add4_1->pin_port_by_name("B[2]"));
+    circuit->connect_pins(pin_B->pin(7), add4_1->pin_port_by_name("B[3]"));
+    circuit->connect_pins(pin_O->pin(4), add4_1->pin_port_by_name("O[0]"));
+    circuit->connect_pins(pin_O->pin(5), add4_1->pin_port_by_name("O[1]"));
+    circuit->connect_pins(pin_O->pin(6), add4_1->pin_port_by_name("O[2]"));
+    circuit->connect_pins(pin_O->pin(7), add4_1->pin_port_by_name("O[3]"));
+    circuit->connect_pins(add4_1->pin_port_by_name("Co"), pin_Co->pin(0)); 
 
     sim->init(circuit);
 

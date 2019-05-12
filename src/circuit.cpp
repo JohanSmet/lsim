@@ -35,64 +35,80 @@ void Circuit::connect_pins(pin_t pin_a, pin_t pin_b) {
     return m_sim->connect_pins(pin_a, pin_b);
 }
 
-void Circuit::add_external_pins(const std::string &name, Component *connector) {
+void Circuit::add_ports(const std::string &name, Component *connector) {
     assert(connector);
     uint32_t comp_idx = std::find_if(m_components.begin(), m_components.end(), 
                                   [&](const Component::uptr_t &o) {return o.get() == connector;}) 
                           - m_components.begin();
-    bool is_input = connector->type() == COMPONENT_CONNECTOR_IN;
+    auto &ports = (connector->type() == COMPONENT_CONNECTOR_IN) ? m_input_ports : m_output_ports;
 
     if (connector->num_pins() == 1) {
-        m_external_pins.push_back({name, is_input, comp_idx, 0});
+        port_t port = {name, comp_idx, 0};
+        ports.push_back(port);
+        m_ports_lut[name] = port;
     } else {
         for (uint32_t idx = 0; idx < connector->num_pins(); ++idx) {
-            m_external_pins.push_back({name + "[" + std::to_string(idx) + "]", is_input, comp_idx, idx});
+            auto port_name = name + "[" + std::to_string(idx) + "]";
+            port_t port = {port_name, comp_idx, idx};
+            ports.push_back(port);
+            m_ports_lut[port_name] = port;
         }
     }
 }
 
-void Circuit::initialize_external_pins() {
-    for (const auto &ext_pin : m_external_pins) {
-        auto connector = m_components[ext_pin.m_component_index].get();
-        if (ext_pin.m_is_input && /*!ipin.m_connector->is_tristate() && */
-            connector->sim()->read_pin_current_step(connector->pin(ext_pin.m_pin_index)) == VALUE_UNDEFINED) {
-            connector->write_pin(ext_pin.m_pin_index, VALUE_FALSE);
+void Circuit::initialize_input_ports() {
+    for (const auto &port : m_input_ports) {
+        auto connector = m_components[port.m_component_index].get();
+        if (!connector->property_value("tri_state", false) && 
+            connector->sim()->read_pin_current_step(connector->pin(port.m_pin_index)) == VALUE_UNDEFINED) {
+            connector->write_pin(port.m_pin_index, VALUE_FALSE);
         }
     }
 }
 
-bool Circuit::external_pin_is_input(size_t index) const {
-    assert(index < m_external_pins.size());
-    return m_external_pins[index].m_is_input;
-}
-
-const char *Circuit::external_pin_name(size_t index) const {
-    assert(index < m_external_pins.size());
-    return m_external_pins[index].m_name.c_str();
-}
-
-pin_t Circuit::external_pin(size_t index) const {
-    assert(index < m_external_pins.size());
-    auto connector = m_components[m_external_pins[index].m_component_index].get();
-    return connector->pin(m_external_pins[index].m_pin_index);
-}
-
-pin_t Circuit::external_pin_by_name(const char *name) {
-    auto result = std::find_if(m_external_pins.begin(), m_external_pins.end(),
-                               [&](const external_pin_t &ext_pin) {return ext_pin.m_name == name;}
-    );
-
-    if (result == m_external_pins.end()) {
-        return PIN_UNDEFINED;
+pin_t Circuit::pin_port_by_name(const char *name) {
+    auto result = m_ports_lut.find(name);
+    if (result != m_ports_lut.end()) {
+        return pin_from_port(result->second);
     } else {
-        return external_pin(result - m_external_pins.begin());
+        return PIN_UNDEFINED;
     }
 }
 
-Component::pin_container_t Circuit::external_pins() const {
+Component::pin_container_t Circuit::input_ports_pins() const {
+    return ports_pins(m_input_ports);
+}
+
+Component::pin_container_t Circuit::output_ports_pins() const {
+    return ports_pins(m_output_ports);
+}
+
+Component::pin_container_t Circuit::ports_pins() const {
+    auto ports = input_ports_pins();
+    const auto &output_ports = output_ports_pins();
+    ports.insert(ports.end(), output_ports.begin(), output_ports.end());
+    return ports;
+}
+
+const char *Circuit::input_port_name(size_t index) const {
+    assert(index <= m_input_ports.size());
+    return m_input_ports[index].m_name.c_str();
+}
+
+const char *Circuit::output_port_name(size_t index) const {
+    assert(index <= m_input_ports.size());
+    return m_output_ports[index].m_name.c_str();
+}
+
+pin_t Circuit::pin_from_port(const port_t &port) const {
+    auto connector = m_components[port.m_component_index].get();
+    return connector->pin(port.m_pin_index);
+}
+
+Component::pin_container_t Circuit::ports_pins(const port_container_t &ports) const {
     Component::pin_container_t result;
-    for (size_t idx = 0; idx < m_external_pins.size(); ++idx) {
-        result.push_back(external_pin(idx));
+    for (const auto &port : ports) {
+        result.push_back(pin_from_port(port));
     }
 
     return result;
@@ -136,7 +152,8 @@ Circuit::uptr_t Circuit::clone(CircuitCloneContext *context) const {
     for (const auto &nested : m_nested_circuits) {
         auto orig_nested = nested.get();
         auto clone_nested = new_circuit->integrate_circuit_clone(orig_nested, context);
-        clone_connections(orig_nested->external_pins(), clone_nested->external_pins(), context);
+        clone_connections(orig_nested->input_ports_pins(), clone_nested->input_ports_pins(), context);
+        clone_connections(orig_nested->output_ports_pins(), clone_nested->output_ports_pins(), context);
     }
 
     // components
@@ -154,7 +171,9 @@ Circuit::uptr_t Circuit::clone(CircuitCloneContext *context) const {
                 component_map.find(entry.second)->second);
     }
 
-    new_circuit->m_external_pins = m_external_pins;
+    new_circuit->m_input_ports = m_input_ports;
+    new_circuit->m_output_ports = m_output_ports;
+    new_circuit->m_ports_lut = m_ports_lut;
 
     return std::move(new_circuit);
 }

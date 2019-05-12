@@ -219,28 +219,14 @@ void component_register_basic() {
             auto nested = ui_comp->m_visual_comp->get_circuit();
             ui_comp->m_tooltip = "Circuit";
 
-            // sort sub-circuit pins into inputs (on the left) and outputs (on the right) 
-            Component::pin_container_t input_pins, output_pins;
-            std::vector<const char *> input_names, output_names;
-
-            for (int i = nested->num_external_pins() - 1; i >= 0; --i) {
-                if (nested->external_pin_is_input(i)) {
-                    input_pins.push_back(nested->external_pin(i));
-                    input_names.push_back(nested->external_pin_name(i));
-                } else {
-                    output_pins.push_back(nested->external_pin(i));
-                    output_names.push_back(nested->external_pin_name(i));
-                }
-            }
-
             // materialize the sub-circuit
             float width = 200;
-            float height = (std::max(input_pins.size(), output_pins.size()) + 1) * 24 + 24;
+            float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 24 + 24;
 
             materialize_rectangle(ui_comp, ui_circuit, width, height);
-            ui_circuit->add_pin_line(ui_comp->m_to_circuit, input_pins.data(), input_pins.size(),
+            ui_circuit->add_pin_line(ui_comp->m_to_circuit, nested->input_ports_pins().data(), nested->num_input_ports(),
                                      {-width/2.0f, -height/2.0f + 24}, {0.0f, 24.0f});
-            ui_circuit->add_pin_line(ui_comp->m_to_circuit, output_pins.data(), output_pins.size(),
+            ui_circuit->add_pin_line(ui_comp->m_to_circuit, nested->output_ports_pins().data(), nested->num_output_ports(),
                                      {width/2.0f, -height/2.0f + 24}, {0.0f, 24.0f});
 
             // custom draw function for pin labels
@@ -248,14 +234,14 @@ void component_register_basic() {
                 auto cursor = to_window.apply(Point((-width / 2.0f) + 5, (-height / 2.0f) + 18));
                 auto delta = Point(0, 24);
             
-                for (const auto &name : input_names) {
-                    ImGuiEx::TextLeftJustify(cursor, name);
+                for (size_t idx = 0; idx < nested->num_input_ports(); ++idx) {
+                    ImGuiEx::TextLeftJustify(cursor, nested->input_port_name(idx));
                     cursor = cursor + delta;
                 }
 
                 cursor = to_window.apply(Point((width / 2.0f) - 5, (-height / 2.0f) + 18));
-                for (const auto &name : output_names) {
-                    ImGuiEx::TextRightJustify(cursor, name);
+                for (size_t idx = 0; idx < nested->num_output_ports(); ++idx) {
+                    ImGuiEx::TextRightJustify(cursor, nested->output_port_name(idx));
                     cursor = cursor + delta;
                 }
 
