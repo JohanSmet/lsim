@@ -105,6 +105,18 @@ public:
     }
 
 private:
+    void serialize_pins(Simulator *sim, pugi::xml_node *parent, const char *node_name, const Component::pin_container_t &pins) {
+        if (pins.empty()) {
+            return;
+        }
+        auto pins_node = parent->append_child(node_name);
+        for (size_t idx = 0; idx < pins.size(); ++idx) {
+            auto pin_node = pins_node.append_child(XML_EL_PIN);
+            pin_node.append_attribute(XML_ATTR_INDEX).set_value(idx);
+            pin_node.append_attribute(XML_ATTR_NODE).set_value(sim->pin_node(pins[idx]));
+        }
+    }
+
     void serialize_component(Component *component, pugi::xml_node *circuit_node) {
         auto comp_node = circuit_node->append_child(XML_EL_COMPONENT);
         m_component_nodes[component] = comp_node;
@@ -124,21 +136,9 @@ private:
         }
 
         // pins
-        auto pin_func = [&comp_node, &component](const char *node_name, const Component::pin_container_t &pins) {
-            if (pins.empty()) {
-                return;
-            }
-            auto pins_node = comp_node.append_child(node_name);
-            for (size_t idx = 0; idx < pins.size(); ++idx) {
-                auto pin_node = pins_node.append_child(XML_EL_PIN);
-                pin_node.append_attribute(XML_ATTR_INDEX).set_value(idx);
-                pin_node.append_attribute(XML_ATTR_NODE).set_value(component->sim()->pin_node(pins[idx]));
-            }
-        };
-
-        pin_func(XML_EL_INPUTS, component->input_pins());
-        pin_func(XML_EL_OUTPUTS, component->output_pins());
-        pin_func(XML_EL_CONTROLS, component->control_pins());
+        serialize_pins(component->sim(), &comp_node, XML_EL_INPUTS, component->input_pins());
+        serialize_pins(component->sim(), &comp_node, XML_EL_OUTPUTS, component->output_pins());
+        serialize_pins(component->sim(), &comp_node, XML_EL_CONTROLS, component->control_pins());
 
         // properties
         for (const auto &prop : component->properties()) {
@@ -161,6 +161,9 @@ private:
         comp_node.append_attribute(XML_ATTR_NAME).set_value(name.substr(0, hash).c_str());
         comp_node.append_attribute(XML_ATTR_INSTANCE).set_value(name.substr(hash).c_str());
 
+        // pins
+        serialize_pins(circuit->sim(), &comp_node, XML_EL_INPUTS, circuit->input_ports_pins());
+        serialize_pins(circuit->sim(), &comp_node, XML_EL_OUTPUTS, circuit->output_ports_pins());
     }
 
     void serialize_visual_component(VisualComponent *vis_comp) {
