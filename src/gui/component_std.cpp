@@ -17,25 +17,12 @@
 
 void materialize_rectangle(UIComponent *ui_comp, UICircuit *ui_circuit, float width, float height) {
 
-    const float h_width = width / 2.0f;
-    const float h_height = height / 2.0f;
+    ui_comp->m_half_size = {width / 2.0f, height / 2.0f};
 
     // transform coordinates from component space to circuit space
 	ui_comp->m_to_circuit.reset();
 	ui_comp->m_to_circuit.rotate(ui_comp->m_visual_comp->get_orientation());
 	ui_comp->m_to_circuit.translate(ui_comp->m_visual_comp->get_position());
-
-    // compute axis aligned bounding box
-	ui_comp->m_circuit_min = ui_comp->m_to_circuit.apply({-h_width, -h_height});
-	ui_comp->m_circuit_max = ui_comp->m_to_circuit.apply({h_width, h_height});
-
-	if (ui_comp->m_circuit_max.x < ui_comp->m_circuit_min.x) {
-        std::swap(ui_comp->m_circuit_min.x, ui_comp->m_circuit_max.x);
-	}
-
-	if (ui_comp->m_circuit_max.y < ui_comp->m_circuit_min.y) {
-        std::swap(ui_comp->m_circuit_min.y, ui_comp->m_circuit_max.y);
-	}
 }
 
 void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit, 

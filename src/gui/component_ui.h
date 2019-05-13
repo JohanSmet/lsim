@@ -23,8 +23,7 @@ struct UIComponent {
     VisualComponent *   m_visual_comp;
     std::string         m_tooltip;
     Transform           m_to_circuit;
-    Point               m_circuit_min;
-    Point               m_circuit_max;
+    Point               m_half_size;
     const ComponentIcon *m_icon;
     ui_component_func_t m_custom_ui_callback;
 };

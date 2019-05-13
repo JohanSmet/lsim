@@ -10,7 +10,27 @@
 #include "simulator.h"
 #include "circuit.h"
 
+namespace {
+
 static const float GRID_SIZE = 20.0f;
+
+static void compute_comp_aabb(Transform to_window, Point h_size, Point *min, Point *max) {
+	assert(min);
+	assert(max);
+
+	*min = to_window.apply({-h_size.x, -h_size.y});
+	*max = to_window.apply({h_size.x, h_size.y});
+
+	if (max->x < min->x) {
+        std::swap(min->x, max->x);
+	}
+
+	if (max->y < min->y) {
+        std::swap(min->y, max->y);
+	}
+}
+
+} // unnamed namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -75,32 +95,43 @@ void UICircuit::draw() {
     Point offset = m_scroll_delta + ImGui::GetCursorScreenPos();
 
 	// components
-	for (const auto &comp : m_ui_components) {
+	for (auto &comp : m_ui_components) {
+
+		ImGui::PushID(&comp);
 
 		Transform to_window = comp.m_to_circuit;
 		to_window.translate(offset);
 
+		Point comp_min, comp_max;
+		compute_comp_aabb(to_window, comp.m_half_size, &comp_min, &comp_max);
+
 		if (comp.m_custom_ui_callback) {
-			ImGui::SetCursorScreenPos(comp.m_circuit_min + offset);
+			ImGui::SetCursorScreenPos(comp_min);
 			draw_list->ChannelsSetCurrent(1);
 			comp.m_custom_ui_callback(&comp, to_window);
 		}
 
 		draw_list->ChannelsSetCurrent(0);         // background
-		ImGui::SetCursorScreenPos(comp.m_circuit_min + offset);
-		ImGui::InvisibleButton("node", comp.m_circuit_max - comp.m_circuit_min);
+		ImGui::SetCursorScreenPos(comp_min);
+		ImGui::InvisibleButton("node", comp_max - comp_min);
+
+		// dragging
+		if (ImGui::IsItemActive()) {
+			comp.m_to_circuit.translate(ImGui::GetIO().MouseDelta);
+		}
 
 		if (!comp.m_tooltip.empty() && ImGui::IsItemHovered()) {
 			ImGui::SetTooltip(comp.m_tooltip.c_str());
 		}
 
-    	draw_list->AddRect(comp.m_circuit_min + offset, comp.m_circuit_max + offset, 
-						   COLOR_COMPONENT_BORDER);
+    	draw_list->AddRect(comp_min, comp_max, COLOR_COMPONENT_BORDER);
 
 		if (comp.m_icon) {
-    		comp.m_icon->draw(to_window, comp.m_circuit_max - comp.m_circuit_min - Point(10,10), 
+    		comp.m_icon->draw(to_window, comp_max - comp_min - Point(10,10), 
 							  draw_list, 2, COLOR_COMPONENT_ICON);
 		}
+
+		ImGui::PopID();
 	}
 
 	// pins
