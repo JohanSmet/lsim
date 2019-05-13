@@ -7,8 +7,11 @@
 
 #include "imgui/imgui.h"
 
-constexpr const auto COLOR_COMPONENT_BORDER = IM_COL32(100, 100, 100, 255);
+constexpr const auto COLOR_COMPONENT_BORDER = IM_COL32(200, 200, 200, 255);
+constexpr const auto COLOR_COMPONENT_BORDER_DRAGGING = IM_COL32(100, 100, 100, 255);
 constexpr const auto COLOR_COMPONENT_ICON   = COLOR_COMPONENT_BORDER;
+
+constexpr const auto COLOR_COMPONENT_SELECTED = IM_COL32(100, 100, 0, 255);
 
 constexpr const auto COLOR_CONNECTION_FALSE = IM_COL32(0, 75, 0, 255);
 constexpr const auto COLOR_CONNECTION_TRUE  = IM_COL32(0, 175, 0, 255);

@@ -76,6 +76,8 @@ private:
     ui_component_container_t  m_ui_components;
     ui_connection_container_t m_ui_connections;
 
+    UIComponent *            m_selected_comp;
+
     Point   m_scroll_delta;
     bool    m_show_grid;
 };

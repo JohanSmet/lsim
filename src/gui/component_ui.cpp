@@ -12,7 +12,7 @@
 
 namespace {
 
-static const float GRID_SIZE = 20.0f;
+static const float GRID_SIZE = 10.0f;
 
 static void compute_comp_aabb(Transform to_window, Point h_size, Point *min, Point *max) {
 	assert(min);
@@ -41,7 +41,8 @@ UICircuit::UICircuit(Circuit *circuit) :
 			m_circuit(circuit),
 			m_name(circuit->name()),
 			m_show_grid(true),
-			m_scroll_delta(0,0) {
+			m_scroll_delta(0,0),
+			m_selected_comp(nullptr) {
 
 }
 
@@ -94,6 +95,10 @@ void UICircuit::draw() {
 
     Point offset = m_scroll_delta + ImGui::GetCursorScreenPos();
 
+	if (ImGui::IsMouseClicked(0)) {
+		m_selected_comp = nullptr;
+	}
+
 	// components
 	for (auto &comp : m_ui_components) {
 
@@ -115,6 +120,29 @@ void UICircuit::draw() {
 		ImGui::SetCursorScreenPos(comp_min);
 		ImGui::InvisibleButton("node", comp_max - comp_min);
 
+		// tooltip
+		if (!comp.m_tooltip.empty() && ImGui::IsItemHovered()) {
+			ImGui::SetTooltip(comp.m_tooltip.c_str());
+		}
+
+		// draw border + icon
+		if (m_selected_comp == &comp) {
+			draw_list->AddRectFilled(comp_min, comp_max, COLOR_COMPONENT_SELECTED);
+		}
+
+    	draw_list->AddRect(comp_min, comp_max, 
+						   (comp.m_state == UIS_DRAGGING) ? COLOR_COMPONENT_BORDER_DRAGGING : COLOR_COMPONENT_BORDER);
+
+		if (comp.m_icon) {
+    		comp.m_icon->draw(to_window, comp_max - comp_min - Point(10,10), 
+							  draw_list, 2, COLOR_COMPONENT_ICON);
+		}
+
+		// selection
+		if (ImGui::IsItemClicked()) {
+			m_selected_comp = &comp;
+		}
+
 		// dragging
 		if (ImGui::IsItemActive()) {
 			if (comp.m_state == UIS_IDLE) {
@@ -126,16 +154,6 @@ void UICircuit::draw() {
 			comp.m_state = UIS_IDLE;
 		}
 
-		if (!comp.m_tooltip.empty() && ImGui::IsItemHovered()) {
-			ImGui::SetTooltip(comp.m_tooltip.c_str());
-		}
-
-    	draw_list->AddRect(comp_min, comp_max, COLOR_COMPONENT_BORDER);
-
-		if (comp.m_icon) {
-    		comp.m_icon->draw(to_window, comp_max - comp_min - Point(10,10), 
-							  draw_list, 2, COLOR_COMPONENT_ICON);
-		}
 
 		ImGui::PopID();
 	}
