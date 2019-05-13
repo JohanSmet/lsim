@@ -6,7 +6,8 @@
 #include <array>
 #include <memory>
 
-class Component;
+#include "basic.h"
+
 class Circuit;
 
 class VisualComponent {
@@ -35,6 +36,8 @@ public:
     point_t get_position() const {return m_position;}
     Component *get_component() const {return m_component;}
     Circuit *get_circuit() const {return m_circuit;}
+
+    Component::pin_container_t pins() const;
 
 private:    
     Type        m_type;

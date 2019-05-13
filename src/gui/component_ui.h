@@ -19,11 +19,18 @@ typedef uint32_t ComponentType;
 
 typedef std::function<void (const UIComponent *, Transform)> ui_component_func_t;
 
+enum UIComponentState {
+    UIS_IDLE = 0,
+    UIS_DRAGGING
+};
+
 struct UIComponent {
     VisualComponent *   m_visual_comp;
     std::string         m_tooltip;
     Transform           m_to_circuit;
     Point               m_half_size;
+    UIComponentState    m_state;
+    Point               m_drag_delta;
     const ComponentIcon *m_icon;
     ui_component_func_t m_custom_ui_callback;
 };
@@ -48,6 +55,8 @@ public:
     void add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2);
 
     void draw();
+
+    void move_component(UIComponent *comp, Point delta);
 
     class Circuit *circuit() {return m_circuit;}
 

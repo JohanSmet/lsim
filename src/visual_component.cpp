@@ -2,6 +2,7 @@
 
 #include "visual_component.h"
 #include "basic.h"
+#include "circuit.h"
 
 VisualComponent::VisualComponent(Component *component) :
     m_orientation(EAST),
@@ -25,4 +26,12 @@ void VisualComponent::set_orientation(VisualComponent::Orientation orientation) 
 
 void VisualComponent::set_position(VisualComponent::point_t pos) {
     m_position = pos;
+}
+
+Component::pin_container_t VisualComponent::pins() const {
+    if (m_component) {
+        return m_component->pins();
+    } else {
+        return m_circuit->ports_pins();
+    }
 }

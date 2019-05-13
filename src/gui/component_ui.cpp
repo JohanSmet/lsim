@@ -117,7 +117,13 @@ void UICircuit::draw() {
 
 		// dragging
 		if (ImGui::IsItemActive()) {
-			comp.m_to_circuit.translate(ImGui::GetIO().MouseDelta);
+			if (comp.m_state == UIS_IDLE) {
+				comp.m_state = UIS_DRAGGING;
+				comp.m_drag_delta = {0, 0};
+			}
+			move_component(&comp, ImGui::GetIO().MouseDelta);
+		} else {
+			comp.m_state = UIS_IDLE;
 		}
 
 		if (!comp.m_tooltip.empty() && ImGui::IsItemHovered()) {
@@ -156,12 +162,51 @@ void UICircuit::draw() {
 	// scrolling
     if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() && ImGui::IsMouseDragging(2, 0.0f)) {
 		m_scroll_delta = m_scroll_delta + ImGui::GetIO().MouseDelta;
-		if (m_scroll_delta.x < 0) { 
+		if (m_scroll_delta.x > 0) { 
 			m_scroll_delta.x = 0;
 		}
-		if (m_scroll_delta.y < 0) { 
+		if (m_scroll_delta.y > 0) { 
 			m_scroll_delta.y = 0;
 		}
+	}
+}
+
+void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
+	
+	ui_comp->m_drag_delta = ui_comp->m_drag_delta + delta;
+	Point cur_pos = ui_comp->m_visual_comp->get_position();
+	Point new_pos = cur_pos + ui_comp->m_drag_delta;
+
+	// snap to grid
+	if (ui_comp->m_drag_delta.x > 0) {
+		new_pos.x = floorf(new_pos.x / GRID_SIZE) * GRID_SIZE;
+	} else {
+		new_pos.x = ceilf(new_pos.x / GRID_SIZE) * GRID_SIZE;
+	}
+
+	if (ui_comp->m_drag_delta.y > 0) {
+		new_pos.y = floorf(new_pos.y / GRID_SIZE) * GRID_SIZE;
+	} else {
+		new_pos.y = ceilf(new_pos.y / GRID_SIZE) * GRID_SIZE;
+	}
+
+	Point dist = new_pos - cur_pos;
+
+	ui_comp->m_to_circuit.translate(dist);
+
+	for (const auto &pin : ui_comp->m_visual_comp->pins()) {
+		auto &pos = m_endpoints[pin];
+		pos = pos + dist;
+	}
+
+	ui_comp->m_visual_comp->set_position({new_pos.x, new_pos.y});
+
+	if (dist.x != 0.0f) {
+		ui_comp->m_drag_delta.x = 0;
+	}
+
+	if (dist.y != 0.0f) {
+		ui_comp->m_drag_delta.y = 0;
 	}
 }
 
