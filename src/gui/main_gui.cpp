@@ -6,7 +6,9 @@
 
 #include "lsim_context.h"
 #include "gate.h"
+#include "extra.h"
 #include "load_logisim.h"
+#include "colors.h"
 
 #include "serialize.h"
 
@@ -83,6 +85,43 @@ void main_gui(LSimContext *lsim_context)
 			handle_main_circuit_changed(sim);
 		}
 	}
+	auto draw_list = ImGui::GetWindowDrawList();
+
+	auto create_component = [=](Component *component) {
+		auto vis_comp = sim->active_circuit()->create_visual_component(component);
+		vis_comp->set_position({-200, -200});
+		ui_circuit->create_component(vis_comp);
+	};
+
+	auto add_component_button = [=](uint32_t component, const char *caption, Component * (create_func)(Circuit *circuit)) {
+		Point pos = ImGui::GetCursorScreenPos();
+		ImGui::PushID(caption);
+		if (ImGui::Button("", {40, 40})) {
+			create_component(create_func(sim->active_circuit()));
+		}
+		ImGui::SameLine();
+		ImGui::Text(caption);
+		auto icon = ComponentIcon::cached(component);
+		if (icon) {
+			icon->draw(pos + Point(20,20), {34, 34}, draw_list, 1, COLOR_COMPONENT_BORDER);
+		}
+		ImGui::PopID();
+	};
+	ImGui::Text("Gates");
+	add_component_button(COMPONENT_AND_GATE, "AND", [](Circuit *circuit) {return AndGate(circuit, 2);});
+	add_component_button(COMPONENT_OR_GATE, "OR", [](Circuit *circuit) {return OrGate(circuit, 2);});
+	add_component_button(COMPONENT_NOT_GATE, "NOT", [](Circuit *circuit) {return NotGate(circuit);});
+	add_component_button(COMPONENT_NAND_GATE, "NAND", [](Circuit *circuit) {return NandGate(circuit, 2);});
+	add_component_button(COMPONENT_NOR_GATE, "NOR", [](Circuit *circuit) {return NorGate(circuit, 2);});
+	add_component_button(COMPONENT_XOR_GATE, "XOR", [](Circuit *circuit) {return XorGate(circuit);});
+	add_component_button(COMPONENT_XNOR_GATE, "XNOR", [](Circuit *circuit) {return XnorGate(circuit);});
+	add_component_button(COMPONENT_BUFFER, "Buffer", [](Circuit *circuit) {return Buffer(circuit, 1);});
+	add_component_button(COMPONENT_TRISTATE_BUFFER, "TriState Buffer", [](Circuit *circuit) {return TriStateBuffer(circuit, 1);});
+	ImGui::Text("Various");
+	add_component_button(COMPONENT_CONNECTOR_IN, "Input", [](Circuit *circuit) {return ConnectorInput(circuit, "in", 1);});
+	add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](Circuit *circuit) {return ConnectorInput(circuit, "out", 1);});
+	add_component_button(COMPONENT_CONSTANT, "Constant", [](Circuit *circuit) {return Constant(circuit, VALUE_TRUE);});
+	add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](Circuit *circuit) {return PullResistor(circuit, VALUE_TRUE);});
 	ImGui::EndChild();
 	ImGui::SameLine();
 

@@ -93,8 +93,17 @@ void UICircuit::draw() {
 
 	draw_list->ChannelsSplit(2);
 
-    Point offset = m_scroll_delta + ImGui::GetCursorScreenPos();
+	Point screen_origin = ImGui::GetCursorScreenPos();		// upper-left corner of the window in screen space
+    Point offset = m_scroll_delta + screen_origin;			// translation from circuit space to screen space 
 
+	// position of nearest grid point to the mouse cursor
+	Point mouse_grid_point = Point(ImGui::GetMousePos()) - screen_origin;
+	mouse_grid_point.x = roundf(mouse_grid_point.x / GRID_SIZE) * GRID_SIZE;
+	mouse_grid_point.y = roundf(mouse_grid_point.y / GRID_SIZE) * GRID_SIZE;
+
+
+	// left mousebutton clicked : reset component selection
+	//	if click was inside a component it will be reselectd in the component loop
 	if (ImGui::IsMouseClicked(0)) {
 		m_selected_comp = nullptr;
 	}
@@ -156,6 +165,7 @@ void UICircuit::draw() {
 			move_component(&comp, ImGui::GetIO().MouseDelta);
 		}
 
+
 		ImGui::PopID();
 	}
 
@@ -189,9 +199,21 @@ void UICircuit::draw() {
 		}
 	}
 
+	// handle end of dragging
 	if (m_state == CS_DRAGGING && !ImGui::IsMouseDragging(0, 0.0f)) {
 		m_state = CS_IDLE;
 	}
+
+	// snap component to mouse cursor when creating
+	if (m_state == CS_CREATING && m_selected_comp != nullptr) {
+		move_component_abs(m_selected_comp, mouse_grid_point);
+	}
+
+	// clicking left mouse button while creating ends create state
+	if (m_state == CS_CREATING && ImGui::IsMouseClicked(0)) {
+		m_state = CS_IDLE;
+	}
+
 }
 
 void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
@@ -231,6 +253,29 @@ void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
 	if (dist.y != 0.0f) {
 		ui_comp->m_drag_delta.y = 0;
 	}
+}
+
+void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
+
+	Point cur_pos = ui_comp->m_visual_comp->get_position();
+
+	Point dist = new_pos - cur_pos;
+	ui_comp->m_to_circuit.translate(dist);
+
+	for (const auto &pin : ui_comp->m_visual_comp->pins()) {
+		auto &pos = m_endpoints[pin];
+		pos = pos + dist;
+	}
+
+	ui_comp->m_visual_comp->set_position({new_pos.x, new_pos.y});
+}
+
+
+void UICircuit::create_component(VisualComponent *vis_comp) {
+	UICircuitBuilder::materialize_component(this, vis_comp);
+
+	m_state = CS_CREATING;
+	m_selected_comp = &m_ui_components.back();
 }
 
 Point UICircuit::endpoint_position(uint32_t pin) {

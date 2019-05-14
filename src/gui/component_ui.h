@@ -21,7 +21,8 @@ typedef std::function<void (const UIComponent *, Transform)> ui_component_func_t
 
 enum UICircuitState {
     CS_IDLE = 0,
-    CS_DRAGGING
+    CS_DRAGGING,
+    CS_CREATING
 };
 
 struct UIComponent {
@@ -56,6 +57,8 @@ public:
     void draw();
 
     void move_component(UIComponent *comp, Point delta);
+    void move_component_abs(UIComponent *comp, Point pos);
+    void create_component(VisualComponent *vis_comp);
 
     class Circuit *circuit() {return m_circuit;}
 
@@ -89,7 +92,6 @@ public:
 public:
     static void register_materialize_func(ComponentType type, materialize_func_t func);
     static UICircuit::uptr_t create_circuit(Circuit *circuit);
-private:
     static void materialize_component(UICircuit *circuit, VisualComponent *visual_comp);
 
 private:
