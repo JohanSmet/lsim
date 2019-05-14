@@ -126,12 +126,16 @@ void UICircuit::draw() {
 		}
 
 		// draw border + icon
+		auto border_color = COLOR_COMPONENT_BORDER;
+
 		if (m_selected_comp == &comp) {
 			draw_list->AddRectFilled(comp_min, comp_max, COLOR_COMPONENT_SELECTED);
+			if (m_state == CS_DRAGGING) {
+				border_color = COLOR_COMPONENT_BORDER_DRAGGING;
+			}
 		}
 
-    	draw_list->AddRect(comp_min, comp_max, 
-						   (comp.m_state == UIS_DRAGGING) ? COLOR_COMPONENT_BORDER_DRAGGING : COLOR_COMPONENT_BORDER);
+    	draw_list->AddRect(comp_min, comp_max, border_color);
 
 		if (comp.m_icon) {
     		comp.m_icon->draw(to_window, comp_max - comp_min - Point(10,10), 
@@ -145,15 +149,12 @@ void UICircuit::draw() {
 
 		// dragging
 		if (ImGui::IsItemActive()) {
-			if (comp.m_state == UIS_IDLE) {
-				comp.m_state = UIS_DRAGGING;
+			if (m_state == CS_IDLE) {
+				m_state = CS_DRAGGING;
 				comp.m_drag_delta = {0, 0};
 			}
 			move_component(&comp, ImGui::GetIO().MouseDelta);
-		} else {
-			comp.m_state = UIS_IDLE;
 		}
-
 
 		ImGui::PopID();
 	}
@@ -186,6 +187,10 @@ void UICircuit::draw() {
 		if (m_scroll_delta.y > 0) { 
 			m_scroll_delta.y = 0;
 		}
+	}
+
+	if (m_state == CS_DRAGGING && !ImGui::IsMouseDragging(0, 0.0f)) {
+		m_state = CS_IDLE;
 	}
 }
 

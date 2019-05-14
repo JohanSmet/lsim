@@ -19,9 +19,9 @@ typedef uint32_t ComponentType;
 
 typedef std::function<void (const UIComponent *, Transform)> ui_component_func_t;
 
-enum UIComponentState {
-    UIS_IDLE = 0,
-    UIS_DRAGGING
+enum UICircuitState {
+    CS_IDLE = 0,
+    CS_DRAGGING
 };
 
 struct UIComponent {
@@ -29,7 +29,6 @@ struct UIComponent {
     std::string         m_tooltip;
     Transform           m_to_circuit;
     Point               m_half_size;
-    UIComponentState    m_state;
     Point               m_drag_delta;
     const ComponentIcon *m_icon;
     ui_component_func_t m_custom_ui_callback;
@@ -76,6 +75,7 @@ private:
     ui_component_container_t  m_ui_components;
     ui_connection_container_t m_ui_connections;
 
+    UICircuitState           m_state;
     UIComponent *            m_selected_comp;
 
     Point   m_scroll_delta;
