@@ -29,6 +29,12 @@ public:
 };
 
 float distance_squared(const Point &p1, const Point &p2);
+inline bool operator==(const Point &p1, const Point &p2) {
+    return p1.x == p2.x && p1.y == p2.y;
+}
+inline bool operator!=(const Point &p1, const Point &p2) {
+    return p1.x != p2.x || p1.y != p2.y;
+}
 
 class Transform {
 public:

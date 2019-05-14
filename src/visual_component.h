@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "basic.h"
+#include "algebra.h"
 
 class Circuit;
 
@@ -22,18 +23,17 @@ public:
         NORTH = 270
     };
 
-    typedef std::array<float, 2> point_t;
     typedef std::unique_ptr<VisualComponent> uptr_t;
 
 public:
     VisualComponent(Component *component);
     VisualComponent(Circuit *circuit);
     void set_orientation(Orientation orientation);
-    void set_position(point_t pos);
+    void set_position(Point pos);
 
     uint32_t get_type() const {return m_type;}
     Orientation get_orientation() const {return m_orientation;}
-    point_t get_position() const {return m_position;}
+    Point get_position() const {return m_position;}
     Component *get_component() const {return m_component;}
     Circuit *get_circuit() const {return m_circuit;}
 
@@ -42,7 +42,7 @@ public:
 private:    
     Type        m_type;
     Orientation m_orientation;
-    point_t     m_position;
+    Point       m_position;
     Component * m_component;
     Circuit *   m_circuit;
 };

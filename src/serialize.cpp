@@ -188,8 +188,8 @@ private:
         auto comp_node = result->second;
 
         auto pos_node = comp_node.append_child(XML_EL_POSITION);
-        pos_node.append_attribute(XML_ATTR_X).set_value(vis_comp->get_position()[0]);
-        pos_node.append_attribute(XML_ATTR_Y).set_value(vis_comp->get_position()[1]);
+        pos_node.append_attribute(XML_ATTR_X).set_value(vis_comp->get_position().x);
+        pos_node.append_attribute(XML_ATTR_Y).set_value(vis_comp->get_position().y);
 
        auto orient_node = comp_node.append_child(XML_EL_ORIENTATION);
        orient_node.append_attribute(XML_ATTR_ANGLE).set_value(vis_comp->get_orientation());

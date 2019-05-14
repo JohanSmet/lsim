@@ -6,7 +6,7 @@
 
 VisualComponent::VisualComponent(Component *component) :
     m_orientation(EAST),
-    m_position({0.0f, 0.0f}),
+    m_position(0.0f, 0.0f),
     m_component(component),
     m_circuit(nullptr) {
     m_type = component->type();
@@ -15,7 +15,7 @@ VisualComponent::VisualComponent(Component *component) :
 VisualComponent::VisualComponent(Circuit *circuit) :
     m_type(COMPONENT_SUB_CIRCUIT),
     m_orientation(EAST),
-    m_position({0.0f, 0.0f}),
+    m_position(0.0f, 0.0f),
     m_component(nullptr),
     m_circuit(circuit) {
 }
@@ -24,7 +24,7 @@ void VisualComponent::set_orientation(VisualComponent::Orientation orientation) 
     m_orientation = orientation;
 }
 
-void VisualComponent::set_position(VisualComponent::point_t pos) {
+void VisualComponent::set_position(Point pos) {
     m_position = pos;
 }
 

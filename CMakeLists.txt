@@ -29,6 +29,7 @@ find_package(OpenGL REQUIRED)
 set (LIB_TARGET lsim)
 
 set (LIB_SOURCES
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/algebra.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/basic.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.cpp"
@@ -43,6 +44,7 @@ set (LIB_SOURCES
 )
 
 set (LIB_HEADERS
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/algebra.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/basic.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.h"
@@ -86,7 +88,6 @@ set(APP_SOURCES
 	"src/gui/imgui/imgui_draw.cpp"
 	"src/gui/imgui/imgui_impl_sdl_gl3.cpp"
 	"src/gui/imgui/imgui.cpp"
-	"src/gui/algebra.cpp"
 	"src/gui/component_std.cpp"
 	"src/gui/component_ui.cpp"
 	"src/gui/imgui_ex.cpp"
@@ -103,7 +104,6 @@ set(APP_HEADERS
 	"src/gui/imgui/stb_rect_pack.h"
 	"src/gui/imgui/stb_textedit.h"
 	"src/gui/imgui/stb_truetype.h"
-	"src/gui/algebra.h"
 	"src/gui/component_std.h"
 	"src/gui/component_ui.h"
 	"src/gui/imgui_ex.h"
