@@ -29,11 +29,11 @@ void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit,
                       Component::pin_container_t pins_input,
                       Component::pin_container_t pins_output,
                       Component::pin_container_t pins_control,
-                      float min_width = 60, float min_height = 50) {
+                      float min_width = 60, float min_height = 60) {
 
     // size of component box depends on pin count
-    const float width = std::max(min_width, 15.0f * pins_control.size());
-    const float height = std::max(min_height, 15.0f * std::max(pins_input.size(), pins_output.size()));
+    const float width = std::max(min_width, 10.0f * pins_control.size());
+    const float height = std::max(min_height, 10.0f * std::max(pins_input.size(), pins_output.size()));
     const float h_width = width / 2.0f;
     const float h_height = height / 2.0f;
 
@@ -208,25 +208,25 @@ void component_register_basic() {
 
             // materialize the sub-circuit
             float width = 200;
-            float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 24 + 24;
+            float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 20 + 20;
 
             materialize_rectangle(ui_comp, ui_circuit, width, height);
             ui_circuit->add_pin_line(ui_comp->m_to_circuit, nested->input_ports_pins().data(), nested->num_input_ports(),
-                                     {-width/2.0f, -height/2.0f + 24}, {0.0f, 24.0f});
+                                     {-width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
             ui_circuit->add_pin_line(ui_comp->m_to_circuit, nested->output_ports_pins().data(), nested->num_output_ports(),
-                                     {width/2.0f, -height/2.0f + 24}, {0.0f, 24.0f});
+                                     {width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
 
             // custom draw function for pin labels
             ui_comp->m_custom_ui_callback = [=](const UIComponent *ui_comp, Transform to_window) {
-                auto cursor = to_window.apply(Point((-width / 2.0f) + 5, (-height / 2.0f) + 18));
-                auto delta = Point(0, 24);
+                auto cursor = to_window.apply(Point((-width / 2.0f) + 5, (-height / 2.0f) + 12));
+                auto delta = Point(0, 20);
             
                 for (size_t idx = 0; idx < nested->num_input_ports(); ++idx) {
                     ImGuiEx::TextLeftJustify(cursor, nested->input_port_name(idx));
                     cursor = cursor + delta;
                 }
 
-                cursor = to_window.apply(Point((width / 2.0f) - 5, (-height / 2.0f) + 18));
+                cursor = to_window.apply(Point((width / 2.0f) - 5, (-height / 2.0f) + 12));
                 for (size_t idx = 0; idx < nested->num_output_ports(); ++idx) {
                     ImGuiEx::TextRightJustify(cursor, nested->output_port_name(idx));
                     cursor = cursor + delta;
