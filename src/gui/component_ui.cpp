@@ -97,7 +97,7 @@ void UICircuit::draw() {
     Point offset = m_scroll_delta + screen_origin;			// translation from circuit space to screen space 
 
 	// position of nearest grid point to the mouse cursor
-	Point mouse_grid_point = Point(ImGui::GetMousePos()) - screen_origin;
+	Point mouse_grid_point = Point(ImGui::GetMousePos()) - offset;
 	mouse_grid_point.x = roundf(mouse_grid_point.x / GRID_SIZE) * GRID_SIZE;
 	mouse_grid_point.y = roundf(mouse_grid_point.y / GRID_SIZE) * GRID_SIZE;
 
