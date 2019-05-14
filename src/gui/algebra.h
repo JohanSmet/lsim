@@ -28,6 +28,8 @@ public:
     float y;
 };
 
+float distance_squared(const Point &p1, const Point &p2);
+
 class Transform {
 public:
     Transform();

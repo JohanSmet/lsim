@@ -54,6 +54,11 @@ Point Point::operator/(const Point &p) const {
     return Point(x / p.x, y / p.y);
 }
 
+float distance_squared(const Point &p1, const Point &p2) {
+    return ((p2.x - p1.x) * (p2.x - p1.x)) + 
+           ((p2.y - p1.y) * (p2.y - p1.y));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Transform

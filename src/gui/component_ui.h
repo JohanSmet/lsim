@@ -80,6 +80,7 @@ private:
 
     UICircuitState           m_state;
     UIComponent *            m_selected_comp;
+    pin_t                    m_selected_pin;
 
     Point   m_scroll_delta;
     bool    m_show_grid;

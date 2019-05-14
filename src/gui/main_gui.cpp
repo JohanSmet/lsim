@@ -40,6 +40,10 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 			deserialize_library(lsim_context, lsim_context->user_library(), circuit_file);
 		}
 
+		if (lsim_context->user_library()->num_circuits() <= 0) {
+			lsim_context->user_library()->create_circuit("main");
+		}
+
 		if (lsim_context->user_library()->main_circuit()) {
 			lsim_context->sim()->change_active_circuit(lsim_context->user_library()->main_circuit());
 			handle_main_circuit_changed(lsim_context->sim());
