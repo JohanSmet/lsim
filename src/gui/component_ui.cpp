@@ -313,6 +313,8 @@ void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent
 // ComponentIcon
 //
 
+ComponentIcon::icon_lut_t ComponentIcon::m_icon_cache;
+
 ComponentIcon::ComponentIcon(const char *data, size_t len) {
     std::vector<char> dummy(data, data + len);
 	auto img = nsvgParse(dummy.data(), "px", 96);
@@ -349,4 +351,22 @@ void ComponentIcon::draw(Transform transform, Point draw_size, ImDrawList *draw_
 	}
 }
 
+void ComponentIcon::draw(Point origin, Point draw_size, ImDrawList *draw_list, size_t line_width, uint32_t color) const {
+	Transform transform;
+	transform.translate(origin);
+	draw(transform, draw_size, draw_list, line_width, color);
+}
 
+ComponentIcon *ComponentIcon::cache(uint32_t id, const char *data, size_t len) {
+	m_icon_cache[id] = std::make_unique<ComponentIcon>(data, len);
+	return cached(id);
+}
+
+ComponentIcon *ComponentIcon::cached(uint32_t id) {
+	auto result = m_icon_cache.find(id);
+	if (result == m_icon_cache.end()) {
+		return nullptr;
+	} else {
+		return result->second.get();
+	}
+}
