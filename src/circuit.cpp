@@ -232,3 +232,8 @@ VisualComponent *Circuit::create_visual_component(Circuit *circuit) {
     m_visual_components.push_back(std::make_unique<VisualComponent>(circuit));
     return m_visual_components.back().get();
 }
+
+Wire *Circuit::create_wire(size_t num_points, Point *points) {
+    m_wires.push_back(std::make_unique<Wire>(points, num_points));
+    return m_wires.back().get();
+}

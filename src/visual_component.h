@@ -3,6 +3,7 @@
 #ifndef LSIM_VISUAL_COMPONENT_H
 #define LSIM_VISUAL_COMPONENT_H
 
+#include <vector>
 #include <array>
 #include <memory>
 
@@ -47,6 +48,21 @@ private:
     Circuit *   m_circuit;
 };
 
+class Wire {
+public:
+    typedef std::array<Point, 2> segment_t;
+    typedef std::vector<segment_t> segment_container_t;
+    typedef std::unique_ptr<Wire> uptr_t;
 
+public:
+    Wire(Point *anchors, size_t num_anchors);
+
+    size_t num_segments() const {return m_segments.size();}
+    const segment_container_t &segments() const {return m_segments;}
+
+private:
+    segment_container_t   m_segments;
+
+};
 
 #endif // LSIM_VISUAL_COMPONENT_H

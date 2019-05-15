@@ -25,6 +25,8 @@ typedef uint64_t sim_timestamp_t;
 class Circuit {
 public:
     typedef std::unique_ptr<Circuit> uptr_t;
+
+    typedef std::vector<Wire::uptr_t>   wire_container_t;
 public:
     Circuit(Simulator *sim, const char *name);
 
@@ -71,6 +73,9 @@ public:
     VisualComponent *create_visual_component(Circuit *circuit);
     visual_component_container_t &visual_components() {return m_visual_components;}
 
+    Wire *create_wire(size_t num_points, Point *points);
+    const wire_container_t &wires() const {return m_wires;}
+
 private:
     struct port_t {
         std::string m_name;
@@ -104,6 +109,7 @@ private:
     component_name_lut_t            m_component_name_lut;
 
     visual_component_container_t    m_visual_components;
+    wire_container_t                m_wires;
 };
 
 #endif // LSIM_CIRCUIT_H

@@ -22,7 +22,8 @@ typedef std::function<void (const UIComponent *, Transform)> ui_component_func_t
 enum UICircuitState {
     CS_IDLE = 0,
     CS_DRAGGING,
-    CS_CREATING
+    CS_CREATE_COMPONENT,
+    CS_CREATE_WIRE
 };
 
 struct UIComponent {
@@ -70,6 +71,7 @@ private:
     typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
     typedef std::vector<UIComponent>            ui_component_container_t;
     typedef std::vector<UIConnection>           ui_connection_container_t;
+    typedef std::vector<Point>                  point_container_t;
 
 private:
     class Circuit *          m_circuit;
@@ -81,6 +83,10 @@ private:
     UICircuitState           m_state;
     UIComponent *            m_selected_comp;
     pin_t                    m_selected_pin;
+
+    pin_t               m_line_origin;
+    point_container_t   m_line_anchors;
+    Point               m_segment_start;
 
     Point   m_scroll_delta;
     bool    m_show_grid;

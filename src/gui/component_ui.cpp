@@ -157,11 +157,12 @@ void UICircuit::draw() {
 		}
 
 		// dragging
-		if (ImGui::IsItemActive()) {
-			if (m_state == CS_IDLE) {
-				m_state = CS_DRAGGING;
-				comp.m_drag_delta = {0, 0};
-			}
+		if (ImGui::IsItemActive() && m_state == CS_IDLE && m_selected_pin == PIN_UNDEFINED) {
+			m_state = CS_DRAGGING;
+			comp.m_drag_delta = {0, 0};
+		}
+
+		if (m_state == CS_DRAGGING && m_selected_comp == &comp) {
 			move_component(&comp, ImGui::GetIO().MouseDelta);
 		}
 
@@ -182,7 +183,7 @@ void UICircuit::draw() {
 	}
 
 	// connections
-	for (const auto &conn : m_ui_connections) {
+	/*for (const auto &conn : m_ui_connections) {
 		Point p0 = endpoint_position(conn.m_pin_a) + offset;
 		Point p1 = endpoint_position(conn.m_pin_b) + offset;
 		Point dp = {(p1.x - p0.x) * 0.25f, 0.0f};
@@ -191,6 +192,36 @@ void UICircuit::draw() {
 			COLOR_CONNECTION[m_circuit->sim()->read_node(conn.m_node)], 
 			2.0f
 		);
+	} */
+
+	// draw wires
+	for (const auto &wire : m_circuit->wires()) {
+		for (const auto &segment : wire->segments()) {
+			draw_list->AddLine(segment[0] + offset, segment[1] + offset, COLOR_CONNECTION_TRUE, 2);
+			draw_list->AddCircle(segment[0] + offset, 5, COLOR_CONNECTION_ERROR);
+			draw_list->AddCircle(segment[1] + offset, 5, COLOR_CONNECTION_ERROR);
+		}
+	}
+
+	if (m_state == CS_CREATE_WIRE) {
+		// snap to diagonal (45 degree) / vertical / horizontal
+		auto delta = mouse_grid_point - m_segment_start;
+		auto abs_delta = Point(fabs(delta.x), fabs(delta.y));
+		if (abs_delta.x > 0 && abs_delta.y > 0 && abs(abs_delta.y - abs_delta.x) < 10) {
+			m_line_anchors.back() = m_segment_start + Point(delta.x, abs_delta.x * ((delta.y < 0) ? -1.0f : 1.0f));
+		} else if (abs_delta.y > abs_delta.x) {
+			m_line_anchors.back() = {m_segment_start.x, mouse_grid_point.y};
+		} else {
+			m_line_anchors.back() = {mouse_grid_point.x, m_segment_start.y};
+		}
+
+		Point p0 = endpoint_position(m_line_origin) + offset;
+
+		for (const auto &anchor : m_line_anchors) {
+			Point p1 = anchor + offset;
+			draw_list->AddLine(p0, p1, IM_COL32(0, 0, 255, 255), 4);
+			p0 = p1;
+		}
 	}
 
 	draw_list->ChannelsMerge();
@@ -212,15 +243,46 @@ void UICircuit::draw() {
 	}
 
 	// snap component to mouse cursor when creating
-	if (m_state == CS_CREATING && m_selected_comp != nullptr) {
+	if (m_state == CS_CREATE_COMPONENT && m_selected_comp != nullptr) {
 		move_component_abs(m_selected_comp, mouse_grid_point);
 	}
 
 	// clicking left mouse button while creating ends create state
-	if (m_state == CS_CREATING && ImGui::IsMouseClicked(0)) {
+	if (m_state == CS_CREATE_COMPONENT && ImGui::IsMouseClicked(0)) {
 		m_state = CS_IDLE;
 	}
 
+	// clicking on a pin (endpoints) activates to CREATE_WIRE mode
+	if (m_state == CS_IDLE && m_selected_pin != PIN_UNDEFINED && ImGui::IsMouseClicked(0)) {
+		m_state = CS_CREATE_WIRE;
+		m_line_origin = m_selected_pin;
+		m_segment_start = endpoint_position(m_line_origin);
+		m_line_anchors = {m_segment_start};
+	}
+
+	// right-clicking aborts CREATE_WIRE mode
+	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(1)) {
+		m_state = CS_IDLE;
+	}
+
+	// clicking while in CREATE_WIRE mode
+	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(0)) {
+		if (m_selected_pin != PIN_UNDEFINED && m_selected_pin != m_line_origin) {
+			// create wire when another endpoint was clicked
+			m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
+			m_state = CS_IDLE;
+		} else {
+			// add anchor when clicking in the empty circuit
+			m_segment_start = m_line_anchors.back();
+			m_line_anchors.push_back(m_segment_start);
+		}
+	}
+
+	// double-clicking while in CREATE_WIRE mode
+	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseDoubleClicked(0)) {
+		m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
+		m_state = CS_IDLE;
+	}
 }
 
 void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
@@ -281,7 +343,7 @@ void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
 void UICircuit::create_component(VisualComponent *vis_comp) {
 	UICircuitBuilder::materialize_component(this, vis_comp);
 
-	m_state = CS_CREATING;
+	m_state = CS_CREATE_COMPONENT;
 	m_selected_comp = &m_ui_components.back();
 }
 
