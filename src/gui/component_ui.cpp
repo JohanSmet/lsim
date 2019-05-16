@@ -197,9 +197,9 @@ void UICircuit::draw() {
 	// draw wires
 	for (const auto &wire : m_circuit->wires()) {
 		for (const auto &segment : wire->segments()) {
-			draw_list->AddLine(segment[0] + offset, segment[1] + offset, COLOR_CONNECTION_TRUE, 2);
-			draw_list->AddCircle(segment[0] + offset, 5, COLOR_CONNECTION_ERROR);
-			draw_list->AddCircle(segment[1] + offset, 5, COLOR_CONNECTION_ERROR);
+			draw_list->AddLine(segment[0] + offset, segment[1] + offset, 
+							   COLOR_CONNECTION[m_circuit->sim()->read_node(wire->node())], 
+							   2.0f);
 		}
 	}
 
@@ -269,7 +269,9 @@ void UICircuit::draw() {
 	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(0)) {
 		if (m_selected_pin != PIN_UNDEFINED && m_selected_pin != m_line_origin) {
 			// create wire when another endpoint was clicked
-			m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
+			auto wire = m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
+			m_circuit->connect_pins(m_line_origin, m_selected_pin);
+			wire->set_node(m_circuit->sim()->pin_node(m_line_origin));
 			m_state = CS_IDLE;
 		} else {
 			// add anchor when clicking in the empty circuit
@@ -279,10 +281,11 @@ void UICircuit::draw() {
 	}
 
 	// double-clicking while in CREATE_WIRE mode
+	/* disabled for now because each wire needs to have a node associated with it
 	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseDoubleClicked(0)) {
 		m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
 		m_state = CS_IDLE;
-	}
+	}*/
 }
 
 void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
