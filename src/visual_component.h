@@ -56,9 +56,12 @@ public:
 
 public:
     Wire(Point *anchors, size_t num_anchors);
+    Wire();
 
     size_t num_segments() const {return m_segments.size();}
     const segment_container_t &segments() const {return m_segments;}
+
+    void add_segment(const Point &p0, const Point &p1);
 
 private:
     segment_container_t   m_segments;

@@ -74,6 +74,7 @@ public:
     visual_component_container_t &visual_components() {return m_visual_components;}
 
     Wire *create_wire(size_t num_points, Point *points);
+    Wire *create_wire();
     const wire_container_t &wires() const {return m_wires;}
 
 private:

@@ -38,6 +38,10 @@ Component::pin_container_t VisualComponent::pins() const {
     }
 }
 
+Wire::Wire() {
+
+}
+
 Wire::Wire(Point *anchors, size_t num_anchors) {
     assert(num_anchors > 1);
 
@@ -58,4 +62,8 @@ Wire::Wire(Point *anchors, size_t num_anchors) {
         }
         p0 = p1;
     }
+}
+
+void Wire::add_segment(const Point &p0, const Point &p1) {
+    m_segments.push_back({p0, p1});
 }

@@ -237,3 +237,8 @@ Wire *Circuit::create_wire(size_t num_points, Point *points) {
     m_wires.push_back(std::make_unique<Wire>(points, num_points));
     return m_wires.back().get();
 }
+
+Wire *Circuit::create_wire() {
+    m_wires.push_back(std::make_unique<Wire>());
+    return m_wires.back().get();
+}

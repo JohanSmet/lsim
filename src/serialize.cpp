@@ -24,6 +24,8 @@ static const char *XML_EL_PROPERTY = "property";
 static const char *XML_EL_POSITION = "position";
 static const char *XML_EL_ORIENTATION = "orientation";
 static const char *XML_EL_MAIN = "main";
+static const char *XML_EL_WIRE = "wire";
+static const char *XML_EL_SEGMENT = "segment";
 
 static const char *XML_ATTR_VERSION = "version";
 static const char *XML_ATTR_NAME = "name";
@@ -35,6 +37,10 @@ static const char *XML_ATTR_KEY = "key";
 static const char *XML_ATTR_VALUE = "value";
 static const char *XML_ATTR_X = "x";
 static const char *XML_ATTR_Y = "y";
+static const char *XML_ATTR_X1 = "x1";
+static const char *XML_ATTR_Y1 = "y1";
+static const char *XML_ATTR_X2 = "x2";
+static const char *XML_ATTR_Y2 = "y2";
 static const char *XML_ATTR_ANGLE = "angle";
 static const char *XML_ATTR_INSTANCE = "instance";
 
@@ -195,6 +201,18 @@ private:
        orient_node.append_attribute(XML_ATTR_ANGLE).set_value(vis_comp->get_orientation());
     }
 
+    void serialize_wire(Wire *wire, pugi::xml_node *circuit_node) {
+        auto wire_node = circuit_node->append_child(XML_EL_WIRE);
+
+        for (auto const &segment : wire->segments()) {
+            auto segment_node = wire_node.append_child(XML_EL_SEGMENT);
+            segment_node.append_attribute(XML_ATTR_X1).set_value(segment[0].x);
+            segment_node.append_attribute(XML_ATTR_Y1).set_value(segment[0].y);
+            segment_node.append_attribute(XML_ATTR_X2).set_value(segment[1].x);
+            segment_node.append_attribute(XML_ATTR_Y2).set_value(segment[1].y);
+        }
+    }
+
     void serialize_circuit(Circuit *circuit) {
         auto circuit_node = m_root.append_child(XML_EL_CIRCUIT);
         circuit_node.append_attribute(XML_ATTR_NAME).set_value(circuit->name());
@@ -214,6 +232,10 @@ private:
             serialize_visual_component(vis_comp.get());
         }
 
+        // wires
+        for (const auto &wire : circuit->wires()) {
+            serialize_wire(wire.get(), &circuit_node);
+        }
     }
 
 private:
@@ -437,6 +459,21 @@ public:
         return true;
     }
 
+    bool parse_wire(pugi::xml_node wire_node, Circuit *circuit) {
+        Wire *wire = circuit->create_wire();
+
+        for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {
+            REQUIRED_ATTR(x1_attr, segment_node, XML_ATTR_X1);
+            REQUIRED_ATTR(y1_attr, segment_node, XML_ATTR_Y1);
+            REQUIRED_ATTR(x2_attr, segment_node, XML_ATTR_X2);
+            REQUIRED_ATTR(y2_attr, segment_node, XML_ATTR_Y2);
+
+            wire->add_segment(Point(x1_attr.as_float(), y1_attr.as_float()),
+                              Point(x2_attr.as_float(), y2_attr.as_float()));
+        }
+        return true;
+    }
+
     bool parse_circuit(pugi::xml_node &circuit_node) {
         const char *name = circuit_node.attribute(XML_ATTR_NAME).as_string();
         if (!name) {
@@ -450,6 +487,10 @@ public:
 
         for (auto comp_node : circuit_node.children(XML_EL_COMPONENT)) {
             parse_component(comp_node, circuit);
+        }
+
+        for (auto wire_node : circuit_node.children(XML_EL_WIRE)) {
+            parse_wire(wire_node, circuit);
         }
 
         return true;
