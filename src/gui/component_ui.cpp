@@ -14,23 +14,64 @@ namespace {
 
 static const float GRID_SIZE = 10.0f;
 
-static void compute_comp_aabb(Transform to_window, Point h_size, Point *min, Point *max) {
-	assert(min);
-	assert(max);
+} // unnamed namespace
 
-	*min = to_window.apply({-h_size.x, -h_size.y});
-	*max = to_window.apply({h_size.x, h_size.y});
+///////////////////////////////////////////////////////////////////////////////
+//
+// UIComponent
+//
 
-	if (max->x < min->x) {
-        std::swap(min->x, max->x);
+UIComponent::UIComponent(VisualComponent *vis_comp) :
+		m_visual_comp(vis_comp),
+		m_tooltip(""),
+		m_half_size(0.0f, 0.0f),
+		m_icon(nullptr),
+		m_custom_ui_callback(nullptr) {
+	build_transform();
+}
+
+void UIComponent::change_tooltip(const char *tooltip) {
+	m_tooltip = tooltip;
+}
+
+void UIComponent::change_icon(const ComponentIcon *icon) {
+	m_icon = icon;
+}
+
+void UIComponent::build_transform() {
+	m_to_circuit.reset();
+	m_to_circuit.rotate(m_visual_comp->get_orientation());
+	m_to_circuit.translate(m_visual_comp->get_position());
+	recompute_aabb();
+}
+
+void UIComponent::change_size(float width, float height) {
+	m_half_size = {width / 2.0f, height / 2.0f};
+	recompute_aabb();
+}
+
+void UIComponent::recompute_aabb() {
+	m_aabb_min = m_to_circuit.apply({-m_half_size.x, -m_half_size.y});
+	m_aabb_max = m_to_circuit.apply({m_half_size.x, m_half_size.y});
+
+	if (m_aabb_max.x < m_aabb_min.x) {
+        std::swap(m_aabb_min.x, m_aabb_max.x);
 	}
 
-	if (max->y < min->y) {
-        std::swap(min->y, max->y);
+	if (m_aabb_max.y < m_aabb_min.y) {
+        std::swap(m_aabb_min.y, m_aabb_max.y);
 	}
 }
 
-} // unnamed namespace
+void UIComponent::set_custom_ui_callback(ui_component_func_t func) {
+	m_custom_ui_callback = func;
+}
+
+void UIComponent::call_custom_ui_callback(Transform transform) {
+	if (m_custom_ui_callback) {
+		m_custom_ui_callback(this, transform);
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -42,6 +83,7 @@ UICircuit::UICircuit(Circuit *circuit) :
 			m_name(circuit->name()),
 			m_show_grid(true),
 			m_scroll_delta(0,0),
+			m_state(CS_IDLE),
 			m_selected_comp(nullptr) {
 
 }
@@ -104,7 +146,7 @@ void UICircuit::draw() {
 
 	// left mousebutton clicked : reset component selection
 	//	if click was inside a component it will be reselectd in the component loop
-	if (ImGui::IsMouseClicked(0)) {
+	if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered()) {
 		m_selected_comp = nullptr;
 	}
 
@@ -113,41 +155,39 @@ void UICircuit::draw() {
 
 		ImGui::PushID(&comp);
 
-		Transform to_window = comp.m_to_circuit;
+		Transform to_window = comp.to_circuit();
 		to_window.translate(offset);
 
-		Point comp_min, comp_max;
-		compute_comp_aabb(to_window, comp.m_half_size, &comp_min, &comp_max);
-
-		if (comp.m_custom_ui_callback) {
-			ImGui::SetCursorScreenPos(comp_min);
+		if (comp.has_custom_ui_callback()) {
+			ImGui::SetCursorScreenPos(comp.aabb_min() + offset);
 			draw_list->ChannelsSetCurrent(1);
-			comp.m_custom_ui_callback(&comp, to_window);
+			comp.call_custom_ui_callback(to_window);
 		}
 
 		draw_list->ChannelsSetCurrent(0);         // background
-		ImGui::SetCursorScreenPos(comp_min);
-		ImGui::InvisibleButton("node", comp_max - comp_min);
+		ImGui::SetCursorScreenPos(comp.aabb_min() + offset);
+		ImGui::InvisibleButton("node", comp.aabb_size());
 
 		// tooltip
-		if (!comp.m_tooltip.empty() && ImGui::IsItemHovered()) {
-			ImGui::SetTooltip(comp.m_tooltip.c_str());
+		if (comp.has_tooltip() && ImGui::IsItemHovered()) {
+			ImGui::SetTooltip(comp.tooltip());
 		}
 
 		// draw border + icon
 		auto border_color = COLOR_COMPONENT_BORDER;
 
 		if (m_selected_comp == &comp) {
-			draw_list->AddRectFilled(comp_min, comp_max, COLOR_COMPONENT_SELECTED);
+			draw_list->AddRectFilled(comp.aabb_min() + offset, comp.aabb_max() + offset, 
+									 COLOR_COMPONENT_SELECTED);
 			if (m_state == CS_DRAGGING) {
 				border_color = COLOR_COMPONENT_BORDER_DRAGGING;
 			}
 		}
 
-    	draw_list->AddRect(comp_min, comp_max, border_color);
+    	draw_list->AddRect(comp.aabb_min() + offset, comp.aabb_max() + offset, border_color);
 
-		if (comp.m_icon) {
-    		comp.m_icon->draw(to_window, comp_max - comp_min - Point(10,10), 
+		if (comp.icon()) {
+    		comp.icon()->draw(to_window, comp.aabb_size() - Point(10,10), 
 							  draw_list, 2, COLOR_COMPONENT_ICON);
 		}
 
@@ -159,7 +199,7 @@ void UICircuit::draw() {
 		// dragging
 		if (ImGui::IsItemActive() && m_state == CS_IDLE && m_selected_pin == PIN_UNDEFINED) {
 			m_state = CS_DRAGGING;
-			comp.m_drag_delta = {0, 0};
+			m_drag_delta = {0, 0};
 		}
 
 		if (m_state == CS_DRAGGING && m_selected_comp == &comp) {
@@ -290,18 +330,18 @@ void UICircuit::draw() {
 
 void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
 	
-	ui_comp->m_drag_delta = ui_comp->m_drag_delta + delta;
-	Point cur_pos = ui_comp->m_visual_comp->get_position();
-	Point new_pos = cur_pos + ui_comp->m_drag_delta;
+	m_drag_delta = m_drag_delta + delta;
+	Point cur_pos = ui_comp->visual_comp()->get_position();
+	Point new_pos = cur_pos + m_drag_delta;
 
 	// snap to grid
-	if (ui_comp->m_drag_delta.x > 0) {
+	if (m_drag_delta.x > 0) {
 		new_pos.x = floorf(new_pos.x / GRID_SIZE) * GRID_SIZE;
 	} else {
 		new_pos.x = ceilf(new_pos.x / GRID_SIZE) * GRID_SIZE;
 	}
 
-	if (ui_comp->m_drag_delta.y > 0) {
+	if (m_drag_delta.y > 0) {
 		new_pos.y = floorf(new_pos.y / GRID_SIZE) * GRID_SIZE;
 	} else {
 		new_pos.y = ceilf(new_pos.y / GRID_SIZE) * GRID_SIZE;
@@ -309,37 +349,37 @@ void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
 
 	Point dist = new_pos - cur_pos;
 
-	ui_comp->m_to_circuit.translate(dist);
 
-	for (const auto &pin : ui_comp->m_visual_comp->pins()) {
+	for (const auto &pin : ui_comp->visual_comp()->pins()) {
 		auto &pos = m_endpoints[pin];
 		pos = pos + dist;
 	}
 
-	ui_comp->m_visual_comp->set_position({new_pos.x, new_pos.y});
+	ui_comp->visual_comp()->set_position({new_pos.x, new_pos.y});
+	ui_comp->build_transform();
 
 	if (dist.x != 0.0f) {
-		ui_comp->m_drag_delta.x = 0;
+		m_drag_delta.x = 0;
 	}
 
 	if (dist.y != 0.0f) {
-		ui_comp->m_drag_delta.y = 0;
+		m_drag_delta.y = 0;
 	}
 }
 
 void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
 
-	Point cur_pos = ui_comp->m_visual_comp->get_position();
+	Point cur_pos = ui_comp->visual_comp()->get_position();
 
 	Point dist = new_pos - cur_pos;
-	ui_comp->m_to_circuit.translate(dist);
 
-	for (const auto &pin : ui_comp->m_visual_comp->pins()) {
+	for (const auto &pin : ui_comp->visual_comp()->pins()) {
 		auto &pos = m_endpoints[pin];
 		pos = pos + dist;
 	}
 
-	ui_comp->m_visual_comp->set_position({new_pos.x, new_pos.y});
+	ui_comp->visual_comp()->set_position({new_pos.x, new_pos.y});
+	ui_comp->build_transform();
 }
 
 
@@ -400,8 +440,7 @@ UICircuit::uptr_t UICircuitBuilder::create_circuit(Circuit *circuit) {
 void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent *visual_comp) {
 	auto mat_func = m_materialize_funcs.find(visual_comp->get_type());
 	if (mat_func != m_materialize_funcs.end()) {
-		UIComponent comp = {0};
-		comp.m_visual_comp = visual_comp;
+		UIComponent comp(visual_comp);
 		mat_func->second(visual_comp->get_component(), &comp, circuit);
 		circuit->add_component(comp);
 	}

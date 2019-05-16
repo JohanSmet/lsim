@@ -26,12 +26,38 @@ enum UICircuitState {
     CS_CREATE_WIRE
 };
 
-struct UIComponent {
+class UIComponent {
+public:
+    UIComponent(VisualComponent *vis_comp);
+
+    VisualComponent *visual_comp() const {return m_visual_comp;}
+    bool has_tooltip() const {return !m_tooltip.empty();}
+    const char *tooltip() const {return m_tooltip.c_str();}
+    const ComponentIcon *icon() const {return m_icon;}
+    const Transform &to_circuit() const {return m_to_circuit;}
+    const Point &aabb_min() const {return m_aabb_min;}
+    const Point &aabb_max() const {return m_aabb_max;}
+    Point aabb_size() const {return m_aabb_max - m_aabb_min;}
+
+    void change_tooltip(const char *tooltip);
+    void change_icon(const ComponentIcon *icon);
+    void change_size(float width, float height);
+    void build_transform();
+
+    void set_custom_ui_callback(ui_component_func_t func);
+    bool has_custom_ui_callback() const {return m_custom_ui_callback != nullptr;}
+    void call_custom_ui_callback(Transform transform);
+
+private:
+    void recompute_aabb();
+
+private:
     VisualComponent *   m_visual_comp;
     std::string         m_tooltip;
     Transform           m_to_circuit;
     Point               m_half_size;
-    Point               m_drag_delta;
+    Point               m_aabb_min;
+    Point               m_aabb_max;
     const ComponentIcon *m_icon;
     ui_component_func_t m_custom_ui_callback;
 };
@@ -63,6 +89,8 @@ public:
 
     class Circuit *circuit() {return m_circuit;}
 
+    UIComponent *selected_component() const {return m_selected_comp;}
+
 private:
     Point endpoint_position(uint32_t pin);
     void draw_grid(ImDrawList *draw_list);
@@ -83,6 +111,8 @@ private:
     UICircuitState           m_state;
     UIComponent *            m_selected_comp;
     pin_t                    m_selected_pin;
+
+    Point               m_drag_delta;
 
     pin_t               m_line_origin;
     point_container_t   m_line_anchors;
