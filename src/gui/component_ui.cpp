@@ -73,6 +73,37 @@ void UIComponent::call_custom_ui_callback(Transform transform) {
 	}
 }
 
+void UIComponent::add_endpoint(uint32_t pin, Point location) {
+	m_endpoints[pin] = location;
+}
+
+void UIComponent::add_pin_line(const uint32_t *pins, size_t pin_count, float size, Point origin, Point inc) {
+	if (pin_count == 0) {
+		return;
+	}
+
+    float segment_len = size / (pin_count + 1);
+    Point pos = origin + (inc * segment_len);
+
+    for (size_t i = 0; i < pin_count; ++i) {
+        add_endpoint(pins[i], pos);
+        pos = pos + (inc * segment_len);
+	}
+}
+
+void UIComponent::add_pin_line(const uint32_t *pins, size_t pin_count, Point origin, Point delta) {
+	if (pin_count == 0) {
+		return;
+	}
+
+	Point pos = origin;
+    for (size_t i = 0; i < pin_count; ++i) {
+        add_endpoint(pins[i], pos);
+		pos = pos + delta;
+	}
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // UICircuit
@@ -92,36 +123,6 @@ void UICircuit::add_component(const UIComponent &comp) {
 	m_ui_components.push_back(comp);
 }
 
-void UICircuit::add_endpoint(uint32_t pin, Point location) {
-	m_endpoints[pin] = location;
-}
-
-void UICircuit::add_pin_line(Transform to_circuit, const uint32_t *pins, size_t pin_count, float size, Point origin, Point inc) {
-	if (pin_count == 0) {
-		return;
-	}
-
-    float segment_len = size / (pin_count + 1);
-    Point pos = origin + (inc * segment_len);
-
-    for (size_t i = 0; i < pin_count; ++i) {
-        add_endpoint(pins[i], to_circuit.apply(pos));
-        pos = pos + (inc * segment_len);
-	}
-}
-
-void UICircuit::add_pin_line(Transform to_circuit, const uint32_t *pins, size_t pin_count, Point origin, Point delta) {
-	if (pin_count == 0) {
-		return;
-	}
-
-	Point pos = origin;
-    for (size_t i = 0; i < pin_count; ++i) {
-        add_endpoint(pins[i], to_circuit.apply(pos));
-		pos = pos + delta;
-	}
-}
-
 void UICircuit::add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2) {
 	m_ui_connections.push_back({node, pin_1, pin_2});
 }
@@ -137,12 +138,12 @@ void UICircuit::draw() {
 
 	Point screen_origin = ImGui::GetCursorScreenPos();			// upper-left corner of the window in screen space
     Point offset = m_scroll_delta + screen_origin;				// translation from circuit space to screen space 
-	Point mouse_pos = Point(ImGui::GetMousePos()) - offset;		// position of mouse pointer in circuit space
+	Point mouse_pos_screen = ImGui::GetMousePos();
+	Point mouse_pos = mouse_pos_screen - offset;				// position of mouse pointer in circuit space
 	Point mouse_grid_point = { 									// position of nearest grid point to the mouse cursor
 		roundf(mouse_pos.x / GRID_SIZE) * GRID_SIZE,
 		roundf(mouse_pos.y / GRID_SIZE) * GRID_SIZE
 	};
-
 
 	// left mousebutton clicked : reset component selection
 	//	if click was inside a component it will be reselectd in the component loop
@@ -151,17 +152,19 @@ void UICircuit::draw() {
 	}
 
 	// components
+	m_selected_pin = PIN_UNDEFINED;
+
 	for (auto &comp : m_ui_components) {
 
 		ImGui::PushID(&comp);
 
-		Transform to_window = comp.to_circuit();
-		to_window.translate(offset);
+		Transform to_screen = comp.to_circuit();
+		to_screen.translate(offset);
 
 		if (comp.has_custom_ui_callback()) {
 			ImGui::SetCursorScreenPos(comp.aabb_min() + offset);
 			draw_list->ChannelsSetCurrent(1);
-			comp.call_custom_ui_callback(to_window);
+			comp.call_custom_ui_callback(to_screen);
 		}
 
 		draw_list->ChannelsSetCurrent(0);         // background
@@ -187,7 +190,7 @@ void UICircuit::draw() {
     	draw_list->AddRect(comp.aabb_min() + offset, comp.aabb_max() + offset, border_color);
 
 		if (comp.icon()) {
-    		comp.icon()->draw(to_window, comp.aabb_size() - Point(10,10), 
+    		comp.icon()->draw(to_screen, comp.aabb_size() - Point(10,10), 
 							  draw_list, 2, COLOR_COMPONENT_ICON);
 		}
 
@@ -206,20 +209,20 @@ void UICircuit::draw() {
 			move_component(&comp, ImGui::GetIO().MouseDelta);
 		}
 
+		// end points
+		for (const auto &pair : comp.endpoints()) {
+			auto endpoint_screen = to_screen.apply(pair.second);
+			draw_list->AddCircleFilled(endpoint_screen, 3, COLOR_ENDPOINT);
+
+			if (distance_squared(endpoint_screen, mouse_pos_screen) <= 16) {
+				draw_list->AddCircle(endpoint_screen, 8, COLOR_ENDPOINT_HOVER, 12, 2);
+				m_selected_pin = pair.first;
+				m_segment_start = endpoint_screen - offset;
+			}
+		}
+
 
 		ImGui::PopID();
-	}
-
-	// pins
-	m_selected_pin = PIN_UNDEFINED;
-
-	for (const auto &pair : m_endpoints) {
-		draw_list->AddCircleFilled(pair.second + offset, 3, COLOR_ENDPOINT);
-
-		if (distance_squared(pair.second, mouse_pos) <= 16) {
-			draw_list->AddCircle(pair.second + offset, 8, COLOR_ENDPOINT_HOVER, 12, 2);
-			m_selected_pin = pair.first;
-		}
 	}
 
 	// connections
@@ -255,7 +258,8 @@ void UICircuit::draw() {
 			m_line_anchors.back() = {mouse_grid_point.x, m_segment_start.y};
 		}
 
-		Point p0 = endpoint_position(m_line_origin) + offset;
+		// Point p0 = endpoint_position(m_line_origin) + offset;
+		Point p0 = m_line_anchors.front() + offset;
 
 		for (const auto &anchor : m_line_anchors) {
 			Point p1 = anchor + offset;
@@ -296,8 +300,7 @@ void UICircuit::draw() {
 	if (m_state == CS_IDLE && m_selected_pin != PIN_UNDEFINED && ImGui::IsMouseClicked(0)) {
 		m_state = CS_CREATE_WIRE;
 		m_line_origin = m_selected_pin;
-		m_segment_start = endpoint_position(m_line_origin);
-		m_line_anchors = {m_segment_start};
+		m_line_anchors = {m_segment_start, m_segment_start};
 	}
 
 	// right-clicking aborts CREATE_WIRE mode
@@ -349,12 +352,6 @@ void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
 
 	Point dist = new_pos - cur_pos;
 
-
-	for (const auto &pin : ui_comp->visual_comp()->pins()) {
-		auto &pos = m_endpoints[pin];
-		pos = pos + dist;
-	}
-
 	ui_comp->visual_comp()->set_position({new_pos.x, new_pos.y});
 	ui_comp->build_transform();
 
@@ -369,15 +366,6 @@ void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
 
 void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
 
-	Point cur_pos = ui_comp->visual_comp()->get_position();
-
-	Point dist = new_pos - cur_pos;
-
-	for (const auto &pin : ui_comp->visual_comp()->pins()) {
-		auto &pos = m_endpoints[pin];
-		pos = pos + dist;
-	}
-
 	ui_comp->visual_comp()->set_position({new_pos.x, new_pos.y});
 	ui_comp->build_transform();
 }
@@ -388,15 +376,6 @@ void UICircuit::create_component(VisualComponent *vis_comp) {
 
 	m_state = CS_CREATE_COMPONENT;
 	m_selected_comp = &m_ui_components.back();
-}
-
-Point UICircuit::endpoint_position(uint32_t pin) {
-	auto res = m_endpoints.find(pin);
-	if (res != m_endpoints.end()) {
-		return res->second;
-	} else {
-		return {0, 0};
-	}
 }
 
 void UICircuit::draw_grid(ImDrawList *draw_list) {

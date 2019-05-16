@@ -30,12 +30,12 @@ void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit,
     ui_comp->change_size(width, height);
 
     // pins
-    ui_circuit->add_pin_line(ui_comp->to_circuit(), pins_input.data(), pins_input.size(), 
-                             height, {-h_width, -h_height}, {0, 1});
-    ui_circuit->add_pin_line(ui_comp->to_circuit(), pins_output.data(), pins_output.size(), 
-                             height, {h_width, -h_height}, {0, 1});
-    ui_circuit->add_pin_line(ui_comp->to_circuit(), pins_control.data(), pins_control.size(), 
-                             width, {-h_width, -h_height}, {1, 0});
+    ui_comp->add_pin_line(pins_input.data(), pins_input.size(), 
+                          height, {-h_width, -h_height}, {0, 1});
+    ui_comp->add_pin_line(pins_output.data(), pins_output.size(), 
+                          height, {h_width, -h_height}, {0, 1});
+    ui_comp->add_pin_line(pins_control.data(), pins_control.size(), 
+                          width, {-h_width, -h_height}, {1, 0});
 }
 
 const char *connector_data_label(Value value) {
@@ -61,9 +61,9 @@ void component_register_basic() {
             const float width = 26;
             const float height = comp->num_pins() * 24;
             ui_comp->change_size(width, height);
-            ui_circuit->add_pin_line(ui_comp->to_circuit(), comp->pins().data(), comp->num_pins(), 
-                                     {0.5f * width, -height * 0.5f + 12},
-                                     {0, 24});
+            ui_comp->add_pin_line(comp->pins().data(), comp->num_pins(), 
+                                  {0.5f * width, -height * 0.5f + 12},
+                                  {0, 24});
 
             // custor draw function
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
@@ -121,9 +121,9 @@ void component_register_basic() {
             const float width = 26;
             const float height = comp->num_pins() * 24;
             ui_comp->change_size(width, height);
-            ui_circuit->add_pin_line(ui_comp->to_circuit(), comp->pins().data(), comp->num_pins(), 
-                                     {-0.5f * width, -height * 0.5f + 12},
-                                     {0, 24});
+            ui_comp->add_pin_line(comp->pins().data(), comp->num_pins(), 
+                                  {-0.5f * width, -height * 0.5f + 12},
+                                  {0, 24});
 
             // custor draw function
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
@@ -175,8 +175,8 @@ void component_register_basic() {
             const float width = 26;
             const float height = 26;
             ui_comp->change_size(width, height);
-            ui_circuit->add_pin_line(ui_comp->to_circuit(), comp->pins().data(), comp->num_pins(), 
-                                     {0.5f * width, -height * 0.5f + 12}, {0, 24});
+            ui_comp->add_pin_line(comp->pins().data(), comp->num_pins(), 
+                                  {0.5f * width, -height * 0.5f + 12}, {0, 24});
 
             // custor draw function
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
@@ -201,10 +201,10 @@ void component_register_basic() {
             float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 20 + 20;
 
             ui_comp->change_size(width, height);
-            ui_circuit->add_pin_line(ui_comp->to_circuit(), nested->input_ports_pins().data(), nested->num_input_ports(),
-                                     {-width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
-            ui_circuit->add_pin_line(ui_comp->to_circuit(), nested->output_ports_pins().data(), nested->num_output_ports(),
-                                     {width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
+            ui_comp->add_pin_line(nested->input_ports_pins().data(), nested->num_input_ports(),
+                                  {-width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
+            ui_comp->add_pin_line(nested->output_ports_pins().data(), nested->num_output_ports(),
+                                  {width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
 
             // custom draw function for pin labels
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
@@ -237,8 +237,8 @@ void component_register_extra() {
             const float width = 26;
             const float height = 26;
             ui_comp->change_size(width, height);
-            ui_circuit->add_pin_line(ui_comp->to_circuit(), comp->pins().data(), comp->num_pins(), 
-                                     {0.5f * width, -height * 0.5f + 12}, {0, 24});
+            ui_comp->add_pin_line(comp->pins().data(), comp->num_pins(), 
+                                  {0.5f * width, -height * 0.5f + 12}, {0, 24});
 
             // custor draw function
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {

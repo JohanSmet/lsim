@@ -28,6 +28,9 @@ enum UICircuitState {
 
 class UIComponent {
 public:
+    typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
+
+public:
     UIComponent(VisualComponent *vis_comp);
 
     VisualComponent *visual_comp() const {return m_visual_comp;}
@@ -48,6 +51,13 @@ public:
     bool has_custom_ui_callback() const {return m_custom_ui_callback != nullptr;}
     void call_custom_ui_callback(Transform transform);
 
+    void add_endpoint(uint32_t pin, Point location); 
+    void add_pin_line(const uint32_t *pins, size_t pin_count, float size, Point origin, Point inc); 
+    void add_pin_line(const uint32_t *pins, size_t pin_count, Point origin, Point delta);
+
+    const endpoint_map_t &endpoints() const {return m_endpoints;}
+
+
 private:
     void recompute_aabb();
 
@@ -60,6 +70,8 @@ private:
     Point               m_aabb_max;
     const ComponentIcon *m_icon;
     ui_component_func_t m_custom_ui_callback;
+
+    endpoint_map_t      m_endpoints;
 };
 
 struct UIConnection {
@@ -76,9 +88,6 @@ public:
     UICircuit(class Circuit *circuit);
 
     void add_component(const UIComponent &comp);
-    void add_endpoint(uint32_t pin, Point location);
-    void add_pin_line(Transform to_circuit, const uint32_t *pins, size_t pin_count, float size, Point origin, Point inc);
-    void add_pin_line(Transform to_circuit, const uint32_t *pins, size_t pin_count, Point origin, Point delta);
     void add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2);
 
     void draw();
@@ -92,11 +101,9 @@ public:
     UIComponent *selected_component() const {return m_selected_comp;}
 
 private:
-    Point endpoint_position(uint32_t pin);
     void draw_grid(ImDrawList *draw_list);
 
 private:
-    typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
     typedef std::vector<UIComponent>            ui_component_container_t;
     typedef std::vector<UIConnection>           ui_connection_container_t;
     typedef std::vector<Point>                  point_container_t;
@@ -104,7 +111,6 @@ private:
 private:
     class Circuit *          m_circuit;
     std::string              m_name;
-    endpoint_map_t           m_endpoints;
     ui_component_container_t  m_ui_components;
     ui_connection_container_t m_ui_connections;
 
