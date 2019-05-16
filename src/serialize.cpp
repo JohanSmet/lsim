@@ -203,6 +203,7 @@ private:
 
     void serialize_wire(Wire *wire, pugi::xml_node *circuit_node) {
         auto wire_node = circuit_node->append_child(XML_EL_WIRE);
+        wire_node.append_attribute(XML_ATTR_NODE).set_value(wire->node());
 
         for (auto const &segment : wire->segments()) {
             auto segment_node = wire_node.append_child(XML_EL_SEGMENT);
@@ -460,7 +461,10 @@ public:
     }
 
     bool parse_wire(pugi::xml_node wire_node, Circuit *circuit) {
+        REQUIRED_ATTR(node_attr, wire_node, XML_ATTR_NODE);
+
         Wire *wire = circuit->create_wire();
+        wire->set_node(node_attr.as_int());
 
         for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {
             REQUIRED_ATTR(x1_attr, segment_node, XML_ATTR_X1);

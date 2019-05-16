@@ -62,9 +62,13 @@ public:
     const segment_container_t &segments() const {return m_segments;}
 
     void add_segment(const Point &p0, const Point &p1);
+    
+    void set_node(node_t node) {m_node = node;};
+    node_t node() const {return m_node;}
 
 private:
     segment_container_t   m_segments;
+    node_t                m_node;
 
 };
 
