@@ -123,7 +123,7 @@ void main_gui(LSimContext *lsim_context)
 	add_component_button(COMPONENT_TRISTATE_BUFFER, "TriState Buffer", [](Circuit *circuit) {return TriStateBuffer(circuit, 1);});
 	ImGui::Text("Various");
 	add_component_button(COMPONENT_CONNECTOR_IN, "Input", [](Circuit *circuit) {return ConnectorInput(circuit, "in", 1);});
-	add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](Circuit *circuit) {return ConnectorInput(circuit, "out", 1);});
+	add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](Circuit *circuit) {return ConnectorOutput(circuit, "out", 1);});
 	add_component_button(COMPONENT_CONSTANT, "Constant", [](Circuit *circuit) {return Constant(circuit, VALUE_TRUE);});
 	add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](Circuit *circuit) {return PullResistor(circuit, VALUE_TRUE);});
 	ImGui::EndChild();
