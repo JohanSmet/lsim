@@ -129,6 +129,7 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::EndChild();
 	ImGui::SameLine();
 
+
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
 
 	if (ui_circuit) {
@@ -137,5 +138,93 @@ void main_gui(LSimContext *lsim_context)
 
 	ImGui::EndChild();
 
+	ImGui::End();
+
+	/////////////////////////////////////////////////////////////////////////////////
+	//
+	// property window
+	//
+
+	ImGui::SetNextWindowSize(ImVec2(250,100), ImGuiSetCond_FirstUseEver);
+	ImGui::Begin("Properties");
+	auto sel_ui_comp = ui_circuit->selected_component();
+	if (sel_ui_comp) {
+		auto visual_comp = sel_ui_comp->visual_comp();
+		auto component = visual_comp->get_component();
+
+		// helper functions
+		auto text_property = [](const char *caption, Property *property) {
+			std::string value = property->value_as_string();
+			std::vector<char> buffer(value.begin(), value.end());
+			buffer.resize(256);
+
+			if (ImGui::InputText(caption, buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+				property->value(buffer.data());
+			}
+		};
+
+		auto boolean_property = [](const char *caption, Property *property) {
+			bool value = property->value_as_boolean();
+			if (ImGui::Checkbox(caption, &value)) {
+				property->value(value);
+			}
+		};
+
+		auto value_property = [](const char *caption, Property *property) -> Value {
+			int cur_value = property->value_as_integer();
+			const char *value_labels[] = {"False", "True", "Undefined", "Error"};
+			if (ImGui::Combo(caption, &cur_value, value_labels, 4)) {
+				property->value(static_cast<int64_t>(cur_value));
+			}
+			return static_cast<Value>(cur_value);
+		};
+
+		// orientation - present for all components
+		int cur_orientation = visual_comp->get_orientation() / 90;
+		const char *orientations[] = {"East", "South", "West", "North"};
+		if (ImGui::Combo("Orientation", &cur_orientation, orientations, sizeof(orientations) / sizeof(orientations[0]))) {
+			visual_comp->set_orientation(static_cast<VisualComponent::Orientation>(cur_orientation * 90));
+			sel_ui_comp->build_transform();
+		}
+
+		// component specific fields
+		if (component->type() == COMPONENT_CONNECTOR_IN || component->type() == COMPONENT_CONNECTOR_OUT) {
+			text_property("Name", component->property("name"));
+			boolean_property("TriState", component->property("tri_state"));
+
+			int data_bits = component->num_pins();
+			if (ImGui::InputInt("Data Bits", &data_bits)) {
+				// rematerialize
+			}
+		}
+
+		if (component->type() == COMPONENT_CONSTANT) {
+			auto new_value = value_property("Value", component->property("value"));
+			component->write_pin(0, new_value);
+		}
+
+		if (component->type() == COMPONENT_PULL_RESISTOR) {
+			auto new_value = value_property("Value", component->property("pull_to"));
+			component->write_pin(0, new_value);
+		}
+
+		if (component->type() == COMPONENT_BUFFER || component->type() == COMPONENT_TRISTATE_BUFFER) {
+			int data_bits = component->num_input_pins();
+
+			if (ImGui::InputInt("Data Bits", &data_bits)) {
+				// XXX rematerialize
+			}
+		}
+
+		if (component->type() == COMPONENT_AND_GATE ||
+		    component->type() == COMPONENT_OR_GATE ||
+			component->type() == COMPONENT_NAND_GATE ||
+			component->type() == COMPONENT_NOR_GATE) {
+			int num_inputs = component->num_input_pins();
+			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
+				// XXX rematerialize
+			}
+		}
+	}
 	ImGui::End();
 }
