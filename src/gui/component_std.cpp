@@ -185,7 +185,7 @@ void component_register_basic() {
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
                     COLOR_CONNECTION[val]);
-                ImGuiEx::TextCentered(screen_pos + Point(13, 5), connector_data_label(val));
+                ImGuiEx::Text(screen_pos + Point(13, 5), connector_data_label(val), ImGuiEx::TAH_CENTER);
             });
         }
     );
@@ -212,18 +212,18 @@ void component_register_basic() {
                 auto delta = Point(0, 20);
             
                 for (size_t idx = 0; idx < nested->num_input_ports(); ++idx) {
-                    ImGuiEx::TextLeftJustify(cursor, nested->input_port_name(idx));
+                    ImGuiEx::Text(cursor, nested->input_port_name(idx));
                     cursor = cursor + delta;
                 }
 
                 cursor = to_window.apply(Point((width / 2.0f) - 5, (-height / 2.0f) + 12));
                 for (size_t idx = 0; idx < nested->num_output_ports(); ++idx) {
-                    ImGuiEx::TextRightJustify(cursor, nested->output_port_name(idx));
+                    ImGuiEx::Text(cursor, nested->output_port_name(idx), ImGuiEx::TAH_RIGHT);
                     cursor = cursor + delta;
                 }
 
                 cursor = to_window.apply(Point(0, (height / 2.0f) - 18));
-                ImGuiEx::TextCentered(cursor, nested->name());
+                ImGuiEx::Text(cursor, nested->name(), ImGuiEx::TAH_CENTER);
             });
         }
     ); 
@@ -248,7 +248,7 @@ void component_register_extra() {
                     screen_origin + to_window.apply_to_vector({3, 3}),
                     screen_origin + to_window.apply_to_vector({22, 22}),
                     COLOR_CONNECTION[val]);
-                ImGuiEx::TextCentered(screen_origin + to_window.apply_to_vector({13, 5}), connector_data_label(val));
+                ImGuiEx::Text(screen_origin + to_window.apply_to_vector({13, 5}), connector_data_label(val), ImGuiEx::TAH_CENTER);
             });
         }
     );

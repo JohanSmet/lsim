@@ -6,28 +6,26 @@
 
 namespace ImGuiEx {
 
-void Text(ImVec2 at, TextJustify justify, const char *text) {
-    switch(justify) {
-        case LEFT: TextLeftJustify(at, text); break;
-        case RIGHT: TextRightJustify(at, text); break;
-        case CENTER: TextCentered(at, text); break;
+void Text(ImVec2 at, const char *text, TextAlignHor align_hor, TextAlignVer align_ver) {
+    auto pos = at;
+
+    if (align_hor != TAH_LEFT || align_ver != TAV_TOP) {
+        auto size = ImGui::CalcTextSize(text);
+
+        if (align_hor == TAH_RIGHT) {
+            pos.x -= size.x;
+        } else if (align_hor == TAH_CENTER) {
+            pos.x -= size.x / 2.0f;
+        }
+
+        if (align_ver == TAV_BOTTOM) {
+            pos.y -= size.y;
+        } else  if (align_ver == TAV_CENTER) {
+            pos.y -= size.y / 2.0f;
+        }
     }
-}
 
-void TextLeftJustify(ImVec2 at, const char *text) {
-    ImGui::SetCursorScreenPos(ImVec2(at.x, at.y));
-    ImGui::Text(text);
-}
-
-void TextRightJustify(ImVec2 at, const char *text) {
-    auto size = ImGui::CalcTextSize(text);
-    ImGui::SetCursorScreenPos(ImVec2(at.x - size.x, at.y));
-    ImGui::Text(text);
-}
-
-void TextCentered(ImVec2 at, const char *text) {
-    auto size = ImGui::CalcTextSize(text);
-    ImGui::SetCursorScreenPos(ImVec2(at.x - size.x / 2, at.y));
+    ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y));
     ImGui::Text(text);
 }
 
