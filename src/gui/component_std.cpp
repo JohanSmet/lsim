@@ -220,23 +220,26 @@ void component_register_basic() {
 void component_register_extra() {
 
     // Pull Resistor
+    auto icon_pull_resistor = ComponentIcon::cache(COMPONENT_PULL_RESISTOR, SHAPE_PULL_RESISTOR, sizeof(SHAPE_PULL_RESISTOR));
     UICircuitBuilder::register_materialize_func(
         COMPONENT_PULL_RESISTOR, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
-            const float width = 26;
-            const float height = 26;
+            const float width = 40;
+            const float height = 20;
             ui_comp->change_size(width, height);
             ui_comp->add_pin_line(comp->pins().data(), comp->num_pins(), 
-                                  {0.5f * width, -height * 0.5f + 12}, {0, 24});
+                                  {0.5f * width, 0}, {0, 20});
 
             // custor draw function
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
+                // icon in right half
+                auto icon_pos = to_window.apply(Point(width * 0.25f, 0.0f));
+                icon_pull_resistor->draw(icon_pos, Point(16,16), ImGui::GetWindowDrawList(), 1, COLOR_COMPONENT_BORDER);
+
+                // constant visualisation in left half
                 auto val = comp->read_value(comp->output_pin_index(0));
-                auto screen_origin = to_window.apply(Point(-width / 2.0f, -height / 2.0f));
-                ImGuiEx::RectFilled(
-                    screen_origin + to_window.apply_to_vector({3, 3}),
-                    screen_origin + to_window.apply_to_vector({22, 22}),
-                    COLOR_CONNECTION[val]);
-                ImGuiEx::Text(screen_origin + to_window.apply_to_vector({13, 5}), connector_data_label(val), ImGuiEx::TAH_CENTER);
+                auto label_pos = to_window.apply(Point(-width * 0.25f, 0.0f));
+                ImGuiEx::RectFilled(label_pos - Point(8,8), label_pos + Point(8,8), COLOR_CONNECTION[val]);
+                ImGuiEx::Text(label_pos, connector_data_label(val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
             });
         }
     );
