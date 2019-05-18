@@ -75,11 +75,6 @@ constexpr const char SHAPE_XNOR_GATE[] = R"(FILE
 </svg>
 FILE)";
 
-constexpr const char SHAPE_PIN_GATE[] = R"(FILE 
-<svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
-     <path d="m 14.728443,32 c 0,8.971258 -13.4568864,8.971258 -13.4568864,0 0,-8.971258 13.4568864,-8.971258 13.4568864,0 z"/>
-     <path d="m 11.364222,32 c 0,4.485629 -6.7284436,4.485629 -6.7284436,0 0,-4.485629 6.7284436,-4.485629 6.7284436,0 z"/>
-</svg>
 constexpr const char SHAPE_PULL_RESISTOR[] = R"(FILE 
 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="30">
     <path d="m 0,14.931234 h 15 l 2.5,-14.78789886 5,29.57579886 5,-29.57579886 5,29.57579886 5,-29.57579886 5,29.57579886 2.5,-14.7879 h 15"/>
