@@ -42,6 +42,10 @@ void Circuit::add_ports(const std::string &name, Component *connector) {
                           - m_components.begin();
     auto &ports = (connector->type() == COMPONENT_CONNECTOR_IN) ? m_input_ports : m_output_ports;
 
+    // remove any ports that were created for the connector earlier
+    std::remove_if(ports.begin(), ports.end(), [=](const auto &port) {return port.m_component_index == comp_idx;});
+
+    // create new ports
     if (connector->num_pins() == 1) {
         port_t port = {name, comp_idx, 0};
         ports.push_back(port);
