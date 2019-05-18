@@ -161,20 +161,19 @@ void component_register_basic() {
     // constant
     UICircuitBuilder::register_materialize_func(
         COMPONENT_CONSTANT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
-            const float width = 26;
-            const float height = 26;
+            const float width = 20;
+            const float height = 20;
             ui_comp->change_size(width, height);
             ui_comp->add_pin_line(comp->pins().data(), comp->num_pins(), 
-                                  {0.5f * width, -height * 0.5f + 12}, {0, 24});
+                                  {0.5f * width, (-height * 0.5f) + (height * 0.5f)}, 
+                                  {0, height});
 
-            // custor draw function
+            // custom draw function
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
                 auto val = comp->read_value(comp->output_pin_index(0));
-                auto screen_pos = to_window.apply(Point(-width / 2.0f, -height / 2.0f));
-                ImGui::GetWindowDrawList()->AddRectFilled(
-                    {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
-                    COLOR_CONNECTION[val]);
-                ImGuiEx::Text(screen_pos + Point(13, 5), connector_data_label(val), ImGuiEx::TAH_CENTER);
+                auto center_pos = to_window.apply(Point(0.0f, 0.0f));
+                ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[val]);
+                ImGuiEx::Text(center_pos, connector_data_label(val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
             });
         }
     );
