@@ -194,7 +194,14 @@ void main_gui(LSimContext *lsim_context)
 
 			int data_bits = component->num_pins();
 			if (ImGui::InputInt("Data Bits", &data_bits)) {
-				// rematerialize
+				if (component->type() == COMPONENT_CONNECTOR_IN) {
+					component->change_output_pins(data_bits);
+				} else {
+					component->change_input_pins(data_bits);
+				}
+				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
+				ui_circuit->circuit()->add_ports(component->property_value("name",""), component);
+				ui_circuit->circuit()->initialize_input_ports();
 			}
 		}
 
@@ -212,7 +219,12 @@ void main_gui(LSimContext *lsim_context)
 			int data_bits = component->num_input_pins();
 
 			if (ImGui::InputInt("Data Bits", &data_bits)) {
-				// XXX rematerialize
+				if (data_bits <= 0) {
+					data_bits = 1;
+				}
+				component->change_input_pins(data_bits);
+				component->change_output_pins(data_bits);
+				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
 			}
 		}
 
@@ -222,7 +234,8 @@ void main_gui(LSimContext *lsim_context)
 			component->type() == COMPONENT_NOR_GATE) {
 			int num_inputs = component->num_input_pins();
 			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
-				// XXX rematerialize
+				component->change_input_pins(num_inputs);
+				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
 			}
 		}
 	}

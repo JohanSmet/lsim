@@ -57,6 +57,8 @@ public:
 
     const endpoint_map_t &endpoints() const {return m_endpoints;}
 
+    void dematerialize();
+
 
 private:
     void recompute_aabb();
@@ -136,6 +138,7 @@ public:
     static void register_materialize_func(ComponentType type, materialize_func_t func);
     static UICircuit::uptr_t create_circuit(Circuit *circuit);
     static void materialize_component(UICircuit *circuit, VisualComponent *visual_comp);
+    static void rematerialize_component(UICircuit *circuit, UIComponent *ui_component);
 
 private:
     typedef std::unordered_map<ComponentType, materialize_func_t> materialize_func_map_t;

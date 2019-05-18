@@ -103,6 +103,10 @@ void UIComponent::add_pin_line(const uint32_t *pins, size_t pin_count, Point ori
 	}
 }
 
+void UIComponent::dematerialize() {
+	m_endpoints.clear();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -425,7 +429,7 @@ void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent
 	}
 
 	// connections
-	typedef std::unordered_map<node_t, pin_t> node_origin_container_t;
+/*	typedef std::unordered_map<node_t, pin_t> node_origin_container_t;
 	static node_origin_container_t node_origin_pins;
 
 	auto *sim = circuit->circuit()->sim();
@@ -444,9 +448,22 @@ void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent
 		} else {
 			node_origin_pins[node] = pin;
 		}
+	}
+*/
+}
 
+void UICircuitBuilder::rematerialize_component(UICircuit *circuit, UIComponent *ui_component) {
+	assert(circuit);
+	assert(ui_component);
+
+	ui_component->dematerialize();
+
+	auto mat_func = m_materialize_funcs.find(ui_component->visual_comp()->get_type());
+	if (mat_func != m_materialize_funcs.end()) {
+		mat_func->second(ui_component->visual_comp()->get_component(), ui_component, circuit);
 	}
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
