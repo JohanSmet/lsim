@@ -58,55 +58,51 @@ void component_register_basic() {
         COMPONENT_CONNECTOR_IN, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->change_tooltip("Input");
 
-            const float width = 26;
-            const float height = comp->num_pins() * 24;
-            ui_comp->change_size(width, height);
+            const float width = 20;
+            const float height = 20;
+            const float full_height = comp->num_pins() * height;
+            ui_comp->change_size(width, full_height);
             ui_comp->add_pin_line(comp->pins().data(), comp->num_pins(), 
-                                  {0.5f * width, -height * 0.5f + 12},
-                                  {0, 24});
+                                  {0.5f * width, (-full_height * 0.5f) + (height * 0.5f)},
+                                  {0, height});
 
-            // custor draw function
+            // custom draw function
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
 
                 bool is_tristate = comp->property_value("tri_state", false);
-                auto origin = Point(-width / 2.0f, -height / 2.0f);
-
-                // hack to get ImGui::Button to display at the right position
+                auto origin = Point(-width * 0.5f, -full_height * 0.5f);
                 auto orient = ui_comp->visual_comp()->get_orientation();
-                Point button_offset = 
-                    (orient == VisualComponent::WEST) ? Point(18, 18) : 
-                    (orient == VisualComponent::NORTH) ? Point(0, 18) :
-                    (orient == VisualComponent::SOUTH) ? Point(18, 0) :
-                    Point(0, 0);
 
                 ImGui::BeginGroup();
                 ImGui::PushID(comp);
                 for (size_t i = 0; i < comp->num_pins(); ++ i) {
-                    ImGui::PushID(i);
                     auto cur_val = comp->read_value(comp->output_pin_index(i)); 
-                    auto screen_pos = to_window.apply(Point(origin.x + 4, origin.y + (i * 24) + 2));
-                    ImGui::SetCursorScreenPos(screen_pos - button_offset);
+                    auto center_pos = to_window.apply(Point(0, (-full_height * 0.5f) + ((i + 0.5f) * height)));
+                    ImGui::SetCursorScreenPos(center_pos - Point(8,8));
 
-                    if (ImGui::Button(connector_data_label(cur_val), {18,18})) {
+                    if (ImGui::InvisibleButton(connector_data_label(cur_val), {16,16})) {
                         comp->write_pin(comp->output_pin_index(i), 
                                         static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2)));
                     }
+
+                    ImGui::PushID(i);
+                    ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);
+                    ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     ImGui::PopID();
                 }
                 ImGui::PopID();
 
                 // label for connector
-                Point anchor = to_window.apply(Point(origin.x - 5, origin.y + (height / 2.0f) - 4));
-                ImGuiEx::TextJustify justify = ImGuiEx::CENTER;
-                if (orient == VisualComponent::EAST) {
-                    justify = ImGuiEx::RIGHT;
-                } else if (orient == VisualComponent::WEST) {
-                    justify = ImGuiEx::LEFT;
-                } else if (orient == VisualComponent::SOUTH) {
-                    anchor.y -= 10;
-                }
+                Point anchor = to_window.apply(Point(origin.x - 5, origin.y + (full_height / 2.0f)));
 
-                ImGuiEx::Text(anchor, justify, comp->property_value("name","").c_str());
+                static const std::pair<ImGuiEx::TextAlignHor, ImGuiEx::TextAlignVer> label_align[] = {
+                    {ImGuiEx::TAH_RIGHT,    ImGuiEx::TAV_CENTER},   // East
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_BOTTOM},   // South
+                    {ImGuiEx::TAH_LEFT,     ImGuiEx::TAV_CENTER},   // West
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_TOP}       // North
+                };
+
+                ImGuiEx::Text(anchor, comp->property_value("name","").c_str(), label_align[orient / 90].first, label_align[orient / 90].second);
 
                 ImGui::EndGroup();
             });
@@ -118,50 +114,43 @@ void component_register_basic() {
         COMPONENT_CONNECTOR_OUT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->change_tooltip("Output");
 
-            const float width = 26;
-            const float height = comp->num_pins() * 24;
-            ui_comp->change_size(width, height);
+            const float width = 20;
+            const float height = 20;
+            const float full_height = comp->num_pins() * height;
+            ui_comp->change_size(width, full_height);
             ui_comp->add_pin_line(comp->pins().data(), comp->num_pins(), 
-                                  {-0.5f * width, -height * 0.5f + 12},
-                                  {0, 24});
+                                  {-0.5f * width, -full_height * 0.5f + (height * 0.5f)},
+                                  {0, height});
 
-            // custor draw function
+            // custom draw function
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
 
-                auto origin = Point(-width / 2.0f, -height / 2.0f);
+                auto origin = Point(-width * 0.5f, -full_height * 0.5f);
                 auto orient = ui_comp->visual_comp()->get_orientation();
 
                 ImGui::BeginGroup();
                 ImGui::PushID(comp);
                 for (size_t i = 0; i < comp->num_pins(); ++ i) {
-                    ImGui::PushID(i);
                     auto cur_val = comp->read_pin(comp->input_pin_index(i));
-                    auto screen_pos = to_window.apply(Point(origin.x, origin.y + (i * 24)));
+                    auto center_pos = to_window.apply(Point(origin.x + (width * 0.5f), origin.y + (i * 20.0f) + (height * 0.5f)));
 
-                    ImGui::GetWindowDrawList()->AddRectFilled(
-                        {screen_pos.x + 3, screen_pos.y + 3}, {screen_pos.x + 22, screen_pos.y + 22},
-                        COLOR_CONNECTION[cur_val]);
-                    ImGuiEx::TextCentered(screen_pos + Point(width / 2, 5), connector_data_label(cur_val));
-
+                    ImGui::PushID(i);
+                    ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);
+                    ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     ImGui::PopID();
                 }
                 ImGui::PopID();
 
                 // label for connector
-                Point anchor = to_window.apply(Point(
-                    origin.x + width + 5,
-                    origin.y + (height / 2.0f) - 4
-                ));
-                ImGuiEx::TextJustify justify = ImGuiEx::CENTER;
-                if (orient == VisualComponent::EAST) {
-                    justify = ImGuiEx::LEFT;
-                } else if (orient == VisualComponent::WEST) {
-                    justify = ImGuiEx::RIGHT;
-                } else if (orient == VisualComponent::SOUTH) {
-                    anchor.y -= 10;
-                }
+                Point anchor = to_window.apply(origin + Point(width + 5, (full_height / 2.0f)));
 
-                ImGuiEx::Text(anchor, justify, comp->property_value("name", "").c_str());
+                static const std::pair<ImGuiEx::TextAlignHor, ImGuiEx::TextAlignVer> label_align[] = {
+                    {ImGuiEx::TAH_LEFT,     ImGuiEx::TAV_CENTER},   // East
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_TOP},      // South
+                    {ImGuiEx::TAH_RIGHT,    ImGuiEx::TAV_CENTER},   // West
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_BOTTOM}    // North
+                };
+                ImGuiEx::Text(anchor, comp->property_value("name", "").c_str(), label_align[orient / 90].first, label_align[orient / 90].second);
 
                 ImGui::EndGroup();
             });
