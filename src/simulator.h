@@ -24,6 +24,7 @@ public:
 
     // pins
     pin_t assign_pin(node_t connect_to_pin = PIN_UNDEFINED);
+    void release_pin(pin_t pin);
     void connect_pins(pin_t pin_a, pin_t pin_b);
 
     void write_pin(pin_t pin, Value value);
@@ -58,7 +59,6 @@ public:
     void run_until_stable(size_t stable_ticks);
 
 private:
-    //typedef std::vector<std::unique_ptr<Circuit>> circuit_container_t;
     typedef std::vector<Value> value_container_t;
     typedef std::vector<node_t> node_container_t;
     typedef std::vector<Component *> component_container_t;
@@ -72,7 +72,8 @@ private:
 
     Circuit *               m_active_circuit;
 
-    node_container_t        m_pin_nodes;
+    node_container_t            m_pin_nodes;
+    Component::pin_container_t  m_free_pins;
 
     node_container_t                    m_free_nodes;
     std::array<value_container_t,2>     m_node_values;

@@ -19,13 +19,39 @@ void Simulator::add_active_component(Component *comp) {
 }
 
 pin_t Simulator::assign_pin(node_t connect_to_pin) {
-    auto result = m_pin_nodes.size();
-    m_pin_nodes.push_back(NOT_CONNECTED);
+    auto result = PIN_UNDEFINED;
+
+    if (!m_free_pins.empty()) {
+        result = m_free_pins.back();
+        m_free_pins.pop_back();
+        m_pin_nodes[result] = NOT_CONNECTED;
+    } else {
+        result = m_pin_nodes.size();
+        m_pin_nodes.push_back(NOT_CONNECTED);
+    }
+
     if (connect_to_pin != PIN_UNDEFINED && connect_to_pin < m_pin_nodes.size()) {
         connect_pins(result, connect_to_pin);
     }
 
     return result;
+}
+
+void Simulator::release_pin(pin_t pin) {
+    assert(pin <= m_pin_nodes.size());
+
+    // disconnect pin
+    auto node = m_pin_nodes[pin];
+    m_pin_nodes[pin] = NOT_CONNECTED;
+
+    // store the pin for reuse
+    m_free_pins.push_back(pin);
+
+    // check if the node is still in use
+    auto connected = std::count(m_pin_nodes.begin(), m_pin_nodes.end(), node);
+    if (connected <= 0) {
+        release_node(node);
+    }
 }
 
 void Simulator::connect_pins(pin_t pin_a, pin_t pin_b) {

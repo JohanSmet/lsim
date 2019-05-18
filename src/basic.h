@@ -100,6 +100,9 @@ public:
     size_t output_pin_index(size_t index) const {return m_output_start + index;}
     size_t control_pin_index(size_t index) const {return m_control_start + index;}
 
+    void change_input_pins(size_t new_count);
+    void change_output_pins(size_t new_count);
+
     pin_t pin(uint32_t index) const;
     pin_t input_pin(uint32_t index) const;
     pin_t output_pin(uint32_t index) const;

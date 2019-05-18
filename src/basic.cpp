@@ -74,6 +74,56 @@ Component::uptr_t Component::clone() const {
     return cloned;
 }
 
+void Component::change_input_pins(size_t new_count) {
+    if (new_count == num_input_pins()) {
+        return;
+    }
+
+    if (new_count > num_input_pins()) {
+        auto num_extra = new_count - num_input_pins();
+        for (size_t idx = 0; idx < num_extra; ++idx) {
+            m_pins.insert(m_pins.begin() + m_output_start, m_sim->assign_pin());
+            m_values.insert(m_values.begin() + m_output_start, VALUE_UNDEFINED);
+        }
+        m_output_start += num_extra;
+        m_control_start += num_extra;
+    } else {
+        auto num_delete = num_input_pins() - new_count;
+        m_output_start -= num_delete;
+        m_control_start -= num_delete;
+        while (num_delete > 0) {
+            m_sim->release_pin(m_pins[m_output_start]);
+            m_pins.erase(m_pins.begin() + m_output_start);
+            m_values.erase(m_values.begin() + m_output_start);
+            num_delete -= 1;
+        }
+    }
+}
+
+void Component::change_output_pins(size_t new_count) {
+    if (new_count == num_output_pins()) {
+        return;
+    }
+
+    if (new_count > num_output_pins()) {
+        auto num_extra = new_count - num_output_pins();
+        for (size_t idx = 0; idx < num_extra; ++idx) {
+            m_pins.insert(m_pins.begin() + m_control_start, m_sim->assign_pin());
+            m_values.insert(m_values.begin() + m_control_start, VALUE_UNDEFINED);
+        } 
+        m_control_start += num_extra;
+    } else {
+        auto num_delete = num_output_pins() - new_count;
+        m_control_start -= num_delete;
+        while (num_delete > 0) {
+            m_sim->release_pin(m_pins[m_control_start]);
+            m_pins.erase(m_pins.begin() + m_control_start);
+            m_values.erase(m_values.begin() + m_control_start);
+            num_delete -= 1;
+        }
+    }
+}
+
 pin_t Component::pin(uint32_t index) const {
     assert(index < m_pins.size());
     return m_pins[index];
