@@ -54,6 +54,7 @@ const char *connector_data_label(Value value) {
 void component_register_basic() {
 
     // connector input
+    auto icon_connector_in = ComponentIcon::cache(COMPONENT_CONNECTOR_IN, SHAPE_CONNECTOR_IN, sizeof(SHAPE_CONNECTOR_IN));
     UICircuitBuilder::register_materialize_func(
         COMPONENT_CONNECTOR_IN, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->change_tooltip("Input");
@@ -110,6 +111,7 @@ void component_register_basic() {
     );
 
     // connector output
+    auto icon_connector_out = ComponentIcon::cache(COMPONENT_CONNECTOR_OUT, SHAPE_CONNECTOR_OUT, sizeof(SHAPE_CONNECTOR_OUT));
     UICircuitBuilder::register_materialize_func(
         COMPONENT_CONNECTOR_OUT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             ui_comp->change_tooltip("Output");
@@ -159,6 +161,7 @@ void component_register_basic() {
 
 
     // constant
+    auto icon_constant = ComponentIcon::cache(COMPONENT_CONSTANT, SHAPE_CONSTANT, sizeof(SHAPE_CONSTANT));
     UICircuitBuilder::register_materialize_func(
         COMPONENT_CONSTANT, [=](Component *comp, UIComponent *ui_comp, UICircuit *ui_circuit) {
             const float width = 20;
