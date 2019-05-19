@@ -15,9 +15,9 @@
 static UICircuit::uptr_t ui_circuit = nullptr;
 static std::string ui_filename = "";
 
-void handle_main_circuit_changed(Simulator *sim) {
-	auto active_circuit = sim->active_circuit();
-	if (active_circuit) {
+void change_active_circuit(Simulator *sim, Circuit *active_circuit) {
+	if (active_circuit && active_circuit != sim->active_circuit()) {
+		sim->change_active_circuit(active_circuit);
 		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
 		active_circuit->initialize_input_ports();
 	}
@@ -45,8 +45,7 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 		}
 
 		if (lsim_context->user_library()->main_circuit()) {
-			lsim_context->sim()->change_active_circuit(lsim_context->user_library()->main_circuit());
-			handle_main_circuit_changed(lsim_context->sim());
+			change_active_circuit(lsim_context->sim(), lsim_context->user_library()->main_circuit());
 		}
 	}
 }
@@ -71,7 +70,7 @@ void main_gui(LSimContext *lsim_context)
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Save")) {
-		serialize_library(lsim_context, lsim_context->user_library(), ui_filename.c_str());
+		serialize_library(lsim_context, lib, ui_filename.c_str());
 	}
 
 	if (sim_running) {
@@ -86,13 +85,24 @@ void main_gui(LSimContext *lsim_context)
 	//
 
 	if (ImGui::CollapsingHeader("Circuits", ImGuiTreeNodeFlags_DefaultOpen)) {
-		static size_t selected_circuit = (sim->active_circuit() == nullptr) ? -1 : lib->circuit_idx(sim->active_circuit());
+		if (ImGui::Button("Add")) {
+			auto circuit = lib->create_circuit((std::string("circuit#") + std::to_string(lib->num_circuits()+1)).c_str());
+			change_active_circuit(sim, circuit);
+		}
+		if (lib->num_circuits() > 1 && lib->main_circuit() != sim->active_circuit()) {
+			ImGui::SameLine();
+			if (ImGui::Button("Delete")) {
+				lib->delete_circuit(sim->active_circuit());
+				change_active_circuit(sim, lib->main_circuit());
+			}
+		}
+
+		size_t selected_circuit = (sim->active_circuit() == nullptr) ? -1 : lib->circuit_idx(sim->active_circuit());
 		for (size_t i = 0; i < lib->num_circuits(); ++i) {
 			auto circuit = lib->circuit_by_idx(i);
 			if (ImGui::Selectable(circuit->name().c_str(), selected_circuit == i)) {
 				selected_circuit = i;
-				sim->change_active_circuit(circuit);
-				handle_main_circuit_changed(sim);
+				change_active_circuit(sim, circuit);
 			}
 		}
 	}

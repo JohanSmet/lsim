@@ -26,6 +26,13 @@ Circuit *CircuitLibrary::create_circuit(const char *name) {
     return circuit;
 }
 
+void CircuitLibrary::delete_circuit(Circuit *circuit) {
+    assert (std::find_if(m_circuits.begin(), m_circuits.end(), [=](auto &o) {return o.get() == circuit;}) != m_circuits.end());
+    m_circuits.erase(std::remove_if(m_circuits.begin(), m_circuits.end(), [&circuit](auto &o) {
+        return o.get() == circuit;
+    }));
+}
+
 Circuit *CircuitLibrary::circuit_by_idx(size_t idx) const {
     assert(idx < num_circuits());
     return m_circuits[idx].get();
