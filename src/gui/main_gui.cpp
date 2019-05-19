@@ -79,16 +79,29 @@ void main_gui(LSimContext *lsim_context)
 	}
 
 	ImGui::BeginChild("left_pane", ImVec2(150, 0), true);
-	ImGui::Text("Circuits");
-	static size_t selected_circuit = (sim->active_circuit() == nullptr) ? -1 : lib->circuit_idx(sim->active_circuit());
-	for (size_t i = 0; i < lib->num_circuits(); ++i) {
-		auto circuit = lib->circuit_by_idx(i);
-		if (ImGui::Selectable(circuit->name().c_str(), selected_circuit == i)) {
-			selected_circuit = i;
-			sim->change_active_circuit(circuit);
-			handle_main_circuit_changed(sim);
+
+	/////////////////////////////////////////////////////////////////////////////////
+	//
+	// Circuit interaction (select / create / delete)
+	//
+
+	if (ImGui::CollapsingHeader("Circuits", ImGuiTreeNodeFlags_DefaultOpen)) {
+		static size_t selected_circuit = (sim->active_circuit() == nullptr) ? -1 : lib->circuit_idx(sim->active_circuit());
+		for (size_t i = 0; i < lib->num_circuits(); ++i) {
+			auto circuit = lib->circuit_by_idx(i);
+			if (ImGui::Selectable(circuit->name().c_str(), selected_circuit == i)) {
+				selected_circuit = i;
+				sim->change_active_circuit(circuit);
+				handle_main_circuit_changed(sim);
+			}
 		}
 	}
+
+	/////////////////////////////////////////////////////////////////////////////////
+	//
+	// Component creation
+	//
+
 	auto draw_list = ImGui::GetWindowDrawList();
 
 	auto create_component = [=](Component *component) {
@@ -111,22 +124,29 @@ void main_gui(LSimContext *lsim_context)
 		ImGui::SetCursorScreenPos(pos + Point(0,42));
 		ImGui::PopID();
 	};
-	ImGui::Text("Gates");
-	add_component_button(COMPONENT_AND_GATE, "AND", [](Circuit *circuit) {return AndGate(circuit, 2);});
-	add_component_button(COMPONENT_OR_GATE, "OR", [](Circuit *circuit) {return OrGate(circuit, 2);});
-	add_component_button(COMPONENT_NOT_GATE, "NOT", [](Circuit *circuit) {return NotGate(circuit);});
-	add_component_button(COMPONENT_NAND_GATE, "NAND", [](Circuit *circuit) {return NandGate(circuit, 2);});
-	add_component_button(COMPONENT_NOR_GATE, "NOR", [](Circuit *circuit) {return NorGate(circuit, 2);});
-	add_component_button(COMPONENT_XOR_GATE, "XOR", [](Circuit *circuit) {return XorGate(circuit);});
-	add_component_button(COMPONENT_XNOR_GATE, "XNOR", [](Circuit *circuit) {return XnorGate(circuit);});
-	add_component_button(COMPONENT_BUFFER, "Buffer", [](Circuit *circuit) {return Buffer(circuit, 1);});
-	add_component_button(COMPONENT_TRISTATE_BUFFER, "TriState Buffer", [](Circuit *circuit) {return TriStateBuffer(circuit, 1);});
-	ImGui::Text("Various");
-	add_component_button(COMPONENT_CONNECTOR_IN, "Input", [](Circuit *circuit) {return ConnectorInput(circuit, "in", 1);});
-	add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](Circuit *circuit) {return ConnectorOutput(circuit, "out", 1);});
-	add_component_button(COMPONENT_CONSTANT, "Constant", [](Circuit *circuit) {return Constant(circuit, VALUE_TRUE);});
-	add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](Circuit *circuit) {return PullResistor(circuit, VALUE_TRUE);});
-	ImGui::EndChild();
+
+	ImGui::Spacing();
+	if (ImGui::CollapsingHeader("Gates", ImGuiTreeNodeFlags_DefaultOpen)) {
+		add_component_button(COMPONENT_AND_GATE, "AND", [](Circuit *circuit) {return AndGate(circuit, 2);});
+		add_component_button(COMPONENT_OR_GATE, "OR", [](Circuit *circuit) {return OrGate(circuit, 2);});
+		add_component_button(COMPONENT_NOT_GATE, "NOT", [](Circuit *circuit) {return NotGate(circuit);});
+		add_component_button(COMPONENT_NAND_GATE, "NAND", [](Circuit *circuit) {return NandGate(circuit, 2);});
+		add_component_button(COMPONENT_NOR_GATE, "NOR", [](Circuit *circuit) {return NorGate(circuit, 2);});
+		add_component_button(COMPONENT_XOR_GATE, "XOR", [](Circuit *circuit) {return XorGate(circuit);});
+		add_component_button(COMPONENT_XNOR_GATE, "XNOR", [](Circuit *circuit) {return XnorGate(circuit);});
+		add_component_button(COMPONENT_BUFFER, "Buffer", [](Circuit *circuit) {return Buffer(circuit, 1);});
+		add_component_button(COMPONENT_TRISTATE_BUFFER, "TriState Buffer", [](Circuit *circuit) {return TriStateBuffer(circuit, 1);});
+	}
+
+	ImGui::Spacing();
+	if (ImGui::CollapsingHeader("Various", ImGuiTreeNodeFlags_DefaultOpen)) {
+		add_component_button(COMPONENT_CONNECTOR_IN, "Input", [](Circuit *circuit) {return ConnectorInput(circuit, "in", 1);});
+		add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](Circuit *circuit) {return ConnectorOutput(circuit, "out", 1);});
+		add_component_button(COMPONENT_CONSTANT, "Constant", [](Circuit *circuit) {return Constant(circuit, VALUE_TRUE);});
+		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](Circuit *circuit) {return PullResistor(circuit, VALUE_TRUE);});
+	}
+
+	ImGui::EndChild();	// left_pane
 	ImGui::SameLine();
 
 
@@ -136,7 +156,7 @@ void main_gui(LSimContext *lsim_context)
 		ui_circuit->draw();
 	}
 
-	ImGui::EndChild();
+	ImGui::EndChild();	// scrolling region
 
 	ImGui::End();
 
