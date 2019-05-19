@@ -22,8 +22,8 @@ void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit,
                       float min_width = 60, float min_height = 60) {
 
     // size of component box depends on pin count
-    const float width = std::max(min_width, 10.0f * pins_control.size());
-    const float height = std::max(min_height, 10.0f * std::max(pins_input.size(), pins_output.size()));
+    const float width = std::max(min_width, 10.0f * (pins_control.size() + 1));
+    const float height = std::max(min_height, 10.0f * (std::max(pins_input.size(), pins_output.size()) + 1));
     const float h_width = width / 2.0f;
     const float h_height = height / 2.0f;
 
@@ -31,11 +31,11 @@ void materialize_gate(UIComponent *ui_comp, UICircuit *ui_circuit,
 
     // pins
     ui_comp->add_pin_line(pins_input.data(), pins_input.size(), 
-                          height, {-h_width, -h_height}, {0, 1});
+                          height, {-h_width, 0}, {0, 1});
     ui_comp->add_pin_line(pins_output.data(), pins_output.size(), 
-                          height, {h_width, -h_height}, {0, 1});
+                          height, {h_width, 0}, {0, 1});
     ui_comp->add_pin_line(pins_control.data(), pins_control.size(), 
-                          width, {-h_width, -h_height}, {1, 0});
+                          width, {0, -h_height}, {1, 0});
 }
 
 const char *connector_data_label(Value value) {

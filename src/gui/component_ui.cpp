@@ -82,12 +82,32 @@ void UIComponent::add_pin_line(const uint32_t *pins, size_t pin_count, float siz
 		return;
 	}
 
-    float segment_len = size / (pin_count + 1);
-    Point pos = origin + (inc * segment_len);
+	auto odd  = pin_count % 2;
+	auto half = (pin_count - odd) / 2;
+	float segment_len = size / (2.0f * (half + 1));
+	segment_len = roundf(segment_len / GRID_SIZE) * GRID_SIZE;
+	auto segment_delta = inc * segment_len;
+	size_t pin_idx = 0;
 
-    for (size_t i = 0; i < pin_count; ++i) {
-        add_endpoint(pins[i], pos);
-        pos = pos + (inc * segment_len);
+	// top half
+	Point pos = origin - (inc * segment_delta);
+
+	for (size_t idx = 0; idx < half; ++idx) {
+		add_endpoint(pins[pin_idx++], pos);
+		pos = pos + segment_delta;
+	}
+
+	// center
+	if (odd > 0) {
+		add_endpoint(pins[pin_idx++], origin);
+	}
+
+	// bottom half
+	pos = origin + segment_delta;
+
+	for (size_t idx = 0; idx < half; ++idx) {
+		add_endpoint(pins[pin_idx++], pos);
+		pos = pos + segment_delta;
 	}
 }
 
