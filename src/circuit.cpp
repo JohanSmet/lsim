@@ -15,6 +15,11 @@ Circuit::Circuit(Simulator *sim, const char *name) :
             m_clone_count(0) {
 }
 
+void Circuit::change_name(const char *name) {
+    assert(name);
+    m_name = name;
+}
+
 Component *Circuit::create_component(
             size_t num_input, size_t num_output, size_t num_control,
             uint32_t type, Priority priority) {

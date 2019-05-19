@@ -19,6 +19,9 @@ enum TextAlignVer {
 };
 
 void Text(ImVec2 at, const char *text, TextAlignHor align_hor = TAH_LEFT, TextAlignVer align_ver = TAV_TOP);
+inline void Text(ImVec2 at, const std::string &text, TextAlignHor align_hor = TAH_LEFT, TextAlignVer align_ver = TAV_TOP) {
+    Text(at, text.c_str(), align_hor, align_ver);
+}
 void RectFilled(ImVec2 p1, ImVec2 p2, ImU32 col);
 
 } // namespace ImGuiEx

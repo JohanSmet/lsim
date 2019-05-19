@@ -83,7 +83,7 @@ void main_gui(LSimContext *lsim_context)
 	static size_t selected_circuit = (sim->active_circuit() == nullptr) ? -1 : lib->circuit_idx(sim->active_circuit());
 	for (size_t i = 0; i < lib->num_circuits(); ++i) {
 		auto circuit = lib->circuit_by_idx(i);
-		if (ImGui::Selectable(circuit->name(), selected_circuit == i)) {
+		if (ImGui::Selectable(circuit->name().c_str(), selected_circuit == i)) {
 			selected_circuit = i;
 			sim->change_active_circuit(circuit);
 			handle_main_circuit_changed(sim);
@@ -236,6 +236,23 @@ void main_gui(LSimContext *lsim_context)
 			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
 				component->change_input_pins(num_inputs);
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
+			}
+		}
+	} else {
+		// no component selected - edit circuit properties
+		std::vector<char> name(ui_circuit->circuit()->name().begin(), ui_circuit->circuit()->name().end());
+		name.resize(256);
+
+		if (ImGui::InputText("Name", name.data(), name.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+			ui_circuit->circuit()->change_name(name.data());
+		}
+
+		bool main_circuit = lsim_context->user_library()->main_circuit() == ui_circuit->circuit();
+		if (main_circuit) {
+			ImGui::Text("This is the main circuit");
+		} else {
+			if (ImGui::Button("Set as main circuit")) {
+				lsim_context->user_library()->set_main_circuit(ui_circuit->circuit());
 			}
 		}
 	}

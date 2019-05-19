@@ -105,7 +105,7 @@ public:
 
         if (library->main_circuit()) {
             auto main_node = m_root.append_child(XML_EL_MAIN);
-            main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit()->name());
+            main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit()->name().c_str());
         }
     }
 
@@ -216,7 +216,7 @@ private:
 
     void serialize_circuit(Circuit *circuit) {
         auto circuit_node = m_root.append_child(XML_EL_CIRCUIT);
-        circuit_node.append_attribute(XML_ATTR_NAME).set_value(circuit->name());
+        circuit_node.append_attribute(XML_ATTR_NAME).set_value(circuit->name().c_str());
 
         // components
         for (const auto &comp : circuit->components()) {

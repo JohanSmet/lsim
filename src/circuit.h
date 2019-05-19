@@ -31,7 +31,9 @@ public:
     Circuit(Simulator *sim, const char *name);
 
     Simulator *sim() const {return m_sim;}
-    const char *name() const {return m_name.c_str();}
+
+    const std::string &name() const {return m_name;}
+    void change_name(const char *name);
 
     pin_t create_pin(Component *component, pin_t connect_to_pin = PIN_UNDEFINED);
     void connect_pins(pin_t pin_a, pin_t pin_b);
