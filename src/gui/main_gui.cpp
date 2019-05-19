@@ -1,5 +1,5 @@
 #include "main_gui.h"
-#include "imgui/imgui.h"
+#include "imgui_ex.h"
 
 #include "component_ui.h"
 #include "component_std.h"
@@ -103,12 +103,12 @@ void main_gui(LSimContext *lsim_context)
 		if (ImGui::Button("", {40, 40})) {
 			create_component(create_func(sim->active_circuit()));
 		}
-		ImGui::SameLine();
-		ImGui::Text(caption);
 		auto icon = ComponentIcon::cached(component);
 		if (icon) {
 			icon->draw(pos + Point(20,20), {34, 34}, draw_list, 1, COLOR_COMPONENT_BORDER);
 		}
+		ImGuiEx::Text(pos + Point(50,20), caption, ImGuiEx::TAH_LEFT, ImGuiEx::TAV_CENTER);
+		ImGui::SetCursorScreenPos(pos + Point(0,42));
 		ImGui::PopID();
 	};
 	ImGui::Text("Gates");
