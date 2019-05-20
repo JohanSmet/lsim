@@ -85,6 +85,20 @@ void main_gui(LSimContext *lsim_context)
 	//
 
 	if (ImGui::CollapsingHeader("Circuits", ImGuiTreeNodeFlags_DefaultOpen)) {
+		if (ImGui::Button("Up")) {
+			size_t selected_circuit = lib->circuit_idx(sim->active_circuit());
+			if (selected_circuit < lib->num_circuits() && selected_circuit > 0) {
+				lib->swap_circuits(selected_circuit, selected_circuit - 1);
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Down")) {
+			size_t selected_circuit = lib->circuit_idx(sim->active_circuit());
+			if (selected_circuit < lib->num_circuits() - 1) {
+				lib->swap_circuits(selected_circuit, selected_circuit + 1);
+			}
+		}
+		ImGui::SameLine();
 		if (ImGui::Button("Add")) {
 			auto circuit = lib->create_circuit((std::string("circuit#") + std::to_string(lib->num_circuits()+1)).c_str());
 			change_active_circuit(sim, circuit);

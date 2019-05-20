@@ -33,6 +33,13 @@ void CircuitLibrary::delete_circuit(Circuit *circuit) {
     }));
 }
 
+void CircuitLibrary::swap_circuits(size_t idx_a, size_t idx_b) {
+    assert(idx_a < m_circuits.size());
+    assert(idx_b < m_circuits.size());
+
+    std::swap(m_circuits[idx_a], m_circuits[idx_b]);
+}
+
 Circuit *CircuitLibrary::circuit_by_idx(size_t idx) const {
     assert(idx < num_circuits());
     return m_circuits[idx].get();
@@ -50,8 +57,6 @@ Circuit *CircuitLibrary::circuit_by_name(const char *name) const {
 }
 
 size_t CircuitLibrary::circuit_idx(Circuit *circuit) const {
-    assert(circuit);
-
     for (size_t i = 0; i < m_circuits.size(); ++i) {
         if (m_circuits[i].get() == circuit) {
             return i;

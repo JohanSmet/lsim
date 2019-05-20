@@ -23,6 +23,7 @@ public:
     // circuit management
     Circuit *create_circuit(const char *name);
     void delete_circuit(Circuit *circuit);
+    void swap_circuits(size_t idx_a, size_t idx_b);
     size_t num_circuits() const {return m_circuits.size();}
     Circuit *circuit_by_idx(size_t idx) const;
     Circuit *circuit_by_name(const char *name) const;
