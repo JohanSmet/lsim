@@ -81,12 +81,12 @@ void component_register_basic() {
                     auto center_pos = to_window.apply(Point(0, (-full_height * 0.5f) + ((i + 0.5f) * height)));
                     ImGui::SetCursorScreenPos(center_pos - Point(8,8));
 
+                    ImGui::PushID(i);
                     if (ImGui::InvisibleButton(connector_data_label(cur_val), {16,16})) {
                         comp->write_pin(comp->output_pin_index(i), 
                                         static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2)));
                     }
 
-                    ImGui::PushID(i);
                     ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);
                     ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     ImGui::PopID();
