@@ -188,7 +188,7 @@ void component_register_basic() {
             ui_comp->change_tooltip("Circuit");
 
             // materialize the sub-circuit
-            float width = 200;
+            float width = 160;
             float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 20 + 20;
 
             ui_comp->change_size(width, height);
@@ -199,22 +199,31 @@ void component_register_basic() {
 
             // custom draw function for pin labels
             ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
-                auto cursor = to_window.apply(Point((-width / 2.0f) + 5, (-height / 2.0f) + 12));
-                auto delta = Point(0, 20);
-            
+
+                ImGuiEx::TransformStart();
+
+                // input pins - labels
+                auto cursor = Point((-width * 0.5f) + 10, (-height * 0.5f) + 20);
                 for (size_t idx = 0; idx < nested->num_input_ports(); ++idx) {
-                    ImGuiEx::Text(cursor, nested->input_port_name(idx));
-                    cursor = cursor + delta;
+                    ImGuiEx::TextNoClip(cursor, nested->input_port_name(idx), COLOR_COMPONENT_BORDER, ImGuiEx::TAH_LEFT, ImGuiEx::TAV_CENTER);
+                    cursor.y += 20;
                 }
 
-                cursor = to_window.apply(Point((width / 2.0f) - 5, (-height / 2.0f) + 12));
+                // output pins - labels
+                cursor = Point((width * 0.5f) - 10, (-height * 0.5f) + 20);
                 for (size_t idx = 0; idx < nested->num_output_ports(); ++idx) {
-                    ImGuiEx::Text(cursor, nested->output_port_name(idx), ImGuiEx::TAH_RIGHT);
-                    cursor = cursor + delta;
+                    ImGuiEx::TextNoClip(cursor, nested->output_port_name(idx), COLOR_COMPONENT_BORDER, ImGuiEx::TAH_RIGHT, ImGuiEx::TAV_CENTER);
+                    cursor.y += 20;
                 }
 
-                cursor = to_window.apply(Point(0, (height / 2.0f) - 18));
-                ImGuiEx::Text(cursor, nested->name(), ImGuiEx::TAH_CENTER);
+                // caption
+                ImGuiEx::RectFilled(Point(-width * 0.5f, (height * 0.5) - 20), 
+                                    Point(width * 0.5f, (height * 0.5)), 
+                                    COLOR_COMPONENT_BORDER);
+                cursor = Point(0, (height * 0.5f) - 10);
+                ImGuiEx::TextNoClip(cursor, nested->name(), IM_COL32(0,0,0,255), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+
+                ImGuiEx::TransformEnd(to_window);
             });
         }
     ); 

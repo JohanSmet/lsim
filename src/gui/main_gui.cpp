@@ -173,11 +173,32 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::EndChild();	// left_pane
 	ImGui::SameLine();
 
+	/////////////////////////////////////////////////////////////////////////////////
+	//
+	// circuit editor 
+	//
 
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
 
 	if (ui_circuit) {
 		ui_circuit->draw();
+	}
+
+	if (ImGui::BeginPopupContextWindow("circuit_context")) {
+		ImGui::Text("Choose circuit to embed:");
+
+		// for now only allow to embed circuits that are define before the current circuit
+		//	- there's no circular dependency checking (yet)
+		//	- the serializer/deserialiser isn't smart enough to handle other case 
+		auto max_idx = lib->circuit_idx(sim->active_circuit());
+		for (size_t i = 0; i < max_idx; ++i) {
+			auto sub = lib->circuit_by_idx(i);
+			if (ImGui::Selectable(sub->name().c_str())) {
+				ui_circuit->embed_circuit(sub);
+			}
+		}
+
+		ImGui::EndPopup();
 	}
 
 	ImGui::EndChild();	// scrolling region
@@ -232,13 +253,13 @@ void main_gui(LSimContext *lsim_context)
 		}
 
 		// component specific fields
-		if (component->type() == COMPONENT_CONNECTOR_IN || component->type() == COMPONENT_CONNECTOR_OUT) {
+		if (visual_comp->get_type() == COMPONENT_CONNECTOR_IN || visual_comp->get_type() == COMPONENT_CONNECTOR_OUT) {
 			text_property("Name", component->property("name"));
 			boolean_property("TriState", component->property("tri_state"));
 
 			int data_bits = component->num_pins();
 			if (ImGui::InputInt("Data Bits", &data_bits)) {
-				if (component->type() == COMPONENT_CONNECTOR_IN) {
+				if (visual_comp->get_type() == COMPONENT_CONNECTOR_IN) {
 					component->change_output_pins(data_bits);
 				} else {
 					component->change_input_pins(data_bits);
@@ -249,17 +270,17 @@ void main_gui(LSimContext *lsim_context)
 			}
 		}
 
-		if (component->type() == COMPONENT_CONSTANT) {
+		if (visual_comp->get_type() == COMPONENT_CONSTANT) {
 			auto new_value = value_property("Value", component->property("value"));
 			component->write_pin(0, new_value);
 		}
 
-		if (component->type() == COMPONENT_PULL_RESISTOR) {
+		if (visual_comp->get_type() == COMPONENT_PULL_RESISTOR) {
 			auto new_value = value_property("Value", component->property("pull_to"));
 			component->write_pin(0, new_value);
 		}
 
-		if (component->type() == COMPONENT_BUFFER || component->type() == COMPONENT_TRISTATE_BUFFER) {
+		if (visual_comp->get_type() == COMPONENT_BUFFER || visual_comp->get_type() == COMPONENT_TRISTATE_BUFFER) {
 			int data_bits = component->num_input_pins();
 
 			if (ImGui::InputInt("Data Bits", &data_bits)) {
@@ -272,16 +293,17 @@ void main_gui(LSimContext *lsim_context)
 			}
 		}
 
-		if (component->type() == COMPONENT_AND_GATE ||
-		    component->type() == COMPONENT_OR_GATE ||
-			component->type() == COMPONENT_NAND_GATE ||
-			component->type() == COMPONENT_NOR_GATE) {
+		if (visual_comp->get_type() == COMPONENT_AND_GATE ||
+		    visual_comp->get_type() == COMPONENT_OR_GATE ||
+			visual_comp->get_type() == COMPONENT_NAND_GATE ||
+			visual_comp->get_type() == COMPONENT_NOR_GATE) {
 			int num_inputs = component->num_input_pins();
 			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
 				component->change_input_pins(num_inputs);
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
 			}
 		}
+
 	} else {
 		// no component selected - edit circuit properties
 		std::vector<char> name(ui_circuit->circuit()->name().begin(), ui_circuit->circuit()->name().end());

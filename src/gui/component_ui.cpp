@@ -164,7 +164,7 @@ void UICircuit::draw() {
     Point offset = m_scroll_delta + screen_origin;				// translation from circuit space to screen space 
 	Point mouse_pos_screen = ImGui::GetMousePos();
 	Point mouse_pos = mouse_pos_screen - offset;				// position of mouse pointer in circuit space
-	Point mouse_grid_point = { 									// position of nearest grid point to the mouse cursor
+	m_mouse_grid_point = { 										// position of nearest grid point to the mouse cursor
 		roundf(mouse_pos.x / GRID_SIZE) * GRID_SIZE,
 		roundf(mouse_pos.y / GRID_SIZE) * GRID_SIZE
 	};
@@ -272,14 +272,14 @@ void UICircuit::draw() {
 
 	if (m_state == CS_CREATE_WIRE) {
 		// snap to diagonal (45 degree) / vertical / horizontal
-		auto delta = mouse_grid_point - m_segment_start;
+		auto delta = m_mouse_grid_point - m_segment_start;
 		auto abs_delta = Point(fabs(delta.x), fabs(delta.y));
 		if (abs_delta.x > 0 && abs_delta.y > 0 && abs(abs_delta.y - abs_delta.x) < 10) {
 			m_line_anchors.back() = m_segment_start + Point(delta.x, abs_delta.x * ((delta.y < 0) ? -1.0f : 1.0f));
 		} else if (abs_delta.y > abs_delta.x) {
-			m_line_anchors.back() = {m_segment_start.x, mouse_grid_point.y};
+			m_line_anchors.back() = {m_segment_start.x, m_mouse_grid_point.y};
 		} else {
-			m_line_anchors.back() = {mouse_grid_point.x, m_segment_start.y};
+			m_line_anchors.back() = {m_mouse_grid_point.x, m_segment_start.y};
 		}
 
 		// Point p0 = endpoint_position(m_line_origin) + offset;
@@ -312,7 +312,7 @@ void UICircuit::draw() {
 
 	// snap component to mouse cursor when creating
 	if (m_state == CS_CREATE_COMPONENT && m_selected_comp != nullptr) {
-		move_component_abs(m_selected_comp, mouse_grid_point);
+		move_component_abs(m_selected_comp, m_mouse_grid_point);
 	}
 
 	// clicking left mouse button while creating ends create state
@@ -400,6 +400,13 @@ void UICircuit::create_component(VisualComponent *vis_comp) {
 
 	m_state = CS_CREATE_COMPONENT;
 	m_selected_comp = &m_ui_components.back();
+}
+
+void UICircuit::embed_circuit(Circuit *templ_circuit) {
+	auto nested = m_circuit->integrate_circuit_clone(templ_circuit);
+    auto vis_comp = m_circuit->create_visual_component(nested);
+	vis_comp->set_position(m_mouse_grid_point);
+	UICircuitBuilder::materialize_component(this, vis_comp);
 }
 
 void UICircuit::draw_grid(ImDrawList *draw_list) {

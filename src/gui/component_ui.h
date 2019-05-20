@@ -97,6 +97,7 @@ public:
     void move_component(UIComponent *comp, Point delta);
     void move_component_abs(UIComponent *comp, Point pos);
     void create_component(VisualComponent *vis_comp);
+    void embed_circuit(Circuit *templ_circuit);
 
     class Circuit *circuit() {return m_circuit;}
 
@@ -120,6 +121,7 @@ private:
     UIComponent *            m_selected_comp;
     pin_t                    m_selected_pin;
 
+    Point               m_mouse_grid_point;
     Point               m_drag_delta;
 
     pin_t               m_line_origin;
