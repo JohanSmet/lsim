@@ -385,7 +385,7 @@ public:
             case COMPONENT_SUB_CIRCUIT : {
                 REQUIRED_ATTR(attr_name, comp_node, "name");
                 auto template_circuit = m_lib->circuit_by_name(attr_name.as_string());
-                sub_circuit = circuit->integrate_circuit_clone(template_circuit);
+                sub_circuit = circuit->integrate_circuit_clone(template_circuit);   
                 break;
             }
             default :
@@ -426,6 +426,7 @@ public:
                 m_node_pins[node_attr.as_int()] = pin;
             } else {
                 m_sim->connect_pins(result->second, pin);
+                m_node_map[node_attr.as_int()] = m_sim->pin_node(pin);
             }
 
             return true;
@@ -464,7 +465,7 @@ public:
         REQUIRED_ATTR(node_attr, wire_node, XML_ATTR_NODE);
 
         Wire *wire = circuit->create_wire();
-        wire->set_node(node_attr.as_int());
+        wire->set_node(m_node_map[node_attr.as_int()]);
 
         for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {
             REQUIRED_ATTR(x1_attr, segment_node, XML_ATTR_X1);
@@ -527,6 +528,7 @@ private:
     Simulator *         m_sim;
 
     std::unordered_map<node_t, pin_t>   m_node_pins;
+    std::unordered_map<node_t, node_t>  m_node_map;
 };
 
 
