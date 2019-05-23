@@ -5,6 +5,7 @@
 #include "circuit.h"
 
 #include <cassert>
+#include <algorithm>
 
 VisualComponent::VisualComponent(Component *component) :
     m_orientation(EAST),
@@ -38,32 +39,156 @@ Component::pin_container_t VisualComponent::pins() const {
     }
 }
 
-Wire::Wire() {
+///////////////////////////////////////////////////////////////////////////////
+//
+// WireJunction
+//
 
+WireJunction::WireJunction(const Point &p, WireSegment *segment) :
+        m_position(p) {
+    m_segments.push_back(segment);
+}
+
+void WireJunction::add_segment(WireSegment *segment) {
+    m_segments.push_back(segment);
+}
+
+void WireJunction::remove_segment(WireSegment *segment) {
+    m_segments.erase(std::remove(m_segments.begin(), m_segments.end(), segment));
+}
+
+WireSegment *WireJunction::segment(size_t idx) const {
+    assert(idx < m_segments.size());
+    return m_segments[idx];
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// WireSegment
+//
+
+WireSegment::WireSegment() : m_ends({nullptr, nullptr}) {
+}
+
+void WireSegment::set_junction(size_t idx, WireJunction *junction) {
+    assert(idx < 2);
+    m_ends[idx] = junction;
+}
+
+WireJunction *WireSegment::junction(size_t idx) const {
+    assert(idx < 2);
+    return m_ends[idx];
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Wire
+//
+
+Wire::Wire() {
 }
 
 Wire::Wire(Point *anchors, size_t num_anchors) {
     assert(num_anchors > 1);
 
-    auto p0 = anchors[0];
-    segment_t prev_segment = {Point(-1000.0f, -1000.0f), Point(-1000.0f, -1000.0f)};
-
-    for (size_t idx = 1; idx < num_anchors; ++idx) {
-        auto p1 = anchors[idx];
-
-        // merge colinear segments
-        if ((p1.x == prev_segment[0].x && p1.x == prev_segment[1].x) ||
-            (p1.y == prev_segment[0].y && p1.y == prev_segment[1].y)) {
-            m_segments.back()[1] = p1;
-            prev_segment = m_segments.back();
-        } else if (p1 != p0) {
-            m_segments.push_back({p0, p1});
-            prev_segment = m_segments.back();
+    for(size_t a = 1;a < num_anchors; ++a) {
+        if (anchors[a - 1] != anchors[a]) {
+            add_segment(anchors[a - 1], anchors[a]);
         }
-        p0 = p1;
+    }
+
+    simplify();
+}
+
+const Point &Wire::segment_point(size_t segment_idx, size_t point_idx) const {
+    assert(segment_idx < m_segments.size());
+    assert(point_idx < 2);
+    return m_segments[segment_idx]->junction(point_idx)->position();
+}
+
+size_t Wire::junction_segment_count(size_t idx) const {
+    assert(idx < m_junctions.size());
+    return m_junctions[idx]->num_segments();
+}
+
+const Point &Wire::junction_position(size_t idx) const {
+    assert(idx < m_junctions.size());
+    return m_junctions[idx]->position();
+}
+
+WireJunction *Wire::add_junction(const Point &p, WireSegment *segment) {
+    auto found = std::find_if(m_junctions.begin(), m_junctions.end(), [=](auto &j) {return j->position() == p;});
+    if (found != m_junctions.end()) {
+        (*found)->add_segment(segment);
+        return found->get();
+    }
+
+    m_junctions.push_back(std::make_unique<WireJunction>(p, segment));
+    return m_junctions.back().get();
+}
+
+WireSegment *Wire::add_segment(const Point &p0, const Point &p1) {
+    m_segments.push_back(std::make_unique<WireSegment>());
+    auto segment = m_segments.back().get();
+
+    segment->set_junction(0, add_junction(p0, segment));
+    segment->set_junction(1, add_junction(p1, segment));
+    return segment;
+}
+
+void Wire::simplify() {
+    // checking for duplicate junctions isn't necessary until junctions can be moved by the user
+
+    // junctions with just two segments should be removed when the segments are colinear
+    std::vector<WireJunction *> to_check;
+
+    for (auto &junction : m_junctions) {
+        if (junction->num_segments() == 2) {
+            to_check.push_back(junction.get());
+        }
+    }
+
+    while (!to_check.empty()) {
+        auto junction = to_check.back();
+        to_check.pop_back();
+
+        WireSegment *segments[2] = {junction->segment(0), junction->segment(1)};
+
+        Point points[3] = {junction->position()};
+        points[1] = segments[0]->junction(segments[0]->junction(0) == junction ? 1 : 0)->position();
+        points[2] = segments[1]->junction(segments[1]->junction(0) == junction ? 1 : 0)->position();
+
+        // colinear ?
+        if ((points[0].x == points[1].x && points[1].x == points[2].x) ||
+            (points[0].y == points[1].y && points[1].y == points[2].y)) {
+            add_segment(points[1], points[2]);
+            remove_redundant_segment(segments[0]);
+            remove_redundant_segment(segments[1]);
+        }
     }
 }
 
-void Wire::add_segment(const Point &p0, const Point &p1) {
-    m_segments.push_back({p0, p1});
+void Wire::remove_junction(WireJunction *junction) {
+    assert(junction);
+    m_junctions.erase(std::remove_if(m_junctions.begin(), m_junctions.end(), 
+                        [junction](const auto &j) {return j.get() == junction;}
+    ));
+}
+
+void Wire::remove_segment_from_junction(WireJunction *junction, WireSegment *segment) {
+    assert(junction);
+    assert(segment);
+    junction->remove_segment(segment);
+    if (junction->num_segments() == 0) {
+        remove_junction(junction);
+    }
+}
+
+void Wire::remove_redundant_segment(WireSegment *segment) {
+    assert(segment);
+    remove_segment_from_junction(segment->junction(0), segment);
+    remove_segment_from_junction(segment->junction(1), segment);
+    m_segments.erase(std::remove_if(m_segments.begin(), m_segments.end(),
+                        [segment](const auto &s) {return s.get() == segment;}
+    ));
 }

@@ -263,12 +263,22 @@ void UICircuit::draw() {
 
 	// draw wires
 	for (const auto &wire : m_circuit->wires()) {
-		for (const auto &segment : wire->segments()) {
-			draw_list->AddLine(segment[0] + offset, segment[1] + offset, 
-							   COLOR_CONNECTION[m_circuit->sim()->read_node(wire->node())], 
-							   2.0f);
+		auto wire_color = COLOR_CONNECTION[m_circuit->sim()->read_node(wire->node())];
+
+		// segments
+		for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
+			draw_list->AddLine(wire->segment_point(idx, 0) + offset, wire->segment_point(idx, 1) + offset, 
+							   wire_color, 2.0f);
+		}
+
+		// draw junctions with more than 2 segments
+		for (size_t idx = 0; idx < wire->num_junctions(); ++idx) {
+			if (wire->junction_segment_count(idx) > 2) {
+				draw_list->AddCircleFilled(wire->junction_position(idx) + offset, 4, wire_color);
+			}
 		}
 	}
+
 
 	if (m_state == CS_CREATE_WIRE) {
 		// snap to diagonal (45 degree) / vertical / horizontal

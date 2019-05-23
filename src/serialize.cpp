@@ -205,12 +205,14 @@ private:
         auto wire_node = circuit_node->append_child(XML_EL_WIRE);
         wire_node.append_attribute(XML_ATTR_NODE).set_value(wire->node());
 
-        for (auto const &segment : wire->segments()) {
+        for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
             auto segment_node = wire_node.append_child(XML_EL_SEGMENT);
-            segment_node.append_attribute(XML_ATTR_X1).set_value(segment[0].x);
-            segment_node.append_attribute(XML_ATTR_Y1).set_value(segment[0].y);
-            segment_node.append_attribute(XML_ATTR_X2).set_value(segment[1].x);
-            segment_node.append_attribute(XML_ATTR_Y2).set_value(segment[1].y);
+            const auto &p0 = wire->segment_point(idx, 0);
+            segment_node.append_attribute(XML_ATTR_X1).set_value(p0.x);
+            segment_node.append_attribute(XML_ATTR_Y1).set_value(p0.y);
+            const auto &p1 = wire->segment_point(idx, 1);
+            segment_node.append_attribute(XML_ATTR_X2).set_value(p1.x);
+            segment_node.append_attribute(XML_ATTR_Y2).set_value(p1.y);
         }
     }
 

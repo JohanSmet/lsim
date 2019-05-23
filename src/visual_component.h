@@ -48,10 +48,41 @@ private:
     Circuit *   m_circuit;
 };
 
+class WireJunction {
+public:
+    typedef std::unique_ptr<WireJunction> uptr_t;
+public:
+    WireJunction(const Point &p, class WireSegment *segment);
+
+    const Point &position() const {return m_position;}
+    size_t num_segments() const {return m_segments.size();}
+    class WireSegment *segment(size_t idx) const;
+
+    void add_segment(WireSegment *segment);
+    void remove_segment(WireSegment *segment);
+
+private:
+    Point                               m_position;
+    std::vector<class WireSegment *>    m_segments;
+};
+
+class WireSegment {
+public:
+    typedef std::unique_ptr<WireSegment> uptr_t;
+public:
+    WireSegment();
+
+    void set_junction(size_t idx, WireJunction *junction);
+    WireJunction *junction(size_t idx) const;
+
+private:
+    std::array<WireJunction *, 2>  m_ends;
+};
+
 class Wire {
 public:
-    typedef std::array<Point, 2> segment_t;
-    typedef std::vector<segment_t> segment_container_t;
+    typedef std::vector<WireJunction::uptr_t> junction_container_t;
+    typedef std::vector<WireSegment::uptr_t>  segment_container_t;
     typedef std::unique_ptr<Wire> uptr_t;
 
 public:
@@ -59,14 +90,26 @@ public:
     Wire();
 
     size_t num_segments() const {return m_segments.size();}
-    const segment_container_t &segments() const {return m_segments;}
+    const Point &segment_point(size_t segment_idx, size_t point_idx) const;
 
-    void add_segment(const Point &p0, const Point &p1);
+    size_t num_junctions() const {return m_junctions.size();}
+    size_t junction_segment_count(size_t idx) const;
+    const Point &junction_position(size_t idx) const;
+
+    WireJunction *add_junction(const Point &p, WireSegment *segment);
+    WireSegment *add_segment(const Point &p0, const Point &p1);
     
     void set_node(node_t node) {m_node = node;};
     node_t node() const {return m_node;}
 
+    void simplify();
 private:
+    void remove_junction(WireJunction *junction);
+    void remove_segment_from_junction(WireJunction *junction, WireSegment *segment);
+    void remove_redundant_segment(WireSegment *segment);
+
+private:
+    junction_container_t  m_junctions;
     segment_container_t   m_segments;
     node_t                m_node;
 
