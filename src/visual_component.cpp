@@ -158,9 +158,7 @@ void Wire::simplify() {
         points[1] = segments[0]->junction(segments[0]->junction(0) == junction ? 1 : 0)->position();
         points[2] = segments[1]->junction(segments[1]->junction(0) == junction ? 1 : 0)->position();
 
-        // colinear ?
-        if ((points[0].x == points[1].x && points[1].x == points[2].x) ||
-            (points[0].y == points[1].y && points[1].y == points[2].y)) {
+        if (points_colinear(points[0], points[1], points[2])) {
             add_segment(points[1], points[2]);
             remove_redundant_segment(segments[0]);
             remove_redundant_segment(segments[1]);
