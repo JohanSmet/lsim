@@ -6,6 +6,7 @@
 #define LSIM_GUI_ALGEBRA_H
 
 #include <array>
+#include <cmath>
 
 class Point {
 public:
@@ -29,11 +30,31 @@ public:
 };
 
 float distance_squared(const Point &p1, const Point &p2);
+
 inline bool operator==(const Point &p1, const Point &p2) {
     return p1.x == p2.x && p1.y == p2.y;
 }
+
 inline bool operator!=(const Point &p1, const Point &p2) {
     return p1.x != p2.x || p1.y != p2.y;
+}
+
+inline bool points_colinear(const Point &p0, const Point &p1, const Point &p2) {
+    return fabs(((p1.x - p0.x) * (p2.y - p0.y)) - ((p2.x - p0.x)  * (p1.y - p0.y))) < 0.001f;
+}
+
+inline bool between(float a, float b, float v) {
+    if (a < b) {
+        return (v >= a) && (v <= b);
+    } else {
+        return (v >= b) && (v <= a);
+    }
+}
+
+inline bool point_on_line_segment(const Point &s0, const Point &s1, const Point &p) {
+    return points_colinear(s0, s1, p) &&
+           between(s0.x, s1.x, p.x) &&
+           between(s0.y, s1.y, p.y);
 }
 
 class Transform {
