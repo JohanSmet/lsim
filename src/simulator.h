@@ -38,6 +38,7 @@ public:
     // nodes
     node_t assign_node();
     void release_node(node_t node_id);
+    node_t merge_nodes(node_t node_a, node_t node_b);
 
     void write_node(node_t node_id, Value value);
     Value read_node(node_t node_id) const;

@@ -251,3 +251,8 @@ Wire *Circuit::create_wire() {
     m_wires.push_back(std::make_unique<Wire>());
     return m_wires.back().get();
 }
+
+void Circuit::remove_wire(Wire *wire) {
+    m_wires.erase(std::remove_if(m_wires.begin(), m_wires.end(),
+                    [wire](const auto &w) {return w.get() == wire;}));
+}

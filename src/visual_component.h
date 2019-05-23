@@ -100,6 +100,9 @@ public:
 
     WireJunction *add_junction(const Point &p, WireSegment *segment);
     WireSegment *add_segment(const Point &p0, const Point &p1);
+    void add_segments(Point *anchors, size_t num_anchors);
+    void merge(Wire *other);
+    void split_at_point(const Point &p);
     
     void set_node(node_t node) {m_node = node;};
     node_t node() const {return m_node;}

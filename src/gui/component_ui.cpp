@@ -176,7 +176,8 @@ void UICircuit::draw() {
 	}
 
 	// components
-	m_selected_pin = PIN_UNDEFINED;
+	m_hovered_pin = PIN_UNDEFINED;
+	m_hovered_wire = nullptr;
 
 	for (auto &comp : m_ui_components) {
 
@@ -224,7 +225,7 @@ void UICircuit::draw() {
 		}
 
 		// dragging
-		if (ImGui::IsItemActive() && m_state == CS_IDLE && m_selected_pin == PIN_UNDEFINED) {
+		if (ImGui::IsItemActive() && m_state == CS_IDLE && m_hovered_pin == PIN_UNDEFINED) {
 			m_state = CS_DRAGGING;
 			m_drag_delta = {0, 0};
 		}
@@ -238,10 +239,9 @@ void UICircuit::draw() {
 			auto endpoint_screen = to_screen.apply(pair.second);
 			draw_list->AddCircleFilled(endpoint_screen, 3, COLOR_ENDPOINT);
 
-			if (distance_squared(endpoint_screen, mouse_pos_screen) <= 16) {
+			if (distance_squared(m_mouse_grid_point, endpoint_screen - offset) <= 2) {
 				draw_list->AddCircle(endpoint_screen, 8, COLOR_ENDPOINT_HOVER, 12, 2);
-				m_selected_pin = pair.first;
-				m_segment_start = endpoint_screen - offset;
+				m_hovered_pin = pair.first;
 			}
 		}
 
@@ -277,6 +277,11 @@ void UICircuit::draw() {
 				draw_list->AddCircleFilled(wire->junction_position(idx) + offset, 4, wire_color);
 			}
 		}
+
+		if (m_hovered_wire == nullptr && wire->point_on_wire(m_mouse_grid_point)) {
+			draw_list->AddCircle(m_mouse_grid_point + offset, 8, COLOR_ENDPOINT_HOVER, 12, 2);
+			m_hovered_wire = wire.get();
+		}
 	}
 
 
@@ -292,7 +297,6 @@ void UICircuit::draw() {
 			m_line_anchors.back() = {m_mouse_grid_point.x, m_segment_start.y};
 		}
 
-		// Point p0 = endpoint_position(m_line_origin) + offset;
 		Point p0 = m_line_anchors.front() + offset;
 
 		for (const auto &anchor : m_line_anchors) {
@@ -330,11 +334,20 @@ void UICircuit::draw() {
 		m_state = CS_IDLE;
 	}
 
-	// clicking on a pin (endpoints) activates to CREATE_WIRE mode
-	if (m_state == CS_IDLE && m_selected_pin != PIN_UNDEFINED && ImGui::IsMouseClicked(0)) {
+	// clicking on a pin (endpoints) activates CREATE_WIRE mode
+	if (m_state == CS_IDLE && m_hovered_pin != PIN_UNDEFINED && ImGui::IsMouseClicked(0)) {
 		m_state = CS_CREATE_WIRE;
-		m_line_origin = m_selected_pin;
-		m_line_anchors = {m_segment_start, m_segment_start};
+		m_wire_start = {m_mouse_grid_point, m_hovered_pin, nullptr};
+		m_line_anchors = {m_mouse_grid_point, m_mouse_grid_point};
+		m_segment_start = m_mouse_grid_point;
+	}
+
+	// clicking on a wire activates CREATE_WIRE mode
+	if (m_state == CS_IDLE && m_hovered_wire != nullptr && ImGui::IsMouseClicked(0)) {
+		m_state = CS_CREATE_WIRE;
+		m_wire_start = {m_mouse_grid_point, PIN_UNDEFINED, m_hovered_wire};
+		m_line_anchors = {m_mouse_grid_point, m_mouse_grid_point};
+		m_segment_start = m_mouse_grid_point;
 	}
 
 	// right-clicking aborts CREATE_WIRE mode
@@ -343,12 +356,19 @@ void UICircuit::draw() {
 	}
 
 	// clicking while in CREATE_WIRE mode
-	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(0)) {
-		if (m_selected_pin != PIN_UNDEFINED && m_selected_pin != m_line_origin) {
-			// create wire when another endpoint was clicked
-			auto wire = m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
-			m_circuit->connect_pins(m_line_origin, m_selected_pin);
-			wire->set_node(m_circuit->sim()->pin_node(m_line_origin));
+	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(0) && m_mouse_grid_point != m_wire_start.m_position) {
+		bool sw_create = false;
+
+		if (m_hovered_pin != PIN_UNDEFINED) {
+			m_wire_end = {m_mouse_grid_point, m_hovered_pin, nullptr};
+			sw_create = true;
+		} else if (m_hovered_wire != nullptr) {
+			m_wire_end = {m_mouse_grid_point, PIN_UNDEFINED, m_hovered_wire};
+			sw_create = true;
+		}
+
+		if (sw_create) {
+			create_wire();
 			m_state = CS_IDLE;
 		} else {
 			// add anchor when clicking in the empty circuit
@@ -417,6 +437,42 @@ void UICircuit::embed_circuit(Circuit *templ_circuit) {
     auto vis_comp = m_circuit->create_visual_component(nested);
 	vis_comp->set_position(m_mouse_grid_point);
 	UICircuitBuilder::materialize_component(this, vis_comp);
+}
+
+void UICircuit::create_wire() {
+
+	// nothing to do if drawn wire ends in the same place it begins
+	if (m_wire_start.m_position == m_wire_end.m_position) {
+		return;
+	}
+
+	if (m_wire_start.m_pin != PIN_UNDEFINED && m_wire_end.m_pin != PIN_UNDEFINED) {
+		// a new wire between two pins
+		auto wire = m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
+		m_circuit->connect_pins(m_wire_start.m_pin, m_hovered_pin);
+		wire->set_node(m_circuit->sim()->pin_node(m_hovered_pin));
+	} else if (m_wire_start.m_wire != nullptr && m_wire_end.m_wire != nullptr) {
+		// the newly drawn wire merges two wires
+		if (m_wire_start.m_wire != m_wire_end.m_wire) {
+			m_wire_start.m_wire->merge(m_wire_end.m_wire);
+			m_circuit->sim()->merge_nodes(m_wire_start.m_wire->node(), m_wire_end.m_wire->node());
+			m_circuit->remove_wire(m_wire_end.m_wire);
+		}
+		auto wire = m_wire_start.m_wire;
+		wire->split_at_point(m_wire_start.m_position);
+		wire->split_at_point(m_wire_end.m_position);
+		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
+	} else {
+		// join a pin to an existing wire
+		auto pin = (m_wire_start.m_pin != PIN_UNDEFINED) ? m_wire_start.m_pin : m_wire_end.m_pin;
+		auto wire = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_wire : m_wire_end.m_wire;
+		auto junction = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_position : m_wire_end.m_position;
+
+		wire->split_at_point(junction);
+		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
+		wire->simplify();
+		m_circuit->sim()->pin_set_node(pin, wire->node());
+	}
 }
 
 void UICircuit::draw_grid(ImDrawList *draw_list) {

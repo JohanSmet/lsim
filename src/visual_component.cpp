@@ -95,12 +95,7 @@ Wire::Wire() {
 Wire::Wire(Point *anchors, size_t num_anchors) {
     assert(num_anchors > 1);
 
-    for(size_t a = 1;a < num_anchors; ++a) {
-        if (anchors[a - 1] != anchors[a]) {
-            add_segment(anchors[a - 1], anchors[a]);
-        }
-    }
-
+    add_segments(anchors, num_anchors);
     simplify();
 }
 
@@ -138,6 +133,39 @@ WireSegment *Wire::add_segment(const Point &p0, const Point &p1) {
     segment->set_junction(0, add_junction(p0, segment));
     segment->set_junction(1, add_junction(p1, segment));
     return segment;
+}
+
+void Wire::add_segments(Point *anchors, size_t num_anchors) {
+    for(size_t a = 1;a < num_anchors; ++a) {
+        if (anchors[a - 1] != anchors[a]) {
+            add_segment(anchors[a - 1], anchors[a]);
+        }
+    }
+}
+
+void Wire::merge(Wire *other) {
+    for (const auto &segment : other->m_segments) {
+        add_segment(segment->junction(0)->position(), segment->junction(1)->position());
+    } 
+}
+
+void Wire::split_at_point(const Point &p) {
+    // nothing to do if there is already a junction at the specified point
+    if (point_is_junction(p)) {
+        return;
+    }
+
+    // find segment containing the point
+    auto found = std::find_if(m_segments.begin(), m_segments.end(), 
+                                [p](const auto &s) {return s->point_on_segment(p);});
+    if (found == m_segments.end()) {
+        return;
+    }
+    auto segment = found->get();
+
+    add_segment(segment->junction(0)->position(), p);
+    add_segment(p, segment->junction(1)->position());
+    remove_redundant_segment(segment);
 }
 
 void Wire::simplify() {

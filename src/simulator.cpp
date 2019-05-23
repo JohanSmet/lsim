@@ -73,8 +73,7 @@ void Simulator::connect_pins(pin_t pin_a, pin_t pin_b) {
             return;
         }
 
-        release_node(node_b);
-        std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
+        merge_nodes(node_a, node_b);
         return;
     }
 
@@ -156,6 +155,12 @@ node_t Simulator::assign_node() {
 
 void Simulator::release_node(node_t node_id) {
     m_free_nodes.push_back(node_id);
+}
+
+node_t Simulator::merge_nodes(node_t node_a, node_t node_b) {
+    release_node(node_b);
+    std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
+    return node_a;
 }
 
 void Simulator::write_node(node_t node_id, Value value) {

@@ -98,6 +98,7 @@ public:
     void move_component_abs(UIComponent *comp, Point pos);
     void create_component(VisualComponent *vis_comp);
     void embed_circuit(Circuit *templ_circuit);
+    void create_wire();
 
     class Circuit *circuit() {return m_circuit;}
 
@@ -111,22 +112,31 @@ private:
     typedef std::vector<UIConnection>           ui_connection_container_t;
     typedef std::vector<Point>                  point_container_t;
 
+    struct WireEndPoint {
+        Point   m_position;
+        pin_t   m_pin;
+        Wire *  m_wire;
+    };
+
 private:
     class Circuit *          m_circuit;
     std::string              m_name;
     ui_component_container_t  m_ui_components;
     ui_connection_container_t m_ui_connections;
 
-    UICircuitState           m_state;
-    UIComponent *            m_selected_comp;
-    pin_t                    m_selected_pin;
+    UICircuitState      m_state;
+    UIComponent *       m_selected_comp;
+
+    pin_t               m_hovered_pin;
+    Wire *              m_hovered_wire;
 
     Point               m_mouse_grid_point;
     Point               m_drag_delta;
 
-    pin_t               m_line_origin;
-    point_container_t   m_line_anchors;
+    WireEndPoint        m_wire_start;
+    WireEndPoint        m_wire_end;
     Point               m_segment_start;
+    point_container_t   m_line_anchors;
 
     Point   m_scroll_delta;
     bool    m_show_grid;

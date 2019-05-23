@@ -77,6 +77,7 @@ public:
 
     Wire *create_wire(size_t num_points, Point *points);
     Wire *create_wire();
+    void remove_wire(Wire *wire);
     const wire_container_t &wires() const {return m_wires;}
 
 private:
