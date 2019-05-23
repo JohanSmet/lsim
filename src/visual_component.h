@@ -75,6 +75,8 @@ public:
     void set_junction(size_t idx, WireJunction *junction);
     WireJunction *junction(size_t idx) const;
 
+    bool point_on_segment(const Point &p);
+
 private:
     std::array<WireJunction *, 2>  m_ends;
 };
@@ -103,6 +105,9 @@ public:
     node_t node() const {return m_node;}
 
     void simplify();
+
+    bool point_is_junction(const Point &p) const;
+    bool point_on_wire(const Point &p) const;
 private:
     void remove_junction(WireJunction *junction);
     void remove_segment_from_junction(WireJunction *junction, WireSegment *segment);

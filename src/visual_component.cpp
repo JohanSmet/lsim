@@ -80,6 +80,10 @@ WireJunction *WireSegment::junction(size_t idx) const {
     return m_ends[idx];
 }
 
+bool WireSegment::point_on_segment(const Point &p) {
+    return point_on_line_segment(m_ends[0]->position(), m_ends[1]->position(), p);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Wire
@@ -164,6 +168,16 @@ void Wire::simplify() {
             remove_redundant_segment(segments[1]);
         }
     }
+}
+
+bool Wire::point_is_junction(const Point &p) const {
+    return std::any_of(m_junctions.begin(), m_junctions.end(),
+                         [p](const auto &j) {return j->position() == p;});
+}
+
+bool Wire::point_on_wire(const Point &p) const {
+    return std::any_of(m_segments.begin(), m_segments.end(),
+                         [p](const auto &s) {return s->point_on_segment(p);});
 }
 
 void Wire::remove_junction(WireJunction *junction) {
