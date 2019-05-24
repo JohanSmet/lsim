@@ -20,7 +20,7 @@ typedef uint32_t pin_t;
 typedef uint32_t node_t;
 
 const pin_t PIN_UNDEFINED = static_cast<pin_t>(-1);
-const node_t NOT_CONNECTED = (node_t) -1;
+const node_t NODE_INVALID = static_cast<node_t>(-1);
 
 enum Value {
     VALUE_FALSE         = 0,
