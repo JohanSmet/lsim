@@ -88,7 +88,7 @@ public:
 
     void draw();
 
-    void move_component(UIComponent *comp, Point delta);
+    void move_selected_components();
     void move_component_abs(UIComponent *comp, Point pos);
     void ui_create_component(VisualComponent *vis_comp);
     void embed_circuit(Circuit *templ_circuit);
@@ -96,7 +96,14 @@ public:
 
     class Circuit *circuit() {return m_circuit;}
 
-    UIComponent *selected_component() const {return m_selected_comp;}
+    // selection
+    size_t num_selected_items() const {return m_selection.size();}
+    void clear_selection();
+    void select_component(UIComponent *component);
+    void deselect_component(UIComponent *component);
+    void toggle_selection(UIComponent *component);
+    bool is_selected(UIComponent *component);
+    UIComponent *selected_component() const;
 
 private:
     void draw_grid(ImDrawList *draw_list);
@@ -111,19 +118,27 @@ private:
         Wire *  m_wire;
     };
 
+    struct SelectedItem {
+        UIComponent *m_component;
+        Wire *m_wire;
+    };
+    typedef std::vector<SelectedItem>   selection_container_t;
+
 private:
     class Circuit *          m_circuit;
     std::string              m_name;
+ 
     ui_component_container_t  m_ui_components;
+    selection_container_t     m_selection;
 
     UICircuitState      m_state;
-    UIComponent *       m_selected_comp;
 
+    UIComponent *       m_hovered_component;
     pin_t               m_hovered_pin;
     Wire *              m_hovered_wire;
 
     Point               m_mouse_grid_point;
-    Point               m_drag_delta;
+    Point               m_drag_last;
 
     WireEndPoint        m_wire_start;
     WireEndPoint        m_wire_end;

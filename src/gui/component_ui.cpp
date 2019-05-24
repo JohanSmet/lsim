@@ -6,6 +6,8 @@
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"
 
+#include <algorithm>
+
 #include "colors.h"
 #include "simulator.h"
 #include "circuit.h"
@@ -138,9 +140,7 @@ UICircuit::UICircuit(Circuit *circuit) :
 			m_name(circuit->name()),
 			m_show_grid(true),
 			m_scroll_delta(0,0),
-			m_state(CS_IDLE),
-			m_selected_comp(nullptr) {
-
+			m_state(CS_IDLE) {
 }
 
 UIComponent *UICircuit::create_component(VisualComponent *visual_comp) {
@@ -168,15 +168,10 @@ void UICircuit::draw() {
 		roundf(mouse_pos.y / GRID_SIZE) * GRID_SIZE
 	};
 
-	// left mousebutton clicked : reset component selection
-	//	if click was inside a component it will be reselectd in the component loop
-	if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered()) {
-		m_selected_comp = nullptr;
-	}
-
 	// components
 	m_hovered_pin = PIN_UNDEFINED;
 	m_hovered_wire = nullptr;
+	m_hovered_component = nullptr;
 
 	for (auto &comp : m_ui_components) {
 
@@ -203,7 +198,7 @@ void UICircuit::draw() {
 		// draw border + icon
 		auto border_color = COLOR_COMPONENT_BORDER;
 
-		if (m_selected_comp == comp.get()) {
+		if (is_selected(comp.get())) {
 			draw_list->AddRectFilled(comp->aabb_min() + offset, comp->aabb_max() + offset, 
 									 COLOR_COMPONENT_SELECTED);
 			if (m_state == CS_DRAGGING) {
@@ -218,19 +213,8 @@ void UICircuit::draw() {
 							   draw_list, 2, COLOR_COMPONENT_ICON);
 		}
 
-		// selection
-		if (ImGui::IsItemClicked()) {
-			m_selected_comp = comp.get();
-		}
-
-		// dragging
-		if (ImGui::IsItemActive() && m_state == CS_IDLE && m_hovered_pin == PIN_UNDEFINED) {
-			m_state = CS_DRAGGING;
-			m_drag_delta = {0, 0};
-		}
-
-		if (m_state == CS_DRAGGING && m_selected_comp == comp.get()) {
-			move_component(comp.get(), ImGui::GetIO().MouseDelta);
+		if (ImGui::IsItemHovered()) {
+			m_hovered_component = comp.get();
 		}
 
 		// end points
@@ -243,7 +227,6 @@ void UICircuit::draw() {
 				m_hovered_pin = pair.first;
 			}
 		}
-
 
 		ImGui::PopID();
 	}
@@ -271,6 +254,78 @@ void UICircuit::draw() {
 		}
 	}
 
+	// handle input
+	// -> left mouse button down
+	if (ImGui::IsMouseClicked(0)) {
+
+		if (m_state == CS_CREATE_COMPONENT) {
+			// ends CREATE_COMPONENT state
+			m_state = CS_IDLE;
+		} else if (m_state == CS_IDLE && m_hovered_pin != PIN_UNDEFINED) {
+			// clicking on an endpoint activates CREATE_WIRE state
+			m_state = CS_CREATE_WIRE;
+			m_wire_start = {m_mouse_grid_point, m_hovered_pin, nullptr};
+			m_line_anchors = {m_mouse_grid_point, m_mouse_grid_point};
+			m_segment_start = m_mouse_grid_point;
+		} else if (m_state == CS_IDLE && m_hovered_wire != nullptr) {
+			// clicking on a wire activates CREATE_WIRE state
+			m_state = CS_CREATE_WIRE;
+			m_wire_start = {m_mouse_grid_point, PIN_UNDEFINED, m_hovered_wire};
+			m_line_anchors = {m_mouse_grid_point, m_mouse_grid_point};
+			m_segment_start = m_mouse_grid_point;
+		} else if (m_state == CS_IDLE && 
+				   m_hovered_pin == PIN_UNDEFINED &&
+				   m_hovered_wire == nullptr &&
+				   m_hovered_component == nullptr) {
+			// clicking on the circuit background clears the selection
+			clear_selection();
+		} else if (m_state == CS_CREATE_WIRE && m_mouse_grid_point != m_wire_start.m_position) {
+			// clicking while in CREATE_WIRE mode
+			bool sw_create = false;
+
+			if (m_hovered_pin != PIN_UNDEFINED) {
+				m_wire_end = {m_mouse_grid_point, m_hovered_pin, nullptr};
+				sw_create = true;
+			} else if (m_hovered_wire != nullptr) {
+				m_wire_end = {m_mouse_grid_point, PIN_UNDEFINED, m_hovered_wire};
+				sw_create = true;
+			}
+
+			if (sw_create) {
+				create_wire();
+				m_state = CS_IDLE;
+			} else {
+				// add anchor when clicking in the empty circuit
+				m_segment_start = m_line_anchors.back();
+				m_line_anchors.push_back(m_segment_start);
+			}
+		}
+	}
+
+	// -> left mouse button up
+	if (ImGui::IsMouseReleased(0)) {
+		if (m_state == CS_IDLE && m_hovered_component != nullptr) {
+			// component selection
+			if (!ImGui::GetIO().KeyShift) {
+				clear_selection();
+				select_component(m_hovered_component);
+			} else {
+				toggle_selection(m_hovered_component);
+			}
+		}
+	}
+
+	// right-clicking aborts CREATE_WIRE mode
+	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(1)) {
+		m_state = CS_IDLE;
+	}
+
+	// double-clicking while in CREATE_WIRE mode
+	/* disabled for now because each wire needs to have a node associated with it
+	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseDoubleClicked(0)) {
+		m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
+		m_state = CS_IDLE;
+	}*/
 
 	if (m_state == CS_CREATE_WIRE) {
 		// snap to diagonal (45 degree) / vertical / horizontal
@@ -306,102 +361,45 @@ void UICircuit::draw() {
 		}
 	}
 
+	// start dragging
+	if (m_state == CS_IDLE && ImGui::IsMouseDragging(0)) {
+		m_state = CS_DRAGGING;
+		m_drag_last = m_mouse_grid_point;
+	}
+
 	// handle end of dragging
-	if (m_state == CS_DRAGGING && !ImGui::IsMouseDragging(0, 0.0f)) {
+	if (m_state == CS_DRAGGING && !ImGui::IsMouseDragging(0)) {
 		m_state = CS_IDLE;
+	}
+
+	// move selected items while dragging
+	if (m_state == CS_DRAGGING) {
+		move_selected_components();
 	}
 
 	// snap component to mouse cursor when creating
-	if (m_state == CS_CREATE_COMPONENT && m_selected_comp != nullptr) {
-		move_component_abs(m_selected_comp, m_mouse_grid_point);
+	if (m_state == CS_CREATE_COMPONENT && selected_component() != nullptr) {
+		move_component_abs(selected_component(), m_mouse_grid_point);
 	}
-
-	// clicking left mouse button while creating ends create state
-	if (m_state == CS_CREATE_COMPONENT && ImGui::IsMouseClicked(0)) {
-		m_state = CS_IDLE;
-	}
-
-	// clicking on a pin (endpoints) activates CREATE_WIRE mode
-	if (m_state == CS_IDLE && m_hovered_pin != PIN_UNDEFINED && ImGui::IsMouseClicked(0)) {
-		m_state = CS_CREATE_WIRE;
-		m_wire_start = {m_mouse_grid_point, m_hovered_pin, nullptr};
-		m_line_anchors = {m_mouse_grid_point, m_mouse_grid_point};
-		m_segment_start = m_mouse_grid_point;
-	}
-
-	// clicking on a wire activates CREATE_WIRE mode
-	if (m_state == CS_IDLE && m_hovered_wire != nullptr && ImGui::IsMouseClicked(0)) {
-		m_state = CS_CREATE_WIRE;
-		m_wire_start = {m_mouse_grid_point, PIN_UNDEFINED, m_hovered_wire};
-		m_line_anchors = {m_mouse_grid_point, m_mouse_grid_point};
-		m_segment_start = m_mouse_grid_point;
-	}
-
-	// right-clicking aborts CREATE_WIRE mode
-	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(1)) {
-		m_state = CS_IDLE;
-	}
-
-	// clicking while in CREATE_WIRE mode
-	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(0) && m_mouse_grid_point != m_wire_start.m_position) {
-		bool sw_create = false;
-
-		if (m_hovered_pin != PIN_UNDEFINED) {
-			m_wire_end = {m_mouse_grid_point, m_hovered_pin, nullptr};
-			sw_create = true;
-		} else if (m_hovered_wire != nullptr) {
-			m_wire_end = {m_mouse_grid_point, PIN_UNDEFINED, m_hovered_wire};
-			sw_create = true;
-		}
-
-		if (sw_create) {
-			create_wire();
-			m_state = CS_IDLE;
-		} else {
-			// add anchor when clicking in the empty circuit
-			m_segment_start = m_line_anchors.back();
-			m_line_anchors.push_back(m_segment_start);
-		}
-	}
-
-	// double-clicking while in CREATE_WIRE mode
-	/* disabled for now because each wire needs to have a node associated with it
-	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseDoubleClicked(0)) {
-		m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
-		m_state = CS_IDLE;
-	}*/
 }
 
-void UICircuit::move_component(UIComponent *ui_comp, Point delta) {
-	
-	m_drag_delta = m_drag_delta + delta;
-	Point cur_pos = ui_comp->visual_comp()->get_position();
-	Point new_pos = cur_pos + m_drag_delta;
+void UICircuit::move_selected_components() {
 
-	// snap to grid
-	if (m_drag_delta.x > 0) {
-		new_pos.x = floorf(new_pos.x / GRID_SIZE) * GRID_SIZE;
-	} else {
-		new_pos.x = ceilf(new_pos.x / GRID_SIZE) * GRID_SIZE;
+	if (m_drag_last == m_mouse_grid_point) {
+		return;
 	}
 
-	if (m_drag_delta.y > 0) {
-		new_pos.y = floorf(new_pos.y / GRID_SIZE) * GRID_SIZE;
-	} else {
-		new_pos.y = ceilf(new_pos.y / GRID_SIZE) * GRID_SIZE;
-	}
+	Point delta = m_mouse_grid_point - m_drag_last;
+	m_drag_last = m_mouse_grid_point;
 
-	Point dist = new_pos - cur_pos;
+	for (auto &item : m_selection) {
+		if (item.m_component) {
+			auto vis_comp = item.m_component->visual_comp();
+			auto new_pos = vis_comp->get_position() + delta;
 
-	ui_comp->visual_comp()->set_position({new_pos.x, new_pos.y});
-	ui_comp->build_transform();
-
-	if (dist.x != 0.0f) {
-		m_drag_delta.x = 0;
-	}
-
-	if (dist.y != 0.0f) {
-		m_drag_delta.y = 0;
+			vis_comp->set_position(new_pos);
+			item.m_component->build_transform();
+		}
 	}
 }
 
@@ -414,7 +412,8 @@ void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
 
 void UICircuit::ui_create_component(VisualComponent *vis_comp) {
 	m_state = CS_CREATE_COMPONENT;
-	m_selected_comp = create_component(vis_comp);
+	clear_selection();
+	select_component(create_component(vis_comp));
 }
 
 void UICircuit::embed_circuit(Circuit *templ_circuit) {
@@ -457,6 +456,45 @@ void UICircuit::create_wire() {
 		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 		wire->simplify();
 		m_circuit->sim()->pin_set_node(pin, wire->node());
+	}
+}
+
+void UICircuit::clear_selection() {
+	m_selection.clear();
+}
+
+void UICircuit::select_component(UIComponent *component) {
+	if (is_selected(component)) {
+		return;
+	}
+
+	m_selection.push_back({component, nullptr});
+}
+
+void UICircuit::deselect_component(UIComponent *component) {
+	m_selection.erase(std::remove_if(m_selection.begin(), m_selection.end(),
+						[component](const auto &s) {return s.m_component == component;}));
+}
+
+
+void UICircuit::toggle_selection(UIComponent *component) {
+	if (is_selected(component)) {
+		deselect_component(component);
+	} else {
+		select_component(component);
+	}
+}
+
+bool UICircuit::is_selected(UIComponent *component) {
+	return std::any_of(m_selection.begin(), m_selection.end(),
+						[component](const auto &s) {return s.m_component == component;});
+}
+
+UIComponent *UICircuit::selected_component() const {
+	if (m_selection.size() == 1) {
+		return m_selection.front().m_component;
+	} else {
+		return nullptr;
 	}
 }
 
