@@ -29,6 +29,7 @@ enum UICircuitState {
 class UIComponent {
 public:
     typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
+    typedef std::unique_ptr<UIComponent> uptr_t;
 
 public:
     UIComponent(VisualComponent *vis_comp);
@@ -89,14 +90,14 @@ public:
 public:
     UICircuit(class Circuit *circuit);
 
-    void add_component(const UIComponent &comp);
+    UIComponent *create_component(VisualComponent *visual_comp);
     void add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2);
 
     void draw();
 
     void move_component(UIComponent *comp, Point delta);
     void move_component_abs(UIComponent *comp, Point pos);
-    void create_component(VisualComponent *vis_comp);
+    void ui_create_component(VisualComponent *vis_comp);
     void embed_circuit(Circuit *templ_circuit);
     void create_wire();
 
@@ -108,7 +109,7 @@ private:
     void draw_grid(ImDrawList *draw_list);
 
 private:
-    typedef std::vector<UIComponent>            ui_component_container_t;
+    typedef std::vector<UIComponent::uptr_t>    ui_component_container_t;
     typedef std::vector<UIConnection>           ui_connection_container_t;
     typedef std::vector<Point>                  point_container_t;
 
@@ -145,11 +146,11 @@ private:
 
 class UICircuitBuilder {
 public:
-    typedef std::function<void(Component *, UIComponent *, UICircuit *)> materialize_func_t;
+    typedef std::function<void(Component *, UIComponent *)> materialize_func_t;
 public:
     static void register_materialize_func(ComponentType type, materialize_func_t func);
     static UICircuit::uptr_t create_circuit(Circuit *circuit);
-    static void materialize_component(UICircuit *circuit, VisualComponent *visual_comp);
+    static void materialize_component(UIComponent *ui_component);
     static void rematerialize_component(UICircuit *circuit, UIComponent *ui_component);
 
 private:

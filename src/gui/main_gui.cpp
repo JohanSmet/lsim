@@ -131,7 +131,7 @@ void main_gui(LSimContext *lsim_context)
 	auto create_component = [=](Component *component) {
 		auto vis_comp = sim->active_circuit()->create_visual_component(component);
 		vis_comp->set_position({-200, -200});
-		ui_circuit->create_component(vis_comp);
+		ui_circuit->ui_create_component(vis_comp);
 	};
 
 	auto add_component_button = [=](uint32_t component, const char *caption, Component * (create_func)(Circuit *circuit)) {

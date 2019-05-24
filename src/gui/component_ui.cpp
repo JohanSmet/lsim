@@ -143,8 +143,11 @@ UICircuit::UICircuit(Circuit *circuit) :
 
 }
 
-void UICircuit::add_component(const UIComponent &comp) {
-	m_ui_components.push_back(comp);
+UIComponent *UICircuit::create_component(VisualComponent *visual_comp) {
+	m_ui_components.push_back(std::make_unique<UIComponent>(visual_comp));
+	auto comp = m_ui_components.back().get();
+	UICircuitBuilder::materialize_component(comp);
+	return comp;
 }
 
 void UICircuit::add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2) {
@@ -183,45 +186,45 @@ void UICircuit::draw() {
 
 		ImGui::PushID(&comp);
 
-		Transform to_screen = comp.to_circuit();
+		Transform to_screen = comp->to_circuit();
 		to_screen.translate(offset);
 
-		if (comp.has_custom_ui_callback()) {
-			ImGui::SetCursorScreenPos(comp.aabb_min() + offset);
+		if (comp->has_custom_ui_callback()) {
+			ImGui::SetCursorScreenPos(comp->aabb_min() + offset);
 			draw_list->ChannelsSetCurrent(1);
-			comp.call_custom_ui_callback(to_screen);
+			comp->call_custom_ui_callback(to_screen);
 		}
 
 		draw_list->ChannelsSetCurrent(0);         // background
-		ImGui::SetCursorScreenPos(comp.aabb_min() + offset);
-		ImGui::InvisibleButton("node", comp.aabb_size());
+		ImGui::SetCursorScreenPos(comp->aabb_min() + offset);
+		ImGui::InvisibleButton("node", comp->aabb_size());
 
 		// tooltip
-		if (comp.has_tooltip() && ImGui::IsItemHovered()) {
-			ImGui::SetTooltip(comp.tooltip());
+		if (comp->has_tooltip() && ImGui::IsItemHovered()) {
+			ImGui::SetTooltip(comp->tooltip());
 		}
 
 		// draw border + icon
 		auto border_color = COLOR_COMPONENT_BORDER;
 
-		if (m_selected_comp == &comp) {
-			draw_list->AddRectFilled(comp.aabb_min() + offset, comp.aabb_max() + offset, 
+		if (m_selected_comp == comp.get()) {
+			draw_list->AddRectFilled(comp->aabb_min() + offset, comp->aabb_max() + offset, 
 									 COLOR_COMPONENT_SELECTED);
 			if (m_state == CS_DRAGGING) {
 				border_color = COLOR_COMPONENT_BORDER_DRAGGING;
 			}
 		}
 
-    	draw_list->AddRect(comp.aabb_min() + offset, comp.aabb_max() + offset, border_color);
+    	draw_list->AddRect(comp->aabb_min() + offset, comp->aabb_max() + offset, border_color);
 
-		if (comp.icon()) {
-    		comp.icon()->draw(to_screen, comp.aabb_size() - Point(10,10), 
-							  draw_list, 2, COLOR_COMPONENT_ICON);
+		if (comp->icon()) {
+    		comp->icon()->draw(to_screen, comp->aabb_size() - Point(10,10), 
+							   draw_list, 2, COLOR_COMPONENT_ICON);
 		}
 
 		// selection
 		if (ImGui::IsItemClicked()) {
-			m_selected_comp = &comp;
+			m_selected_comp = comp.get();
 		}
 
 		// dragging
@@ -230,12 +233,12 @@ void UICircuit::draw() {
 			m_drag_delta = {0, 0};
 		}
 
-		if (m_state == CS_DRAGGING && m_selected_comp == &comp) {
-			move_component(&comp, ImGui::GetIO().MouseDelta);
+		if (m_state == CS_DRAGGING && m_selected_comp == comp.get()) {
+			move_component(comp.get(), ImGui::GetIO().MouseDelta);
 		}
 
 		// end points
-		for (const auto &pair : comp.endpoints()) {
+		for (const auto &pair : comp->endpoints()) {
 			auto endpoint_screen = to_screen.apply(pair.second);
 			draw_list->AddCircleFilled(endpoint_screen, 3, COLOR_ENDPOINT);
 
@@ -425,18 +428,16 @@ void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
 }
 
 
-void UICircuit::create_component(VisualComponent *vis_comp) {
-	UICircuitBuilder::materialize_component(this, vis_comp);
-
+void UICircuit::ui_create_component(VisualComponent *vis_comp) {
 	m_state = CS_CREATE_COMPONENT;
-	m_selected_comp = &m_ui_components.back();
+	m_selected_comp = create_component(vis_comp);
 }
 
 void UICircuit::embed_circuit(Circuit *templ_circuit) {
 	auto nested = m_circuit->integrate_circuit_clone(templ_circuit);
     auto vis_comp = m_circuit->create_visual_component(nested);
 	vis_comp->set_position(m_mouse_grid_point);
-	UICircuitBuilder::materialize_component(this, vis_comp);
+	create_component(vis_comp);
 }
 
 void UICircuit::create_wire() {
@@ -507,18 +508,16 @@ UICircuit::uptr_t UICircuitBuilder::create_circuit(Circuit *circuit) {
 	auto ui_circuit = std::make_unique<UICircuit>(circuit);
 
     for (const auto &visual_comp : circuit->visual_components()) {
-		materialize_component(ui_circuit.get(), visual_comp.get());
+		ui_circuit->create_component(visual_comp.get());
 	}
 
     return std::move(ui_circuit);
 }
 
-void UICircuitBuilder::materialize_component(UICircuit *circuit, VisualComponent *visual_comp) {
-	auto mat_func = m_materialize_funcs.find(visual_comp->get_type());
+void UICircuitBuilder::materialize_component(UIComponent *ui_component) {
+	auto mat_func = m_materialize_funcs.find(ui_component->visual_comp()->get_type());
 	if (mat_func != m_materialize_funcs.end()) {
-		UIComponent comp(visual_comp);
-		mat_func->second(visual_comp->get_component(), &comp, circuit);
-		circuit->add_component(comp);
+		mat_func->second(ui_component->visual_comp()->get_component(), ui_component);
 	}
 
 	// connections
@@ -550,11 +549,7 @@ void UICircuitBuilder::rematerialize_component(UICircuit *circuit, UIComponent *
 	assert(ui_component);
 
 	ui_component->dematerialize();
-
-	auto mat_func = m_materialize_funcs.find(ui_component->visual_comp()->get_type());
-	if (mat_func != m_materialize_funcs.end()) {
-		mat_func->second(ui_component->visual_comp()->get_component(), ui_component, circuit);
-	}
+	materialize_component(ui_component);
 }
 
 
