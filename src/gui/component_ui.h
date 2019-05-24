@@ -77,12 +77,6 @@ private:
     endpoint_map_t      m_endpoints;
 };
 
-struct UIConnection {
-    uint32_t m_node;
-    uint32_t m_pin_a;
-    uint32_t m_pin_b;
-};
-
 class UICircuit {
 public:
     typedef std::unique_ptr<UICircuit>  uptr_t;
@@ -91,7 +85,6 @@ public:
     UICircuit(class Circuit *circuit);
 
     UIComponent *create_component(VisualComponent *visual_comp);
-    void add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2);
 
     void draw();
 
@@ -110,7 +103,6 @@ private:
 
 private:
     typedef std::vector<UIComponent::uptr_t>    ui_component_container_t;
-    typedef std::vector<UIConnection>           ui_connection_container_t;
     typedef std::vector<Point>                  point_container_t;
 
     struct WireEndPoint {
@@ -123,7 +115,6 @@ private:
     class Circuit *          m_circuit;
     std::string              m_name;
     ui_component_container_t  m_ui_components;
-    ui_connection_container_t m_ui_connections;
 
     UICircuitState      m_state;
     UIComponent *       m_selected_comp;

@@ -150,10 +150,6 @@ UIComponent *UICircuit::create_component(VisualComponent *visual_comp) {
 	return comp;
 }
 
-void UICircuit::add_connection(uint32_t node, uint32_t pin_1, uint32_t pin_2) {
-	m_ui_connections.push_back({node, pin_1, pin_2});
-}
-
 void UICircuit::draw() {
 
 	auto draw_list = ImGui::GetWindowDrawList();
@@ -251,18 +247,6 @@ void UICircuit::draw() {
 
 		ImGui::PopID();
 	}
-
-	// connections
-	/*for (const auto &conn : m_ui_connections) {
-		Point p0 = endpoint_position(conn.m_pin_a) + offset;
-		Point p1 = endpoint_position(conn.m_pin_b) + offset;
-		Point dp = {(p1.x - p0.x) * 0.25f, 0.0f};
-		draw_list->AddBezierCurve(
-			p0, p0 + dp, p1 - dp, p1,
-			COLOR_CONNECTION[m_circuit->sim()->read_node(conn.m_node)], 
-			2.0f
-		);
-	} */
 
 	// draw wires
 	for (const auto &wire : m_circuit->wires()) {
@@ -519,29 +503,6 @@ void UICircuitBuilder::materialize_component(UIComponent *ui_component) {
 	if (mat_func != m_materialize_funcs.end()) {
 		mat_func->second(ui_component->visual_comp()->get_component(), ui_component);
 	}
-
-	// connections
-/*	typedef std::unordered_map<node_t, pin_t> node_origin_container_t;
-	static node_origin_container_t node_origin_pins;
-
-	auto *sim = circuit->circuit()->sim();
-	const auto &pins = visual_comp->get_circuit() ? visual_comp->get_circuit()->ports_pins() : visual_comp->get_component()->pins();
-
-	for (auto pin : pins) {
-		auto node = sim->pin_node(pin);
-		if (node == NOT_CONNECTED) {
-			continue;
-		}
-
-		auto res = node_origin_pins.find(node);
-		if (res != node_origin_pins.end()) {
-			auto origin = res->second;
-			circuit->add_connection(node, origin, pin);
-		} else {
-			node_origin_pins[node] = pin;
-		}
-	}
-*/
 }
 
 void UICircuitBuilder::rematerialize_component(UICircuit *circuit, UIComponent *ui_component) {
