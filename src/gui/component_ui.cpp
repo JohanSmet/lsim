@@ -328,17 +328,23 @@ void UICircuit::draw() {
 		}
 	}
 
-	// right-clicking aborts CREATE_WIRE mode
-	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseClicked(1)) {
-		m_state = CS_IDLE;
+	// -> right mouse button down
+	if (ImGui::IsMouseClicked(1)) {
+		if (m_state == CS_CREATE_WIRE) {
+			// end CREATE_WIRE state
+			m_state = CS_IDLE;
+		}
 	}
 
-	// double-clicking while in CREATE_WIRE mode
-	/* disabled for now because each wire needs to have a node associated with it
-	if (m_state == CS_CREATE_WIRE && ImGui::IsMouseDoubleClicked(0)) {
-		m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
-		m_state = CS_IDLE;
-	}*/
+	// double-clicking
+	if (ImGui::IsMouseDoubleClicked(0)) {
+		if (m_state == CS_CREATE_WIRE) {
+			// end CREATE_WIRE state without actually connecting to something
+			m_wire_end = {m_mouse_grid_point, PIN_UNDEFINED, nullptr};
+			create_wire();
+			m_state = CS_IDLE;
+		}
+	}
 
 	if (m_state == CS_CREATE_WIRE) {
 		// snap to diagonal (45 degree) / vertical / horizontal
@@ -448,6 +454,17 @@ void UICircuit::create_wire() {
 		auto wire = m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
 		m_circuit->connect_pins(m_wire_start.m_pin, m_hovered_pin);
 		wire->set_node(m_circuit->sim()->pin_node(m_hovered_pin));
+	} else if (m_wire_end.m_pin == PIN_UNDEFINED && m_wire_end.m_wire == nullptr) {
+		// wire without an explicit endpoint
+		Wire *wire = m_wire_start.m_wire;
+		if (!wire) {
+			wire = m_circuit->create_wire();
+			wire->set_node(m_circuit->sim()->pin_node(m_wire_start.m_pin));
+		} else {
+			wire->split_at_point(m_wire_start.m_position);
+		}
+		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
+		wire->simplify();
 	} else if (m_wire_start.m_wire != nullptr && m_wire_end.m_wire != nullptr) {
 		// the newly drawn wire merges two wires
 		if (m_wire_start.m_wire != m_wire_end.m_wire) {
