@@ -237,8 +237,9 @@ void UICircuit::draw() {
 
 		// segments
 		for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
+			auto segment_color = is_selected(wire->segment_by_index(idx)) ? COLOR_WIRE_SELECTED : wire_color;
 			draw_list->AddLine(wire->segment_point(idx, 0) + offset, wire->segment_point(idx, 1) + offset, 
-							   wire_color, 2.0f);
+							   segment_color, 2.0f);
 		}
 
 		// draw junctions with more than 2 segments
@@ -311,6 +312,18 @@ void UICircuit::draw() {
 				select_component(m_hovered_component);
 			} else {
 				toggle_selection(m_hovered_component);
+			}
+		} else if (m_state == CS_CREATE_WIRE && m_hovered_wire != nullptr &&
+				   m_hovered_wire == m_wire_start.m_wire) {
+			// wire selection
+			m_state = CS_IDLE;
+			auto segment = m_hovered_wire->segment_at_point(m_mouse_grid_point);
+
+			if (!ImGui::GetIO().KeyShift) {
+				clear_selection();
+				select_wire_segment(segment);
+			} else {
+				toggle_selection(segment);
 			}
 		}
 	}
@@ -476,6 +489,18 @@ void UICircuit::deselect_component(UIComponent *component) {
 						[component](const auto &s) {return s.m_component == component;}));
 }
 
+void UICircuit::select_wire_segment(WireSegment *segment) {
+	if (is_selected(segment)) {
+		return;
+	}
+
+	m_selection.push_back({nullptr, segment});
+}
+
+void UICircuit::deselect_wire_segment(WireSegment *segment) {
+	m_selection.erase(std::remove_if(m_selection.begin(), m_selection.end(),
+						[segment](const auto &s) {return s.m_segment == segment;}));
+}
 
 void UICircuit::toggle_selection(UIComponent *component) {
 	if (is_selected(component)) {
@@ -485,9 +510,22 @@ void UICircuit::toggle_selection(UIComponent *component) {
 	}
 }
 
+void UICircuit::toggle_selection(WireSegment *segment) {
+	if (is_selected(segment)) {
+		deselect_wire_segment(segment);
+	} else {
+		select_wire_segment(segment);
+	}
+}
+
 bool UICircuit::is_selected(UIComponent *component) {
 	return std::any_of(m_selection.begin(), m_selection.end(),
 						[component](const auto &s) {return s.m_component == component;});
+}
+
+bool UICircuit::is_selected(WireSegment *segment) {
+	return std::any_of(m_selection.begin(), m_selection.end(),
+						[segment](const auto &s) {return s.m_segment == segment;});
 }
 
 UIComponent *UICircuit::selected_component() const {

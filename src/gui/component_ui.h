@@ -101,8 +101,12 @@ public:
     void clear_selection();
     void select_component(UIComponent *component);
     void deselect_component(UIComponent *component);
+    void select_wire_segment(WireSegment *segment);
+    void deselect_wire_segment(WireSegment *segment);
     void toggle_selection(UIComponent *component);
+    void toggle_selection(WireSegment *segment);
     bool is_selected(UIComponent *component);
+    bool is_selected(WireSegment *segment);
     UIComponent *selected_component() const;
 
 private:
@@ -120,7 +124,7 @@ private:
 
     struct SelectedItem {
         UIComponent *m_component;
-        Wire *m_wire;
+        WireSegment *m_segment;
     };
     typedef std::vector<SelectedItem>   selection_container_t;
 

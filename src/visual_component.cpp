@@ -67,7 +67,9 @@ WireSegment *WireJunction::segment(size_t idx) const {
 // WireSegment
 //
 
-WireSegment::WireSegment() : m_ends({nullptr, nullptr}) {
+WireSegment::WireSegment(Wire *wire) : 
+        m_wire(wire),
+        m_ends({nullptr, nullptr}) {
 }
 
 void WireSegment::set_junction(size_t idx, WireJunction *junction) {
@@ -105,6 +107,11 @@ const Point &Wire::segment_point(size_t segment_idx, size_t point_idx) const {
     return m_segments[segment_idx]->junction(point_idx)->position();
 }
 
+WireSegment *Wire::segment_by_index(size_t segment_idx) {
+    assert(segment_idx < m_segments.size());
+    return m_segments[segment_idx].get();
+}
+
 size_t Wire::junction_segment_count(size_t idx) const {
     assert(idx < m_junctions.size());
     return m_junctions[idx]->num_segments();
@@ -127,7 +134,7 @@ WireJunction *Wire::add_junction(const Point &p, WireSegment *segment) {
 }
 
 WireSegment *Wire::add_segment(const Point &p0, const Point &p1) {
-    m_segments.push_back(std::make_unique<WireSegment>());
+    m_segments.push_back(std::make_unique<WireSegment>(this));
     auto segment = m_segments.back().get();
 
     segment->set_junction(0, add_junction(p0, segment));
@@ -206,6 +213,16 @@ bool Wire::point_is_junction(const Point &p) const {
 bool Wire::point_on_wire(const Point &p) const {
     return std::any_of(m_segments.begin(), m_segments.end(),
                          [p](const auto &s) {return s->point_on_segment(p);});
+}
+
+WireSegment *Wire::segment_at_point(const Point &p) const {
+    for (const auto &segment : m_segments) {
+        if (segment->point_on_segment(p)) {
+            return segment.get();
+        }
+    }
+
+    return nullptr;
 }
 
 void Wire::remove_junction(WireJunction *junction) {

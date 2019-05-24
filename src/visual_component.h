@@ -70,7 +70,7 @@ class WireSegment {
 public:
     typedef std::unique_ptr<WireSegment> uptr_t;
 public:
-    WireSegment();
+    WireSegment(class Wire *wire);
 
     void set_junction(size_t idx, WireJunction *junction);
     WireJunction *junction(size_t idx) const;
@@ -78,6 +78,7 @@ public:
     bool point_on_segment(const Point &p);
 
 private:
+    class Wire *m_wire;
     std::array<WireJunction *, 2>  m_ends;
 };
 
@@ -93,6 +94,7 @@ public:
 
     size_t num_segments() const {return m_segments.size();}
     const Point &segment_point(size_t segment_idx, size_t point_idx) const;
+    WireSegment *segment_by_index(size_t segment_idx);
 
     size_t num_junctions() const {return m_junctions.size();}
     size_t junction_segment_count(size_t idx) const;
@@ -111,6 +113,7 @@ public:
 
     bool point_is_junction(const Point &p) const;
     bool point_on_wire(const Point &p) const;
+    WireSegment *segment_at_point(const Point &p) const;
 private:
     void remove_junction(WireJunction *junction);
     void remove_segment_from_junction(WireJunction *junction, WireSegment *segment);
