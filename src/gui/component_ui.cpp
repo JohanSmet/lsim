@@ -7,6 +7,7 @@
 #include "nanosvg.h"
 
 #include <algorithm>
+#include <SDL2/SDL_keycode.h>
 
 #include "colors.h"
 #include "simulator.h"
@@ -148,6 +149,11 @@ UIComponent *UICircuit::create_component(VisualComponent *visual_comp) {
 	auto comp = m_ui_components.back().get();
 	UICircuitBuilder::materialize_component(comp);
 	return comp;
+}
+
+void UICircuit::remove_component(UIComponent *ui_comp) {
+	m_ui_components.erase(std::remove_if(m_ui_components.begin(), m_ui_components.end(),
+							[ui_comp](const auto &uc) {return uc.get() == ui_comp;}));
 }
 
 void UICircuit::draw() {
@@ -336,7 +342,7 @@ void UICircuit::draw() {
 		}
 	}
 
-	// double-clicking
+	// -> double-clicking
 	if (ImGui::IsMouseDoubleClicked(0)) {
 		if (m_state == CS_CREATE_WIRE) {
 			// end CREATE_WIRE state without actually connecting to something
@@ -344,6 +350,11 @@ void UICircuit::draw() {
 			create_wire();
 			m_state = CS_IDLE;
 		}
+	}
+
+	// -> keyboard
+	if (ImGui::GetIO().KeysDown[SDLK_DELETE]) {
+    	delete_selected_components();
 	}
 
 	if (m_state == CS_CREATE_WIRE) {
@@ -420,6 +431,22 @@ void UICircuit::move_selected_components() {
 			item.m_component->build_transform();
 		}
 	}
+}
+
+void UICircuit::delete_selected_components() {
+	for (auto &item : m_selection) {
+		if (item.m_component) {
+			auto vis_comp = item.m_component->visual_comp();
+			if (vis_comp->get_component()) {
+				m_circuit->remove_component(vis_comp->get_component());
+			} else {
+				m_circuit->remove_nested_circuit(vis_comp->get_circuit());
+			}
+			m_circuit->remove_visual_component(vis_comp);
+			remove_component(item.m_component);
+		}
+	}
+	clear_selection();
 }
 
 void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {

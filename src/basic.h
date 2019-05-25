@@ -80,6 +80,7 @@ public:
               ComponentType type,
               Priority priority = PRIORITY_NORMAL);
     Component(const Component &other) = delete;
+    ~Component();
     void set_process_func(process_func_t func);
     void set_check_dirty_func(check_dirty_func_t func);
 

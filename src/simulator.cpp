@@ -43,7 +43,7 @@ pin_t Simulator::assign_pin(node_t connect_to_pin) {
 void Simulator::release_pin(pin_t pin) {
     assert(pin <= m_pin_nodes.size());
 
-    // disconnect pin
+    // invalidate node entry of the pin
     auto node = m_pin_nodes[pin];
     m_pin_nodes[pin] = NODE_INVALID;
 
@@ -51,7 +51,7 @@ void Simulator::release_pin(pin_t pin) {
     m_free_pins.push_back(pin);
 
     // check if the node is still in use
-    auto connected = std::count(m_pin_nodes.begin(), m_pin_nodes.end(), node);
+    auto connected = num_pins_in_node(node);
     if (connected <= 0) {
         release_node(node);
     }
@@ -259,4 +259,8 @@ void Simulator::run_until_stable(size_t stable_ticks) {
             stop = --remaining == 0;
         }
     }
+}
+
+size_t Simulator::num_pins_in_node(node_t node) const {
+    return std::count(m_pin_nodes.begin(), m_pin_nodes.end(), node);
 }

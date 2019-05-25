@@ -50,6 +50,13 @@ Component::Component(
     }
 }
 
+Component::~Component() {
+    // release the pins
+    for (const auto &pin : m_pins) {
+        m_sim->release_pin(pin);
+    }
+}
+
 void Component::set_process_func(Component::process_func_t func) {
     m_process_func = func;
 }

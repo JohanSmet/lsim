@@ -60,6 +60,9 @@ public:
     void run_until_stable(size_t stable_ticks);
 
 private:
+    size_t num_pins_in_node(node_t node) const;
+
+private:
     typedef std::vector<Value> value_container_t;
     typedef std::vector<node_t> node_container_t;
     typedef std::vector<Component *> component_container_t;

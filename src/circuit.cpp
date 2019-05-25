@@ -31,6 +31,11 @@ Component *Circuit::create_component(
     return m_components.back().get();
 }
 
+void Circuit::remove_component(Component *component) {
+    m_components.erase(std::remove_if(m_components.begin(), m_components.end(),
+                        [component](const auto &c) {return c.get() == component;}));
+}
+
 pin_t Circuit::create_pin(Component *component, pin_t connect_to_pin) {
     auto pin = m_sim->assign_pin(connect_to_pin);
     return pin;
@@ -145,6 +150,11 @@ Circuit *Circuit::integrate_circuit_clone(Circuit *sub, CircuitCloneContext *con
     return m_nested_circuits.back().get(); 
 }
 
+void Circuit::remove_nested_circuit(Circuit *nested) {
+    m_nested_circuits.erase(std::remove_if(m_nested_circuits.begin(), m_nested_circuits.end(),
+                                [nested](const auto &n){return n.get() == nested;}));
+}
+
 Circuit::uptr_t Circuit::clone(CircuitCloneContext *context) const {
     m_clone_count += 1;
     auto new_circuit = std::make_unique<Circuit>(m_sim, (m_name + "#" + std::to_string(m_clone_count)).c_str());
@@ -240,6 +250,11 @@ VisualComponent *Circuit::create_visual_component(Component *comp) {
 VisualComponent *Circuit::create_visual_component(Circuit *circuit) {
     m_visual_components.push_back(std::make_unique<VisualComponent>(circuit));
     return m_visual_components.back().get();
+}
+
+void Circuit::remove_visual_component(VisualComponent *vis_comp) {
+    m_visual_components.erase(std::remove_if(m_visual_components.begin(), m_visual_components.end(),
+                                [vis_comp](const auto &v) {return v.get() == vis_comp;}));
 }
 
 Wire *Circuit::create_wire(size_t num_points, Point *points) {

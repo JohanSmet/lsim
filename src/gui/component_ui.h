@@ -85,10 +85,12 @@ public:
     UICircuit(class Circuit *circuit);
 
     UIComponent *create_component(VisualComponent *visual_comp);
+    void remove_component(UIComponent *ui_comp);
 
     void draw();
 
     void move_selected_components();
+    void delete_selected_components();
     void move_component_abs(UIComponent *comp, Point pos);
     void ui_create_component(VisualComponent *vis_comp);
     void embed_circuit(Circuit *templ_circuit);
