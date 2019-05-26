@@ -77,6 +77,7 @@ private:
     endpoint_map_t      m_endpoints;
 };
 
+
 class UICircuit {
 public:
     typedef std::unique_ptr<UICircuit>  uptr_t;
@@ -112,11 +113,17 @@ public:
     UIComponent *selected_component() const;
 
 private:
+    void wire_make_connections(Wire *wire);
     void draw_grid(ImDrawList *draw_list);
 
 private:
+    struct PointHash {
+        size_t operator() (const Point &p) const;
+    };
+
     typedef std::vector<UIComponent::uptr_t>    ui_component_container_t;
     typedef std::vector<Point>                  point_container_t;
+    typedef std::unordered_map<Point, pin_t, PointHash>  point_pin_lut_t;
 
     struct WireEndPoint {
         Point   m_position;
@@ -135,6 +142,7 @@ private:
     std::string              m_name;
  
     ui_component_container_t  m_ui_components;
+    point_pin_lut_t           m_point_pin_lut;
     selection_container_t     m_selection;
 
     UICircuitState      m_state;

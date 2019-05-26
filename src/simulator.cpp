@@ -69,6 +69,17 @@ void Simulator::connect_pins(pin_t pin_a, pin_t pin_b) {
     merge_nodes(node_a, node_b);
 }
 
+void Simulator::disconnect_pin(pin_t pin) {
+    // a 'disconnected' pin is still assigned a node, but it is the only one assigned to that node
+    assert(pin <= m_pin_nodes.size());
+
+    if (num_pins_in_node(m_pin_nodes[pin]) == 1) {
+        return;
+    }
+
+    m_pin_nodes[pin] = assign_node();
+}
+
 void Simulator::write_pin(pin_t pin, Value value) {
     assert(pin < m_pin_nodes.size());
 
@@ -131,6 +142,19 @@ node_t Simulator::merge_nodes(node_t node_a, node_t node_b) {
     release_node(node_b);
     std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
     return node_a;
+}
+
+Component::pin_container_t Simulator::node_pins(node_t node_id) const {
+    assert(node_id < m_node_values[m_write_idx].size());
+
+    Component::pin_container_t pins;
+    for (size_t pin = 0; pin < m_pin_nodes.size(); ++pin) {
+        if (m_pin_nodes[pin] == node_id) {
+            pins.push_back(pin);
+        }
+    }
+
+    return pins;
 }
 
 void Simulator::write_node(node_t node_id, Value value) {

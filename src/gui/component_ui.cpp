@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <SDL2/SDL_keycode.h>
+#include <set>
 
 #include "colors.h"
 #include "simulator.h"
@@ -18,6 +19,14 @@ namespace {
 static const float GRID_SIZE = 10.0f;
 
 } // unnamed namespace
+
+size_t UICircuit::PointHash::operator() (const Point &p) const {
+		// abuse the fact that positions will always be aligned to the grid
+		int32_t x = (int32_t) p.x;
+		int32_t y = (int32_t) p.y;
+		return (size_t) y << 32 | (size_t) x;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -56,7 +65,6 @@ void UIComponent::change_size(float width, float height) {
 void UIComponent::recompute_aabb() {
 	m_aabb_min = m_to_circuit.apply({-m_half_size.x, -m_half_size.y});
 	m_aabb_max = m_to_circuit.apply({m_half_size.x, m_half_size.y});
-
 	if (m_aabb_max.x < m_aabb_min.x) {
         std::swap(m_aabb_min.x, m_aabb_max.x);
 	}
@@ -226,9 +234,12 @@ void UICircuit::draw() {
 		// end points
 		for (const auto &pair : comp->endpoints()) {
 			auto endpoint_screen = to_screen.apply(pair.second);
-			draw_list->AddCircleFilled(endpoint_screen, 3, COLOR_ENDPOINT);
+			auto endpoint_circuit = endpoint_screen - offset;
 
-			if (distance_squared(m_mouse_grid_point, endpoint_screen - offset) <= 2) {
+			draw_list->AddCircleFilled(endpoint_screen, 3, COLOR_ENDPOINT);
+			m_point_pin_lut[endpoint_circuit] = pair.first;
+
+			if (distance_squared(m_mouse_grid_point, endpoint_circuit) <= 2) {
 				draw_list->AddCircle(endpoint_screen, 8, COLOR_ENDPOINT_HOVER, 12, 2);
 				m_hovered_pin = pair.first;
 				ImGui::SetTooltip("Pin = %d\nNode = %d", m_hovered_pin, m_circuit->sim()->pin_node(m_hovered_pin));
@@ -440,6 +451,9 @@ void UICircuit::move_selected_components() {
 }
 
 void UICircuit::delete_selected_components() {
+
+	std::set<Wire *>	touched_wires;
+
 	for (auto &item : m_selection) {
 		if (item.m_component) {
 			auto vis_comp = item.m_component->visual_comp();
@@ -450,8 +464,40 @@ void UICircuit::delete_selected_components() {
 			}
 			m_circuit->remove_visual_component(vis_comp);
 			remove_component(item.m_component);
+		} else if (item.m_segment) {
+			auto wire = item.m_segment->wire();
+			wire->remove_segment(item.m_segment);
+			touched_wires.insert(wire);
 		}
 	}
+
+	for (auto wire : touched_wires) {
+		for (const auto &pin : m_circuit->sim()->node_pins(wire->node())) {
+			m_circuit->sim()->disconnect_pin(pin);
+		}
+
+		if (!wire->in_one_piece()) {
+			std::vector<Wire *> new_wires;
+
+			while (wire->num_segments() > 0) {
+				auto reachable_segments = wire->reachable_segments(wire->segment_by_index(0));
+				Wire *new_wire = m_circuit->create_wire();
+
+				for (auto segment : reachable_segments) {
+					new_wire->add_segment(segment->junction(0)->position(), segment->junction(1)->position());
+					wire->remove_segment(segment);
+				}
+
+				wire_make_connections(new_wire);
+				new_wires.push_back(new_wire);
+			}
+			m_circuit->remove_wire(wire);
+		} else {
+			wire->simplify();
+			wire_make_connections(wire);
+		}
+	}
+
 	clear_selection();
 }
 
@@ -583,6 +629,29 @@ UIComponent *UICircuit::selected_component() const {
 		return m_selection.front().m_component;
 	} else {
 		return nullptr;
+	}
+}
+
+void UICircuit::wire_make_connections(Wire *wire) {
+
+	wire->set_node(NODE_INVALID);
+	pin_t first_pin = PIN_UNDEFINED;
+
+	for (size_t j = 0; j < wire->num_junctions(); ++j) {
+		auto junction = wire->junction_position(j);	
+		auto found = m_point_pin_lut.find(junction);
+		if (found == m_point_pin_lut.end()) {
+			continue;
+		}
+		if (first_pin == PIN_UNDEFINED) {
+			first_pin = found->second;
+		} else {
+			m_circuit->connect_pins(first_pin, found->second);
+		}
+	}
+
+	if (first_pin != PIN_UNDEFINED) {
+		wire->set_node(m_circuit->sim()->pin_node(first_pin));
 	}
 }
 

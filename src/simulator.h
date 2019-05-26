@@ -26,6 +26,7 @@ public:
     pin_t assign_pin(node_t connect_to_pin = PIN_UNDEFINED);
     void release_pin(pin_t pin);
     void connect_pins(pin_t pin_a, pin_t pin_b);
+    void disconnect_pin(pin_t);
 
     void write_pin(pin_t pin, Value value);
     Value read_pin(pin_t pin) const;
@@ -39,6 +40,7 @@ public:
     node_t assign_node();
     void release_node(node_t node_id);
     node_t merge_nodes(node_t node_a, node_t node_b);
+    Component::pin_container_t node_pins(node_t node) const;
 
     void write_node(node_t node_id, Value value);
     Value read_node(node_t node_id) const;

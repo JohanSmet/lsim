@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <set>
 
 VisualComponent::VisualComponent(Component *component) :
     m_orientation(EAST),
@@ -223,6 +224,38 @@ WireSegment *Wire::segment_at_point(const Point &p) const {
     }
 
     return nullptr;
+}
+
+void Wire::remove_segment(WireSegment *segment) {
+    remove_redundant_segment(segment);
+}
+
+Wire::segment_set_t Wire::reachable_segments(WireSegment *from_segment) const {
+    std::set<WireSegment *> reachable;
+    std::vector<WireSegment *> to_check({from_segment});
+
+    while (!to_check.empty()) {
+        auto segment = to_check.back();
+        to_check.pop_back();
+        reachable.insert(segment);
+
+        for (size_t j = 0; j < 2; ++j) {
+            auto junction = segment->junction(j);
+
+            for (size_t s = 0; s < junction->num_segments(); ++s) {
+                if (reachable.find(junction->segment(s)) == reachable.end()) {
+                    to_check.push_back(junction->segment(s));
+                }
+            }
+        }
+    }
+
+    return reachable;
+}
+
+bool Wire::in_one_piece() const {
+// check if the wire isn't split into multiple pieces
+    return reachable_segments(m_segments.front().get()).size() == m_segments.size();
 }
 
 void Wire::remove_junction(WireJunction *junction) {

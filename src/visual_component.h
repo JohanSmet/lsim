@@ -6,6 +6,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <set>
 
 #include "basic.h"
 #include "algebra.h"
@@ -74,6 +75,7 @@ public:
 
     void set_junction(size_t idx, WireJunction *junction);
     WireJunction *junction(size_t idx) const;
+    Wire *wire() const {return m_wire;}
 
     bool point_on_segment(const Point &p);
 
@@ -86,6 +88,7 @@ class Wire {
 public:
     typedef std::vector<WireJunction::uptr_t> junction_container_t;
     typedef std::vector<WireSegment::uptr_t>  segment_container_t;
+    typedef std::set<WireSegment *> segment_set_t;
     typedef std::unique_ptr<Wire> uptr_t;
 
 public:
@@ -114,6 +117,11 @@ public:
     bool point_is_junction(const Point &p) const;
     bool point_on_wire(const Point &p) const;
     WireSegment *segment_at_point(const Point &p) const;
+
+    void remove_segment(WireSegment *segment);
+    segment_set_t reachable_segments(WireSegment *from_segment) const;
+    bool in_one_piece() const;
+
 private:
     void remove_junction(WireJunction *junction);
     void remove_segment_from_junction(WireJunction *junction, WireSegment *segment);

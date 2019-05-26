@@ -114,6 +114,8 @@ public:
     pin_container_t output_pins() const;
     pin_container_t control_pins() const;
 
+    void disconnect();
+
     // properties
     void add_property(Property::uptr_t &&prop);
     Property *property(const char *key);

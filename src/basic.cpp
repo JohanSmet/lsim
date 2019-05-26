@@ -170,6 +170,13 @@ Component::pin_container_t Component::control_pins() const {
     return pin_container_t(m_pins.begin() + m_control_start, m_pins.end());
 }
 
+void Component::disconnect() {
+    // disconnect all pins of the component
+    for (const auto &pin : m_pins) {
+        m_sim->disconnect_pin(pin);
+    }
+}
+
 void Component::add_property(Property::uptr_t &&prop) {
     m_properties[prop->key()] = std::move(prop);
 }
