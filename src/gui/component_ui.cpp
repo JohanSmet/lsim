@@ -231,6 +231,7 @@ void UICircuit::draw() {
 			if (distance_squared(m_mouse_grid_point, endpoint_screen - offset) <= 2) {
 				draw_list->AddCircle(endpoint_screen, 8, COLOR_ENDPOINT_HOVER, 12, 2);
 				m_hovered_pin = pair.first;
+				ImGui::SetTooltip("Pin = %d\nNode = %d", m_hovered_pin, m_circuit->sim()->pin_node(m_hovered_pin));
 			}
 		}
 
@@ -258,6 +259,9 @@ void UICircuit::draw() {
 		if (m_hovered_wire == nullptr && wire->point_on_wire(m_mouse_grid_point)) {
 			draw_list->AddCircle(m_mouse_grid_point + offset, 8, COLOR_ENDPOINT_HOVER, 12, 2);
 			m_hovered_wire = wire.get();
+			if (m_hovered_pin == PIN_UNDEFINED) {
+				ImGui::SetTooltip("Node = %d", wire->node());
+			}
 		}
 	}
 
