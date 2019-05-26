@@ -255,7 +255,11 @@ Wire::segment_set_t Wire::reachable_segments(WireSegment *from_segment) const {
 
 bool Wire::in_one_piece() const {
 // check if the wire isn't split into multiple pieces
-    return reachable_segments(m_segments.front().get()).size() == m_segments.size();
+    if (!m_segments.empty()) {
+       return reachable_segments(m_segments.front().get()).size() == m_segments.size();
+    } else {
+        return false;
+    }
 }
 
 void Wire::remove_junction(WireJunction *junction) {
