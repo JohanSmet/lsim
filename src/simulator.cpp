@@ -116,6 +116,11 @@ node_t Simulator::pin_node(pin_t pin) {
 void Simulator::pin_set_node(pin_t pin, node_t node) {
     assert(pin < m_pin_nodes.size());
     assert(node < m_node_values[0].size());
+
+    if (node != m_pin_nodes[pin] && num_pins_in_node(m_pin_nodes[pin]) <= 1) {
+        release_node(m_pin_nodes[pin]);
+    }
+
     m_pin_nodes[pin] = node;
 }
 
