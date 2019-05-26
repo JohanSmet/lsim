@@ -140,6 +140,7 @@ node_t Simulator::assign_node() {
 }
 
 void Simulator::release_node(node_t node_id) {
+    assert(node_id < m_node_values[0].size());
     m_free_nodes.push_back(node_id);
 }
 

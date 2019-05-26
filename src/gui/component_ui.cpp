@@ -251,7 +251,10 @@ void UICircuit::draw() {
 
 	// draw wires
 	for (const auto &wire : m_circuit->wires()) {
-		auto wire_color = COLOR_CONNECTION[m_circuit->sim()->read_node(wire->node())];
+		auto wire_color = COLOR_CONNECTION_UNDEFINED;
+		if (wire->node() != NODE_INVALID) {
+			wire_color = COLOR_CONNECTION[m_circuit->sim()->read_node(wire->node())];
+		}
 
 		// segments
 		for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
@@ -472,6 +475,9 @@ void UICircuit::delete_selected_components() {
 	}
 
 	for (auto wire : touched_wires) {
+		if (wire->node() == NODE_INVALID) {
+			continue;
+		}
 		for (const auto &pin : m_circuit->sim()->node_pins(wire->node())) {
 			m_circuit->sim()->disconnect_pin(pin);
 		}
