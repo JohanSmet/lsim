@@ -262,8 +262,10 @@ void UICircuit::draw() {
 	}
 
 	// handle input
+	bool mouse_in_window = ImGui::IsMouseHoveringWindow();
+
 	// -> left mouse button down
-	if (ImGui::IsMouseClicked(0)) {
+	if (mouse_in_window && ImGui::IsMouseClicked(0)) {
 
 		if (m_state == CS_CREATE_COMPONENT) {
 			// ends CREATE_COMPONENT state
@@ -310,7 +312,7 @@ void UICircuit::draw() {
 	}
 
 	// -> left mouse button up
-	if (ImGui::IsMouseReleased(0)) {
+	if (mouse_in_window && ImGui::IsMouseReleased(0)) {
 		if (m_state == CS_IDLE && m_hovered_component != nullptr) {
 			// component selection
 			if (!ImGui::GetIO().KeyShift) {
@@ -335,7 +337,7 @@ void UICircuit::draw() {
 	}
 
 	// -> right mouse button down
-	if (ImGui::IsMouseClicked(1)) {
+	if (mouse_in_window && ImGui::IsMouseClicked(1)) {
 		if (m_state == CS_CREATE_WIRE) {
 			// end CREATE_WIRE state
 			m_state = CS_IDLE;
@@ -343,7 +345,7 @@ void UICircuit::draw() {
 	}
 
 	// -> double-clicking
-	if (ImGui::IsMouseDoubleClicked(0)) {
+	if (mouse_in_window && ImGui::IsMouseDoubleClicked(0)) {
 		if (m_state == CS_CREATE_WIRE) {
 			// end CREATE_WIRE state without actually connecting to something
 			m_wire_end = {m_mouse_grid_point, PIN_UNDEFINED, nullptr};
