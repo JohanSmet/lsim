@@ -12,15 +12,49 @@
 
 #include "serialize.h"
 
+#include <set>
+
+namespace {
+
 static UICircuit::uptr_t ui_circuit = nullptr;
 static std::string ui_filename = "";
+static const char *value_labels[] = {"False", "True", "Undefined", "Error"};
 
-void change_active_circuit(Simulator *sim, Circuit *active_circuit) {
+static void change_active_circuit(Simulator *sim, Circuit *active_circuit) {
 	if (active_circuit && active_circuit != sim->active_circuit()) {
 		sim->change_active_circuit(active_circuit);
 		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
 		active_circuit->initialize_input_ports();
 	}
+}
+
+} // unnamed namespace
+
+void debug_window(LSimContext *lsim_context) {
+	ImGui::SetNextWindowSize(ImVec2(250,100), ImGuiSetCond_FirstUseEver);
+	ImGui::Begin("Debug");
+
+	auto sim = lsim_context->sim();
+
+	if (ImGui::CollapsingHeader("Nodes", ImGuiTreeNodeFlags_DefaultOpen)) {
+		
+		std::set<node_t> free_nodes(sim->free_nodes().begin(), sim->free_nodes().end());
+
+		for (size_t node_id = 0; node_id < sim->num_nodes(); ++node_id) {
+			if (free_nodes.find(node_id) != free_nodes.end()) {
+				continue;
+			}
+
+			auto value = sim->read_node(node_id);
+			if (ImGui::TreeNode(reinterpret_cast<void *>(node_id), "Node %.2d\tValue = %s", node_id, value_labels[value])) {
+				ImGui::Text("Time last written : %d", sim->node_last_written(node_id));
+				ImGui::Text("Time last changed : %d", sim->node_last_changed(node_id));
+				ImGui::TreePop();			
+			}
+		}
+	}
+
+	ImGui::End();
 }
 
 void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
@@ -237,7 +271,6 @@ void main_gui(LSimContext *lsim_context)
 
 		auto value_property = [](const char *caption, Property *property) -> Value {
 			int cur_value = property->value_as_integer();
-			const char *value_labels[] = {"False", "True", "Undefined", "Error"};
 			if (ImGui::Combo(caption, &cur_value, value_labels, 4)) {
 				property->value(static_cast<int64_t>(cur_value));
 			}
@@ -323,4 +356,6 @@ void main_gui(LSimContext *lsim_context)
 		}
 	}
 	ImGui::End();
+
+	debug_window(lsim_context);
 }

@@ -17,6 +17,8 @@ class Circuit;
 
 class Simulator {
 public:
+    typedef std::vector<node_t> node_container_t;
+public:
     Simulator();
 
     // components
@@ -49,6 +51,11 @@ public:
     bool node_changed(node_t node_id) const;
     bool node_changed_last_step(node_t node_id) const;
 
+    size_t num_nodes() const {return m_node_write_time.size();}
+    uint64_t node_last_written(node_t node_id) const;
+    uint64_t node_last_changed(node_t node_id) const;
+    const node_container_t &free_nodes() const {return m_free_nodes;}
+
     // values
     uint8_t read_nibble(std::vector<pin_t> pins) const;
     uint8_t read_byte(std::vector<pin_t> pins) const;
@@ -66,7 +73,6 @@ private:
 
 private:
     typedef std::vector<Value> value_container_t;
-    typedef std::vector<node_t> node_container_t;
     typedef std::vector<Component *> component_container_t;
     typedef std::array<component_container_t, 2> component_prio_container_t;
 
