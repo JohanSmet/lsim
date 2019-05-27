@@ -155,6 +155,8 @@ void Wire::merge(Wire *other) {
     for (const auto &segment : other->m_segments) {
         add_segment(segment->junction(0)->position(), segment->junction(1)->position());
     } 
+
+    std::copy(other->m_pins.begin(), other->m_pins.end(), m_pins.end());
 }
 
 void Wire::split_at_point(const Point &p) {
@@ -260,6 +262,14 @@ bool Wire::in_one_piece() const {
     } else {
         return false;
     }
+}
+
+void Wire::add_pin(pin_t pin) {
+    m_pins.push_back(pin);
+}
+
+void Wire::clear_pins() {
+    m_pins.clear();
 }
 
 void Wire::remove_junction(WireJunction *junction) {

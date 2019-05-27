@@ -122,6 +122,10 @@ public:
     segment_set_t reachable_segments(WireSegment *from_segment) const;
     bool in_one_piece() const;
 
+    void add_pin(pin_t pin);
+    void clear_pins();
+    const Component::pin_container_t &pins() const {return m_pins;}
+
 private:
     void remove_junction(WireJunction *junction);
     void remove_segment_from_junction(WireJunction *junction, WireSegment *segment);
@@ -131,6 +135,7 @@ private:
     junction_container_t  m_junctions;
     segment_container_t   m_segments;
     node_t                m_node;
+    Component::pin_container_t m_pins;
 
 };
 

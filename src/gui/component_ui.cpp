@@ -478,7 +478,7 @@ void UICircuit::delete_selected_components() {
 		if (wire->node() == NODE_INVALID) {
 			continue;
 		}
-		for (const auto &pin : m_circuit->sim()->node_pins(wire->node())) {
+		for (const auto &pin : wire->pins()) {
 			m_circuit->sim()->disconnect_pin(pin);
 		}
 
@@ -539,6 +539,8 @@ void UICircuit::create_wire() {
 		auto wire = m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
 		m_circuit->connect_pins(m_wire_start.m_pin, m_hovered_pin);
 		wire->set_node(m_circuit->sim()->pin_node(m_hovered_pin));
+		wire->add_pin(m_wire_start.m_pin);
+		wire->add_pin(m_wire_end.m_pin);
 	} else if (m_wire_end.m_pin == PIN_UNDEFINED && m_wire_end.m_wire == nullptr) {
 		// wire without an explicit endpoint
 		Wire *wire = m_wire_start.m_wire;
@@ -571,6 +573,7 @@ void UICircuit::create_wire() {
 		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 		wire->simplify();
 		m_circuit->sim()->pin_set_node(pin, wire->node());
+		wire->add_pin(pin);
 	}
 }
 
@@ -649,6 +652,7 @@ void UICircuit::wire_make_connections(Wire *wire) {
 		if (found == m_point_pin_lut.end()) {
 			continue;
 		}
+		wire->add_pin(found->second);
 		if (first_pin == PIN_UNDEFINED) {
 			first_pin = found->second;
 		} else {

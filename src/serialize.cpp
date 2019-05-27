@@ -214,6 +214,11 @@ private:
             segment_node.append_attribute(XML_ATTR_X2).set_value(p1.x);
             segment_node.append_attribute(XML_ATTR_Y2).set_value(p1.y);
         }
+
+        for (const auto &pin : wire->pins()) {
+            auto pin_node = wire_node.append_child(XML_EL_PIN);
+            pin_node.append_attribute(XML_ATTR_VALUE).set_value(pin);
+        }
     }
 
     void serialize_circuit(Circuit *circuit) {
@@ -477,6 +482,11 @@ public:
 
             wire->add_segment(Point(x1_attr.as_float(), y1_attr.as_float()),
                               Point(x2_attr.as_float(), y2_attr.as_float()));
+        }
+
+        for (auto pin_node : wire_node.children(XML_EL_PIN)) {
+            REQUIRED_ATTR(value_attr, pin_node, XML_ATTR_VALUE);
+            wire->add_pin(value_attr.as_uint());
         }
         return true;
     }
