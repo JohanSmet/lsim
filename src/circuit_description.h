@@ -12,35 +12,20 @@
 
 #include "property.h"
 #include "algebra.h"
+#include "sim_types.h"
 
 namespace lsim {
 
-enum Value {
-    VALUE_FALSE         = 0,
-    VALUE_TRUE          = 1,
-    VALUE_UNDEFINED     = 2,
-    VALUE_ERROR         = 3,
-};
-
-// component types - seems okay for now for these to be all listed here, not really expecting much extra types
-typedef uint32_t ComponentType;
-const ComponentType COMPONENT_CONNECTOR_IN = 0x0001;
-const ComponentType COMPONENT_CONNECTOR_OUT = 0x0002;
-const ComponentType COMPONENT_CONSTANT = 0x0003;
-const ComponentType COMPONENT_PULL_RESISTOR = 0x0004;
-const ComponentType COMPONENT_BUFFER = 0x0011;
-const ComponentType COMPONENT_TRISTATE_BUFFER = 0x0012;
-const ComponentType COMPONENT_AND_GATE = 0x0013;
-const ComponentType COMPONENT_OR_GATE = 0x0014;
-const ComponentType COMPONENT_NOT_GATE = 0x0015;
-const ComponentType COMPONENT_NAND_GATE = 0x0016;
-const ComponentType COMPONENT_NOR_GATE = 0x0017;
-const ComponentType COMPONENT_XOR_GATE = 0x0018;
-const ComponentType COMPONENT_XNOR_GATE = 0x0019;
-const ComponentType COMPONENT_SUB_CIRCUIT = 0x1001;
-
 typedef uint64_t pin_id_t;
-typedef std::vector<pin_id_t>   pin_container_t;
+typedef std::vector<pin_id_t>   pin_id_container_t;
+
+inline uint32_t component_id_from_pin_id(pin_id_t pin_id) {
+    return pin_id >> 32;
+}
+
+inline uint32_t pin_index_from_pin_id(pin_id_t pin_id) {
+    return pin_id & 0xffffffff;
+}
 
 class Component {
 public:
@@ -49,6 +34,11 @@ public:
 public:
     Component(uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls);
     uint32_t id() const {return m_id;}
+    ComponentType type() const {return m_type;}
+
+    // priority
+    Priority priority() const {return m_priority;}
+    void change_priority(Priority priority) {m_priority = priority;}
 
     // pins
     size_t num_inputs() const {return m_inputs;}
@@ -76,6 +66,7 @@ public:
 private:
     uint32_t m_id;
     ComponentType m_type;
+    Priority m_priority;
     size_t m_inputs;
     size_t m_outputs;
     size_t m_controls;
@@ -94,13 +85,17 @@ public:
 
     // pins
     void add_pin(pin_id_t pin);
+    size_t num_pins() const {return m_pins.size();}
+    pin_id_t pin(size_t index) const;
 
 private:
     uint32_t m_id;
-    pin_container_t m_pins;
+    pin_id_container_t m_pins;
 };
 
 class CircuitDescription {
+public:
+    typedef std::unique_ptr<CircuitDescription> uptr_t;
 public:
     CircuitDescription(const char *name);
 
@@ -133,6 +128,7 @@ public:
     Component *add_sub_circuit(const char *circuit);
 
     // instantiate into a simulator
+    std::unique_ptr<class CircuitInstance> instantiate(class Simulator *sim);
 
 private:
     typedef std::unordered_map<uint32_t, Component::uptr_t> component_lut_t;

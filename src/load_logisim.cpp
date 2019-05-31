@@ -13,6 +13,8 @@
 //        "Use fixed box-size" (circuitnameboxfixedsize) set to Yes (true)
 //  - probably lots of other stuff that I'm not aware of 8-)
 
+#if 0
+
 #include <pugixml.hpp>
 #include <string>
 #include <map>
@@ -817,3 +819,5 @@ Circuit *load_logisim(LSimContext *lsim_context, const char *data, size_t len) {
     auto parser = LogisimParser(&xml_doc, lsim_context);
     return parser.parse_xml();
 }
+
+#endif

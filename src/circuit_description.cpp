@@ -3,6 +3,8 @@
 // describe the composition of a logic circuit
 
 #include "circuit_description.h"
+#include "circuit_instance.h"
+#include "simulator.h"
 
 #include <cassert>
 
@@ -16,6 +18,7 @@ namespace lsim {
 Component::Component(uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls) :
         m_id(id),
         m_type(type),
+        m_priority(PRIORITY_NORMAL),
         m_inputs(inputs),
         m_outputs(outputs),
         m_controls(controls),
@@ -92,6 +95,11 @@ void Wire::add_pin(pin_id_t pin) {
     m_pins.push_back(pin);
 }
 
+pin_id_t Wire::pin(size_t index) const {
+    assert(index < m_pins.size());
+    return m_pins[index];
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // CircuitDescription
@@ -120,6 +128,7 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
         result->add_property(make_property("value", static_cast<int64_t>(VALUE_FALSE)));
     } else if (type == COMPONENT_PULL_RESISTOR) {
         result->add_property(make_property("pull_to", static_cast<int64_t>(VALUE_FALSE)));
+        result->change_priority(PRIORITY_DEFERRED);
     } else if (type == COMPONENT_SUB_CIRCUIT) {
         result->add_property(make_property("circuit", "unknown"));
     }
@@ -220,6 +229,20 @@ Component *CircuitDescription::add_xnor_gate() {
 
 Component *CircuitDescription::add_sub_circuit(const char *circuit) {
     return nullptr;    
+}
+
+std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim) {
+    auto instance = std::make_unique<CircuitInstance>(sim, this);
+
+    for (auto &comp : m_components) {
+        instance->add_component(comp.second.get());
+    }
+
+    for (auto &wire : m_wires) {
+        instance->add_wire(wire.second.get());
+    }
+
+    return std::move(instance);
 }
 
 } // namespace lsim

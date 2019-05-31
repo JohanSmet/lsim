@@ -4,97 +4,115 @@
 #define LSIM_SIMULATOR_H
 
 // includes
+#include "sim_functions.h"
+#include "sim_types.h"
+
 #include <vector>
 #include <memory>
 #include <array>
 
-#include "basic.h"
+namespace lsim {
 
-// forward declarations
-class Circuit;
+class Simulator;
 
-// interface
+class SimComponent {
+public:
+    typedef std::unique_ptr<SimComponent>   uptr_t;
+public:
+    SimComponent(Simulator *sim, Component *comp);
+    Component *description() const {return m_comp_desc;}
+
+    // pins
+    pin_t pin_by_index(size_t index) const;
+    size_t input_pin_index(size_t index) const {return index;}
+    size_t output_pin_index(size_t index) const {return m_output_start + index;}
+    size_t control_pin_index(size_t index) const {return m_control_start + index;}
+    pin_container_t input_pins() const;
+    pin_container_t output_pins() const;
+    pin_container_t control_pins() const;
+    size_t num_inputs() const {return m_output_start;}
+    size_t num_outputs() const {return m_control_start - m_output_start;}
+    size_t num_controls() const {return m_pins.size() - m_control_start;}
+
+    // read/write_pin: read/write the value of the node the specified pin connects to
+    Value read_pin(uint32_t index) const;
+    void write_pin(uint32_t index, Value value);
+
+    // read/write_checked: convenience functions that make it easy to check if 
+    //      all the read nodes (since last bad-read reset) had a valid boolean
+    //      value (not undefined or error)
+    bool read_pin_checked(uint32_t index);
+    void write_pin_checked(uint32_t index, bool value);
+    void reset_bad_read_check() {m_read_bad = false;}
+
+    // simulation
+    void tick();
+
+private:
+    Simulator *m_sim;
+    Component *m_comp_desc;
+    pin_container_t m_pins;
+    value_container_t m_values;
+
+    size_t m_output_start;
+    size_t m_control_start;
+    bool m_read_bad;
+
+    simulation_func_t m_sim_func;
+    simulation_needed_func_t m_sim_needed_func;
+};
 
 class Simulator {
-public:
-    typedef std::vector<node_t> node_container_t;
 public:
     Simulator();
 
     // components
-    void add_active_component(Component *comp);
+    SimComponent *create_component(Component *desc);
 
     // pins
-    pin_t assign_pin(node_t connect_to_pin = PIN_UNDEFINED);
-    void release_pin(pin_t pin);
-    void connect_pins(pin_t pin_a, pin_t pin_b);
-    void disconnect_pin(pin_t);
-
+    pin_t assign_pin();
+    node_t connect_pins(pin_t pin_a, pin_t pin_b);
     void write_pin(pin_t pin, Value value);
     Value read_pin(pin_t pin) const;
     Value read_pin_current_step(pin_t pin) const;
-    bool pin_changed_last_step(pin_t pin) const;
-
-    node_t pin_node(pin_t pin);
-    void pin_set_node(pin_t pin, node_t node);
+    bool pin_changed_previous_step(pin_t pin) const;
 
     // nodes
     node_t assign_node();
     void release_node(node_t node_id);
     node_t merge_nodes(node_t node_a, node_t node_b);
-    Component::pin_container_t node_pins(node_t node) const;
 
     void write_node(node_t node_id, Value value);
     Value read_node(node_t node_id) const;
     Value read_node_current_step(node_t node_id) const;
 
-    bool node_changed(node_t node_id) const;
-    bool node_changed_last_step(node_t node_id) const;
-
-    size_t num_nodes() const {return m_node_write_time.size();}
-    uint64_t node_last_written(node_t node_id) const;
-    uint64_t node_last_changed(node_t node_id) const;
-    const node_container_t &free_nodes() const {return m_free_nodes;}
-
-    // values
-    uint8_t read_nibble(std::vector<pin_t> pins) const;
-    uint8_t read_byte(std::vector<pin_t> pins) const;
+    bool node_changed_previous_step(node_t node_id) const;
 
     // simulation
-    void init(Circuit *circuit);
-    void change_active_circuit(Circuit *circuit);
-    Circuit *active_circuit() const {return m_active_circuit;}
+    void init();
     void step();
-    void run_until_change(node_t node_id);
     void run_until_stable(size_t stable_ticks);
 
 private:
-    size_t num_pins_in_node(node_t node) const;
+    typedef uint64_t timestamp_t;
 
-private:
-    typedef std::vector<Value> value_container_t;
-    typedef std::vector<Component *> component_container_t;
+    typedef std::vector<timestamp_t> timestamp_container_t;
+    typedef std::vector<SimComponent::uptr_t> component_container_t;
     typedef std::array<component_container_t, 2> component_prio_container_t;
 
-    typedef uint64_t timestamp_t;
-    typedef std::vector<timestamp_t> timestamp_container_t;
-
 private:
-    timestamp_t             m_time;
+    timestamp_t    m_time;
 
-    Circuit *               m_active_circuit;
-
+    component_prio_container_t  m_components;
     node_container_t            m_pin_nodes;
-    Component::pin_container_t  m_free_pins;
 
-    node_container_t                    m_free_nodes;
-    std::array<value_container_t,2>     m_node_values;
-    timestamp_container_t               m_node_write_time;          // timestamp when node was last written to
-    timestamp_container_t               m_node_change_time;         // timestamp when node last changed value
-    int                                 m_read_idx;
-    int                                 m_write_idx;
-
-    component_prio_container_t          m_active_components;
+    node_container_t          m_free_nodes;
+    value_container_t         m_node_values_read;
+    value_container_t         m_node_values_write;
+    timestamp_container_t     m_node_write_time;          // timestamp when node was last written to
+    timestamp_container_t     m_node_change_time;         // timestamp when node last changed value
 };
 
-#endif
+} // namespace lsim
+
+#endif // LSIM_SIMULATOR_H

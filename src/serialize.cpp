@@ -2,6 +2,8 @@
 //
 // Serialize / deserialize circuits & components
 
+#if 0
+
 #include "serialize.h"
 #include "lsim_context.h"
 #include "gate.h"
@@ -572,3 +574,5 @@ bool deserialize_library(LSimContext *context, CircuitLibrary *lib, const char *
 
     return true;
 }
+
+#endif

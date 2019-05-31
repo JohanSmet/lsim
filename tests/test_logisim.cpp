@@ -4,6 +4,8 @@
 
 #include <cstring>
 
+#if 0
+
 const char *logisim_test_data = R"FILE(
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project source="2.15.0" version="1.0">
@@ -1233,3 +1235,5 @@ TEST_CASE ("Logisim Multi-bit tunnel", "[logisim]") {
         REQUIRE(pin_O1->read_pin(0) == test[3]);
     }
 }
+
+#endif

@@ -1,4 +1,5 @@
 // visual_component.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
+#if 0
 
 #include "visual_component.h"
 #include "basic.h"
@@ -296,3 +297,5 @@ void Wire::remove_redundant_segment(WireSegment *segment) {
                         [segment](const auto &s) {return s.get() == segment;}
     ));
 }
+
+#endif 

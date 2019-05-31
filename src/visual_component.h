@@ -8,7 +8,6 @@
 #include <memory>
 #include <set>
 
-#include "basic.h"
 #include "algebra.h"
 
 class Circuit;

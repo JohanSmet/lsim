@@ -30,34 +30,32 @@ set (LIB_TARGET lsim)
 
 set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/algebra.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/basic.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_description.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_instance.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/extra.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_gates.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_various.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.cpp"
 )
 
 set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/algebra.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/basic.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_description.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_instance.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/extra.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/gate.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.h"
 )
 
@@ -74,10 +72,10 @@ set (PYTHON_TARGET lsimpy)
 set (PYTHON_SOURCES ${LIB_SOURCES})
 list (APPEND PYTHON_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/python.cpp")
 
-add_subdirectory(libs/pybind11)
-pybind11_add_module(${PYTHON_TARGET} ${PYTHON_SOURCES})
-target_include_directories(${PYTHON_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${PUGIXML_INCLUDE})
-target_link_libraries(${PYTHON_TARGET} PRIVATE ${EXTRA_LIBS})
+#add_subdirectory(libs/pybind11)
+#pybind11_add_module(${PYTHON_TARGET} ${PYTHON_SOURCES})
+#target_include_directories(${PYTHON_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${PUGIXML_INCLUDE})
+#target_link_libraries(${PYTHON_TARGET} PRIVATE ${EXTRA_LIBS})
 
 #
 # MAIN executable
@@ -112,10 +110,10 @@ set(APP_HEADERS
 	"src/gui/shapes.h"
 )
 
-add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
-target_include_directories(${APP_TARGET} PRIVATE libs src src/gui/gl3w ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
-target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
-target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS})
+#add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
+#target_include_directories(${APP_TARGET} PRIVATE libs src src/gui/gl3w ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
+#target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
+#target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS})
 
 #
 # Unit tests
