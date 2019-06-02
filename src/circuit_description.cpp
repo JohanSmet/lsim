@@ -8,6 +8,7 @@
 #include "simulator.h"
 
 #include <cassert>
+#include <algorithm>
 
 namespace lsim {
 
@@ -136,7 +137,7 @@ pin_id_t Wire::pin(size_t index) const {
 // CircuitDescription
 //
 
-CircuitDescription::CircuitDescription(const char *name, class LSimContext *context) :
+CircuitDescription::CircuitDescription(const char *name, LSimContext *context) :
         m_context(context),
         m_name(name),
         m_component_id(0),
@@ -184,6 +185,18 @@ Component *CircuitDescription::component_by_id(uint32_t id) {
     }
 }
 
+std::vector<uint32_t> CircuitDescription::component_ids() const {
+    std::vector<uint32_t> result;
+    result.reserve(m_components.size());
+
+    for (const auto &comp : m_components) {
+        result.push_back(comp.second->id());
+    }
+
+    std::sort(result.begin(), result.end());
+    return std::move(result);
+}
+
 Wire *CircuitDescription::create_wire() {
     auto wire = std::make_unique<Wire>(m_wire_id++);
     auto result = wire.get();
@@ -196,6 +209,27 @@ Wire *CircuitDescription::connect(pin_id_t pin_a, pin_id_t pin_b) {
     wire->add_pin(pin_a);
     wire->add_pin(pin_b);
     return wire;
+}
+
+std::vector<uint32_t> CircuitDescription::wire_ids() const {
+    std::vector<uint32_t> result;
+    result.reserve(m_wires.size());
+
+    for (const auto &wire : m_wires) {
+        result.push_back(wire.second->id());
+    }
+
+    std::sort(result.begin(), result.end());
+    return std::move(result);
+}
+
+Wire *CircuitDescription::wire_by_id(uint32_t id) const {
+    auto found = m_wires.find(id);
+    if (found != m_wires.end()) {
+        return found->second.get();
+    } else {
+        return nullptr;
+    }
 }
 
 void CircuitDescription::add_port(Component *connector) {

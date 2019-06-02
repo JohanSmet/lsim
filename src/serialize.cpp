@@ -2,25 +2,25 @@
 //
 // Serialize / deserialize circuits & components
 
-#if 0
-
 #include "serialize.h"
 #include "lsim_context.h"
-#include "gate.h"
-#include "extra.h"
+#include "circuit_library.h"
+#include "circuit_description.h"
+#include "error.h"
 
 #include <cassert>
 #include <unordered_map>
 #include <pugixml.hpp>
 
-static const char *LSIM_XML_VERSION="1";
+namespace {
+
+using namespace lsim;
+
+static const char *LSIM_XML_VERSION="2";
 
 static const char *XML_EL_LSIM = "lsim";
 static const char *XML_EL_CIRCUIT = "circuit";
 static const char *XML_EL_COMPONENT = "component";
-static const char *XML_EL_INPUTS = "inputs";
-static const char *XML_EL_OUTPUTS = "outputs";
-static const char *XML_EL_CONTROLS = "controls";
 static const char *XML_EL_PIN = "pin";
 static const char *XML_EL_PROPERTY = "property";
 static const char *XML_EL_POSITION = "position";
@@ -31,8 +31,13 @@ static const char *XML_EL_SEGMENT = "segment";
 
 static const char *XML_ATTR_VERSION = "version";
 static const char *XML_ATTR_NAME = "name";
+static const char *XML_ATTR_ID = "id";
 static const char *XML_ATTR_TYPE = "type";
 static const char *XML_ATTR_PRIORITY = "priority";
+static const char *XML_ATTR_INPUTS = "inputs";
+static const char *XML_ATTR_OUTPUTS = "outputs";
+static const char *XML_ATTR_CONTROLS = "controls";
+static const char *XML_ATTR_NESTED = "nested";
 static const char *XML_ATTR_INDEX = "index";
 static const char *XML_ATTR_NODE = "node";
 static const char *XML_ATTR_KEY = "key";
@@ -107,7 +112,7 @@ public:
 
         if (library->main_circuit()) {
             auto main_node = m_root.append_child(XML_EL_MAIN);
-            main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit()->name().c_str());
+            main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit());
         }
     }
 
@@ -121,40 +126,35 @@ public:
     }
 
 private:
-    void serialize_pins(Simulator *sim, pugi::xml_node *parent, const char *node_name, const Component::pin_container_t &pins) {
-        if (pins.empty()) {
-            return;
-        }
-        auto pins_node = parent->append_child(node_name);
-        for (size_t idx = 0; idx < pins.size(); ++idx) {
-            auto pin_node = pins_node.append_child(XML_EL_PIN);
-            pin_node.append_attribute(XML_ATTR_INDEX).set_value(idx);
-            pin_node.append_attribute(XML_ATTR_NODE).set_value(sim->pin_node(pins[idx]));
-        }
-    }
-
     void serialize_component(Component *component, pugi::xml_node *circuit_node) {
         auto comp_node = circuit_node->append_child(XML_EL_COMPONENT);
-        m_component_nodes[component] = comp_node;
 
-        // name
-        auto name = component_type_to_name.find(component->type());
-        if (name != component_type_to_name.end()) {
-            comp_node.append_attribute(XML_ATTR_TYPE).set_value(name->second.c_str());
+        // id
+        comp_node.append_attribute(XML_ATTR_ID).set_value(component->id());
+
+        // type
+        auto type_name = component_type_to_name.find(component->type());
+        if (type_name != component_type_to_name.end()) {
+            comp_node.append_attribute(XML_ATTR_TYPE).set_value(type_name->second.c_str());
         } else {
             comp_node.append_attribute(XML_ATTR_TYPE).set_value(component->type());
         }
 
         // priority
-        auto prio = priority_to_string.find(component->get_priority());
+        auto prio = priority_to_string.find(component->priority());
         if (prio != priority_to_string.end()) {
             comp_node.append_attribute(XML_ATTR_PRIORITY).set_value(prio->second.c_str());
         }
 
         // pins
-        serialize_pins(component->sim(), &comp_node, XML_EL_INPUTS, component->input_pins());
-        serialize_pins(component->sim(), &comp_node, XML_EL_OUTPUTS, component->output_pins());
-        serialize_pins(component->sim(), &comp_node, XML_EL_CONTROLS, component->control_pins());
+        comp_node.append_attribute(XML_ATTR_INPUTS).set_value(component->num_inputs());
+        comp_node.append_attribute(XML_ATTR_OUTPUTS).set_value(component->num_outputs());
+        comp_node.append_attribute(XML_ATTR_CONTROLS).set_value(component->num_controls());
+
+        // nested circuit
+        if (component->nested_circuit()) {
+            comp_node.append_attribute(XML_ATTR_NESTED).set_value(component->nested_circuit()->name().c_str());
+        }
 
         // properties
         for (const auto &prop : component->properties()) {
@@ -163,51 +163,20 @@ private:
             prop_node.append_attribute(XML_ATTR_VALUE).set_value(prop.second->value_as_string().c_str());
         }
 
-    }
-
-    void serialize_nested_circuit(Circuit *circuit, pugi::xml_node *circuit_node) {
-        auto comp_node = circuit_node->append_child(XML_EL_COMPONENT);
-        m_component_nodes[circuit] = comp_node;
-
-        comp_node.append_attribute(XML_ATTR_TYPE).set_value("SubCircuit");
-
-        std::string name = circuit->name();
-        auto hash = name.find_first_of('#');
-
-        comp_node.append_attribute(XML_ATTR_NAME).set_value(name.substr(0, hash).c_str());
-        comp_node.append_attribute(XML_ATTR_INSTANCE).set_value(name.substr(hash).c_str());
-
-        // pins
-        serialize_pins(circuit->sim(), &comp_node, XML_EL_INPUTS, circuit->input_ports_pins());
-        serialize_pins(circuit->sim(), &comp_node, XML_EL_OUTPUTS, circuit->output_ports_pins());
-    }
-
-    void serialize_visual_component(VisualComponent *vis_comp) {
-        // add child nodes to existing node
-        void *search_ptr = vis_comp->get_component();
-        if (!search_ptr) {
-            search_ptr = vis_comp->get_circuit();
-        }
-
-        auto result = m_component_nodes.find(search_ptr);
-        if (result == m_component_nodes.end()) {
-            return;
-        }
-        auto comp_node = result->second;
-
+        // position
         auto pos_node = comp_node.append_child(XML_EL_POSITION);
-        pos_node.append_attribute(XML_ATTR_X).set_value(vis_comp->get_position().x);
-        pos_node.append_attribute(XML_ATTR_Y).set_value(vis_comp->get_position().y);
+        pos_node.append_attribute(XML_ATTR_X).set_value(component->position().x);
+        pos_node.append_attribute(XML_ATTR_Y).set_value(component->position().y);
 
-       auto orient_node = comp_node.append_child(XML_EL_ORIENTATION);
-       orient_node.append_attribute(XML_ATTR_ANGLE).set_value(vis_comp->get_orientation());
+        // orientation
+        auto orient_node = comp_node.append_child(XML_EL_ORIENTATION);
+        orient_node.append_attribute(XML_ATTR_ANGLE).set_value(component->angle());
     }
 
     void serialize_wire(Wire *wire, pugi::xml_node *circuit_node) {
         auto wire_node = circuit_node->append_child(XML_EL_WIRE);
-        wire_node.append_attribute(XML_ATTR_NODE).set_value(wire->node());
 
-        for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
+        /*for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
             auto segment_node = wire_node.append_child(XML_EL_SEGMENT);
             const auto &p0 = wire->segment_point(idx, 0);
             segment_node.append_attribute(XML_ATTR_X1).set_value(p0.x);
@@ -215,44 +184,37 @@ private:
             const auto &p1 = wire->segment_point(idx, 1);
             segment_node.append_attribute(XML_ATTR_X2).set_value(p1.x);
             segment_node.append_attribute(XML_ATTR_Y2).set_value(p1.y);
-        }
+        }*/
 
-        for (const auto &pin : wire->pins()) {
+        for (size_t idx = 0; idx < wire->num_pins(); ++idx) {
             auto pin_node = wire_node.append_child(XML_EL_PIN);
-            pin_node.append_attribute(XML_ATTR_VALUE).set_value(pin);
+            auto comp_id = component_id_from_pin_id(wire->pin(idx));
+            auto pin_idx = pin_index_from_pin_id(wire->pin(idx));
+            pin_node.append_attribute(XML_ATTR_VALUE).set_value(
+                (std::to_string(comp_id) + "#" + std::to_string(pin_idx)).c_str());
         }
     }
 
-    void serialize_circuit(Circuit *circuit) {
+    void serialize_circuit(CircuitDescription *circuit) {
         auto circuit_node = m_root.append_child(XML_EL_CIRCUIT);
         circuit_node.append_attribute(XML_ATTR_NAME).set_value(circuit->name().c_str());
 
         // components
-        for (const auto &comp : circuit->components()) {
-            serialize_component(comp.get(), &circuit_node);
-        }
-
-        // nested circuits
-        for (size_t idx = 0; idx < circuit->num_nested_circuits(); ++idx) {
-            serialize_nested_circuit(circuit->nested_circuit_by_index(idx), &circuit_node);
-        }
-
-        // visual components
-        for (const auto &vis_comp : circuit->visual_components()) {
-            serialize_visual_component(vis_comp.get());
+        auto comp_ids = circuit->component_ids();
+        for (const auto &comp_id : comp_ids) {
+            serialize_component(circuit->component_by_id(comp_id), &circuit_node);
         }
 
         // wires
-        for (const auto &wire : circuit->wires()) {
-            serialize_wire(wire.get(), &circuit_node);
+        auto wire_ids = circuit->wire_ids();
+        for (const auto &wire_id : wire_ids) {
+            serialize_wire(circuit->wire_by_id(wire_id), &circuit_node);
         }
     }
 
 private:
     pugi::xml_document  m_xml;
     pugi::xml_node      m_root;
-
-    std::unordered_map<void *, pugi::xml_node> m_component_nodes;
 };
 
 #define REQUIRED_ATTR(var_name, node, attr_name)    \
@@ -270,7 +232,7 @@ private:
 
 class Deserializer {
 public:
-    Deserializer(Simulator *sim) : m_sim(sim) {
+    Deserializer(LSimContext *context) : m_context(context) {
     }
 
     bool load_from_file(const char *filename) {
@@ -282,7 +244,7 @@ public:
         return true;
     }
 
-    bool parse_component(pugi::xml_node &comp_node, Circuit *circuit) {
+    bool parse_component(pugi::xml_node &comp_node, CircuitDescription *circuit) {
         // determine type of component
         REQUIRED_ATTR(type_attr, comp_node, XML_ATTR_TYPE);
 
@@ -294,15 +256,14 @@ public:
         auto type = type_result->second;
 
         // determine number of pins
-        auto input_els = comp_node.child(XML_EL_INPUTS).children();
-        auto output_els = comp_node.child(XML_EL_OUTPUTS).children();
-        auto control_els = comp_node.child(XML_EL_CONTROLS).children();
-        size_t num_inputs = std::distance(input_els.begin(), input_els.end());
-        size_t num_outputs = std::distance(output_els.begin(), output_els.end());
-        size_t num_controls = std::distance(control_els.begin(), control_els.end());
+        REQUIRED_ATTR(inputs_attr, comp_node, XML_ATTR_INPUTS);
+        REQUIRED_ATTR(outputs_attr, comp_node, XML_ATTR_OUTPUTS);
+        REQUIRED_ATTR(controls_attr, comp_node, XML_ATTR_CONTROLS);
+        size_t num_inputs = inputs_attr.as_int();
+        size_t num_outputs = outputs_attr.as_int();
+        size_t num_controls = controls_attr.as_int();
 
         Component *component = nullptr;
-        Circuit *sub_circuit = nullptr;
 
         switch (type) {
             case COMPONENT_CONNECTOR_IN : {
@@ -311,7 +272,7 @@ public:
                 assert(num_controls == 0);
                 REQUIRED_PROP(prop_name, comp_node, "name");
                 REQUIRED_PROP(prop_tristate, comp_node, "tri_state");
-                component = ConnectorInput(circuit, prop_name.as_string(), num_outputs, prop_tristate.as_bool());
+                component = circuit->add_connector_in(prop_name.as_string(), num_outputs, prop_tristate.as_bool());
                 break;
             }
             case COMPONENT_CONNECTOR_OUT : {
@@ -320,7 +281,7 @@ public:
                 assert(num_controls == 0);
                 REQUIRED_PROP(prop_name, comp_node, "name");
                 REQUIRED_PROP(prop_tristate, comp_node, "tri_state");
-                component = ConnectorOutput(circuit, prop_name.as_string(), num_inputs, prop_tristate.as_bool());
+                component = circuit->add_connector_out(prop_name.as_string(), num_inputs, prop_tristate.as_bool());
                 break;
             }
             case COMPONENT_CONSTANT : {
@@ -328,7 +289,7 @@ public:
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
                 REQUIRED_PROP(prop_value, comp_node, "value");
-                component = Constant(circuit, static_cast<Value>(prop_value.as_int()));
+                component = circuit->add_constant(static_cast<Value>(prop_value.as_int()));
                 break;
             }
             case COMPONENT_PULL_RESISTOR : {
@@ -336,147 +297,91 @@ public:
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
                 REQUIRED_PROP(prop_value, comp_node, "pull_to");
-                component = PullResistor(circuit, static_cast<Value>(prop_value.as_int()));
+                component = circuit->add_pull_resistor(static_cast<Value>(prop_value.as_int()));
                 break;
             }
             case COMPONENT_BUFFER : 
                 assert(num_inputs == num_outputs);
                 assert(num_controls == 0);
-                component = Buffer(circuit, num_inputs);
+                component = circuit->add_buffer(num_inputs);
                 break;
             case COMPONENT_TRISTATE_BUFFER :
                 assert(num_inputs == num_outputs);
                 assert(num_controls == 1);
-                component = TriStateBuffer(circuit, num_inputs);
+                component = circuit->add_tristate_buffer(num_inputs);
                 break;
             case COMPONENT_AND_GATE : 
                 assert(num_inputs > 0);
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
-                component = AndGate(circuit, num_inputs);
+                component = circuit->add_and_gate(num_inputs);
                 break;
             case COMPONENT_OR_GATE :
                 assert(num_inputs > 0);
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
-                component = OrGate(circuit, num_inputs);
+                component = circuit->add_or_gate(num_inputs);
                 break;
             case COMPONENT_NOT_GATE :
                 assert(num_inputs == 1);
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
-                component = NotGate(circuit);
+                component = circuit->add_not_gate();
                 break;
             case COMPONENT_NAND_GATE :
                 assert(num_inputs > 0);
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
-                component = NandGate(circuit, num_inputs);
+                component = circuit->add_nand_gate(num_inputs);
                 break;
             case COMPONENT_NOR_GATE :
                 assert(num_inputs > 0);
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
-                component = NorGate(circuit, num_inputs);
+                component = circuit->add_nor_gate(num_inputs);
                 break;
             case COMPONENT_XOR_GATE :
                 assert(num_inputs == 2);
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
-                component = XorGate(circuit);
+                component = circuit->add_xor_gate();
                 break;
             case COMPONENT_XNOR_GATE :
                 assert(num_inputs == 2);
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
-                component = XnorGate(circuit);
+                component = circuit->add_xnor_gate();
                 break;
             case COMPONENT_SUB_CIRCUIT : {
                 REQUIRED_ATTR(attr_name, comp_node, "name");
-                auto template_circuit = m_lib->circuit_by_name(attr_name.as_string());
-                sub_circuit = circuit->integrate_circuit_clone(template_circuit);   
+                component = circuit->add_sub_circuit(attr_name.as_string());
                 break;
             }
             default :
                 return false;
         }
 
-        // visual component
+        // visual properties
         auto pos_node = comp_node.child(XML_EL_POSITION);
+        if (!!pos_node) {
+            REQUIRED_ATTR(x_attr, pos_node, XML_ATTR_X);
+            REQUIRED_ATTR(y_attr, pos_node, XML_ATTR_Y);
+            component->set_position({x_attr.as_float(), y_attr.as_float()});
+        }
+
         auto orient_node = comp_node.child(XML_EL_ORIENTATION);
-
-        if (!!pos_node && !!orient_node) {
-            VisualComponent *vis_comp = nullptr;
-            if (component) {
-                vis_comp = circuit->create_visual_component(component);
-            } else if (sub_circuit) {
-                vis_comp = circuit->create_visual_component(sub_circuit);
-            } 
-
-            if (vis_comp) {
-                REQUIRED_ATTR(x_attr, pos_node, XML_ATTR_X);
-                REQUIRED_ATTR(y_attr, pos_node, XML_ATTR_Y);
-                vis_comp->set_position({x_attr.as_float(), y_attr.as_float()});
-
-                REQUIRED_ATTR(angle_attr, orient_node, XML_ATTR_ANGLE);
-                vis_comp->set_orientation(static_cast<VisualComponent::Orientation>(angle_attr.as_int()));
-            }
-        }
-
-        // connections
-        auto connect_pin = [&component, this](pugi::xml_node el, std::function<pin_t(size_t idx)> get_pin) {
-            REQUIRED_ATTR(index_attr, el, XML_ATTR_INDEX);
-            REQUIRED_ATTR(node_attr, el, XML_ATTR_NODE);
-
-            pin_t pin = get_pin(index_attr.as_int());
-
-            auto result = m_node_pins.find(node_attr.as_int());
-            if (result == m_node_pins.end()) {
-                m_node_pins[node_attr.as_int()] = pin;
-            } else {
-                m_sim->connect_pins(result->second, pin);
-                m_node_map[node_attr.as_int()] = m_sim->pin_node(pin);
-            }
-
-            return true;
-        };
-
-        if (component) {
-            for (auto el : input_els) {
-                connect_pin(el, [=](size_t idx) {return component->input_pin(idx);});
-            }
-
-            for (auto el : output_els) {
-                connect_pin(el, [=](size_t idx) {return component->output_pin(idx);});
-            }
-
-            for (auto el : control_els) {
-                connect_pin(el, [=](size_t idx) {return component->control_pin(idx);});
-            }
-        }
-
-        if (sub_circuit) {
-            const auto &input_pins = sub_circuit->input_ports_pins();
-            for (auto el : input_els) {
-                connect_pin(el, [=](size_t idx) {return input_pins[idx];});
-            }
-
-            const auto &output_pins = sub_circuit->output_ports_pins();
-            for (auto el : output_els) {
-                connect_pin(el, [=](size_t idx) {return output_pins[idx];});
-            }
+        if (!!orient_node) {
+            REQUIRED_ATTR(angle_attr, orient_node, XML_ATTR_ANGLE);
+            component->set_angle(angle_attr.as_int());
         }
 
         return true;
     }
 
-    bool parse_wire(pugi::xml_node wire_node, Circuit *circuit) {
-        REQUIRED_ATTR(node_attr, wire_node, XML_ATTR_NODE);
-
+    bool parse_wire(pugi::xml_node wire_node, CircuitDescription *circuit) {
         Wire *wire = circuit->create_wire();
-        wire->set_node(m_node_map[node_attr.as_int()]);
 
-        for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {
+        /* for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {
             REQUIRED_ATTR(x1_attr, segment_node, XML_ATTR_X1);
             REQUIRED_ATTR(y1_attr, segment_node, XML_ATTR_Y1);
             REQUIRED_ATTR(x2_attr, segment_node, XML_ATTR_X2);
@@ -484,11 +389,21 @@ public:
 
             wire->add_segment(Point(x1_attr.as_float(), y1_attr.as_float()),
                               Point(x2_attr.as_float(), y2_attr.as_float()));
-        }
+        } */
 
         for (auto pin_node : wire_node.children(XML_EL_PIN)) {
             REQUIRED_ATTR(value_attr, pin_node, XML_ATTR_VALUE);
-            wire->add_pin(value_attr.as_uint());
+            std::string pin_string = value_attr.as_string();
+
+            auto hash = pin_string.find_first_of("#");
+            if (hash == pin_string.npos) {
+                ERROR_MSG("Unparseable location \"%s\"; should contain a comma", pin_string);
+                return false;
+            }
+
+            auto comp_id = std::strtol(pin_string.c_str(), nullptr, 0);
+            auto pin_idx = std::strtol(pin_string.c_str() + hash + 1, nullptr, 0);
+            wire->add_pin(pin_id_assemble(comp_id, pin_idx));
         }
         return true;
     }
@@ -499,7 +414,7 @@ public:
             return false;
         }
 
-        Circuit *circuit = m_lib->create_circuit(name);
+        auto *circuit = m_lib->create_circuit(name, m_context);
         if (!circuit) {
             return false;
         }
@@ -530,7 +445,7 @@ public:
         auto main_node = lsim_node.child(XML_EL_MAIN);
         if (!!main_node) {
             REQUIRED_ATTR(attr_name, main_node, XML_ATTR_NAME);
-            lib->set_main_circuit(lib->circuit_by_name(attr_name.as_string()));
+            lib->change_main_circuit(attr_name.as_string());
         }
 
         return true;
@@ -538,13 +453,16 @@ public:
 
 private: 
     pugi::xml_document  m_xml;
+    LSimContext *       m_context;
     CircuitLibrary *    m_lib;
-    Simulator *         m_sim;
 
     std::unordered_map<node_t, pin_t>   m_node_pins;
     std::unordered_map<node_t, node_t>  m_node_map;
 };
 
+} // unnamed namespace
+
+namespace lsim {
 
 bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename) {
     assert(context);
@@ -558,13 +476,12 @@ bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *fi
     return true;
 }
 
-
 bool deserialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename) {
     assert(context);
     assert(lib);
     assert(filename);
 
-    Deserializer deserializer(context->sim());
+    Deserializer deserializer(context);
     
     if (!deserializer.load_from_file(filename)) {
         return false;
@@ -575,4 +492,4 @@ bool deserialize_library(LSimContext *context, CircuitLibrary *lib, const char *
     return true;
 }
 
-#endif
+} // namespace lsim

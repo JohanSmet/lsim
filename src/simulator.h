@@ -6,6 +6,7 @@
 // includes
 #include "sim_functions.h"
 #include "sim_types.h"
+#include "circuit_instance.h"
 
 #include <vector>
 #include <memory>
@@ -46,7 +47,7 @@ public:
     void reset_bad_read_check() {m_read_bad = false;}
 
     // nested circuits
-    void set_nested_instance(std::unique_ptr<class CircuitInstance> instance);
+    void set_nested_instance(std::unique_ptr<CircuitInstance> instance);
 
     // simulation
     void tick();
@@ -64,7 +65,7 @@ private:
     simulation_func_t m_sim_func;
     simulation_needed_func_t m_sim_needed_func;
 
-    std::unique_ptr<class CircuitInstance>    m_nested_circuit;
+    std::unique_ptr<CircuitInstance>    m_nested_circuit;
 };
 
 class Simulator {

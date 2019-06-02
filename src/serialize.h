@@ -7,12 +7,14 @@
 
 #include <string>
 
+namespace lsim {
+
 class LSimContext;
 class CircuitLibrary;
 
 bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename);
 bool deserialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename);
 
-
+} // namespace lsim
 
 #endif // LSIM_SERIALISE_H

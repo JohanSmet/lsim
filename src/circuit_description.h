@@ -28,6 +28,10 @@ inline uint32_t pin_index_from_pin_id(pin_id_t pin_id) {
     return pin_id & 0xffffffff;
 }
 
+inline pin_id_t pin_id_assemble(uint32_t component_id, uint32_t pin_index) {
+    return ((static_cast<uint64_t>(component_id)) << 32) | pin_index;
+}
+
 constexpr const auto PIN_ID_INVALID = static_cast<pin_id_t>(-1);
 
 class CircuitDescription;
@@ -120,10 +124,13 @@ protected:
     Component *create_component(CircuitDescription *nested_circuit);
 public:
     Component *component_by_id(uint32_t id);
+    std::vector<uint32_t> component_ids() const;
 
     // connections
     Wire *create_wire();
     Wire *connect(pin_id_t pin_a, pin_id_t pin_b);
+    std::vector<uint32_t> wire_ids() const;
+    Wire *wire_by_id(uint32_t id) const;
 
     // ports
     void add_port(Component *connector);

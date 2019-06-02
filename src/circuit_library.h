@@ -22,6 +22,9 @@ public:
 
     const char *name() const {return m_name.c_str();}
 
+    const char *main_circuit() const {return m_main_circuit.c_str();}
+    void change_main_circuit(const char *main) {m_main_circuit = main;}
+
     // circuit management
     CircuitDescription *create_circuit(const char *name, LSimContext *context);
     void delete_circuit(CircuitDescription *circuit);
@@ -39,6 +42,7 @@ private:
     std::string             m_name;
     circuit_container_t     m_circuits;
     circuit_map_t           m_circuit_lut;
+    std::string             m_main_circuit;
 };
 
 } // namespace lsim
