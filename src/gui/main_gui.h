@@ -1,7 +1,17 @@
-#ifndef FAUDIOFILTERDEMO_MAIN_GUI_H
-#define FAUDIOFILTERDEMO_MAIN_GUI_H
+#ifndef LSIM_GUI_MAIN_GUI_H
+#define LSIM_GUI_MAIN_GUI_H
 
-void main_gui_setup(class LSimContext *sim, const char *circuit_file);
-void main_gui(class LSimContext *sim);
+namespace lsim {
 
-#endif
+class LSimContext;
+
+namespace gui {
+
+void main_gui_setup(LSimContext *sim, const char *circuit_file);
+void main_gui(LSimContext *sim);
+
+} // namespace gui
+
+} // namespace lsim
+
+#endif // LSIM_GUI_MAIN_GUI_H

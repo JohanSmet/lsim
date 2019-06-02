@@ -112,7 +112,7 @@ public:
 
         if (library->main_circuit()) {
             auto main_node = m_root.append_child(XML_EL_MAIN);
-            main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit());
+            main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit_name());
         }
     }
 

@@ -12,13 +12,17 @@
 
 #include "colors.h"
 #include "simulator.h"
-#include "circuit.h"
+#include "circuit_description.h"
 
 namespace {
 
 static const float GRID_SIZE = 10.0f;
 
 } // unnamed namespace
+
+namespace lsim {
+
+namespace gui {
 
 size_t UICircuit::PointHash::operator() (const Point &p) const {
 		// abuse the fact that positions will always be aligned to the grid
@@ -33,8 +37,8 @@ size_t UICircuit::PointHash::operator() (const Point &p) const {
 // UIComponent
 //
 
-UIComponent::UIComponent(VisualComponent *vis_comp) :
-		m_visual_comp(vis_comp),
+UIComponent::UIComponent(Component *component) :
+		m_component(component),
 		m_tooltip(""),
 		m_half_size(0.0f, 0.0f),
 		m_icon(nullptr),
@@ -52,8 +56,8 @@ void UIComponent::change_icon(const ComponentIcon *icon) {
 
 void UIComponent::build_transform() {
 	m_to_circuit.reset();
-	m_to_circuit.rotate(m_visual_comp->get_orientation());
-	m_to_circuit.translate(m_visual_comp->get_position());
+	m_to_circuit.rotate(m_component->angle());
+	m_to_circuit.translate(m_component->position());
 	recompute_aabb();
 }
 
@@ -88,7 +92,7 @@ void UIComponent::add_endpoint(uint32_t pin, Point location) {
 	m_endpoints[pin] = location;
 }
 
-void UIComponent::add_pin_line(const uint32_t *pins, size_t pin_count, float size, Point origin, Point inc) {
+void UIComponent::add_pin_line(pin_id_t pin_start, size_t pin_count, float size, Point origin, Point inc) {
 	if (pin_count == 0) {
 		return;
 	}
@@ -98,38 +102,38 @@ void UIComponent::add_pin_line(const uint32_t *pins, size_t pin_count, float siz
 	float segment_len = size / (2.0f * (half + 1));
 	segment_len = roundf(segment_len / GRID_SIZE) * GRID_SIZE;
 	auto segment_delta = inc * segment_len;
-	size_t pin_idx = 0;
+	auto pin = pin_start;
 
 	// top half
 	Point pos = origin - (inc * segment_delta);
 
 	for (size_t idx = 0; idx < half; ++idx) {
-		add_endpoint(pins[pin_idx++], pos);
+		add_endpoint(pin++, pos);
 		pos = pos + segment_delta;
 	}
 
 	// center
 	if (odd > 0) {
-		add_endpoint(pins[pin_idx++], origin);
+		add_endpoint(pin++, origin);
 	}
 
 	// bottom half
 	pos = origin + segment_delta;
 
 	for (size_t idx = 0; idx < half; ++idx) {
-		add_endpoint(pins[pin_idx++], pos);
+		add_endpoint(pin++, pos);
 		pos = pos + segment_delta;
 	}
 }
 
-void UIComponent::add_pin_line(const uint32_t *pins, size_t pin_count, Point origin, Point delta) {
+void UIComponent::add_pin_line(pin_id_t pin_start, size_t pin_count, Point origin, Point delta) {
 	if (pin_count == 0) {
 		return;
 	}
 
-	Point pos = origin;
+	auto pos = origin;
     for (size_t i = 0; i < pin_count; ++i) {
-        add_endpoint(pins[i], pos);
+        add_endpoint(pin_start+i, pos);
 		pos = pos + delta;
 	}
 }
@@ -144,7 +148,7 @@ void UIComponent::dematerialize() {
 // UICircuit
 //
 
-UICircuit::UICircuit(Circuit *circuit) : 
+UICircuit::UICircuit(CircuitDescription *circuit) : 
 			m_circuit(circuit),
 			m_name(circuit->name()),
 			m_show_grid(true),
@@ -152,8 +156,8 @@ UICircuit::UICircuit(Circuit *circuit) :
 			m_state(CS_IDLE) {
 }
 
-UIComponent *UICircuit::create_component(VisualComponent *visual_comp) {
-	m_ui_components.push_back(std::make_unique<UIComponent>(visual_comp));
+UIComponent *UICircuit::create_component(Component *component) {
+	m_ui_components.push_back(std::make_unique<UIComponent>(component));
 	auto comp = m_ui_components.back().get();
 	UICircuitBuilder::materialize_component(comp);
 	return comp;
@@ -242,7 +246,7 @@ void UICircuit::draw() {
 			if (distance_squared(m_mouse_grid_point, endpoint_circuit) <= 2) {
 				draw_list->AddCircle(endpoint_screen, 8, COLOR_ENDPOINT_HOVER, 12, 2);
 				m_hovered_pin = pair.first;
-				ImGui::SetTooltip("Pin = %d\nNode = %d", m_hovered_pin, m_circuit->sim()->pin_node(m_hovered_pin));
+				// XXX ImGui::SetTooltip("Pin = %d\nNode = %d", m_hovered_pin, m_circuit->sim()->pin_node(m_hovered_pin));
 			}
 		}
 
@@ -250,7 +254,7 @@ void UICircuit::draw() {
 	}
 
 	// draw wires
-	for (const auto &wire : m_circuit->wires()) {
+	/* for (const auto &wire : m_circuit->wires()) {
 		auto wire_color = COLOR_CONNECTION_UNDEFINED;
 		if (wire->node() != NODE_INVALID) {
 			wire_color = COLOR_CONNECTION[m_circuit->sim()->read_node(wire->node())];
@@ -277,7 +281,7 @@ void UICircuit::draw() {
 				ImGui::SetTooltip("Node = %d", wire->node());
 			}
 		}
-	}
+	} */
 
 	// handle input
 	bool mouse_in_window = ImGui::IsMouseHoveringWindow();
@@ -343,14 +347,14 @@ void UICircuit::draw() {
 				   m_hovered_wire == m_wire_start.m_wire) {
 			// wire selection
 			m_state = CS_IDLE;
-			auto segment = m_hovered_wire->segment_at_point(m_mouse_grid_point);
+			/*auto segment = m_hovered_wire->segment_at_point(m_mouse_grid_point);
 
 			if (!ImGui::GetIO().KeyShift) {
 				clear_selection();
 				select_wire_segment(segment);
 			} else {
 				toggle_selection(segment);
-			}
+			}*/
 		}
 	}
 
@@ -412,7 +416,7 @@ void UICircuit::draw() {
 	}
 
 	// start dragging
-	if (m_state == CS_IDLE && ImGui::IsMouseDragging(0)) {
+	if (mouse_in_window && m_state == CS_IDLE && ImGui::IsMouseDragging(0)) {
 		m_state = CS_DRAGGING;
 		m_drag_last = m_mouse_grid_point;
 	}
@@ -444,10 +448,10 @@ void UICircuit::move_selected_components() {
 
 	for (auto &item : m_selection) {
 		if (item.m_component) {
-			auto vis_comp = item.m_component->visual_comp();
-			auto new_pos = vis_comp->get_position() + delta;
+			auto comp = item.m_component->component();
+			auto new_pos = comp->position() + delta;
 
-			vis_comp->set_position(new_pos);
+			comp->set_position(new_pos);
 			item.m_component->build_transform();
 		}
 	}
@@ -459,22 +463,17 @@ void UICircuit::delete_selected_components() {
 
 	for (auto &item : m_selection) {
 		if (item.m_component) {
-			auto vis_comp = item.m_component->visual_comp();
-			if (vis_comp->get_component()) {
-				m_circuit->remove_component(vis_comp->get_component());
-			} else {
-				m_circuit->remove_nested_circuit(vis_comp->get_circuit());
-			}
-			m_circuit->remove_visual_component(vis_comp);
+			auto comp = item.m_component->component();
+			// XXX remove component from m_circuit
 			remove_component(item.m_component);
-		} else if (item.m_segment) {
+		} /* else if (item.m_segment) {
 			auto wire = item.m_segment->wire();
 			wire->remove_segment(item.m_segment);
 			touched_wires.insert(wire);
-		}
+		}*/
 	}
 
-	for (auto wire : touched_wires) {
+	/*for (auto wire : touched_wires) {
 		if (wire->node() == NODE_INVALID) {
 			continue;
 		}
@@ -502,29 +501,27 @@ void UICircuit::delete_selected_components() {
 			wire->simplify();
 			wire_make_connections(wire);
 		}
-	}
+	}*/
 
 	clear_selection();
 }
 
 void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
-
-	ui_comp->visual_comp()->set_position({new_pos.x, new_pos.y});
+	ui_comp->component()->set_position({new_pos.x, new_pos.y});
 	ui_comp->build_transform();
 }
 
 
-void UICircuit::ui_create_component(VisualComponent *vis_comp) {
+void UICircuit::ui_create_component(Component *comp) {
 	m_state = CS_CREATE_COMPONENT;
 	clear_selection();
-	select_component(create_component(vis_comp));
+	select_component(create_component(comp));
 }
 
-void UICircuit::embed_circuit(Circuit *templ_circuit) {
-	auto nested = m_circuit->integrate_circuit_clone(templ_circuit);
-    auto vis_comp = m_circuit->create_visual_component(nested);
-	vis_comp->set_position(m_mouse_grid_point);
-	create_component(vis_comp);
+void UICircuit::embed_circuit(const char *name) {
+	auto comp = m_circuit->add_sub_circuit(name);
+	comp->set_position(m_mouse_grid_point);
+	create_component(comp);
 }
 
 void UICircuit::create_wire() {
@@ -534,7 +531,7 @@ void UICircuit::create_wire() {
 		return;
 	}
 
-	if (m_wire_start.m_pin != PIN_UNDEFINED && m_wire_end.m_pin != PIN_UNDEFINED) {
+/*	if (m_wire_start.m_pin != PIN_UNDEFINED && m_wire_end.m_pin != PIN_UNDEFINED) {
 		// a new wire between two pins
 		auto wire = m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
 		m_circuit->connect_pins(m_wire_start.m_pin, m_hovered_pin);
@@ -574,7 +571,7 @@ void UICircuit::create_wire() {
 		wire->simplify();
 		m_circuit->sim()->pin_set_node(pin, wire->node());
 		wire->add_pin(pin);
-	}
+	}*/
 }
 
 void UICircuit::clear_selection() {
@@ -594,6 +591,7 @@ void UICircuit::deselect_component(UIComponent *component) {
 						[component](const auto &s) {return s.m_component == component;}));
 }
 
+/*
 void UICircuit::select_wire_segment(WireSegment *segment) {
 	if (is_selected(segment)) {
 		return;
@@ -606,6 +604,7 @@ void UICircuit::deselect_wire_segment(WireSegment *segment) {
 	m_selection.erase(std::remove_if(m_selection.begin(), m_selection.end(),
 						[segment](const auto &s) {return s.m_segment == segment;}));
 }
+*/
 
 void UICircuit::toggle_selection(UIComponent *component) {
 	if (is_selected(component)) {
@@ -615,23 +614,25 @@ void UICircuit::toggle_selection(UIComponent *component) {
 	}
 }
 
-void UICircuit::toggle_selection(WireSegment *segment) {
+/*void UICircuit::toggle_selection(WireSegment *segment) {
 	if (is_selected(segment)) {
 		deselect_wire_segment(segment);
 	} else {
 		select_wire_segment(segment);
 	}
-}
+}*/
 
 bool UICircuit::is_selected(UIComponent *component) {
 	return std::any_of(m_selection.begin(), m_selection.end(),
 						[component](const auto &s) {return s.m_component == component;});
 }
 
+/*
 bool UICircuit::is_selected(WireSegment *segment) {
 	return std::any_of(m_selection.begin(), m_selection.end(),
 						[segment](const auto &s) {return s.m_segment == segment;});
 }
+*/
 
 UIComponent *UICircuit::selected_component() const {
 	if (m_selection.size() == 1) {
@@ -643,7 +644,7 @@ UIComponent *UICircuit::selected_component() const {
 
 void UICircuit::wire_make_connections(Wire *wire) {
 
-	wire->set_node(NODE_INVALID);
+	/*wire->set_node(NODE_INVALID);
 	pin_t first_pin = PIN_UNDEFINED;
 
 	for (size_t j = 0; j < wire->num_junctions(); ++j) {
@@ -662,7 +663,7 @@ void UICircuit::wire_make_connections(Wire *wire) {
 
 	if (first_pin != PIN_UNDEFINED) {
 		wire->set_node(m_circuit->sim()->pin_node(first_pin));
-	}
+	}*/
 }
 
 void UICircuit::draw_grid(ImDrawList *draw_list) {
@@ -693,20 +694,22 @@ void UICircuitBuilder::register_materialize_func(ComponentType type, materialize
 	m_materialize_funcs[type] = func;
 }
 
-UICircuit::uptr_t UICircuitBuilder::create_circuit(Circuit *circuit) {
+UICircuit::uptr_t UICircuitBuilder::create_circuit(CircuitDescription *circuit) {
 	auto ui_circuit = std::make_unique<UICircuit>(circuit);
 
-    for (const auto &visual_comp : circuit->visual_components()) {
-		ui_circuit->create_component(visual_comp.get());
+	auto comp_ids = circuit->component_ids();
+    for (const auto &comp_id : comp_ids) {
+		auto comp = circuit->component_by_id(comp_id);
+		ui_circuit->create_component(comp);
 	}
 
     return std::move(ui_circuit);
 }
 
 void UICircuitBuilder::materialize_component(UIComponent *ui_component) {
-	auto mat_func = m_materialize_funcs.find(ui_component->visual_comp()->get_type());
+	auto mat_func = m_materialize_funcs.find(ui_component->component()->type());
 	if (mat_func != m_materialize_funcs.end()) {
-		mat_func->second(ui_component->visual_comp()->get_component(), ui_component);
+		mat_func->second(ui_component->component(), ui_component);
 	}
 }
 
@@ -781,3 +784,7 @@ ComponentIcon *ComponentIcon::cached(uint32_t id) {
 		return result->second.get();
 	}
 }
+
+} // namespace lsim
+
+} // namespace gui

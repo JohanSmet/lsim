@@ -110,10 +110,10 @@ set(APP_HEADERS
 	"src/gui/shapes.h"
 )
 
-#add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
-#target_include_directories(${APP_TARGET} PRIVATE libs src src/gui/gl3w ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
-#target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
-#target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS})
+add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
+target_include_directories(${APP_TARGET} PRIVATE libs src src/gui/gl3w ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
+target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
+target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS})
 
 #
 # Unit tests

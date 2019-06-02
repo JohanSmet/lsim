@@ -3,7 +3,7 @@
 #ifndef LSIM_GUI_COMPONENT_UI_H
 #define LSIM_GUI_COMPONENT_UI_H
 
-#include "visual_component.h"
+#include "circuit_description.h"
 #include "algebra.h"
 
 #include <unordered_map>
@@ -12,10 +12,13 @@
 #include <vector>
 
 class ImDrawList;
+
+namespace lsim {
+
+namespace gui {
+
 class ComponentIcon;
 class UIComponent;
-
-typedef uint32_t ComponentType;
 
 typedef std::function<void (const UIComponent *, Transform)> ui_component_func_t;
 
@@ -28,13 +31,13 @@ enum UICircuitState {
 
 class UIComponent {
 public:
-    typedef std::unordered_map<uint32_t, Point> endpoint_map_t;
+    typedef std::unordered_map<pin_id_t, Point> endpoint_map_t;
     typedef std::unique_ptr<UIComponent> uptr_t;
 
 public:
-    UIComponent(VisualComponent *vis_comp);
+    UIComponent(Component *comp);
 
-    VisualComponent *visual_comp() const {return m_visual_comp;}
+    Component *component() const {return m_component;}
     bool has_tooltip() const {return !m_tooltip.empty();}
     const char *tooltip() const {return m_tooltip.c_str();}
     const ComponentIcon *icon() const {return m_icon;}
@@ -53,19 +56,18 @@ public:
     void call_custom_ui_callback(Transform transform);
 
     void add_endpoint(uint32_t pin, Point location); 
-    void add_pin_line(const uint32_t *pins, size_t pin_count, float size, Point origin, Point inc); 
-    void add_pin_line(const uint32_t *pins, size_t pin_count, Point origin, Point delta);
+    void add_pin_line(pin_id_t pin_start, size_t pin_count, float size, Point origin, Point inc); 
+    void add_pin_line(pin_id_t pin_start, size_t pin_count, Point origin, Point delta);
 
     const endpoint_map_t &endpoints() const {return m_endpoints;}
 
     void dematerialize();
 
-
 private:
     void recompute_aabb();
 
 private:
-    VisualComponent *   m_visual_comp;
+    Component *         m_component;
     std::string         m_tooltip;
     Transform           m_to_circuit;
     Point               m_half_size;
@@ -83,9 +85,9 @@ public:
     typedef std::unique_ptr<UICircuit>  uptr_t;
 
 public:
-    UICircuit(class Circuit *circuit);
+    UICircuit(CircuitDescription *circuit);
 
-    UIComponent *create_component(VisualComponent *visual_comp);
+    UIComponent *create_component(Component *component);
     void remove_component(UIComponent *ui_comp);
 
     void draw();
@@ -93,23 +95,23 @@ public:
     void move_selected_components();
     void delete_selected_components();
     void move_component_abs(UIComponent *comp, Point pos);
-    void ui_create_component(VisualComponent *vis_comp);
-    void embed_circuit(Circuit *templ_circuit);
+    void ui_create_component(Component *component);
+    void embed_circuit(const char *name);
     void create_wire();
 
-    class Circuit *circuit() {return m_circuit;}
+    CircuitDescription *circuit() {return m_circuit;}
 
     // selection
     size_t num_selected_items() const {return m_selection.size();}
     void clear_selection();
     void select_component(UIComponent *component);
     void deselect_component(UIComponent *component);
-    void select_wire_segment(WireSegment *segment);
-    void deselect_wire_segment(WireSegment *segment);
+//    void select_wire_segment(WireSegment *segment);
+//    void deselect_wire_segment(WireSegment *segment);
     void toggle_selection(UIComponent *component);
-    void toggle_selection(WireSegment *segment);
+//    void toggle_selection(WireSegment *segment);
     bool is_selected(UIComponent *component);
-    bool is_selected(WireSegment *segment);
+//    bool is_selected(WireSegment *segment);
     UIComponent *selected_component() const;
 
 private:
@@ -133,13 +135,14 @@ private:
 
     struct SelectedItem {
         UIComponent *m_component;
-        WireSegment *m_segment;
+        void *       m_segment;
+     //   WireSegment *m_segment;
     };
     typedef std::vector<SelectedItem>   selection_container_t;
 
 private:
-    class Circuit *          m_circuit;
-    std::string              m_name;
+    CircuitDescription *      m_circuit;
+    std::string               m_name;
  
     ui_component_container_t  m_ui_components;
     point_pin_lut_t           m_point_pin_lut;
@@ -169,7 +172,7 @@ public:
     typedef std::function<void(Component *, UIComponent *)> materialize_func_t;
 public:
     static void register_materialize_func(ComponentType type, materialize_func_t func);
-    static UICircuit::uptr_t create_circuit(Circuit *circuit);
+    static UICircuit::uptr_t create_circuit(CircuitDescription *circuit);
     static void materialize_component(UIComponent *ui_component);
     static void rematerialize_component(UICircuit *circuit, UIComponent *ui_component);
 
@@ -199,5 +202,8 @@ private:
     static icon_lut_t   m_icon_cache;
 };
 
+} // namespace lsim
+
+} // namespace gui
 
 #endif // LSIM_GUI_COMPONENT_UI_H

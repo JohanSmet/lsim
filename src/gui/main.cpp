@@ -69,9 +69,9 @@ int main(int argc, char **argv)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // create the LSim context here, it should last the lifetime of the application
-    LSimContext lsim_context;
+    lsim::LSimContext lsim_context;
 
-    main_gui_setup(&lsim_context, arg_circuit);
+    lsim::gui::main_gui_setup(&lsim_context, arg_circuit);
 
     // Main loop
     bool done = false;
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
         ImGui_ImplSdlGL3_NewFrame(window);
 
 		// Gui
-		main_gui(&lsim_context);
+		lsim::gui::main_gui(&lsim_context);
 
         // Rendering
         glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);

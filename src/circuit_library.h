@@ -22,7 +22,8 @@ public:
 
     const char *name() const {return m_name.c_str();}
 
-    const char *main_circuit() const {return m_main_circuit.c_str();}
+    const char *main_circuit_name() const {return m_main_circuit.c_str();}
+    CircuitDescription *main_circuit() const {return circuit_by_name(m_main_circuit.c_str());}
     void change_main_circuit(const char *main) {m_main_circuit = main;}
 
     // circuit management

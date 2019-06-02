@@ -5,8 +5,6 @@
 #include "component_std.h"
 
 #include "lsim_context.h"
-#include "gate.h"
-#include "extra.h"
 #include "load_logisim.h"
 #include "colors.h"
 
@@ -16,25 +14,37 @@
 
 namespace {
 
+using namespace lsim;
+using namespace lsim::gui;
+
 static UICircuit::uptr_t ui_circuit = nullptr;
 static std::string ui_filename = "";
+static int selected_circuit_idx = 0;
 static const char *value_labels[] = {"False", "True", "Undefined", "Error"};
 
-static void change_active_circuit(Simulator *sim, Circuit *active_circuit) {
-	if (active_circuit && active_circuit != sim->active_circuit()) {
-		sim->change_active_circuit(active_circuit);
+static void change_active_circuit(Simulator *sim, CircuitDescription *active_circuit) {
+	if (ui_circuit != nullptr && ui_circuit->circuit() == active_circuit) {
+		return;
+	}
+
+	if (active_circuit) {
+		// XXX sim->change_active_circuit(active_circuit);
 		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
-		active_circuit->initialize_input_ports();
+		// XXX active_circuit->initialize_input_ports();
 	}
 }
 
 } // unnamed namespace
 
+namespace lsim {
+
+namespace gui {
+
 void debug_window(LSimContext *lsim_context) {
 	ImGui::SetNextWindowSize(ImVec2(250,100), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Debug");
 
-	auto sim = lsim_context->sim();
+	/*auto sim = lsim_context->sim();
 
 	if (ImGui::CollapsingHeader("Nodes", ImGuiTreeNodeFlags_DefaultOpen)) {
 		
@@ -52,7 +62,7 @@ void debug_window(LSimContext *lsim_context) {
 				ImGui::TreePop();			
 			}
 		}
-	}
+	}*/
 
 	ImGui::End();
 }
@@ -68,19 +78,16 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 		auto ext = ui_filename.substr(ui_filename.find_last_of('.') + 1);
 
 		if (ext == "circ") {
-			auto circuit = load_logisim(lsim_context, circuit_file);
-			ui_filename.replace(ui_filename.begin() + ui_filename.find_last_of('.'), ui_filename.end(), ".lsim");
+			// auto circuit = load_logisim(lsim_context, circuit_file);
+			// ui_filename.replace(ui_filename.begin() + ui_filename.find_last_of('.'), ui_filename.end(), ".lsim");
 		} else {
 			deserialize_library(lsim_context, lsim_context->user_library(), circuit_file);
 		}
 
-		if (lsim_context->user_library()->num_circuits() <= 0) {
-			lsim_context->user_library()->create_circuit("main");
-		}
-
-		if (lsim_context->user_library()->main_circuit()) {
-			change_active_circuit(lsim_context->sim(), lsim_context->user_library()->main_circuit());
-		}
+		// XXX instantiate the main circuit
+		auto main_circuit = lsim_context->user_library()->main_circuit();
+		selected_circuit_idx = lsim_context->user_library()->circuit_idx(main_circuit);
+		change_active_circuit(lsim_context->sim(), main_circuit);
 	}
 }
 
@@ -96,7 +103,7 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::Checkbox("Run simulation", &sim_running);
 	ImGui::SameLine();
 	if (ImGui::Button("Reset simulation")) {
-		sim->init(sim->active_circuit());
+		sim->init();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Step")) {
@@ -120,36 +127,36 @@ void main_gui(LSimContext *lsim_context)
 
 	if (ImGui::CollapsingHeader("Circuits", ImGuiTreeNodeFlags_DefaultOpen)) {
 		if (ImGui::Button("Up")) {
-			size_t selected_circuit = lib->circuit_idx(sim->active_circuit());
-			if (selected_circuit < lib->num_circuits() && selected_circuit > 0) {
-				lib->swap_circuits(selected_circuit, selected_circuit - 1);
+			if (selected_circuit_idx < lib->num_circuits() && selected_circuit_idx > 0) {
+				lib->swap_circuits(selected_circuit_idx, selected_circuit_idx - 1);
 			}
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Down")) {
-			size_t selected_circuit = lib->circuit_idx(sim->active_circuit());
-			if (selected_circuit < lib->num_circuits() - 1) {
-				lib->swap_circuits(selected_circuit, selected_circuit + 1);
+			if (selected_circuit_idx < lib->num_circuits() - 1) {
+				lib->swap_circuits(selected_circuit_idx, selected_circuit_idx + 1);
 			}
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Add")) {
-			auto circuit = lib->create_circuit((std::string("circuit#") + std::to_string(lib->num_circuits()+1)).c_str());
+			auto circuit = lib->create_circuit((std::string("circuit#") + std::to_string(lib->num_circuits()+1)).c_str(), lsim_context);
+			if (!lib->main_circuit()) {
+				lib->change_main_circuit(circuit->name().c_str());
+			}
 			change_active_circuit(sim, circuit);
 		}
-		if (lib->num_circuits() > 1 && lib->main_circuit() != sim->active_circuit()) {
+		if (lib->num_circuits() > 1 && lib->main_circuit() != lib->circuit_by_idx(selected_circuit_idx)) {
 			ImGui::SameLine();
 			if (ImGui::Button("Delete")) {
-				lib->delete_circuit(sim->active_circuit());
+				lib->delete_circuit(lib->circuit_by_idx(selected_circuit_idx));
 				change_active_circuit(sim, lib->main_circuit());
 			}
 		}
 
-		size_t selected_circuit = (sim->active_circuit() == nullptr) ? -1 : lib->circuit_idx(sim->active_circuit());
 		for (size_t i = 0; i < lib->num_circuits(); ++i) {
 			auto circuit = lib->circuit_by_idx(i);
-			if (ImGui::Selectable(circuit->name().c_str(), selected_circuit == i)) {
-				selected_circuit = i;
+			if (ImGui::Selectable(circuit->name().c_str(), selected_circuit_idx == i)) {
+				selected_circuit_idx = i;
 				change_active_circuit(sim, circuit);
 			}
 		}
@@ -162,17 +169,13 @@ void main_gui(LSimContext *lsim_context)
 
 	auto draw_list = ImGui::GetWindowDrawList();
 
-	auto create_component = [=](Component *component) {
-		auto vis_comp = sim->active_circuit()->create_visual_component(component);
-		vis_comp->set_position({-200, -200});
-		ui_circuit->ui_create_component(vis_comp);
-	};
-
-	auto add_component_button = [=](uint32_t component, const char *caption, Component * (create_func)(Circuit *circuit)) {
+	auto add_component_button = [=](uint32_t component, const char *caption, Component * (create_func)(CircuitDescription *circuit)) {
 		Point pos = ImGui::GetCursorScreenPos();
 		ImGui::PushID(caption);
 		if (ImGui::Button("", {40, 40})) {
-			create_component(create_func(sim->active_circuit()));
+			auto component = create_func(ui_circuit->circuit());
+			component->set_position({-200, -200});
+			ui_circuit->ui_create_component(component);
 		}
 		auto icon = ComponentIcon::cached(component);
 		if (icon) {
@@ -185,23 +188,23 @@ void main_gui(LSimContext *lsim_context)
 
 	ImGui::Spacing();
 	if (ImGui::CollapsingHeader("Gates", ImGuiTreeNodeFlags_DefaultOpen)) {
-		add_component_button(COMPONENT_AND_GATE, "AND", [](Circuit *circuit) {return AndGate(circuit, 2);});
-		add_component_button(COMPONENT_OR_GATE, "OR", [](Circuit *circuit) {return OrGate(circuit, 2);});
-		add_component_button(COMPONENT_NOT_GATE, "NOT", [](Circuit *circuit) {return NotGate(circuit);});
-		add_component_button(COMPONENT_NAND_GATE, "NAND", [](Circuit *circuit) {return NandGate(circuit, 2);});
-		add_component_button(COMPONENT_NOR_GATE, "NOR", [](Circuit *circuit) {return NorGate(circuit, 2);});
-		add_component_button(COMPONENT_XOR_GATE, "XOR", [](Circuit *circuit) {return XorGate(circuit);});
-		add_component_button(COMPONENT_XNOR_GATE, "XNOR", [](Circuit *circuit) {return XnorGate(circuit);});
-		add_component_button(COMPONENT_BUFFER, "Buffer", [](Circuit *circuit) {return Buffer(circuit, 1);});
-		add_component_button(COMPONENT_TRISTATE_BUFFER, "TriState Buffer", [](Circuit *circuit) {return TriStateBuffer(circuit, 1);});
+		add_component_button(COMPONENT_AND_GATE, "AND", [](CircuitDescription *circuit) {return circuit->add_and_gate(2);});
+		add_component_button(COMPONENT_OR_GATE, "OR", [](CircuitDescription *circuit) {return circuit->add_or_gate(2);});
+		add_component_button(COMPONENT_NOT_GATE, "NOT", [](CircuitDescription *circuit) {return circuit->add_not_gate();});
+		add_component_button(COMPONENT_NAND_GATE, "NAND", [](CircuitDescription *circuit) {return circuit->add_nand_gate(2);});
+		add_component_button(COMPONENT_NOR_GATE, "NOR", [](CircuitDescription *circuit) {return circuit->add_nor_gate(2);});
+		add_component_button(COMPONENT_XOR_GATE, "XOR", [](CircuitDescription *circuit) {return circuit->add_xor_gate();});
+		add_component_button(COMPONENT_XNOR_GATE, "XNOR", [](CircuitDescription *circuit) {return circuit->add_xnor_gate();});
+		add_component_button(COMPONENT_BUFFER, "Buffer", [](CircuitDescription *circuit) {return circuit->add_buffer(1);});
+		add_component_button(COMPONENT_TRISTATE_BUFFER, "TriState Buffer", [](CircuitDescription *circuit) {return circuit->add_tristate_buffer(1);});
 	}
 
 	ImGui::Spacing();
 	if (ImGui::CollapsingHeader("Various", ImGuiTreeNodeFlags_DefaultOpen)) {
-		add_component_button(COMPONENT_CONNECTOR_IN, "Input", [](Circuit *circuit) {return ConnectorInput(circuit, "in", 1);});
-		add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](Circuit *circuit) {return ConnectorOutput(circuit, "out", 1);});
-		add_component_button(COMPONENT_CONSTANT, "Constant", [](Circuit *circuit) {return Constant(circuit, VALUE_TRUE);});
-		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](Circuit *circuit) {return PullResistor(circuit, VALUE_TRUE);});
+		add_component_button(COMPONENT_CONNECTOR_IN, "Input", [](CircuitDescription *circuit) {return circuit->add_connector_in("in", 1);});
+		add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](CircuitDescription *circuit) {return circuit->add_connector_out("out", 1);});
+		add_component_button(COMPONENT_CONSTANT, "Constant", [](CircuitDescription *circuit) {return circuit->add_constant(VALUE_TRUE);});
+		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](CircuitDescription *circuit) {return circuit->add_pull_resistor(VALUE_TRUE);});
 	}
 
 	ImGui::EndChild();	// left_pane
@@ -224,11 +227,10 @@ void main_gui(LSimContext *lsim_context)
 		// for now only allow to embed circuits that are define before the current circuit
 		//	- there's no circular dependency checking (yet)
 		//	- the serializer/deserialiser isn't smart enough to handle other case 
-		auto max_idx = lib->circuit_idx(sim->active_circuit());
-		for (size_t i = 0; i < max_idx; ++i) {
+		for (size_t i = 0; i < selected_circuit_idx; ++i) {
 			auto sub = lib->circuit_by_idx(i);
 			if (ImGui::Selectable(sub->name().c_str())) {
-				ui_circuit->embed_circuit(sub);
+				ui_circuit->embed_circuit(sub->name().c_str());
 			}
 		}
 
@@ -246,10 +248,9 @@ void main_gui(LSimContext *lsim_context)
 
 	ImGui::SetNextWindowSize(ImVec2(250,100), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Properties");
-	auto sel_ui_comp = ui_circuit->selected_component();
-	if (sel_ui_comp) {
-		auto visual_comp = sel_ui_comp->visual_comp();
-		auto component = visual_comp->get_component();
+	if (ui_circuit != nullptr && ui_circuit->selected_component()) {
+		auto sel_ui_comp = ui_circuit->selected_component();
+		auto component = sel_ui_comp->component();
 
 		// helper functions
 		auto text_property = [](const char *caption, Property *property) {
@@ -278,66 +279,66 @@ void main_gui(LSimContext *lsim_context)
 		};
 
 		// orientation - present for all components
-		int cur_orientation = visual_comp->get_orientation() / 90;
+		int cur_orientation = component->angle() / 90;
 		const char *orientations[] = {"East", "South", "West", "North"};
 		if (ImGui::Combo("Orientation", &cur_orientation, orientations, sizeof(orientations) / sizeof(orientations[0]))) {
-			visual_comp->set_orientation(static_cast<VisualComponent::Orientation>(cur_orientation * 90));
+			component->set_angle(cur_orientation * 90);
 			sel_ui_comp->build_transform();
 		}
 
 		// component specific fields
-		if (visual_comp->get_type() == COMPONENT_CONNECTOR_IN || visual_comp->get_type() == COMPONENT_CONNECTOR_OUT) {
+		if (component->type() == COMPONENT_CONNECTOR_IN || component->type() == COMPONENT_CONNECTOR_OUT) {
 			text_property("Name", component->property("name"));
 			boolean_property("TriState", component->property("tri_state"));
 
-			int data_bits = component->num_pins();
+			int data_bits = component->num_inputs() + component->num_outputs();
 			if (ImGui::InputInt("Data Bits", &data_bits)) {
-				if (visual_comp->get_type() == COMPONENT_CONNECTOR_IN) {
-					component->change_output_pins(data_bits);
+				if (component->type() == COMPONENT_CONNECTOR_IN) {
+					// XXX component->change_output_pins(data_bits);
 				} else {
-					component->change_input_pins(data_bits);
+					// XXX component->change_input_pins(data_bits);
 				}
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
-				ui_circuit->circuit()->add_ports(component->property_value("name",""), component);
-				ui_circuit->circuit()->initialize_input_ports();
+				// XXX ui_circuit->circuit()->add_ports(component->property_value("name",""), component);
+				// XXX ui_circuit->circuit()->initialize_input_ports();
 			}
 		}
 
-		if (visual_comp->get_type() == COMPONENT_CONSTANT) {
+		if (component->type() == COMPONENT_CONSTANT) {
 			auto new_value = value_property("Value", component->property("value"));
-			component->write_pin(0, new_value);
+			// XXX component->write_pin(0, new_value);
 		}
 
-		if (visual_comp->get_type() == COMPONENT_PULL_RESISTOR) {
+		if (component->type() == COMPONENT_PULL_RESISTOR) {
 			auto new_value = value_property("Value", component->property("pull_to"));
-			component->write_pin(0, new_value);
+			// XXX component->write_pin(0, new_value);
 		}
 
-		if (visual_comp->get_type() == COMPONENT_BUFFER || visual_comp->get_type() == COMPONENT_TRISTATE_BUFFER) {
-			int data_bits = component->num_input_pins();
+		if (component->type() == COMPONENT_BUFFER || component->type() == COMPONENT_TRISTATE_BUFFER) {
+			int data_bits = component->num_inputs();
 
 			if (ImGui::InputInt("Data Bits", &data_bits)) {
 				if (data_bits <= 0) {
 					data_bits = 1;
 				}
-				component->change_input_pins(data_bits);
-				component->change_output_pins(data_bits);
+				// XXX component->change_input_pins(data_bits);
+				// XXX component->change_output_pins(data_bits);
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
 			}
 		}
 
-		if (visual_comp->get_type() == COMPONENT_AND_GATE ||
-		    visual_comp->get_type() == COMPONENT_OR_GATE ||
-			visual_comp->get_type() == COMPONENT_NAND_GATE ||
-			visual_comp->get_type() == COMPONENT_NOR_GATE) {
-			int num_inputs = component->num_input_pins();
+		if (component->type() == COMPONENT_AND_GATE ||
+		    component->type() == COMPONENT_OR_GATE ||
+			component->type() == COMPONENT_NAND_GATE ||
+			component->type() == COMPONENT_NOR_GATE) {
+			int num_inputs = component->num_inputs();
 			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
-				component->change_input_pins(num_inputs);
+				// XXX component->change_input_pins(num_inputs);
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
 			}
 		}
 
-	} else {
+	} else if (ui_circuit != nullptr) {
 		// no component selected - edit circuit properties
 		std::vector<char> name(ui_circuit->circuit()->name().begin(), ui_circuit->circuit()->name().end());
 		name.resize(256);
@@ -351,7 +352,7 @@ void main_gui(LSimContext *lsim_context)
 			ImGui::Text("This is the main circuit");
 		} else {
 			if (ImGui::Button("Set as main circuit")) {
-				lsim_context->user_library()->set_main_circuit(ui_circuit->circuit());
+				lsim_context->user_library()->change_main_circuit(ui_circuit->circuit()->name().c_str());
 			}
 		}
 	}
@@ -359,3 +360,7 @@ void main_gui(LSimContext *lsim_context)
 
 	debug_window(lsim_context);
 }
+
+} // namespace lsim
+
+} // namespace gui
