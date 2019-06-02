@@ -31,6 +31,10 @@ typedef std::vector<Value> value_container_t;
 const pin_t PIN_UNDEFINED = static_cast<pin_t>(-1);
 const node_t NODE_INVALID = static_cast<node_t>(-1);
 
+// pin-ids are used in the circuit description
+typedef uint64_t pin_id_t;
+typedef std::vector<pin_id_t>   pin_id_container_t;
+
 // component types - seems okay for now for these to be all listed here, not really expecting much extra types
 typedef uint32_t ComponentType;
 const ComponentType COMPONENT_CONNECTOR_IN = 0x0001;
@@ -50,6 +54,8 @@ const ComponentType COMPONENT_SUB_CIRCUIT = 0x1001;
 
 // forward declarations
 class Component;
+class CircuitDescription;
+
 class SimComponent;
 class Simulator;
 

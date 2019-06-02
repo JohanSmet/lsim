@@ -33,6 +33,7 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_description.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_instance.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/component_description.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.cpp"
@@ -42,6 +43,7 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_gates.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_various.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/wire_description.cpp"
 )
 
 set (LIB_HEADERS
@@ -49,6 +51,7 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_description.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_instance.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/component_description.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.h"
@@ -57,6 +60,7 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/wire_description.h"
 )
 
 add_library(${LIB_TARGET} STATIC ${LIB_SOURCES} ${LIB_HEADERS})
