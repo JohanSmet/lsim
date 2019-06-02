@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "load_logisim.h"
-#include "lsim_context.h"
+//#include "lsim_context.h"
 
 #include <cstring>
 

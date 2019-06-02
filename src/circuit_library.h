@@ -13,6 +13,8 @@
 
 namespace lsim {
 
+class LSimContext;
+
 class CircuitLibrary {
 public:
     CircuitLibrary(const char *name);
@@ -21,7 +23,7 @@ public:
     const char *name() const {return m_name.c_str();}
 
     // circuit management
-    CircuitDescription *create_circuit(const char *name);
+    CircuitDescription *create_circuit(const char *name, LSimContext *context);
     void delete_circuit(CircuitDescription *circuit);
     void swap_circuits(size_t idx_a, size_t idx_b);
     size_t num_circuits() const {return m_circuits.size();}

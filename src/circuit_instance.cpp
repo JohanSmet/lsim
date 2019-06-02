@@ -19,6 +19,22 @@ SimComponent *CircuitInstance::add_component(Component *comp) {
     assert(comp);
     auto sim_comp = m_sim->create_component(comp);
     m_components[comp->id()] = sim_comp;
+
+    if (comp->type() == COMPONENT_SUB_CIRCUIT) {
+        auto nested_instance = comp->nested_circuit()->instantiate(m_sim);
+
+        for (size_t idx = 0; idx < sim_comp->num_inputs(); ++idx) {
+            auto nested_pin = nested_instance->pin_from_pin_id(comp->nested_circuit()->port_by_index(true, idx));
+            auto node = m_sim->connect_pins(nested_pin, sim_comp->pin_by_index(sim_comp->input_pin_index(idx)));
+        }        
+
+        for (size_t idx = 0; idx < sim_comp->num_outputs(); ++idx) {
+            auto nested_pin = nested_instance->pin_from_pin_id(comp->nested_circuit()->port_by_index(false, idx));
+            auto node = m_sim->connect_pins(nested_pin, sim_comp->pin_by_index(sim_comp->output_pin_index(idx)));
+        }        
+
+        sim_comp->set_nested_instance(std::move(nested_instance));
+    }
     return sim_comp;
 }
 
@@ -32,6 +48,10 @@ node_t CircuitInstance::add_wire(Wire *wire) {
         node = m_sim->connect_pins(first_pin, pin_from_pin_id(wire->pin(index)));
     }
 
+    // FIXME: connecting wires can potentially change node id's of this and nested circuits
+    //  might be better to drop this and find the node of a wire through it's pins each time
+    //  it is needed ? Or build the wire -> node table only after the entire circuit has been
+    //  instanced
     m_wire_nodes[wire->id()] = node;
     return node;
 }
@@ -39,6 +59,35 @@ node_t CircuitInstance::add_wire(Wire *wire) {
 Value CircuitInstance::read_pin(pin_id_t pin_id) {
     return m_sim->read_pin(pin_from_pin_id(pin_id));
 }
+
+uint8_t CircuitInstance::read_nibble(uint32_t comp_id) {
+    auto comp = component_by_id(comp_id);
+    assert(comp);
+
+    assert(comp->num_inputs() == 4);
+    uint8_t result = 0;
+
+    for (int i = 0; i < comp->num_inputs(); ++i) {
+        result |= ((int) m_sim->read_pin(comp->pin_by_index(comp->input_pin_index(i)))) << i;
+    }
+
+    return result;
+}
+
+uint8_t CircuitInstance::read_byte(uint32_t comp_id) {
+    auto comp = component_by_id(comp_id);
+    assert(comp);
+
+    assert(comp->num_inputs() == 8);
+    uint8_t result = 0;
+
+    for (int i = 0; i < comp->num_inputs(); ++i) {
+        result |= ((int) m_sim->read_pin(comp->pin_by_index(comp->input_pin_index(i)))) << i;
+    }
+
+    return result;
+}
+
 
 void CircuitInstance::write_pin(pin_id_t pin_id, Value value) {
     auto comp = component_by_id(component_id_from_pin_id(pin_id));

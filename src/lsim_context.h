@@ -10,6 +10,8 @@
 
 namespace lsim {
 
+class CircuitDescription;
+
 class LSimContext {
 public:
     LSimContext() : m_user_library("user") {
@@ -18,6 +20,10 @@ public:
 
     Simulator *sim() {return &m_sim;}
     CircuitLibrary *user_library() {return &m_user_library;}
+
+    CircuitDescription *create_user_circuit(const char *name) {
+        return m_user_library.create_circuit(name, this);
+    }
 
 private:
     Simulator m_sim;

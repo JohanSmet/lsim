@@ -12,10 +12,10 @@ CircuitLibrary::CircuitLibrary(const char *name) :
         m_name(name) {
 }
 
-CircuitDescription *CircuitLibrary::create_circuit(const char *name) {
+CircuitDescription *CircuitLibrary::create_circuit(const char *name, LSimContext *context) {
     assert(name);
 
-    m_circuits.push_back(std::make_unique<CircuitDescription>(name));
+    m_circuits.push_back(std::make_unique<CircuitDescription>(name, context));
     auto circuit = m_circuits.back().get();
     m_circuit_lut[name] = circuit;
 

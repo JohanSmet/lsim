@@ -9,7 +9,7 @@ TEST_CASE("PullResistor", "[extra]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in = circuit_desc->add_connector_in("in", 1);

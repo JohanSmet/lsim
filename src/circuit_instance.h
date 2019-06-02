@@ -20,6 +20,9 @@ public:
 
     // read/write
     Value read_pin(pin_id_t pin_id);
+    uint8_t read_nibble(uint32_t comp_id);
+    uint8_t read_byte(uint32_t comp_id);
+
     void write_pin(pin_id_t pin_id, Value value);
     void write_output_pins(uint32_t comp_id, value_container_t values);
     void write_output_pins(uint32_t comp_id, uint64_t data);

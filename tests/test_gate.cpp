@@ -9,7 +9,7 @@ TEST_CASE("Buffer", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in = circuit_desc->add_connector_in("in", 4);
@@ -60,7 +60,7 @@ TEST_CASE("TriStateBuffer", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in = circuit_desc->add_connector_in("in", 2);
@@ -118,7 +118,7 @@ TEST_CASE("Multiple TriState Buffers", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto pin_A = circuit_desc->add_connector_in("A", 1);
@@ -171,7 +171,7 @@ TEST_CASE("AndGate", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in_0 = circuit_desc->add_connector_in("i0", 1);
@@ -220,7 +220,7 @@ TEST_CASE("OrGate", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in_0 = circuit_desc->add_connector_in("i0", 1);
@@ -269,7 +269,7 @@ TEST_CASE("NotGate", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in = circuit_desc->add_connector_in("in", 1);
@@ -308,7 +308,7 @@ TEST_CASE("NandGate", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in_0 = circuit_desc->add_connector_in("i0", 1);
@@ -357,7 +357,7 @@ TEST_CASE("NorGate", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in_0 = circuit_desc->add_connector_in("i0", 1);
@@ -406,7 +406,7 @@ TEST_CASE("XorGate", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in_0 = circuit_desc->add_connector_in("i0", 1);
@@ -455,7 +455,7 @@ TEST_CASE("XnorGate", "[gate]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit_desc = lsim_context.user_library()->create_circuit("main");
+    auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);
 
     auto in_0 = circuit_desc->add_connector_in("i0", 1);

@@ -3,6 +3,7 @@
 #include "simulator.h"
 #include "sim_functions.h"
 #include "circuit_description.h"
+#include "circuit_instance.h"
 
 #include <cassert>
 #include <algorithm>
@@ -17,7 +18,8 @@ namespace lsim {
 SimComponent::SimComponent(Simulator *sim, Component *comp) :
         m_sim(sim),
         m_comp_desc(comp),
-        m_read_bad(false) {
+        m_read_bad(false),
+        m_nested_circuit(nullptr) {
     
     size_t num_pins = comp->num_inputs() + comp->num_outputs() + comp->num_controls();
     for (size_t idx = 0; idx < num_pins; ++idx) {
@@ -70,6 +72,9 @@ void SimComponent::write_pin_checked(uint32_t index, bool value) {
     write_pin(index, static_cast<Value>(output));
 }
 
+void SimComponent::set_nested_instance(std::unique_ptr<class CircuitInstance> instance) {
+    m_nested_circuit = std::move(instance);
+}
 
 void SimComponent::tick() {
     if (m_sim_needed_func(m_sim, this)) {

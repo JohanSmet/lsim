@@ -4,6 +4,7 @@
 
 #include "circuit_description.h"
 #include "circuit_instance.h"
+#include "lsim_context.h"
 #include "simulator.h"
 
 #include <cassert>
@@ -22,8 +23,28 @@ Component::Component(uint32_t id, ComponentType type, size_t inputs, size_t outp
         m_inputs(inputs),
         m_outputs(outputs),
         m_controls(controls),
+        m_nested_circuit(nullptr),
         m_position(0,0),
         m_angle(0) {
+}
+
+Component::Component(uint32_t id, CircuitDescription *nested) :
+        m_id(id),
+        m_type(COMPONENT_SUB_CIRCUIT),
+        m_priority(PRIORITY_NORMAL),
+        m_inputs(nested->num_input_ports()),
+        m_outputs(nested->num_output_ports()),
+        m_controls(0),
+        m_nested_circuit(nested),
+        m_position(0,0),
+        m_angle(0) {
+    for (size_t idx = 0; idx < m_inputs; ++idx) {
+        m_port_lut[nested->port_name(true, idx)] = input_pin_id(idx);
+    }
+
+    for (size_t idx = 0; idx < m_outputs; ++idx) {
+        m_port_lut[nested->port_name(false, idx)] = output_pin_id(idx);
+    }
 }
 
 pin_id_t Component::pin_id(size_t index) const {
@@ -44,6 +65,16 @@ pin_id_t Component::output_pin_id(size_t index) const {
 pin_id_t Component::control_pin_id(size_t index) const {
     assert(index < m_controls);
     return pin_id(m_inputs + m_outputs + index);
+}
+
+pin_id_t Component::port_by_name(const char *name) const {
+    assert(m_nested_circuit != nullptr);
+    auto found = m_port_lut.find(name);
+    if (found != m_port_lut.end()) {
+        return found->second;
+    } else {
+        return PIN_ID_INVALID;
+    }
 }
 
 void Component::add_property(Property::uptr_t &&prop) {
@@ -105,7 +136,8 @@ pin_id_t Wire::pin(size_t index) const {
 // CircuitDescription
 //
 
-CircuitDescription::CircuitDescription(const char *name) :
+CircuitDescription::CircuitDescription(const char *name, class LSimContext *context) :
+        m_context(context),
         m_name(name),
         m_component_id(0),
         m_wire_id(0) {
@@ -117,6 +149,8 @@ void CircuitDescription::change_name(const char *name) {
 }
 
 Component *CircuitDescription::create_component(ComponentType type, size_t input_pins, size_t output_pins, size_t control_pins) {
+    assert(type != COMPONENT_SUB_CIRCUIT);
+
     auto component = std::make_unique<Component>(m_component_id++, type, input_pins, output_pins, control_pins);
     auto result = component.get();
     m_components[result->id()] = std::move(component);
@@ -129,10 +163,15 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
     } else if (type == COMPONENT_PULL_RESISTOR) {
         result->add_property(make_property("pull_to", static_cast<int64_t>(VALUE_FALSE)));
         result->change_priority(PRIORITY_DEFERRED);
-    } else if (type == COMPONENT_SUB_CIRCUIT) {
-        result->add_property(make_property("circuit", "unknown"));
     }
 
+    return result;
+}
+
+Component *CircuitDescription::create_component(CircuitDescription *nested_circuit) {
+    auto component = std::make_unique<Component>(m_component_id++, nested_circuit);
+    auto result = component.get();
+    m_components[result->id()] = std::move(component);
     return result;
 }
 
@@ -159,10 +198,49 @@ Wire *CircuitDescription::connect(pin_id_t pin_a, pin_id_t pin_b) {
     return wire;
 }
 
+void CircuitDescription::add_port(Component *connector) {
+    size_t num_ports = connector->num_inputs() + connector->num_outputs();
+    std::string name = connector->property("name")->value_as_string();
+    auto &container = (connector->type() == COMPONENT_CONNECTOR_IN) ? m_input_ports : m_output_ports;
+
+    if (num_ports == 1) {
+        m_ports_lut[name] = connector->pin_id(0);
+        container.push_back(name);
+    } else {
+        for (size_t idx = 0; idx < num_ports; ++idx) {
+            std::string pin_name = name + "[" + std::to_string(idx) + "]";
+            m_ports_lut[pin_name] = connector->pin_id(idx);
+            container.push_back(pin_name);
+        }
+    }
+}
+
+pin_id_t CircuitDescription::port_by_name(const char *name) const {
+    auto found = m_ports_lut.find(name);
+    if (found == m_ports_lut.end()) {
+        return PIN_ID_INVALID;
+    }
+
+    return found->second;
+}
+
+pin_id_t CircuitDescription::port_by_index(bool input, size_t index) const {
+    auto &container = (input) ? m_input_ports : m_output_ports;
+    assert(index < container.size());
+    return port_by_name(container[index].c_str());
+}
+
+const std::string &CircuitDescription::port_name(bool input, size_t index) const {
+    auto &container = (input) ? m_input_ports : m_output_ports;
+    assert(index < container.size());
+    return container[index];
+}
+
 Component *CircuitDescription::add_connector_in(const char *name, size_t data_bits, bool tri_state) {
     auto result = create_component(COMPONENT_CONNECTOR_IN, 0, data_bits, 0);
     result->property("name")->value(name);
     result->property("tri_state")->value(tri_state);
+    add_port(result);
     return result;
 }
 
@@ -170,6 +248,7 @@ Component *CircuitDescription::add_connector_out(const char *name, size_t data_b
     auto result = create_component(COMPONENT_CONNECTOR_OUT, data_bits, 0, 0);
     result->property("name")->value(name);
     result->property("tri_state")->value(tri_state);
+    add_port(result);
     return result;
 }
 
@@ -228,7 +307,7 @@ Component *CircuitDescription::add_xnor_gate() {
 }
 
 Component *CircuitDescription::add_sub_circuit(const char *circuit) {
-    return nullptr;    
+    return create_component(m_context->user_library()->circuit_by_name(circuit));
 }
 
 std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim) {
