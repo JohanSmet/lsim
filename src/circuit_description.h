@@ -34,6 +34,8 @@ public:
     Component *component_by_id(uint32_t id);
     std::vector<uint32_t> component_ids() const;
     std::vector<uint32_t> component_ids_of_type(ComponentType type) const;
+    void disconnect_component(uint32_t id);
+    void remove_component(uint32_t id);
 
     // connections
     Wire *create_wire();
@@ -41,6 +43,7 @@ public:
     std::vector<uint32_t> wire_ids() const;
     Wire *wire_by_id(uint32_t id) const;
     const wire_lut_t &wires() const {return m_wires;}
+    void remove_wire(uint32_t id);
 
     // ports
     void add_port(Component *connector);

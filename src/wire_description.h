@@ -63,6 +63,8 @@ public:
     void add_pin(pin_id_t pin);
     size_t num_pins() const {return m_pins.size();}
     pin_id_t pin(size_t index) const;
+    void remove_component_pins(uint32_t component_id);
+    void clear_pins();
 
     // segments & junctions
     size_t num_segments() const {return m_segments.size();}

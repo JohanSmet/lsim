@@ -26,10 +26,10 @@ namespace lsim {
 namespace gui {
 
 size_t UICircuit::PointHash::operator() (const Point &p) const {
-		// abuse the fact that positions will always be aligned to the grid
-		int32_t x = (int32_t) p.x;
-		int32_t y = (int32_t) p.y;
-		return (size_t) y << 32 | (size_t) x;
+	// abuse the fact that positions will always be aligned to the grid
+	int32_t x = (int32_t) p.x;
+	int32_t y = (int32_t) p.y;
+	return (size_t) y << 32 | (size_t) x;
 }
 
 
@@ -470,22 +470,17 @@ void UICircuit::delete_selected_components() {
 	for (auto &item : m_selection) {
 		if (item.m_component) {
 			auto comp = item.m_component->component();
-			// XXX remove component from m_circuit_desc
+			m_circuit_desc->remove_component(comp->id());
 			remove_component(item.m_component);
-		} /* else if (item.m_segment) {
+		} else if (item.m_segment) {
 			auto wire = item.m_segment->wire();
 			wire->remove_segment(item.m_segment);
 			touched_wires.insert(wire);
-		}*/
+		}
 	}
 
-	/*for (auto wire : touched_wires) {
-		if (wire->node() == NODE_INVALID) {
-			continue;
-		}
-		for (const auto &pin : wire->pins()) {
-			m_circuit_desc->sim()->disconnect_pin(pin);
-		}
+	for (auto wire : touched_wires) {
+		wire->clear_pins();
 
 		if (!wire->in_one_piece()) {
 			std::vector<Wire *> new_wires;
@@ -502,12 +497,13 @@ void UICircuit::delete_selected_components() {
 				wire_make_connections(new_wire);
 				new_wires.push_back(new_wire);
 			}
-			m_circuit_desc->remove_wire(wire);
+
+			m_circuit_desc->remove_wire(wire->id());
 		} else {
 			wire->simplify();
 			wire_make_connections(wire);
 		}
-	}*/
+	}
 
 	clear_selection();
 }
@@ -663,7 +659,9 @@ void UICircuit::wire_make_connections(Wire *wire) {
 	for (size_t j = 0; j < wire->num_junctions(); ++j) {
 		auto junction = wire->junction_position(j);	
 		auto found = m_point_pin_lut.find(junction);
-		wire->add_pin(found->second);
+		if (found != m_point_pin_lut.end()) {
+			wire->add_pin(found->second);
+		}
 	}
 }
 

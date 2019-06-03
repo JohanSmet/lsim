@@ -135,7 +135,7 @@ private:
 
     typedef std::vector<UIComponent::uptr_t>    ui_component_container_t;
     typedef std::vector<Point>                  point_container_t;
-    typedef std::unordered_map<Point, pin_t, PointHash>  point_pin_lut_t;
+    typedef std::unordered_map<Point, pin_id_t, PointHash>  point_pin_lut_t;
 
     struct WireEndPoint {
         Point    m_position;

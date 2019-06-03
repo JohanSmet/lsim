@@ -85,6 +85,21 @@ std::vector<uint32_t> CircuitDescription::component_ids_of_type(ComponentType ty
     return std::move(result);
 }
 
+void CircuitDescription::disconnect_component(uint32_t id) {
+    for (auto &pair : m_wires) {
+        pair.second->remove_component_pins(id);
+    }
+}
+
+void CircuitDescription::remove_component(uint32_t id) {
+    auto found = m_components.find(id);
+    if (found == m_components.end()) {
+        return;
+    }
+    disconnect_component(id);
+    m_components.erase(found);
+}
+
 Wire *CircuitDescription::create_wire() {
     auto wire = std::make_unique<Wire>(m_wire_id++);
     auto result = wire.get();
@@ -117,6 +132,13 @@ Wire *CircuitDescription::wire_by_id(uint32_t id) const {
         return found->second.get();
     } else {
         return nullptr;
+    }
+}
+
+void CircuitDescription::remove_wire(uint32_t id) {
+    auto found = m_wires.find(id);
+    if (found != m_wires.end()) {
+        m_wires.erase(found);
     }
 }
 

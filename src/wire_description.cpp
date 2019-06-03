@@ -75,6 +75,20 @@ pin_id_t Wire::pin(size_t index) const {
     return m_pins[index];
 }
 
+void Wire::remove_component_pins(uint32_t component_id) {
+    auto iter = std::remove_if(m_pins.begin(), m_pins.end(),
+                 [component_id](const auto &pin_id) {
+                     return component_id_from_pin_id(pin_id) == component_id;
+                 });
+    if (iter != m_pins.end()) {
+        m_pins.erase(iter);
+    }
+}
+
+void Wire::clear_pins() {
+    m_pins.clear();
+}
+
 const Point &Wire::segment_point(size_t segment_idx, size_t point_idx) const {
     assert(segment_idx < m_segments.size());
     assert(point_idx < 2);
