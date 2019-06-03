@@ -55,7 +55,7 @@ public:
     bool has_custom_ui_callback() const {return m_custom_ui_callback != nullptr;}
     void call_custom_ui_callback(Transform transform);
 
-    void add_endpoint(uint32_t pin, Point location); 
+    void add_endpoint(pin_id_t pin, Point location); 
     void add_pin_line(pin_id_t pin_start, size_t pin_count, float size, Point origin, Point inc); 
     void add_pin_line(pin_id_t pin_start, size_t pin_count, Point origin, Point delta);
 
@@ -150,7 +150,7 @@ private:
     UICircuitState      m_state;
 
     UIComponent *       m_hovered_component;
-    pin_t               m_hovered_pin;
+    pin_id_t            m_hovered_pin;
     Wire *              m_hovered_wire;
 
     Point               m_mouse_grid_point;

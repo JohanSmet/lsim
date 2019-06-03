@@ -88,7 +88,7 @@ void UIComponent::call_custom_ui_callback(Transform transform) {
 	}
 }
 
-void UIComponent::add_endpoint(uint32_t pin, Point location) {
+void UIComponent::add_endpoint(pin_id_t pin, Point location) {
 	m_endpoints[pin] = location;
 }
 
@@ -187,7 +187,7 @@ void UICircuit::draw() {
 	};
 
 	// components
-	m_hovered_pin = PIN_UNDEFINED;
+	m_hovered_pin = PIN_ID_INVALID;
 	m_hovered_wire = nullptr;
 	m_hovered_component = nullptr;
 
@@ -278,7 +278,7 @@ void UICircuit::draw() {
 		if (m_hovered_wire == nullptr && wire->point_on_wire(m_mouse_grid_point)) {
 			draw_list->AddCircle(m_mouse_grid_point + offset, 8, COLOR_ENDPOINT_HOVER, 12, 2);
 			m_hovered_wire = wire;
-			if (m_hovered_pin == PIN_UNDEFINED) {
+			if (m_hovered_pin == PIN_ID_INVALID) {
 				// ImGui::SetTooltip("Node = %d", wire->node());
 			}
 		}
@@ -293,7 +293,7 @@ void UICircuit::draw() {
 		if (m_state == CS_CREATE_COMPONENT) {
 			// ends CREATE_COMPONENT state
 			m_state = CS_IDLE;
-		} else if (m_state == CS_IDLE && m_hovered_pin != PIN_UNDEFINED) {
+		} else if (m_state == CS_IDLE && m_hovered_pin != PIN_ID_INVALID) {
 			// clicking on an endpoint activates CREATE_WIRE state
 			m_state = CS_CREATE_WIRE;
 			m_wire_start = {m_mouse_grid_point, m_hovered_pin, nullptr};
@@ -302,11 +302,11 @@ void UICircuit::draw() {
 		} else if (m_state == CS_IDLE && m_hovered_wire != nullptr) {
 			// clicking on a wire activates CREATE_WIRE state
 			m_state = CS_CREATE_WIRE;
-			m_wire_start = {m_mouse_grid_point, PIN_UNDEFINED, m_hovered_wire};
+			m_wire_start = {m_mouse_grid_point, PIN_ID_INVALID, m_hovered_wire};
 			m_line_anchors = {m_mouse_grid_point, m_mouse_grid_point};
 			m_segment_start = m_mouse_grid_point;
 		} else if (m_state == CS_IDLE && 
-				   m_hovered_pin == PIN_UNDEFINED &&
+				   m_hovered_pin == PIN_ID_INVALID &&
 				   m_hovered_wire == nullptr &&
 				   m_hovered_component == nullptr) {
 			// clicking on the circuit background clears the selection
@@ -315,11 +315,11 @@ void UICircuit::draw() {
 			// clicking while in CREATE_WIRE mode
 			bool sw_create = false;
 
-			if (m_hovered_pin != PIN_UNDEFINED) {
+			if (m_hovered_pin != PIN_ID_INVALID) {
 				m_wire_end = {m_mouse_grid_point, m_hovered_pin, nullptr};
 				sw_create = true;
 			} else if (m_hovered_wire != nullptr) {
-				m_wire_end = {m_mouse_grid_point, PIN_UNDEFINED, m_hovered_wire};
+				m_wire_end = {m_mouse_grid_point, PIN_ID_INVALID, m_hovered_wire};
 				sw_create = true;
 			}
 
@@ -371,7 +371,7 @@ void UICircuit::draw() {
 	if (mouse_in_window && ImGui::IsMouseDoubleClicked(0)) {
 		if (m_state == CS_CREATE_WIRE) {
 			// end CREATE_WIRE state without actually connecting to something
-			m_wire_end = {m_mouse_grid_point, PIN_UNDEFINED, nullptr};
+			m_wire_end = {m_mouse_grid_point, PIN_ID_INVALID, nullptr};
 			create_wire();
 			m_state = CS_IDLE;
 		}
@@ -532,13 +532,13 @@ void UICircuit::create_wire() {
 		return;
 	}
 
-	if (m_wire_start.m_pin != PIN_UNDEFINED && m_wire_end.m_pin != PIN_UNDEFINED) {
+	if (m_wire_start.m_pin != PIN_ID_INVALID && m_wire_end.m_pin != PIN_ID_INVALID) {
 		// a new wire between two pins
 		auto wire = m_circuit->create_wire();
 		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 		wire->add_pin(m_wire_start.m_pin);
 		wire->add_pin(m_wire_end.m_pin);
-	} else if (m_wire_end.m_pin == PIN_UNDEFINED && m_wire_end.m_wire == nullptr) {
+	} else if (m_wire_end.m_pin == PIN_ID_INVALID && m_wire_end.m_wire == nullptr) {
 		// wire without an explicit endpoint
 		Wire *wire = m_wire_start.m_wire;
 		if (!wire) {
@@ -560,7 +560,7 @@ void UICircuit::create_wire() {
 		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 	} else {
 		// join a pin to an existing wire
-		auto pin = (m_wire_start.m_pin != PIN_UNDEFINED) ? m_wire_start.m_pin : m_wire_end.m_pin;
+		auto pin = (m_wire_start.m_pin != PIN_ID_INVALID) ? m_wire_start.m_pin : m_wire_end.m_pin;
 		auto wire = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_wire : m_wire_end.m_wire;
 		auto junction = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_position : m_wire_end.m_position;
 
