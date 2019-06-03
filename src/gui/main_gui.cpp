@@ -23,7 +23,7 @@ static int selected_circuit_idx = 0;
 static const char *value_labels[] = {"False", "True", "Undefined", "Error"};
 
 static void change_active_circuit(Simulator *sim, CircuitDescription *active_circuit) {
-	if (ui_circuit != nullptr && ui_circuit->circuit() == active_circuit) {
+	if (ui_circuit != nullptr && ui_circuit->circuit_desc() == active_circuit) {
 		return;
 	}
 
@@ -31,6 +31,18 @@ static void change_active_circuit(Simulator *sim, CircuitDescription *active_cir
 		// XXX sim->change_active_circuit(active_circuit);
 		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
 		// XXX active_circuit->initialize_input_ports();
+	}
+}
+
+static void init_input_connectors(CircuitDescription *desc, CircuitInstance *inst) {
+	auto connector_ids = desc->component_ids_of_type(COMPONENT_CONNECTOR_IN);
+
+	for (const auto &id : connector_ids) {
+		auto connector = desc->component_by_id(id);
+		auto pin = connector->output_pin_id(0);
+		for (size_t idx = 0; idx < connector->num_outputs(); ++idx) {
+			inst->write_pin(pin++, VALUE_FALSE);
+		}
 	}
 }
 
@@ -110,6 +122,7 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::SameLine();
 	if (ImGui::RadioButton("Simulation", ui_circuit->is_simulating())) {
 		ui_circuit->change_simulation_status(true, sim);
+		init_input_connectors(ui_circuit->circuit_desc(), ui_circuit->circuit_inst());
 		sim_running = true;
 		sim->init();
 	}
@@ -186,7 +199,7 @@ void main_gui(LSimContext *lsim_context)
 		ImGui::PushID(caption);
 		if (ImGui::Button("", {40, 40})) {
 			if (!ui_circuit->is_simulating()) {
-				auto component = create_func(ui_circuit->circuit());
+				auto component = create_func(ui_circuit->circuit_desc());
 				component->set_position({-200, -200});
 				ui_circuit->ui_create_component(component);
 			}
@@ -354,19 +367,20 @@ void main_gui(LSimContext *lsim_context)
 
 	} else if (ui_circuit != nullptr) {
 		// no component selected - edit circuit properties
-		std::vector<char> name(ui_circuit->circuit()->name().begin(), ui_circuit->circuit()->name().end());
+		std::vector<char> name(ui_circuit->circuit_desc()->name().begin(), ui_circuit->circuit_desc()->name().end());
 		name.resize(256);
 
 		if (ImGui::InputText("Name", name.data(), name.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-			ui_circuit->circuit()->change_name(name.data());
+			// FIXME: name does not get changed in the library
+			ui_circuit->circuit_desc()->change_name(name.data());
 		}
 
-		bool main_circuit = lsim_context->user_library()->main_circuit() == ui_circuit->circuit();
+		bool main_circuit = lsim_context->user_library()->main_circuit() == ui_circuit->circuit_desc();
 		if (main_circuit) {
 			ImGui::Text("This is the main circuit");
 		} else {
 			if (ImGui::Button("Set as main circuit")) {
-				lsim_context->user_library()->change_main_circuit(ui_circuit->circuit()->name().c_str());
+				lsim_context->user_library()->change_main_circuit(ui_circuit->circuit_desc()->name().c_str());
 			}
 		}
 	}

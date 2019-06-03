@@ -103,7 +103,8 @@ public:
     void embed_circuit(const char *name);
     void create_wire();
 
-    CircuitDescription *circuit() {return m_circuit_desc;}
+    CircuitDescription *circuit_desc() const {return m_circuit_desc;}
+    CircuitInstance *circuit_inst() const {return m_circuit_inst.get();}
 
     // selection
     size_t num_selected_items() const {return m_selection.size();}

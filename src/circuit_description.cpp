@@ -72,6 +72,19 @@ std::vector<uint32_t> CircuitDescription::component_ids() const {
     return std::move(result);
 }
 
+std::vector<uint32_t> CircuitDescription::component_ids_of_type(ComponentType type) const {
+    std::vector<uint32_t> result;
+
+    for (const auto &comp : m_components) {
+        if (comp.second->type() == type) {
+            result.push_back(comp.second->id());
+        }
+    }
+
+    std::sort(result.begin(), result.end());
+    return std::move(result);
+}
+
 Wire *CircuitDescription::create_wire() {
     auto wire = std::make_unique<Wire>(m_wire_id++);
     auto result = wire.get();

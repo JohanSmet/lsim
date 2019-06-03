@@ -33,6 +33,7 @@ protected:
 public:
     Component *component_by_id(uint32_t id);
     std::vector<uint32_t> component_ids() const;
+    std::vector<uint32_t> component_ids_of_type(ComponentType type) const;
 
     // connections
     Wire *create_wire();
