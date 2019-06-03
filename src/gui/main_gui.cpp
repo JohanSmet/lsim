@@ -28,9 +28,7 @@ static void change_active_circuit(Simulator *sim, CircuitDescription *active_cir
 	}
 
 	if (active_circuit) {
-		// XXX sim->change_active_circuit(active_circuit);
 		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
-		// XXX active_circuit->initialize_input_ports();
 	}
 }
 
@@ -94,8 +92,13 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 			// ui_filename.replace(ui_filename.begin() + ui_filename.find_last_of('.'), ui_filename.end(), ".lsim");
 		} else {
 			deserialize_library(lsim_context, lsim_context->user_library(), circuit_file);
+			if (lsim_context->user_library()->num_circuits() <= 0) {
+				lsim_context->user_library()->create_circuit("main", lsim_context);
+				lsim_context->user_library()->change_main_circuit("main");
+			}
 		}
 
+		// select main circuit
 		auto main_circuit = lsim_context->user_library()->main_circuit();
 		selected_circuit_idx = lsim_context->user_library()->circuit_idx(main_circuit);
 		change_active_circuit(lsim_context->sim(), main_circuit);
