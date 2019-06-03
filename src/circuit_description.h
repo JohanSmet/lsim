@@ -18,6 +18,7 @@ namespace lsim {
 class CircuitDescription {
 public:
     typedef std::unique_ptr<CircuitDescription> uptr_t;
+    typedef std::unordered_map<uint32_t, Wire::uptr_t> wire_lut_t;
 public:
     CircuitDescription(const char *name, class LSimContext *context);
 
@@ -38,6 +39,7 @@ public:
     Wire *connect(pin_id_t pin_a, pin_id_t pin_b);
     std::vector<uint32_t> wire_ids() const;
     Wire *wire_by_id(uint32_t id) const;
+    const wire_lut_t &wires() const {return m_wires;}
 
     // ports
     void add_port(Component *connector);
@@ -68,7 +70,6 @@ public:
 
 private:
     typedef std::unordered_map<uint32_t, Component::uptr_t> component_lut_t;
-    typedef std::unordered_map<uint32_t, Wire::uptr_t> wire_lut_t;
     typedef std::vector<std::string> port_container_t;
 
 private:

@@ -254,11 +254,12 @@ void UICircuit::draw() {
 	}
 
 	// draw wires
-	/* for (const auto &wire : m_circuit->wires()) {
+	for (const auto &wire_it : m_circuit->wires()) {
+		auto wire = wire_it.second.get();
 		auto wire_color = COLOR_CONNECTION_UNDEFINED;
-		if (wire->node() != NODE_INVALID) {
+		/*if (wire->node() != NODE_INVALID) {
 			wire_color = COLOR_CONNECTION[m_circuit->sim()->read_node(wire->node())];
-		}
+		}*/
 
 		// segments
 		for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
@@ -276,12 +277,12 @@ void UICircuit::draw() {
 
 		if (m_hovered_wire == nullptr && wire->point_on_wire(m_mouse_grid_point)) {
 			draw_list->AddCircle(m_mouse_grid_point + offset, 8, COLOR_ENDPOINT_HOVER, 12, 2);
-			m_hovered_wire = wire.get();
+			m_hovered_wire = wire;
 			if (m_hovered_pin == PIN_UNDEFINED) {
-				ImGui::SetTooltip("Node = %d", wire->node());
+				// ImGui::SetTooltip("Node = %d", wire->node());
 			}
 		}
-	} */
+	} 
 
 	// handle input
 	bool mouse_in_window = ImGui::IsMouseHoveringWindow();
@@ -347,14 +348,14 @@ void UICircuit::draw() {
 				   m_hovered_wire == m_wire_start.m_wire) {
 			// wire selection
 			m_state = CS_IDLE;
-			/*auto segment = m_hovered_wire->segment_at_point(m_mouse_grid_point);
+			auto segment = m_hovered_wire->segment_at_point(m_mouse_grid_point);
 
 			if (!ImGui::GetIO().KeyShift) {
 				clear_selection();
 				select_wire_segment(segment);
 			} else {
 				toggle_selection(segment);
-			}*/
+			}
 		}
 	}
 
@@ -531,11 +532,10 @@ void UICircuit::create_wire() {
 		return;
 	}
 
-/*	if (m_wire_start.m_pin != PIN_UNDEFINED && m_wire_end.m_pin != PIN_UNDEFINED) {
+	if (m_wire_start.m_pin != PIN_UNDEFINED && m_wire_end.m_pin != PIN_UNDEFINED) {
 		// a new wire between two pins
-		auto wire = m_circuit->create_wire(m_line_anchors.size(), m_line_anchors.data());
-		m_circuit->connect_pins(m_wire_start.m_pin, m_hovered_pin);
-		wire->set_node(m_circuit->sim()->pin_node(m_hovered_pin));
+		auto wire = m_circuit->create_wire();
+		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 		wire->add_pin(m_wire_start.m_pin);
 		wire->add_pin(m_wire_end.m_pin);
 	} else if (m_wire_end.m_pin == PIN_UNDEFINED && m_wire_end.m_wire == nullptr) {
@@ -543,9 +543,8 @@ void UICircuit::create_wire() {
 		Wire *wire = m_wire_start.m_wire;
 		if (!wire) {
 			wire = m_circuit->create_wire();
-			wire->set_node(m_circuit->sim()->pin_node(m_wire_start.m_pin));
 		} else {
-			wire->split_at_point(m_wire_start.m_position);
+			wire->split_at_new_junction(m_wire_start.m_position);
 		}
 		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 		wire->simplify();
@@ -553,12 +552,11 @@ void UICircuit::create_wire() {
 		// the newly drawn wire merges two wires
 		if (m_wire_start.m_wire != m_wire_end.m_wire) {
 			m_wire_start.m_wire->merge(m_wire_end.m_wire);
-			m_circuit->sim()->merge_nodes(m_wire_start.m_wire->node(), m_wire_end.m_wire->node());
-			m_circuit->remove_wire(m_wire_end.m_wire);
+			// XXX m_circuit->remove_wire(m_wire_end.m_wire);
 		}
 		auto wire = m_wire_start.m_wire;
-		wire->split_at_point(m_wire_start.m_position);
-		wire->split_at_point(m_wire_end.m_position);
+		wire->split_at_new_junction(m_wire_start.m_position);
+		wire->split_at_new_junction(m_wire_end.m_position);
 		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 	} else {
 		// join a pin to an existing wire
@@ -566,12 +564,11 @@ void UICircuit::create_wire() {
 		auto wire = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_wire : m_wire_end.m_wire;
 		auto junction = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_position : m_wire_end.m_position;
 
-		wire->split_at_point(junction);
+		wire->split_at_new_junction(junction);
 		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 		wire->simplify();
-		m_circuit->sim()->pin_set_node(pin, wire->node());
 		wire->add_pin(pin);
-	}*/
+	}
 }
 
 void UICircuit::clear_selection() {
@@ -591,7 +588,6 @@ void UICircuit::deselect_component(UIComponent *component) {
 						[component](const auto &s) {return s.m_component == component;}));
 }
 
-/*
 void UICircuit::select_wire_segment(WireSegment *segment) {
 	if (is_selected(segment)) {
 		return;
@@ -604,7 +600,6 @@ void UICircuit::deselect_wire_segment(WireSegment *segment) {
 	m_selection.erase(std::remove_if(m_selection.begin(), m_selection.end(),
 						[segment](const auto &s) {return s.m_segment == segment;}));
 }
-*/
 
 void UICircuit::toggle_selection(UIComponent *component) {
 	if (is_selected(component)) {
@@ -614,25 +609,23 @@ void UICircuit::toggle_selection(UIComponent *component) {
 	}
 }
 
-/*void UICircuit::toggle_selection(WireSegment *segment) {
+void UICircuit::toggle_selection(WireSegment *segment) {
 	if (is_selected(segment)) {
 		deselect_wire_segment(segment);
 	} else {
 		select_wire_segment(segment);
 	}
-}*/
+}
 
 bool UICircuit::is_selected(UIComponent *component) {
 	return std::any_of(m_selection.begin(), m_selection.end(),
 						[component](const auto &s) {return s.m_component == component;});
 }
 
-/*
 bool UICircuit::is_selected(WireSegment *segment) {
 	return std::any_of(m_selection.begin(), m_selection.end(),
 						[segment](const auto &s) {return s.m_segment == segment;});
 }
-*/
 
 UIComponent *UICircuit::selected_component() const {
 	if (m_selection.size() == 1) {
@@ -643,27 +636,11 @@ UIComponent *UICircuit::selected_component() const {
 }
 
 void UICircuit::wire_make_connections(Wire *wire) {
-
-	/*wire->set_node(NODE_INVALID);
-	pin_t first_pin = PIN_UNDEFINED;
-
 	for (size_t j = 0; j < wire->num_junctions(); ++j) {
 		auto junction = wire->junction_position(j);	
 		auto found = m_point_pin_lut.find(junction);
-		if (found == m_point_pin_lut.end()) {
-			continue;
-		}
 		wire->add_pin(found->second);
-		if (first_pin == PIN_UNDEFINED) {
-			first_pin = found->second;
-		} else {
-			m_circuit->connect_pins(first_pin, found->second);
-		}
 	}
-
-	if (first_pin != PIN_UNDEFINED) {
-		wire->set_node(m_circuit->sim()->pin_node(first_pin));
-	}*/
 }
 
 void UICircuit::draw_grid(ImDrawList *draw_list) {

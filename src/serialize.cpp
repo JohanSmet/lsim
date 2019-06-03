@@ -176,7 +176,7 @@ private:
     void serialize_wire(Wire *wire, pugi::xml_node *circuit_node) {
         auto wire_node = circuit_node->append_child(XML_EL_WIRE);
 
-        /*for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
+        for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
             auto segment_node = wire_node.append_child(XML_EL_SEGMENT);
             const auto &p0 = wire->segment_point(idx, 0);
             segment_node.append_attribute(XML_ATTR_X1).set_value(p0.x);
@@ -184,7 +184,7 @@ private:
             const auto &p1 = wire->segment_point(idx, 1);
             segment_node.append_attribute(XML_ATTR_X2).set_value(p1.x);
             segment_node.append_attribute(XML_ATTR_Y2).set_value(p1.y);
-        }*/
+        }
 
         for (size_t idx = 0; idx < wire->num_pins(); ++idx) {
             auto pin_node = wire_node.append_child(XML_EL_PIN);
@@ -381,7 +381,7 @@ public:
     bool parse_wire(pugi::xml_node wire_node, CircuitDescription *circuit) {
         Wire *wire = circuit->create_wire();
 
-        /* for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {
+        for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {
             REQUIRED_ATTR(x1_attr, segment_node, XML_ATTR_X1);
             REQUIRED_ATTR(y1_attr, segment_node, XML_ATTR_Y1);
             REQUIRED_ATTR(x2_attr, segment_node, XML_ATTR_X2);
@@ -389,7 +389,7 @@ public:
 
             wire->add_segment(Point(x1_attr.as_float(), y1_attr.as_float()),
                               Point(x2_attr.as_float(), y2_attr.as_float()));
-        } */
+        }
 
         for (auto pin_node : wire_node.children(XML_EL_PIN)) {
             REQUIRED_ATTR(value_attr, pin_node, XML_ATTR_VALUE);

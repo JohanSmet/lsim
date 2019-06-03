@@ -106,12 +106,12 @@ public:
     void clear_selection();
     void select_component(UIComponent *component);
     void deselect_component(UIComponent *component);
-//    void select_wire_segment(WireSegment *segment);
-//    void deselect_wire_segment(WireSegment *segment);
+    void select_wire_segment(WireSegment *segment);
+    void deselect_wire_segment(WireSegment *segment);
     void toggle_selection(UIComponent *component);
-//    void toggle_selection(WireSegment *segment);
+    void toggle_selection(WireSegment *segment);
     bool is_selected(UIComponent *component);
-//    bool is_selected(WireSegment *segment);
+    bool is_selected(WireSegment *segment);
     UIComponent *selected_component() const;
 
 private:
@@ -128,15 +128,14 @@ private:
     typedef std::unordered_map<Point, pin_t, PointHash>  point_pin_lut_t;
 
     struct WireEndPoint {
-        Point   m_position;
-        pin_t   m_pin;
-        Wire *  m_wire;
+        Point    m_position;
+        pin_id_t m_pin;
+        Wire *   m_wire;
     };
 
     struct SelectedItem {
         UIComponent *m_component;
-        void *       m_segment;
-     //   WireSegment *m_segment;
+        WireSegment *m_segment;
     };
     typedef std::vector<SelectedItem>   selection_container_t;
 
