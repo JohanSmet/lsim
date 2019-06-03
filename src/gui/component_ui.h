@@ -15,6 +15,9 @@ class ImDrawList;
 
 namespace lsim {
 
+class CircuitInstance;
+class Simulator;
+
 namespace gui {
 
 class ComponentIcon;
@@ -26,7 +29,8 @@ enum UICircuitState {
     CS_IDLE = 0,
     CS_DRAGGING,
     CS_CREATE_COMPONENT,
-    CS_CREATE_WIRE
+    CS_CREATE_WIRE,
+    CS_SIMULATING
 };
 
 class UIComponent {
@@ -99,7 +103,7 @@ public:
     void embed_circuit(const char *name);
     void create_wire();
 
-    CircuitDescription *circuit() {return m_circuit;}
+    CircuitDescription *circuit() {return m_circuit_desc;}
 
     // selection
     size_t num_selected_items() const {return m_selection.size();}
@@ -113,6 +117,10 @@ public:
     bool is_selected(UIComponent *component);
     bool is_selected(WireSegment *segment);
     UIComponent *selected_component() const;
+
+    // simulation
+    void change_simulation_status(bool active, Simulator *sim);
+    bool is_simulating() const;
 
 private:
     void wire_make_connections(Wire *wire);
@@ -140,7 +148,7 @@ private:
     typedef std::vector<SelectedItem>   selection_container_t;
 
 private:
-    CircuitDescription *      m_circuit;
+    CircuitDescription *      m_circuit_desc;
     std::string               m_name;
  
     ui_component_container_t  m_ui_components;
@@ -160,6 +168,8 @@ private:
     WireEndPoint        m_wire_end;
     Point               m_segment_start;
     point_container_t   m_line_anchors;
+
+    std::unique_ptr<CircuitInstance>  m_circuit_inst;
 
     Point   m_scroll_delta;
     bool    m_show_grid;

@@ -84,7 +84,6 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 			deserialize_library(lsim_context, lsim_context->user_library(), circuit_file);
 		}
 
-		// XXX instantiate the main circuit
 		auto main_circuit = lsim_context->user_library()->main_circuit();
 		selected_circuit_idx = lsim_context->user_library()->circuit_idx(main_circuit);
 		change_active_circuit(lsim_context->sim(), main_circuit);
@@ -96,22 +95,35 @@ void main_gui(LSimContext *lsim_context)
 	auto sim = lsim_context->sim();
 	auto lib = lsim_context->user_library();
 
+	static bool sim_running = false;
+
 	ImGui::SetNextWindowSize(ImVec2(700,600), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Circuit", nullptr, ImGuiWindowFlags_NoScrollWithMouse);
 
-	static bool sim_running = ui_circuit.get() != nullptr;
-	ImGui::Checkbox("Run simulation", &sim_running);
-	ImGui::SameLine();
-	if (ImGui::Button("Reset simulation")) {
-		sim->init();
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Step")) {
-		sim->step();
-	}
-	ImGui::SameLine();
 	if (ImGui::Button("Save")) {
 		serialize_library(lsim_context, lib, ui_filename.c_str());
+	}
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Editor", !ui_circuit->is_simulating())) {
+		ui_circuit->change_simulation_status(false, sim);
+	}
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Simulation", ui_circuit->is_simulating())) {
+		ui_circuit->change_simulation_status(true, sim);
+		sim_running = true;
+		sim->init();
+	}
+	if (ui_circuit->is_simulating()) {
+		ImGui::SameLine();
+		ImGui::Checkbox("Run simulation", &sim_running);
+		ImGui::SameLine();
+		if (ImGui::Button("Reset simulation")) {
+			sim->init();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Step")) {
+			sim->step();
+		}
 	}
 
 	if (sim_running) {
@@ -173,9 +185,11 @@ void main_gui(LSimContext *lsim_context)
 		Point pos = ImGui::GetCursorScreenPos();
 		ImGui::PushID(caption);
 		if (ImGui::Button("", {40, 40})) {
-			auto component = create_func(ui_circuit->circuit());
-			component->set_position({-200, -200});
-			ui_circuit->ui_create_component(component);
+			if (!ui_circuit->is_simulating()) {
+				auto component = create_func(ui_circuit->circuit());
+				component->set_position({-200, -200});
+				ui_circuit->ui_create_component(component);
+			}
 		}
 		auto icon = ComponentIcon::cached(component);
 		if (icon) {

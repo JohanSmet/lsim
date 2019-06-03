@@ -13,6 +13,7 @@
 #include "colors.h"
 #include "simulator.h"
 #include "circuit_description.h"
+#include "circuit_instance.h"
 
 namespace {
 
@@ -148,9 +149,9 @@ void UIComponent::dematerialize() {
 // UICircuit
 //
 
-UICircuit::UICircuit(CircuitDescription *circuit) : 
-			m_circuit(circuit),
-			m_name(circuit->name()),
+UICircuit::UICircuit(CircuitDescription *circuit_desc) : 
+			m_circuit_desc(circuit_desc),
+			m_name(circuit_desc->name()),
 			m_show_grid(true),
 			m_scroll_delta(0,0),
 			m_state(CS_IDLE) {
@@ -246,7 +247,7 @@ void UICircuit::draw() {
 			if (distance_squared(m_mouse_grid_point, endpoint_circuit) <= 2) {
 				draw_list->AddCircle(endpoint_screen, 8, COLOR_ENDPOINT_HOVER, 12, 2);
 				m_hovered_pin = pair.first;
-				// XXX ImGui::SetTooltip("Pin = %d\nNode = %d", m_hovered_pin, m_circuit->sim()->pin_node(m_hovered_pin));
+				// XXX ImGui::SetTooltip("Pin = %d\nNode = %d", m_hovered_pin, m_circuit_desc->sim()->pin_node(m_hovered_pin));
 			}
 		}
 
@@ -254,12 +255,14 @@ void UICircuit::draw() {
 	}
 
 	// draw wires
-	for (const auto &wire_it : m_circuit->wires()) {
+	for (const auto &wire_it : m_circuit_desc->wires()) {
 		auto wire = wire_it.second.get();
 		auto wire_color = COLOR_CONNECTION_UNDEFINED;
-		/*if (wire->node() != NODE_INVALID) {
-			wire_color = COLOR_CONNECTION[m_circuit->sim()->read_node(wire->node())];
-		}*/
+
+		if (is_simulating() && wire->num_pins() > 0) {
+			auto value = m_circuit_inst->read_pin(wire->pin(0));
+			wire_color = COLOR_CONNECTION[value];
+		}
 
 		// segments
 		for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
@@ -287,8 +290,8 @@ void UICircuit::draw() {
 	// handle input
 	bool mouse_in_window = ImGui::IsMouseHoveringWindow();
 
-	// -> left mouse button down
-	if (mouse_in_window && ImGui::IsMouseClicked(0)) {
+	// -> edit-mode: left mouse button down
+	if (!is_simulating() && mouse_in_window && ImGui::IsMouseClicked(0)) {
 
 		if (m_state == CS_CREATE_COMPONENT) {
 			// ends CREATE_COMPONENT state
@@ -334,8 +337,8 @@ void UICircuit::draw() {
 		}
 	}
 
-	// -> left mouse button up
-	if (mouse_in_window && ImGui::IsMouseReleased(0)) {
+	// -> edit-mode: left mouse button up
+	if (!is_simulating() && mouse_in_window && ImGui::IsMouseReleased(0)) {
 		if (m_state == CS_IDLE && m_hovered_component != nullptr) {
 			// component selection
 			if (!ImGui::GetIO().KeyShift) {
@@ -359,16 +362,16 @@ void UICircuit::draw() {
 		}
 	}
 
-	// -> right mouse button down
-	if (mouse_in_window && ImGui::IsMouseClicked(1)) {
+	// -> edit-mode: right mouse button down
+	if (!is_simulating() && mouse_in_window && ImGui::IsMouseClicked(1)) {
 		if (m_state == CS_CREATE_WIRE) {
 			// end CREATE_WIRE state
 			m_state = CS_IDLE;
 		}
 	}
 
-	// -> double-clicking
-	if (mouse_in_window && ImGui::IsMouseDoubleClicked(0)) {
+	// -> edit-mode: double-clicking
+	if (!is_simulating() && mouse_in_window && ImGui::IsMouseDoubleClicked(0)) {
 		if (m_state == CS_CREATE_WIRE) {
 			// end CREATE_WIRE state without actually connecting to something
 			m_wire_end = {m_mouse_grid_point, PIN_ID_INVALID, nullptr};
@@ -377,9 +380,11 @@ void UICircuit::draw() {
 		}
 	}
 
-	// -> keyboard
-	if (ImGui::GetIO().KeysDown[SDLK_DELETE]) {
-    	delete_selected_components();
+	// -> edit-mode: keyboard
+	if (!is_simulating()) {
+		if (ImGui::GetIO().KeysDown[SDLK_DELETE]) {
+			delete_selected_components();
+		}
 	}
 
 	if (m_state == CS_CREATE_WIRE) {
@@ -465,7 +470,7 @@ void UICircuit::delete_selected_components() {
 	for (auto &item : m_selection) {
 		if (item.m_component) {
 			auto comp = item.m_component->component();
-			// XXX remove component from m_circuit
+			// XXX remove component from m_circuit_desc
 			remove_component(item.m_component);
 		} /* else if (item.m_segment) {
 			auto wire = item.m_segment->wire();
@@ -479,7 +484,7 @@ void UICircuit::delete_selected_components() {
 			continue;
 		}
 		for (const auto &pin : wire->pins()) {
-			m_circuit->sim()->disconnect_pin(pin);
+			m_circuit_desc->sim()->disconnect_pin(pin);
 		}
 
 		if (!wire->in_one_piece()) {
@@ -487,7 +492,7 @@ void UICircuit::delete_selected_components() {
 
 			while (wire->num_segments() > 0) {
 				auto reachable_segments = wire->reachable_segments(wire->segment_by_index(0));
-				Wire *new_wire = m_circuit->create_wire();
+				Wire *new_wire = m_circuit_desc->create_wire();
 
 				for (auto segment : reachable_segments) {
 					new_wire->add_segment(segment->junction(0)->position(), segment->junction(1)->position());
@@ -497,7 +502,7 @@ void UICircuit::delete_selected_components() {
 				wire_make_connections(new_wire);
 				new_wires.push_back(new_wire);
 			}
-			m_circuit->remove_wire(wire);
+			m_circuit_desc->remove_wire(wire);
 		} else {
 			wire->simplify();
 			wire_make_connections(wire);
@@ -520,7 +525,7 @@ void UICircuit::ui_create_component(Component *comp) {
 }
 
 void UICircuit::embed_circuit(const char *name) {
-	auto comp = m_circuit->add_sub_circuit(name);
+	auto comp = m_circuit_desc->add_sub_circuit(name);
 	comp->set_position(m_mouse_grid_point);
 	create_component(comp);
 }
@@ -534,7 +539,7 @@ void UICircuit::create_wire() {
 
 	if (m_wire_start.m_pin != PIN_ID_INVALID && m_wire_end.m_pin != PIN_ID_INVALID) {
 		// a new wire between two pins
-		auto wire = m_circuit->create_wire();
+		auto wire = m_circuit_desc->create_wire();
 		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 		wire->add_pin(m_wire_start.m_pin);
 		wire->add_pin(m_wire_end.m_pin);
@@ -542,7 +547,7 @@ void UICircuit::create_wire() {
 		// wire without an explicit endpoint
 		Wire *wire = m_wire_start.m_wire;
 		if (!wire) {
-			wire = m_circuit->create_wire();
+			wire = m_circuit_desc->create_wire();
 		} else {
 			wire->split_at_new_junction(m_wire_start.m_position);
 		}
@@ -552,7 +557,7 @@ void UICircuit::create_wire() {
 		// the newly drawn wire merges two wires
 		if (m_wire_start.m_wire != m_wire_end.m_wire) {
 			m_wire_start.m_wire->merge(m_wire_end.m_wire);
-			// XXX m_circuit->remove_wire(m_wire_end.m_wire);
+			// XXX m_circuit_desc->remove_wire(m_wire_end.m_wire);
 		}
 		auto wire = m_wire_start.m_wire;
 		wire->split_at_new_junction(m_wire_start.m_position);
@@ -633,6 +638,25 @@ UIComponent *UICircuit::selected_component() const {
 	} else {
 		return nullptr;
 	}
+}
+
+void UICircuit::change_simulation_status(bool active, Simulator *sim) {
+	assert(sim);
+
+	if (active && m_circuit_inst == nullptr) {
+		m_state = CS_SIMULATING;
+		clear_selection();
+		m_circuit_inst = m_circuit_desc->instantiate(sim);
+	}
+
+	if (!active && m_circuit_inst != nullptr) {
+		m_state = CS_IDLE;
+		m_circuit_inst = nullptr;
+	}
+}
+
+bool UICircuit::is_simulating() const {
+	return m_state == CS_SIMULATING;
 }
 
 void UICircuit::wire_make_connections(Wire *wire) {
