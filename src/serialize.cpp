@@ -353,7 +353,7 @@ public:
                 component = circuit->add_xnor_gate();
                 break;
             case COMPONENT_SUB_CIRCUIT : {
-                REQUIRED_ATTR(attr_name, comp_node, "name");
+                REQUIRED_ATTR(attr_name, comp_node, XML_ATTR_NESTED);
                 component = circuit->add_sub_circuit(attr_name.as_string());
                 break;
             }
