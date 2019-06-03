@@ -26,10 +26,10 @@ namespace lsim {
 namespace gui {
 
 size_t UICircuit::PointHash::operator() (const Point &p) const {
-	// abuse the fact that positions will always be aligned to the grid
-	int32_t x = (int32_t) p.x;
-	int32_t y = (int32_t) p.y;
-	return (size_t) y << 32 | (size_t) x;
+		// abuse the fact that positions will always be aligned to the grid
+		int32_t x = (int32_t) p.x;
+		int32_t y = (int32_t) p.y;
+		return (size_t) y << 32 | (size_t) x;
 }
 
 
@@ -455,10 +455,16 @@ void UICircuit::move_selected_components() {
 	for (auto &item : m_selection) {
 		if (item.m_component) {
 			auto comp = item.m_component->component();
+			m_circuit_desc->disconnect_component(comp->id());
 			auto new_pos = comp->position() + delta;
-
 			comp->set_position(new_pos);
 			item.m_component->build_transform();
+		}
+	}
+
+	for (auto &item : m_selection) {
+		if (item.m_component) {
+			reconnect_component(item.m_component);
 		}
 	}
 }
@@ -663,6 +669,25 @@ void UICircuit::wire_make_connections(Wire *wire) {
 			wire->add_pin(found->second);
 		}
 	}
+}
+
+void UICircuit::reconnect_component(UIComponent *ui_comp) {
+
+	auto comp = ui_comp->component();
+
+	for (const auto &c_pair : ui_comp->endpoints()) {
+		auto pin_id = c_pair.first;
+		auto position = ui_comp->to_circuit().apply(c_pair.second);
+
+		for (auto &w_pair : m_circuit_desc->wires()) {
+			auto wire = w_pair.second.get();
+			if (wire->point_on_wire(position)) {
+				wire->split_at_new_junction(position);
+				wire->add_pin(pin_id);
+			}
+		}
+	}
+
 }
 
 void UICircuit::draw_grid(ImDrawList *draw_list) {
