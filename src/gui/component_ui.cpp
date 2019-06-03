@@ -83,9 +83,9 @@ void UIComponent::set_custom_ui_callback(ui_component_func_t func) {
 	m_custom_ui_callback = func;
 }
 
-void UIComponent::call_custom_ui_callback(Transform transform) {
+void UIComponent::call_custom_ui_callback(UICircuit *circuit, Transform transform) {
 	if (m_custom_ui_callback) {
-		m_custom_ui_callback(this, transform);
+		m_custom_ui_callback(circuit, this, transform);
 	}
 }
 
@@ -202,7 +202,7 @@ void UICircuit::draw() {
 		if (comp->has_custom_ui_callback()) {
 			ImGui::SetCursorScreenPos(comp->aabb_min() + offset);
 			draw_list->ChannelsSetCurrent(1);
-			comp->call_custom_ui_callback(to_screen);
+			comp->call_custom_ui_callback(this, to_screen);
 		}
 
 		draw_list->ChannelsSetCurrent(0);         // background

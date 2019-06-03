@@ -11,6 +11,7 @@
 #include <algorithm>
 
 #include "circuit_description.h"
+#include "circuit_instance.h"
 
 namespace lsim {
 
@@ -74,25 +75,30 @@ void component_register_basic() {
                                   {0, height});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
+            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
 
+                auto comp = ui_comp->component();
                 bool is_tristate = comp->property_value("tri_state", false);
                 auto origin = Point(-width * 0.5f, -full_height * 0.5f);
                 auto orient = comp->angle();
 
                 ImGui::BeginGroup();
                 ImGui::PushID(comp);
-                for (size_t i = 0; i < comp->num_outputs(); ++ i) {
-                    // auto cur_val = comp->read_value(comp->output_pin_index(i)); 
+                for (size_t i = 0; i < comp->num_outputs(); ++ i)
+                {
                     auto cur_val = VALUE_FALSE;
+                    if (ui_circuit->is_simulating()) {
+                        cur_val = ui_circuit->circuit_inst()->read_pin(comp->output_pin_id(i));
+                    }
                     auto center_pos = to_window.apply(Point(0, (-full_height * 0.5f) + ((i + 0.5f) * height)));
                     ImGui::SetCursorScreenPos(center_pos - Point(8,8));
 
                     ImGui::PushID(i);
-                    /*if (ImGui::InvisibleButton(connector_data_label(cur_val), {16,16})) {
-                        comp->write_pin(comp->output_pin_index(i), 
-                                        static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2)));
-                    }*/
+                    if (ui_circuit->is_simulating() && ImGui::InvisibleButton(connector_data_label(cur_val), {16,16})) {
+                        ui_circuit->circuit_inst()->write_pin(
+                                comp->output_pin_id(i), 
+                                static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2)));
+                    }
 
                     ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);
                     ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
@@ -132,7 +138,7 @@ void component_register_basic() {
                                   {0, height});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
+            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
 
                 auto origin = Point(-width * 0.5f, -full_height * 0.5f);
                 auto orient = ui_comp->component()->angle();
@@ -140,8 +146,10 @@ void component_register_basic() {
                 ImGui::BeginGroup();
                 ImGui::PushID(comp);
                 for (size_t i = 0; i < comp->num_inputs(); ++ i) {
-                    //auto cur_val = comp->read_pin(comp->input_pin_index(i));
                     auto cur_val = VALUE_FALSE;
+                    if (ui_circuit->is_simulating()) {
+                        cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
+                    }
                     auto center_pos = to_window.apply(Point(origin.x + (width * 0.5f), origin.y + (i * 20.0f) + (height * 0.5f)));
 
                     ImGui::PushID(i);
@@ -180,7 +188,7 @@ void component_register_basic() {
                                   {0, height});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
+            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
                 auto val = static_cast<Value>(comp->property_value("value", 0l));
                 auto center_pos = to_window.apply(Point(0.0f, 0.0f));
                 ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[val]);
@@ -206,7 +214,7 @@ void component_register_basic() {
                                   {width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
 
             // custom draw function for pin labels
-            ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
+            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
 
                 ImGuiEx::TransformStart();
 
@@ -249,8 +257,8 @@ void component_register_extra() {
             ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
                                   {0.5f * width, 0}, {0, 20});
 
-            // custor draw function
-            ui_comp->set_custom_ui_callback([=](const UIComponent *ui_comp, Transform to_window) {
+            // custom draw function
+            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
                 // icon in right half
                 auto icon_pos = to_window.apply(Point(width * 0.25f, 0.0f));
                 icon_pull_resistor->draw(icon_pos, Point(16,16), ImGui::GetWindowDrawList(), 1, COLOR_COMPONENT_BORDER);

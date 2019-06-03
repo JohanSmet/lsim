@@ -22,8 +22,9 @@ namespace gui {
 
 class ComponentIcon;
 class UIComponent;
+class UICircuit;
 
-typedef std::function<void (const UIComponent *, Transform)> ui_component_func_t;
+typedef std::function<void (UICircuit *, const UIComponent *, Transform)> ui_component_func_t;
 
 enum UICircuitState {
     CS_IDLE = 0,
@@ -57,7 +58,7 @@ public:
 
     void set_custom_ui_callback(ui_component_func_t func);
     bool has_custom_ui_callback() const {return m_custom_ui_callback != nullptr;}
-    void call_custom_ui_callback(Transform transform);
+    void call_custom_ui_callback(UICircuit *circuit, Transform transform);
 
     void add_endpoint(pin_id_t pin, Point location); 
     void add_pin_line(pin_id_t pin_start, size_t pin_count, float size, Point origin, Point inc); 
