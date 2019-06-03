@@ -559,7 +559,7 @@ void UICircuit::create_wire() {
 		// the newly drawn wire merges two wires
 		if (m_wire_start.m_wire != m_wire_end.m_wire) {
 			m_wire_start.m_wire->merge(m_wire_end.m_wire);
-			// XXX m_circuit_desc->remove_wire(m_wire_end.m_wire);
+			m_circuit_desc->remove_wire(m_wire_end.m_wire->id());
 		}
 		auto wire = m_wire_start.m_wire;
 		wire->split_at_new_junction(m_wire_start.m_position);
