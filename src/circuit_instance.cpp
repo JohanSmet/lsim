@@ -48,11 +48,6 @@ node_t CircuitInstance::add_wire(Wire *wire) {
         node = m_sim->connect_pins(first_pin, pin_from_pin_id(wire->pin(index)));
     }
 
-    // FIXME: connecting wires can potentially change node id's of this and nested circuits
-    //  might be better to drop this and find the node of a wire through it's pins each time
-    //  it is needed ? Or build the wire -> node table only after the entire circuit has been
-    //  instanced
-    m_wire_nodes[wire->id()] = node;
     return node;
 }
 

@@ -34,13 +34,11 @@ private:
 
 private:
     typedef std::unordered_map<uint32_t, SimComponent *> sim_component_lut_t;
-    typedef std::unordered_map<uint32_t, node_t> wire_to_node_lut_t;
 
 private:
     CircuitDescription *    m_circuit_desc;
     Simulator *             m_sim;
     sim_component_lut_t     m_components;
-    wire_to_node_lut_t      m_wire_nodes;
 };
 
 
