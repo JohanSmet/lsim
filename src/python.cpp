@@ -5,70 +5,104 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "lsim_context.h"
-#include "basic.h"
-#include "load_logisim.h"
+#include "circuit_description.h"
+#include "circuit_instance.h"
+#include "serialize.h"
 
 namespace py = pybind11;
+using namespace lsim;
 
 PYBIND11_MODULE(lsimpy, m) {
     py::enum_<Value>(m, "Value", py::arithmetic())
-        .value("ValueFalse", Value::VALUE_FALSE)
+        .value("ValueFalse", lsim::Value::VALUE_FALSE)
         .value("ValueTrue", Value::VALUE_TRUE)
         .value("ValueUndefined", Value::VALUE_UNDEFINED)
         .value("ValueError", Value::VALUE_ERROR)
-        .export_values();
+        .export_values()
+    ;
 
     py::class_<Component>(m, "Component")
-        .def("pin", &Component::pin)
-        .def("num_pins", &Component::num_pins)
-        .def("pins", (const Component::pin_container_t &(Component::*)() const)&Component::pins)
-        .def("pins", (Component::pin_container_t (Component::*)(size_t,size_t) const)&Component::pins)
-        .def("input_pin", &Component::input_pin)
-        .def("output_pin", &Component::output_pin)
-        .def("control_pin", &Component::control_pin)
-        .def("input_pins", &Component::input_pins)
-        .def("output_pins", &Component::output_pins)
-        .def("control_pins", &Component::control_pins)
-        .def("read_pin", &Component::read_pin)
-        .def("write_pin", &Component::write_pin)
-        .def("write_output_pins", (void (Component::*)(Value))&Component::write_output_pins)
-        .def("write_output_pins", (void (Component::*)(value_container_t))&Component::write_output_pins)
-        .def("write_output_pins", (void (Component::*)(uint64_t))&Component::write_output_pins)
+        .def("id", &Component::id)
+        .def("type", &Component::type)
+        .def("nested_circuit", &Component::nested_circuit, py::return_value_policy::reference)
+        .def("num_inputs", &Component::num_inputs)
+        .def("num_outputs", &Component::num_outputs)
+        .def("num_controls", &Component::num_controls)
+        .def("input_pin_id", &Component::input_pin_id)
+        .def("output_pin_id", &Component::output_pin_id)
+        .def("control_pin_id", &Component::control_pin_id)
+        .def("port_by_name", &Component::port_by_name)
         ;
+
+    py::class_<Wire>(m, "Wire")
+        .def("id", &Wire::id)
+        .def("add_pin", &Wire::add_pin)
+        .def("num_pins", &Wire::num_pins)
+        .def("pin", &Wire::pin)
+        ;
+
+    py::class_<CircuitDescription>(m, "CircuitDescription")
+        .def("name", &CircuitDescription::name)
+        .def("change_name", &CircuitDescription::change_name)
+        .def("disconnect_component", &CircuitDescription::disconnect_component)
+        .def("remove_component", &CircuitDescription::remove_component)
+        .def("add_connector_in", &CircuitDescription::add_connector_in, py::return_value_policy::reference)
+        .def("add_connector_out", &CircuitDescription::add_connector_out, py::return_value_policy::reference)
+        .def("add_constant", &CircuitDescription::add_constant, py::return_value_policy::reference)
+        .def("add_pull_resistor", &CircuitDescription::add_pull_resistor, py::return_value_policy::reference)
+        .def("add_buffer", &CircuitDescription::add_buffer, py::return_value_policy::reference)
+        .def("add_tristate_buffer", &CircuitDescription::add_tristate_buffer, py::return_value_policy::reference)
+        .def("add_and_gate", &CircuitDescription::add_and_gate, py::return_value_policy::reference)
+        .def("add_or_gate", &CircuitDescription::add_or_gate, py::return_value_policy::reference)
+        .def("add_not_gate", &CircuitDescription::add_not_gate, py::return_value_policy::reference)
+        .def("add_nand_gate", &CircuitDescription::add_nand_gate, py::return_value_policy::reference)
+        .def("add_nor_gate", &CircuitDescription::add_nor_gate, py::return_value_policy::reference)
+        .def("add_xor_gate", &CircuitDescription::add_xor_gate, py::return_value_policy::reference)
+        .def("add_xnor_gate", &CircuitDescription::add_xnor_gate, py::return_value_policy::reference)
+        .def("add_sub_circuit", &CircuitDescription::add_sub_circuit, py::return_value_policy::reference)
+        .def("create_wire", &CircuitDescription::create_wire, py::return_value_policy::reference)
+        .def("connect", &CircuitDescription::connect, py::return_value_policy::reference)
+        .def("remove_wire", &CircuitDescription::remove_wire)
+        .def("port_by_name", &CircuitDescription::port_by_name)
+        .def("instantiate", &CircuitDescription::instantiate)
+    ;
 
     py::class_<Simulator>(m, "Simulator")
         .def(py::init<>())
+        .def("init", &Simulator::init)
         .def("step", &Simulator::step)
         .def("run_until_stable", &Simulator::run_until_stable)
-
-        .def("component_by_name",
-                [](const Simulator &sim, const char *name) {
-                    return sim.active_circuit()->component_by_name(name);
-                },
-                py::return_value_policy::reference)
-        .def("read_nibble", &Simulator::read_nibble)
-        .def("read_byte", &Simulator::read_byte)
         ;
 
     py::class_<CircuitLibrary>(m, "CircuitLibrary")
-        .def(py::init<const char *, Simulator *>())
+        .def(py::init<const char *>())
+        .def("main_circuit", &CircuitLibrary::main_circuit, py::return_value_policy::reference)
+        .def("circuit_by_name", &CircuitLibrary::circuit_by_name, py::return_value_policy::reference)
         ;
 
     py::class_<LSimContext>(m, "LSimContext")
         .def(py::init<>())
         .def("sim", &LSimContext::sim, py::return_value_policy::reference)
         .def("user_library", &LSimContext::user_library, py::return_value_policy::reference)
+        .def("create_user_circuit", &LSimContext::create_user_circuit, py::return_value_policy::reference)
+        .def("load_user_library",
+                [](LSimContext *context, const char *name) -> bool {
+                    return deserialize_library(context, context->user_library(), name);
+                })
         ;
 
-    m.def("load_logisim",
-            [](LSimContext *lsim_context, const char *name) -> bool {
-                auto circuit = load_logisim(lsim_context, name);
-                if (!circuit) {
-                    return false;
-                }
-
-                lsim_context->sim()->init(circuit);
-                return true;
-            }
-    );
+    py::class_<CircuitInstance>(m, "CircuitInstance")
+        .def("read_pin", &CircuitInstance::read_pin)
+        .def("read_nibble", (uint8_t (CircuitInstance::*)(uint32_t)) &CircuitInstance::read_nibble)
+        .def("read_nibble", (uint8_t (CircuitInstance::*)(const pin_id_container_t &)) &CircuitInstance::read_nibble)
+        .def("read_byte", (uint8_t (CircuitInstance::*)(uint32_t)) &CircuitInstance::read_byte)
+        .def("read_byte", (uint8_t (CircuitInstance::*)(const pin_id_container_t &)) &CircuitInstance::read_byte)
+        .def("write_pin", &CircuitInstance::write_pin)
+        .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, value_container_t)) &CircuitInstance::write_output_pins)
+        .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, uint64_t)) &CircuitInstance::write_output_pins)
+        .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, Value)) &CircuitInstance::write_output_pins)
+        .def("write_nibble", &CircuitInstance::write_nibble)
+        .def("write_byte", &CircuitInstance::write_byte)
+        ;
+    
 }

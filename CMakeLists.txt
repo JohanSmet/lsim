@@ -74,10 +74,10 @@ set (PYTHON_TARGET lsimpy)
 set (PYTHON_SOURCES ${LIB_SOURCES})
 list (APPEND PYTHON_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/python.cpp")
 
-#add_subdirectory(libs/pybind11)
-#pybind11_add_module(${PYTHON_TARGET} ${PYTHON_SOURCES})
-#target_include_directories(${PYTHON_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${PUGIXML_INCLUDE})
-#target_link_libraries(${PYTHON_TARGET} PRIVATE ${EXTRA_LIBS})
+add_subdirectory(libs/pybind11)
+pybind11_add_module(${PYTHON_TARGET} ${PYTHON_SOURCES})
+target_include_directories(${PYTHON_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${PUGIXML_INCLUDE})
+target_link_libraries(${PYTHON_TARGET} PRIVATE ${EXTRA_LIBS})
 
 #
 # MAIN executable

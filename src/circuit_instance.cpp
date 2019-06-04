@@ -139,6 +139,30 @@ void CircuitInstance::write_output_pins(uint32_t comp_id, Value value) {
     comp->write_pin(comp->output_pin_index(0), value);
 }
 
+void CircuitInstance::write_nibble(const pin_id_container_t &pins, uint8_t data) {
+    assert(pins.size() == 4);
+
+    for (size_t idx = 0; idx < pins.size(); ++idx) {
+        auto value = static_cast<Value>((data >> idx) & 1);
+
+        auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
+        assert(comp);
+        comp->write_pin(pin_index_from_pin_id(pins[idx]), value);
+    }
+}
+
+void CircuitInstance::write_byte(const pin_id_container_t &pins, uint8_t data) {
+    assert(pins.size() == 8);
+
+    for (size_t idx = 0; idx < pins.size(); ++idx) {
+        auto value = static_cast<Value>((data >> idx) & 1);
+
+        auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
+        assert(comp);
+        comp->write_pin(pin_index_from_pin_id(pins[idx]), value);
+    }
+}
+
 SimComponent *CircuitInstance::component_by_id(uint32_t comp_id) {
 
     auto found = m_components.find(comp_id);

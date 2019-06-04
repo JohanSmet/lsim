@@ -30,6 +30,9 @@ public:
     void write_output_pins(uint32_t comp_id, uint64_t data);
     void write_output_pins(uint32_t comp_id, Value value);
 
+    void write_nibble(const pin_id_container_t &pins, uint8_t nibble);
+    void write_byte(const pin_id_container_t &pins, uint8_t byte);
+
 private: 
     SimComponent *component_by_id(uint32_t comp_id);
     pin_t pin_from_pin_id(pin_id_t pin_id);

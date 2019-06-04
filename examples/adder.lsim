@@ -1,0 +1,314 @@
+<?xml version="1.0"?>
+<lsim version="2">
+	<circuit name="adder_1bit">
+		<component id="0" type="XorGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<position x="280" y="100" />
+			<orientation angle="0" />
+		</component>
+		<component id="1" type="XorGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<position x="480" y="80" />
+			<orientation angle="0" />
+		</component>
+		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Ci" />
+			<position x="100" y="40" />
+			<orientation angle="0" />
+		</component>
+		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="A" />
+			<position x="100" y="80" />
+			<orientation angle="0" />
+		</component>
+		<component id="4" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="B" />
+			<position x="100" y="120" />
+			<orientation angle="0" />
+		</component>
+		<component id="5" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<position x="450" y="170" />
+			<orientation angle="0" />
+		</component>
+		<component id="6" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<position x="320" y="210" />
+			<orientation angle="0" />
+		</component>
+		<component id="7" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Y" />
+			<position x="710" y="80" />
+			<orientation angle="0" />
+		</component>
+		<component id="8" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Co" />
+			<position x="710" y="190" />
+			<orientation angle="0" />
+		</component>
+		<component id="9" type="OrGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<position x="590" y="190" />
+			<orientation angle="0" />
+		</component>
+		<wire>
+			<segment x1="110" y1="40" x2="330" y2="40" />
+			<segment x1="330" y1="40" x2="330" y2="60" />
+			<segment x1="330" y1="60" x2="370" y2="60" />
+			<segment x1="370" y1="60" x2="450" y2="60" />
+			<segment x1="420" y1="190" x2="370" y2="190" />
+			<segment x1="370" y1="190" x2="370" y2="60" />
+			<pin value="2#0" />
+			<pin value="1#0" />
+			<pin value="5#1" />
+		</wire>
+		<wire>
+			<segment x1="510" y1="80" x2="700" y2="80" />
+			<pin value="1#2" />
+			<pin value="7#0" />
+		</wire>
+		<wire>
+			<segment x1="480" y1="170" x2="560" y2="170" />
+			<pin value="5#2" />
+			<pin value="9#0" />
+		</wire>
+		<wire>
+			<segment x1="350" y1="210" x2="560" y2="210" />
+			<pin value="6#2" />
+			<pin value="9#1" />
+		</wire>
+		<wire>
+			<segment x1="620" y1="190" x2="700" y2="190" />
+			<pin value="9#2" />
+			<pin value="8#0" />
+		</wire>
+		<wire>
+			<segment x1="310" y1="100" x2="400" y2="100" />
+			<segment x1="400" y1="100" x2="450" y2="100" />
+			<segment x1="420" y1="150" x2="400" y2="150" />
+			<segment x1="400" y1="150" x2="400" y2="100" />
+			<pin value="0#2" />
+			<pin value="1#1" />
+			<pin value="5#0" />
+		</wire>
+		<wire>
+			<segment x1="110" y1="80" x2="180" y2="80" />
+			<segment x1="180" y1="80" x2="250" y2="80" />
+			<segment x1="290" y1="230" x2="180" y2="230" />
+			<segment x1="180" y1="230" x2="180" y2="80" />
+			<pin value="3#0" />
+			<pin value="0#0" />
+			<pin value="6#1" />
+		</wire>
+		<wire>
+			<segment x1="250" y1="120" x2="210" y2="120" />
+			<segment x1="210" y1="120" x2="110" y2="120" />
+			<segment x1="290" y1="190" x2="210" y2="190" />
+			<segment x1="210" y1="190" x2="210" y2="120" />
+			<pin value="0#1" />
+			<pin value="4#0" />
+			<pin value="6#0" />
+		</wire>
+	</circuit>
+	<circuit name="adder_4bit">
+		<component id="0" type="SubCircuit" priority="normal" inputs="3" outputs="2" controls="0" nested="adder_1bit">
+			<position x="330" y="80" />
+			<orientation angle="0" />
+		</component>
+		<component id="1" type="SubCircuit" priority="normal" inputs="3" outputs="2" controls="0" nested="adder_1bit">
+			<position x="330" y="220" />
+			<orientation angle="0" />
+		</component>
+		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Ci" />
+			<position x="170" y="50" />
+			<orientation angle="0" />
+		</component>
+		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="A0" />
+			<position x="170" y="70" />
+			<orientation angle="0" />
+		</component>
+		<component id="4" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="B0" />
+			<position x="170" y="90" />
+			<orientation angle="0" />
+		</component>
+		<component id="5" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Y0" />
+			<position x="510" y="50" />
+			<orientation angle="0" />
+		</component>
+		<component id="6" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="A1" />
+			<position x="170" y="210" />
+			<orientation angle="0" />
+		</component>
+		<component id="7" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="B1" />
+			<position x="170" y="230" />
+			<orientation angle="0" />
+		</component>
+		<component id="8" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Y1" />
+			<position x="510" y="190" />
+			<orientation angle="0" />
+		</component>
+		<component id="9" type="SubCircuit" priority="normal" inputs="3" outputs="2" controls="0" nested="adder_1bit">
+			<position x="330" y="360" />
+			<orientation angle="0" />
+		</component>
+		<component id="10" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="A2" />
+			<position x="170" y="350" />
+			<orientation angle="0" />
+		</component>
+		<component id="11" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="B2" />
+			<position x="170" y="370" />
+			<orientation angle="0" />
+		</component>
+		<component id="12" type="SubCircuit" priority="normal" inputs="3" outputs="2" controls="0" nested="adder_1bit">
+			<position x="330" y="500" />
+			<orientation angle="0" />
+		</component>
+		<component id="13" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="A3" />
+			<position x="170" y="490" />
+			<orientation angle="0" />
+		</component>
+		<component id="14" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="B3" />
+			<position x="170" y="510" />
+			<orientation angle="0" />
+		</component>
+		<component id="15" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Y2" />
+			<position x="510" y="330" />
+			<orientation angle="0" />
+		</component>
+		<component id="16" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Y3" />
+			<position x="510" y="470" />
+			<orientation angle="0" />
+		</component>
+		<component id="17" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Co" />
+			<position x="510" y="490" />
+			<orientation angle="0" />
+		</component>
+		<wire>
+			<segment x1="180" y1="50" x2="250" y2="50" />
+			<pin value="2#0" />
+			<pin value="0#0" />
+		</wire>
+		<wire>
+			<segment x1="180" y1="70" x2="250" y2="70" />
+			<pin value="3#0" />
+			<pin value="0#1" />
+		</wire>
+		<wire>
+			<segment x1="180" y1="90" x2="240" y2="90" />
+			<segment x1="240" y1="90" x2="250" y2="90" />
+			<pin value="4#0" />
+			<pin value="0#2" />
+		</wire>
+		<wire>
+			<segment x1="410" y1="50" x2="500" y2="50" />
+			<pin value="0#3" />
+			<pin value="5#0" />
+		</wire>
+		<wire>
+			<segment x1="410" y1="70" x2="450" y2="70" />
+			<segment x1="450" y1="70" x2="450" y2="150" />
+			<segment x1="450" y1="150" x2="210" y2="150" />
+			<segment x1="210" y1="150" x2="210" y2="190" />
+			<segment x1="210" y1="190" x2="250" y2="190" />
+			<pin value="0#4" />
+			<pin value="1#0" />
+		</wire>
+		<wire>
+			<segment x1="410" y1="190" x2="500" y2="190" />
+			<pin value="1#3" />
+			<pin value="8#0" />
+		</wire>
+		<wire>
+			<segment x1="180" y1="210" x2="250" y2="210" />
+			<pin value="6#0" />
+			<pin value="1#1" />
+		</wire>
+		<wire>
+			<segment x1="180" y1="230" x2="250" y2="230" />
+			<pin value="7#0" />
+			<pin value="1#2" />
+		</wire>
+		<wire>
+			<segment x1="180" y1="350" x2="250" y2="350" />
+			<pin value="10#0" />
+			<pin value="9#1" />
+		</wire>
+		<wire>
+			<segment x1="250" y1="370" x2="180" y2="370" />
+			<pin value="9#2" />
+			<pin value="11#0" />
+		</wire>
+		<wire>
+			<segment x1="180" y1="490" x2="250" y2="490" />
+			<pin value="13#0" />
+			<pin value="12#1" />
+		</wire>
+		<wire>
+			<segment x1="250" y1="510" x2="180" y2="510" />
+			<pin value="12#2" />
+			<pin value="14#0" />
+		</wire>
+		<wire>
+			<segment x1="410" y1="490" x2="500" y2="490" />
+			<pin value="12#4" />
+			<pin value="17#0" />
+		</wire>
+		<wire>
+			<segment x1="500" y1="470" x2="410" y2="470" />
+			<pin value="16#0" />
+			<pin value="12#3" />
+		</wire>
+		<wire>
+			<segment x1="410" y1="210" x2="450" y2="210" />
+			<segment x1="450" y1="210" x2="450" y2="290" />
+			<segment x1="450" y1="290" x2="210" y2="290" />
+			<segment x1="210" y1="290" x2="210" y2="330" />
+			<segment x1="210" y1="330" x2="250" y2="330" />
+			<pin value="1#4" />
+			<pin value="9#0" />
+		</wire>
+		<wire>
+			<segment x1="410" y1="330" x2="500" y2="330" />
+			<pin value="9#3" />
+			<pin value="15#0" />
+		</wire>
+		<wire>
+			<segment x1="410" y1="350" x2="450" y2="350" />
+			<segment x1="450" y1="350" x2="450" y2="430" />
+			<segment x1="450" y1="430" x2="210" y2="430" />
+			<segment x1="210" y1="430" x2="210" y2="470" />
+			<segment x1="210" y1="470" x2="250" y2="470" />
+			<pin value="9#4" />
+			<pin value="12#0" />
+		</wire>
+	</circuit>
+	<main name="adder_4bit" />
+</lsim>
