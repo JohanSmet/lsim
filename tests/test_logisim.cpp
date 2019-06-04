@@ -1,10 +1,9 @@
 #include "catch.hpp"
 #include "load_logisim.h"
-//#include "lsim_context.h"
+#include "lsim_context.h"
+#include "circuit_instance.h"
 
 #include <cstring>
-
-#if 0
 
 const char *logisim_test_data = R"FILE(
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -910,24 +909,23 @@ This file is intended to be loaded by Logisim-evolution (https://github.com/reds
 </project>
 )FILE";
 
+using namespace lsim;
+
 TEST_CASE ("Small Logisim Circuit", "[logisim]") {
 
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit = load_logisim(&lsim_context, logisim_test_data, std::strlen(logisim_test_data));
+    REQUIRE(load_logisim(&lsim_context, logisim_test_data, std::strlen(logisim_test_data)));
+    auto circuit_desc = lsim_context.user_library()->main_circuit();
+
+    auto circuit = circuit_desc->instantiate(sim);
     REQUIRE(circuit);
 
-    auto in = circuit->component_by_name("In");
-    REQUIRE(in);
-
-    auto out = circuit->component_by_name("Out");
-    REQUIRE(out);
-
-    sim->init(circuit);
-    in->write_output_pins({VALUE_TRUE});
+    sim->init();
+    circuit->write_pin(circuit_desc->port_by_name("In"), VALUE_TRUE);
     sim->run_until_stable(5);
-    REQUIRE(circuit->read_value(out->pin(0)) == VALUE_FALSE);
+    REQUIRE(circuit->read_pin(circuit_desc->port_by_name("Out")) == VALUE_FALSE);
 }
 
 TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
@@ -936,25 +934,8 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit = load_logisim(&lsim_context, logisim_adder_data, std::strlen(logisim_adder_data));
-    REQUIRE(circuit);
-
-    // input pins
-    auto *pin_Ci = circuit->component_by_name("Ci");
-    REQUIRE(pin_Ci);
-
-    auto pin_A = circuit->component_by_name("A");
-    REQUIRE(pin_A);
-
-    auto pin_B = circuit->component_by_name("B");
-    REQUIRE(pin_B);
-
-    // output pins
-    auto pin_Co = circuit->component_by_name("Co");
-    REQUIRE(pin_Co);
-
-    auto pin_Sum = circuit->component_by_name("Sum");
-    REQUIRE(pin_Sum);
+    REQUIRE(load_logisim(&lsim_context, logisim_adder_data, std::strlen(logisim_adder_data)));
+    auto circuit_desc = lsim_context.user_library()->main_circuit();
 
     Value truth_table[][5] = {
         // Ci           A            B            Co           Sum
@@ -969,17 +950,18 @@ TEST_CASE ("Logisim 1-bit adder circuit", "[logisim]") {
         {VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE}
     };
 
-    size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
+    auto circuit = circuit_desc->instantiate(sim);
+    REQUIRE(circuit);
 
-    sim->init(circuit);
+    sim->init();
 
-    for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
-        pin_Ci->write_output_pins(truth_table[test_idx][0]);
-        pin_A->write_output_pins(truth_table[test_idx][1]);
-        pin_B->write_output_pins(truth_table[test_idx][2]);
+    for (const auto &test : truth_table) {
+        circuit->write_pin(circuit_desc->port_by_name("Ci"), test[0]);
+        circuit->write_pin(circuit_desc->port_by_name("A"), test[1]);
+        circuit->write_pin(circuit_desc->port_by_name("B"), test[2]);
         sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(pin_Co->pin(0)) == truth_table[test_idx][3]);
-        REQUIRE(circuit->read_value(pin_Sum->pin(0)) == truth_table[test_idx][4]);
+        REQUIRE(circuit->read_pin(circuit_desc->port_by_name("Co")) == test[3]);
+        REQUIRE(circuit->read_pin(circuit_desc->port_by_name("Sum")) == test[4]);
     }
 }
 
@@ -989,25 +971,8 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit = load_logisim(&lsim_context, logisim_multi_data, std::strlen(logisim_multi_data));
-    REQUIRE(circuit);
-
-    // input pins
-    auto *pin_I1 = circuit->component_by_name("I1");
-    REQUIRE(pin_I1);
-
-    auto *pin_I2 = circuit->component_by_name("I2");
-    REQUIRE(pin_I2);
-
-    auto *pin_I3 = circuit->component_by_name("I3");
-    REQUIRE(pin_I3);
-
-    auto *pin_I4 = circuit->component_by_name("I4");
-    REQUIRE(pin_I4);
-
-    // output pins
-    auto pin_O = circuit->component_by_name("O");
-    REQUIRE(pin_O);
+    REQUIRE(load_logisim(&lsim_context, logisim_multi_data, std::strlen(logisim_multi_data)));
+    auto circuit_desc = lsim_context.user_library()->main_circuit();
 
     Value truth_table[][5] = {
         // I1           I2           I3           I4           O
@@ -1032,17 +997,18 @@ TEST_CASE ("Logisim multi-input circuit", "[logisim]") {
         {VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE,  VALUE_TRUE}
     };
 
-    size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
+    auto circuit = circuit_desc->instantiate(sim);
+    REQUIRE(circuit);
 
-    sim->init(circuit);
+    sim->init();
 
-    for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
-        pin_I1->write_output_pins(truth_table[test_idx][0]);
-        pin_I2->write_output_pins(truth_table[test_idx][1]);
-        pin_I3->write_output_pins(truth_table[test_idx][2]);
-        pin_I4->write_output_pins(truth_table[test_idx][3]);
+    for (const auto &test : truth_table) {
+        circuit->write_pin(circuit_desc->port_by_name("I1"), test[0]);
+        circuit->write_pin(circuit_desc->port_by_name("I2"), test[1]);
+        circuit->write_pin(circuit_desc->port_by_name("I3"), test[2]);
+        circuit->write_pin(circuit_desc->port_by_name("I4"), test[3]);
         sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(pin_O->pin(0)) == truth_table[test_idx][4]);
+        REQUIRE(circuit->read_pin(circuit_desc->port_by_name("O")) == test[4]);
     }
 }
 
@@ -1052,19 +1018,8 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit = load_logisim(&lsim_context, logisim_tristate_data, std::strlen(logisim_tristate_data));
-    REQUIRE(circuit);
-
-    // input pins
-    auto *pin_in = circuit->component_by_name("A");
-    REQUIRE(pin_in);
-
-    auto *pin_en = circuit->component_by_name("en");
-    REQUIRE(pin_en);
-
-    // output pins
-    auto pin_O = circuit->component_by_name("O");
-    REQUIRE(pin_O);
+    REQUIRE(load_logisim(&lsim_context, logisim_tristate_data, std::strlen(logisim_tristate_data)));
+    auto circuit_desc = lsim_context.user_library()->main_circuit();
 
     Value truth_table[][3] = {
         // in           en           out 
@@ -1074,15 +1029,16 @@ TEST_CASE ("Logisim tri-state circuit", "[logisim]") {
         {VALUE_TRUE,  VALUE_FALSE, VALUE_UNDEFINED}
     };
 
-    size_t num_tests = sizeof(truth_table) / sizeof(truth_table[0]);
+    auto circuit = circuit_desc->instantiate(sim);
+    REQUIRE(circuit);
 
-    sim->init(circuit);
+    sim->init();
 
-    for (auto test_idx = 0u; test_idx < num_tests; ++test_idx) {
-        pin_in->write_output_pins(truth_table[test_idx][0]);
-        pin_en->write_output_pins(truth_table[test_idx][1]);
+    for (const auto &test : truth_table) {
+        circuit->write_pin(circuit_desc->port_by_name("A"), test[0]);
+        circuit->write_pin(circuit_desc->port_by_name("en"), test[1]);
         sim->run_until_stable(5);
-        REQUIRE(circuit->read_value(pin_O->pin(0)) == truth_table[test_idx][2]);
+        REQUIRE(circuit->read_pin(circuit_desc->port_by_name("O")) == test[2]);
     }
 }
 
@@ -1092,35 +1048,38 @@ TEST_CASE ("Logisim nested circuit", "[logisim]") {
     LSimContext lsim_context;
     auto sim = lsim_context.sim();
 
-    auto circuit = load_logisim(&lsim_context, logisim_nested_data, std::strlen(logisim_nested_data));
-    REQUIRE(circuit);
+    REQUIRE(load_logisim(&lsim_context, logisim_nested_data, std::strlen(logisim_nested_data)));
+    auto circuit_desc = lsim_context.user_library()->main_circuit();
 
     // input pins
-    Component *pin_A[] = {
-        circuit->component_by_name("A1"),
-        circuit->component_by_name("A2"),
-        circuit->component_by_name("A3"),
-        circuit->component_by_name("A4")
+    pin_id_container_t pin_A = {
+        circuit_desc->port_by_name("A1"),
+        circuit_desc->port_by_name("A2"),
+        circuit_desc->port_by_name("A3"),
+        circuit_desc->port_by_name("A4")
     };
-    Component *pin_B[] = {
-        circuit->component_by_name("B1"),
-        circuit->component_by_name("B2"),
-        circuit->component_by_name("B3"),
-        circuit->component_by_name("B4")
+    pin_id_container_t pin_B = {
+        circuit_desc->port_by_name("B1"),
+        circuit_desc->port_by_name("B2"),
+        circuit_desc->port_by_name("B3"),
+        circuit_desc->port_by_name("B4")
     };
-    auto pin_Ci = circuit->component_by_name("Ci");
 
     // output pins
-    auto pin_O = {circuit->component_by_name("S1")->pin(0),
-                  circuit->component_by_name("S2")->pin(0),
-                  circuit->component_by_name("S3")->pin(0),
-                  circuit->component_by_name("S4")->pin(0)};
-    auto pin_Co = circuit->component_by_name("Co")->pin(0);
+    auto pin_O = {
+        circuit_desc->port_by_name("S1"),
+        circuit_desc->port_by_name("S2"),
+        circuit_desc->port_by_name("S3"),
+        circuit_desc->port_by_name("S4")
+    };
 
-    sim->init(circuit);
+    auto circuit = circuit_desc->instantiate(sim);
+    REQUIRE(circuit);
+
+    sim->init();
 
     for (int ci = 0; ci < 2; ++ci) {
-        pin_Ci->write_output_pins(ci);
+        circuit->write_pin(circuit_desc->port_by_name("Ci"), static_cast<Value>(ci));
 
         for (int a = 0; a < 16; ++a) {
             for (int b = 0; b < 16; ++b) {
@@ -1128,18 +1087,20 @@ TEST_CASE ("Logisim nested circuit", "[logisim]") {
                 int req_Co = ((a + b + ci) >> 4) & 0x1;
 
                 for (int i = 0; i < 4; ++i) {
-                    pin_A[i]->write_output_pins((a >> i) & 1);
-                    pin_B[i]->write_output_pins((b >> i) & 1);
+                    circuit->write_pin(pin_A[i], static_cast<Value>((a >> i) & 1));
+                    circuit->write_pin(pin_B[i], static_cast<Value>((b >> i) & 1));
                 }
 
                 sim->run_until_stable(5);
 
-                REQUIRE(sim->read_nibble(pin_O) == req_O);
-                REQUIRE(sim->read_pin(pin_Co) == req_Co);
+                REQUIRE(circuit->read_nibble(pin_O) == req_O);
+                REQUIRE(circuit->read_pin(circuit_desc->port_by_name("Co")) == req_Co);
             }
         }
     }
 }
+
+#if 0
 
 TEST_CASE ("Logisim +1 databits", "[logisim]") {
 

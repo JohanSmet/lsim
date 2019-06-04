@@ -69,6 +69,17 @@ uint8_t CircuitInstance::read_nibble(uint32_t comp_id) {
     return result;
 }
 
+uint8_t CircuitInstance::read_nibble(const pin_id_container_t &pins) {
+    assert(pins.size() == 4);
+    uint8_t result = 0;
+
+    for (int i = 0; i < pins.size(); ++i) {
+        result |= ((int) m_sim->read_pin(pin_from_pin_id(pins[i]))) << i;
+    }
+
+    return result;
+}
+
 uint8_t CircuitInstance::read_byte(uint32_t comp_id) {
     auto comp = component_by_id(comp_id);
     assert(comp);
@@ -83,6 +94,16 @@ uint8_t CircuitInstance::read_byte(uint32_t comp_id) {
     return result;
 }
 
+uint8_t CircuitInstance::read_byte(const pin_id_container_t &pins) {
+    assert(pins.size() == 8);
+    uint8_t result = 0;
+
+    for (int i = 0; i < pins.size(); ++i) {
+        result |= ((int) m_sim->read_pin(pin_from_pin_id(pins[i]))) << i;
+    }
+
+    return result;
+}
 
 void CircuitInstance::write_pin(pin_id_t pin_id, Value value) {
     auto comp = component_by_id(component_id_from_pin_id(pin_id));

@@ -8,12 +8,16 @@
 // includes
 #include <vector>
 
+namespace lsim {
+
 // forward declarations
 class Circuit;
 class LSimContext;
 
 // interface
-Circuit *load_logisim(LSimContext *lsim_context, const char *filename);
-Circuit *load_logisim(LSimContext *lsim_context, const char *data, size_t len);
+bool load_logisim(LSimContext *lsim_context, const char *filename);
+bool load_logisim(LSimContext *lsim_context, const char *data, size_t len);
+
+} // namespace lsim
 
 #endif // LSIM_LOAD_LOGISIM_H
