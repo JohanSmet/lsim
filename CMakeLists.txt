@@ -42,7 +42,6 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_gates.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_various.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/wire_description.cpp"
 )
 
@@ -59,7 +58,6 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/visual_component.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/wire_description.h"
 )
 
