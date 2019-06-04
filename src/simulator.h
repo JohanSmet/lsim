@@ -71,6 +71,7 @@ private:
 class Simulator {
 public:
     Simulator();
+    Simulator(const Simulator &) = delete;
 
     // components
     SimComponent *create_component(Component *desc);

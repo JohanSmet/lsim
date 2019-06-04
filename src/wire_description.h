@@ -57,6 +57,7 @@ public:
 
 public:
     Wire(uint32_t id);
+    Wire(const Wire &) = delete;
     uint32_t id() const {return m_id;}
 
     // pins

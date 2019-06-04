@@ -37,6 +37,7 @@ public:
 public:
     Component(uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls);
     Component(uint32_t id, CircuitDescription *nested);
+    Component(const Component &) = delete;
     uint32_t id() const {return m_id;}
     ComponentType type() const {return m_type;}
     CircuitDescription *nested_circuit() const {return m_nested_circuit;}

@@ -21,6 +21,7 @@ public:
     typedef std::unordered_map<uint32_t, Wire::uptr_t> wire_lut_t;
 public:
     CircuitDescription(const char *name, class LSimContext *context);
+    CircuitDescription(const CircuitDescription &) = delete;
 
     // name
     const std::string &name() const {return m_name;}
