@@ -96,8 +96,16 @@ void CircuitDescription::remove_component(uint32_t id) {
     if (found == m_components.end()) {
         return;
     }
+
+    bool was_connector = found->second->type() == COMPONENT_CONNECTOR_IN ||
+                         found->second->type() == COMPONENT_CONNECTOR_OUT;
+
     disconnect_component(id);
     m_components.erase(found);
+
+    if (was_connector) {
+        rebuild_port_list();
+    }
 }
 
 Wire *CircuitDescription::create_wire() {
