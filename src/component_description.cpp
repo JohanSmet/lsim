@@ -60,6 +60,14 @@ pin_id_t Component::control_pin_id(size_t index) const {
     return pin_id(m_inputs + m_outputs + index);
 }
 
+void Component::change_input_pins(size_t new_count) {
+    m_inputs = new_count;
+}
+
+void Component::change_output_pins(size_t new_count) {
+    m_outputs = new_count;
+}
+
 pin_id_t Component::port_by_name(const char *name) const {
     assert(m_nested_circuit != nullptr);
     auto found = m_port_lut.find(name);

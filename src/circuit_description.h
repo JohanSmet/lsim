@@ -41,6 +41,7 @@ public:
     // connections
     Wire *create_wire();
     Wire *connect(pin_id_t pin_a, pin_id_t pin_b);
+    void disconnect_pin(pin_id_t pin);
     std::vector<uint32_t> wire_ids() const;
     Wire *wire_by_id(uint32_t id) const;
     const wire_lut_t &wires() const {return m_wires;}
@@ -48,6 +49,7 @@ public:
 
     // ports
     void rebuild_port_list();
+    void change_port_pin_count(uint32_t comp_id, size_t new_count);
     pin_id_t port_by_name(const char *name) const;
     pin_id_t port_by_index(bool input, size_t index) const;
     const std::string &port_name(bool input, size_t index) const;

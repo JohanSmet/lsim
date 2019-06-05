@@ -54,6 +54,8 @@ public:
     pin_id_t input_pin_id(size_t index) const;
     pin_id_t output_pin_id(size_t index) const;
     pin_id_t control_pin_id(size_t index) const;
+    void change_input_pins(size_t new_count);
+    void change_output_pins(size_t new_count);
 
     pin_id_t port_by_name(const char *name) const;
 

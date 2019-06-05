@@ -85,6 +85,13 @@ void Wire::remove_component_pins(uint32_t component_id) {
     }
 }
 
+void Wire::remove_pin(pin_id_t pin) {
+    auto iter = std::remove(m_pins.begin(), m_pins.end(), pin);
+    if (iter != m_pins.end()) {
+        m_pins.erase(iter);
+    }
+}
+
 void Wire::clear_pins() {
     m_pins.clear();
 }

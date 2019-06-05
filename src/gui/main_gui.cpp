@@ -322,26 +322,29 @@ void main_gui(LSimContext *lsim_context)
 			boolean_property("TriState", component->property("tri_state"));
 
 			int data_bits = component->num_inputs() + component->num_outputs();
+			int org_bits = data_bits;
 			if (ImGui::InputInt("Data Bits", &data_bits)) {
-				if (component->type() == COMPONENT_CONNECTOR_IN) {
-					// XXX component->change_output_pins(data_bits);
-				} else {
-					// XXX component->change_input_pins(data_bits);
+				if (data_bits <= 0) {
+					data_bits = 1;
 				}
+				ui_circuit->circuit_desc()->change_port_pin_count(component->id(), data_bits);
+
+				// update the position of the connector so the endpoints do not move
+				auto dir = (component->angle() == 0 || component->angle() == 180) ? Point(0,10) : Point(10,0);
+				component->set_position(component->position() + (dir * (data_bits - org_bits)));
+				sel_ui_comp->build_transform();
+
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
-				// XXX ui_circuit->circuit()->add_ports(component->property_value("name",""), component);
-				// XXX ui_circuit->circuit()->initialize_input_ports();
+				ui_circuit->fix_component_connections(sel_ui_comp);
 			}
 		}
 
 		if (component->type() == COMPONENT_CONSTANT) {
 			auto new_value = value_property("Value", component->property("value"));
-			// XXX component->write_pin(0, new_value);
 		}
 
 		if (component->type() == COMPONENT_PULL_RESISTOR) {
 			auto new_value = value_property("Value", component->property("pull_to"));
-			// XXX component->write_pin(0, new_value);
 		}
 
 		if (component->type() == COMPONENT_BUFFER || component->type() == COMPONENT_TRISTATE_BUFFER) {
@@ -351,8 +354,8 @@ void main_gui(LSimContext *lsim_context)
 				if (data_bits <= 0) {
 					data_bits = 1;
 				}
-				// XXX component->change_input_pins(data_bits);
-				// XXX component->change_output_pins(data_bits);
+				component->change_input_pins(data_bits);
+				component->change_output_pins(data_bits);
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
 			}
 		}

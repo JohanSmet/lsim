@@ -114,6 +114,21 @@ Wire *CircuitDescription::connect(pin_id_t pin_a, pin_id_t pin_b) {
     return wire;
 }
 
+void CircuitDescription::disconnect_pin(pin_id_t pin) {
+    std::vector<uint32_t> empty_wires;
+
+    for (auto &pair : m_wires) {
+        pair.second->remove_pin(pin);
+        if (pair.second->num_pins() == 0) {
+            empty_wires.push_back(pair.second->id());
+        }
+    }
+
+    for (const auto id : empty_wires) {
+        remove_wire(id);
+    }
+}
+
 std::vector<uint32_t> CircuitDescription::wire_ids() const {
     std::vector<uint32_t> result;
     result.reserve(m_wires.size());
@@ -172,6 +187,25 @@ void CircuitDescription::rebuild_port_list() {
     // build the port lists
     process_connectors(COMPONENT_CONNECTOR_IN, m_input_ports);
     process_connectors(COMPONENT_CONNECTOR_OUT, m_output_ports);
+}
+
+void CircuitDescription::change_port_pin_count(uint32_t comp_id, size_t new_count) {
+    auto comp = component_by_id(comp_id);
+    assert(comp);
+
+    // disconnect any ports that are going to be removed
+    auto cur_count = comp->num_inputs() + comp->num_outputs();
+    while (cur_count > new_count) {
+        disconnect_pin(comp->pin_id(--cur_count));
+    }
+
+    if (comp->type() == COMPONENT_CONNECTOR_IN) {
+        comp->change_output_pins(new_count);
+    } else {
+        comp->change_input_pins(new_count);
+    }
+
+    rebuild_port_list();
 }
 
 pin_id_t CircuitDescription::port_by_name(const char *name) const {
