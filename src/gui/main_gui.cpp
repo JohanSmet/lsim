@@ -283,13 +283,16 @@ void main_gui(LSimContext *lsim_context)
 		auto component = sel_ui_comp->component();
 
 		// helper functions
-		auto text_property = [](const char *caption, Property *property) {
+		auto text_property = [](const char *caption, Property *property) -> bool {
 			std::string value = property->value_as_string();
 			std::vector<char> buffer(value.begin(), value.end());
 			buffer.resize(256);
 
 			if (ImGui::InputText(caption, buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
 				property->value(buffer.data());
+				return true;
+			} else {
+				return false;
 			}
 		};
 
@@ -318,7 +321,9 @@ void main_gui(LSimContext *lsim_context)
 
 		// component specific fields
 		if (component->type() == COMPONENT_CONNECTOR_IN || component->type() == COMPONENT_CONNECTOR_OUT) {
-			text_property("Name", component->property("name"));
+			if (text_property("Name", component->property("name"))) {
+				ui_circuit->circuit_desc()->rebuild_port_list();
+			}
 			boolean_property("TriState", component->property("tri_state"));
 
 			int data_bits = component->num_inputs() + component->num_outputs();
