@@ -548,6 +548,7 @@ void UICircuit::create_wire() {
 		Wire *wire = m_wire_start.m_wire;
 		if (!wire) {
 			wire = m_circuit_desc->create_wire();
+			wire->add_pin(m_wire_start.m_pin);
 		} else {
 			wire->split_at_new_junction(m_wire_start.m_position);
 		}
