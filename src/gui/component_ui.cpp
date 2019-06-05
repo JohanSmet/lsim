@@ -106,7 +106,7 @@ void UIComponent::add_pin_line(pin_id_t pin_start, size_t pin_count, float size,
 	auto pin = pin_start;
 
 	// top half
-	Point pos = origin - (inc * segment_delta);
+	Point pos = origin - (segment_delta * half);
 
 	for (size_t idx = 0; idx < half; ++idx) {
 		add_endpoint(pin++, pos);
