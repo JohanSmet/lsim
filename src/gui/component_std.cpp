@@ -321,7 +321,7 @@ void component_register_gates() {
         COMPONENT_NOT_GATE, [=](Component *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("NOT");
             ui_comp->change_icon(icon_not);
-            materialize_gate(ui_comp);
+            materialize_gate(ui_comp, 60, 40);
         }
     );
 
