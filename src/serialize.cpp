@@ -176,6 +176,8 @@ private:
     void serialize_wire(Wire *wire, pugi::xml_node *circuit_node) {
         auto wire_node = circuit_node->append_child(XML_EL_WIRE);
 
+        wire_node.append_attribute(XML_ATTR_ID).set_value(wire->id());
+
         for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
             auto segment_node = wire_node.append_child(XML_EL_SEGMENT);
             const auto &p0 = wire->segment_point(idx, 0);
@@ -245,6 +247,8 @@ public:
     }
 
     bool parse_component(pugi::xml_node &comp_node, CircuitDescription *circuit) {
+        REQUIRED_ATTR(id_attr, comp_node, XML_ATTR_ID);
+
         // determine type of component
         REQUIRED_ATTR(type_attr, comp_node, XML_ATTR_TYPE);
 
@@ -375,6 +379,10 @@ public:
             component->set_angle(angle_attr.as_int());
         }
 
+        if (component) {
+            m_component_id_map[id_attr.as_int()] = component->id();
+        }
+
         return true;
     }
 
@@ -401,7 +409,14 @@ public:
                 return false;
             }
 
-            auto comp_id = std::strtol(pin_string.c_str(), nullptr, 0);
+            // map component id to new value
+            auto old_id = std::strtol(pin_string.c_str(), nullptr, 0);
+            auto found = m_component_id_map.find(old_id);
+            if (found == m_component_id_map.end()) {
+                ERROR_MSG("Unknown component-id \"%d\" in wire", old_id);
+            }
+            auto comp_id = found->second;
+
             auto pin_idx = std::strtol(pin_string.c_str() + hash + 1, nullptr, 0);
             wire->add_pin(pin_id_assemble(comp_id, pin_idx));
         }
@@ -456,8 +471,7 @@ private:
     LSimContext *       m_context;
     CircuitLibrary *    m_lib;
 
-    std::unordered_map<node_t, pin_t>   m_node_pins;
-    std::unordered_map<node_t, node_t>  m_node_map;
+    std::unordered_map<uint32_t, uint32_t>   m_component_id_map;
 };
 
 } // unnamed namespace
