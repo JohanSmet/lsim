@@ -23,28 +23,37 @@ def print_stats():
 def main():
     lsim = lsimpy.LSimContext()
     sim = lsim.sim()
-   
-    if (not lsimpy.load_logisim(lsim, "../../examples/compare.circ")):
+
+    if (not lsim.load_user_library("../../examples/compare.lsim")):
         print("Unable to load circuit\n")
         exit(-1)
 
-    pin_A = sim.component_by_name("A")
-    pin_B = sim.component_by_name("B")
-    pin_LT = sim.component_by_name("LT")
-    pin_EQ = sim.component_by_name("EQ")
-    pin_GT = sim.component_by_name("GT")
+    circuit_desc = lsim.user_library().circuit_by_name("comp_8bit")
+   
+    pin_A = []
+    pin_B = []
+    for i in range(0,8):
+        pin_A.append(circuit_desc.port_by_name("A[{}]".format(i)))
+        pin_B.append(circuit_desc.port_by_name("B[{}]".format(i)))
+
+    pin_LT = circuit_desc.port_by_name("LT")
+    pin_EQ = circuit_desc.port_by_name("EQ")
+    pin_GT = circuit_desc.port_by_name("GT")
+
+    circuit = circuit_desc.instantiate(sim)
+    sim.init()
 
     for a in range(0, 2**8):
-        pin_A.write_output_pins(a)
+        circuit.write_byte(pin_A, a)
         for b in range(0, 2**8):
-            pin_B.write_output_pins(b)
+            circuit.write_byte(pin_B, b)
             sim.run_until_stable(5)
             expected_LT = lsimpy.ValueTrue if a < b else lsimpy.ValueFalse
             expected_EQ = lsimpy.ValueTrue if a == b else lsimpy.ValueFalse
             expected_GT = lsimpy.ValueTrue if a > b else lsimpy.ValueFalse
-            CHECK(pin_LT.read_pin(0), expected_LT, "{} < {}".format(a, b))
-            CHECK(pin_EQ.read_pin(0), expected_EQ, "{} == {}".format(a, b))
-            CHECK(pin_GT.read_pin(0), expected_GT, "{} > {}".format(a, b))
+            CHECK(circuit.read_pin(pin_LT), expected_LT, "{} < {}".format(a, b))
+            CHECK(circuit.read_pin(pin_EQ), expected_EQ, "{} == {}".format(a, b))
+            CHECK(circuit.read_pin(pin_GT), expected_GT, "{} > {}".format(a, b))
 
     print_stats()
 
