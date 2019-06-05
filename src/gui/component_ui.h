@@ -124,9 +124,11 @@ public:
     void change_simulation_status(bool active, Simulator *sim);
     bool is_simulating() const;
 
+    // connections
+    void fix_component_connections(UIComponent *ui_comp);
+
 private:
     void wire_make_connections(Wire *wire);
-    void reconnect_component(UIComponent *ui_comp);
     void draw_grid(ImDrawList *draw_list);
 
 private:

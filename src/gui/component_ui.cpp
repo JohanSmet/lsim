@@ -455,16 +455,14 @@ void UICircuit::move_selected_components() {
 	for (auto &item : m_selection) {
 		if (item.m_component) {
 			auto comp = item.m_component->component();
-			m_circuit_desc->disconnect_component(comp->id());
-			auto new_pos = comp->position() + delta;
-			comp->set_position(new_pos);
+			comp->set_position(comp->position() + delta);
 			item.m_component->build_transform();
 		}
 	}
 
 	for (auto &item : m_selection) {
 		if (item.m_component) {
-			reconnect_component(item.m_component);
+			fix_component_connections(item.m_component);
 		}
 	}
 }
@@ -661,20 +659,14 @@ bool UICircuit::is_simulating() const {
 	return m_state == CS_SIMULATING;
 }
 
-void UICircuit::wire_make_connections(Wire *wire) {
-	for (size_t j = 0; j < wire->num_junctions(); ++j) {
-		auto junction = wire->junction_position(j);	
-		auto found = m_point_pin_lut.find(junction);
-		if (found != m_point_pin_lut.end()) {
-			wire->add_pin(found->second);
-		}
-	}
-}
-
-void UICircuit::reconnect_component(UIComponent *ui_comp) {
-
+void UICircuit::fix_component_connections(UIComponent *ui_comp) {
+	assert(ui_comp);
 	auto comp = ui_comp->component();
 
+	// disconnect the component
+	m_circuit_desc->disconnect_component(comp->id());
+
+	// iterate over the endpoints of the component and check if it should be connected to a wire
 	for (const auto &c_pair : ui_comp->endpoints()) {
 		auto pin_id = c_pair.first;
 		auto position = ui_comp->to_circuit().apply(c_pair.second);
@@ -687,7 +679,16 @@ void UICircuit::reconnect_component(UIComponent *ui_comp) {
 			}
 		}
 	}
+}
 
+void UICircuit::wire_make_connections(Wire *wire) {
+	for (size_t j = 0; j < wire->num_junctions(); ++j) {
+		auto junction = wire->junction_position(j);	
+		auto found = m_point_pin_lut.find(junction);
+		if (found != m_point_pin_lut.end()) {
+			wire->add_pin(found->second);
+		}
+	}
 }
 
 void UICircuit::draw_grid(ImDrawList *draw_list) {
