@@ -19,12 +19,14 @@ void sim_register_various_functions() {
     } SIM_FUNC_END;
 
     SIM_FUNC_BEGIN(PULL_RESISTOR) {
-        auto value = static_cast<Value>(comp->description()->property("pull_to")->value_as_integer());
-        comp->write_pin(0, value);
+        if (sim->read_pin_current_step(comp->pin_by_index(0)) == VALUE_UNDEFINED) {
+            auto value = static_cast<Value>(comp->description()->property("pull_to")->value_as_integer());
+            comp->write_pin(0, value);
+        }
     } SIM_FUNC_END;
 
     SIM_NEEDED_FUNC_BEGIN(PULL_RESISTOR) {
-        return sim->read_pin_current_step(comp->pin_by_index(0)) == VALUE_UNDEFINED;
+        return true;
     } SIM_FUNC_END;
 }
 
