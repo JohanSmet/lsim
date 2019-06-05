@@ -47,7 +47,7 @@ public:
     void remove_wire(uint32_t id);
 
     // ports
-    void add_port(Component *connector);
+    void rebuild_port_list();
     pin_id_t port_by_name(const char *name) const;
     pin_id_t port_by_index(bool input, size_t index) const;
     const std::string &port_name(bool input, size_t index) const;

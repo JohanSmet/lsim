@@ -142,21 +142,36 @@ void CircuitDescription::remove_wire(uint32_t id) {
     }
 }
 
-void CircuitDescription::add_port(Component *connector) {
-    size_t num_ports = connector->num_inputs() + connector->num_outputs();
-    std::string name = connector->property("name")->value_as_string();
-    auto &container = (connector->type() == COMPONENT_CONNECTOR_IN) ? m_input_ports : m_output_ports;
+void CircuitDescription::rebuild_port_list() {
+    // clear current port list
+    m_ports_lut.clear();
+    m_input_ports.clear();
+    m_output_ports.clear();
 
-    if (num_ports == 1) {
-        m_ports_lut[name] = connector->pin_id(0);
-        container.push_back(name);
-    } else {
-        for (size_t idx = 0; idx < num_ports; ++idx) {
-            std::string pin_name = name + "[" + std::to_string(idx) + "]";
-            m_ports_lut[pin_name] = connector->pin_id(idx);
-            container.push_back(pin_name);
+    // helper function to process one type of connector
+    auto process_connectors = [this](ComponentType type, port_container_t &ports) {
+        auto conn_ids = component_ids_of_type(type);
+        for (auto id : conn_ids) {
+            auto connector = component_by_id(id);
+            size_t num_ports = connector->num_inputs() + connector->num_outputs();
+            std::string name = connector->property("name")->value_as_string();
+
+            if (num_ports == 1) {
+                m_ports_lut[name] = connector->pin_id(0);
+                ports.push_back(name);
+            } else {
+                for (size_t idx = 0; idx < num_ports; ++idx) {
+                    std::string pin_name = name + "[" + std::to_string(idx) + "]";
+                    m_ports_lut[pin_name] = connector->pin_id(idx);
+                    ports.push_back(pin_name);
+                }
+            }
         }
-    }
+    };
+
+    // build the port lists
+    process_connectors(COMPONENT_CONNECTOR_IN, m_input_ports);
+    process_connectors(COMPONENT_CONNECTOR_OUT, m_output_ports);
 }
 
 pin_id_t CircuitDescription::port_by_name(const char *name) const {
@@ -184,7 +199,7 @@ Component *CircuitDescription::add_connector_in(const char *name, size_t data_bi
     auto result = create_component(COMPONENT_CONNECTOR_IN, 0, data_bits, 0);
     result->property("name")->value(name);
     result->property("tri_state")->value(tri_state);
-    add_port(result);
+    rebuild_port_list();
     return result;
 }
 
@@ -192,7 +207,7 @@ Component *CircuitDescription::add_connector_out(const char *name, size_t data_b
     auto result = create_component(COMPONENT_CONNECTOR_OUT, data_bits, 0, 0);
     result->property("name")->value(name);
     result->property("tri_state")->value(tri_state);
-    add_port(result);
+    rebuild_port_list();
     return result;
 }
 
