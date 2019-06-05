@@ -376,7 +376,7 @@ void main_gui(LSimContext *lsim_context)
 			component->type() == COMPONENT_NOR_GATE) {
 			int num_inputs = component->num_inputs();
 			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
-				// XXX component->change_input_pins(num_inputs);
+				component->change_input_pins(num_inputs);
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), sel_ui_comp);
 			}
 		}
