@@ -40,7 +40,10 @@ SimComponent *CircuitInstance::add_component(Component *comp) {
 
 node_t CircuitInstance::add_wire(Wire *wire) {
     assert(wire);
-    assert(wire->num_pins() >= 1);
+
+    if (wire->num_pins() < 2) {
+        return NODE_INVALID;
+    }
 
     auto first_pin = pin_from_pin_id(wire->pin(0));
     auto node = NODE_INVALID;
