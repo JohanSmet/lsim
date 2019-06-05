@@ -39,8 +39,10 @@ static void init_input_connectors(CircuitDescription *desc, CircuitInstance *ins
 	for (const auto &id : connector_ids) {
 		auto connector = desc->component_by_id(id);
 		auto pin = connector->output_pin_id(0);
-		for (size_t idx = 0; idx < connector->num_outputs(); ++idx) {
-			inst->write_pin(pin++, VALUE_FALSE);
+		if (!connector->property_value("tri_state", false)) {
+			for (size_t idx = 0; idx < connector->num_outputs(); ++idx) {
+				inst->write_pin(pin++, VALUE_FALSE);
+			}
 		}
 	}
 }
