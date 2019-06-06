@@ -99,15 +99,20 @@ set(APP_SOURCES
 	"src/gui/imgui/imgui_draw.cpp"
 	"src/gui/imgui/imgui.cpp"
 	"src/gui/imgui/imgui_widgets.cpp"
+	"src/gui/imgui/imgui_impl_sdl.cpp"
+	"src/gui/imgui/imgui_impl_opengl3.cpp"
 	"src/gui/component_std.cpp"
 	"src/gui/component_ui.cpp"
 	"src/gui/imgui_ex.cpp"
+	"src/gui/main.cpp"
 	"src/gui/main_gui.cpp"
 )
 
 set(APP_HEADERS
 	"src/gui/imgui/imgui_internal.h"
 	"src/gui/imgui/imgui.h"
+	"src/gui/imgui/imgui_impl_sdl.h"
+	"src/gui/imgui/imgui_impl_opengl3.h"
 	"src/gui/imgui/stb_rect_pack.h"
 	"src/gui/imgui/stb_textedit.h"
 	"src/gui/imgui/stb_truetype.h"
@@ -122,15 +127,10 @@ if (NOT EMSCRIPTEN)
 	set(APP_LIBS ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
 	list(APPEND APP_SOURCES 
 		"src/gui/gl3w/GL/gl3w.c"
-		"src/gui/imgui/imgui_impl_sdl.cpp"
-		"src/gui/imgui/imgui_impl_opengl3.cpp"
-		"src/gui/main.cpp"
 	)
 	list(APPEND APP_HEADERS
 		"src/gui/gl3w/GL/gl3w.h"
 		"src/gui/gl3w/GL/glcorearb.h"
-		"src/gui/imgui/imgui_impl_sdl.h"
-		"src/gui/imgui/imgui_impl_opengl3.h"
 	)
 else()
 	list (APPEND APP_LIBS 
