@@ -189,7 +189,7 @@ void component_register_basic() {
 
             // custom draw function
             ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
-                auto val = static_cast<Value>(comp->property_value("value", 0ll));
+                auto val = static_cast<Value>(comp->property_value("value", static_cast<int64_t>(0)));
                 auto center_pos = to_window.apply(Point(0.0f, 0.0f));
                 ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[val]);
                 ImGuiEx::Text(center_pos, connector_data_label(val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
@@ -264,7 +264,7 @@ void component_register_extra() {
                 icon_pull_resistor->draw(icon_pos, Point(16,16), ImGui::GetWindowDrawList(), 1, COLOR_COMPONENT_BORDER);
 
                 // constant visualisation in left half
-                auto val = static_cast<Value>(comp->property_value("pull_to", 0ll));
+                auto val = static_cast<Value>(comp->property_value("pull_to", static_cast<int64_t>(0)));
                 auto label_pos = to_window.apply(Point(-width * 0.25f, 0.0f));
                 ImGuiEx::RectFilled(label_pos - Point(8,8), label_pos + Point(8,8), COLOR_CONNECTION[val]);
                 ImGuiEx::Text(label_pos, connector_data_label(val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
