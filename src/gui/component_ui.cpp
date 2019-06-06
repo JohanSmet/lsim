@@ -29,7 +29,7 @@ size_t UICircuit::PointHash::operator() (const Point &p) const {
 		// abuse the fact that positions will always be aligned to the grid
 		int32_t x = (int32_t) p.x;
 		int32_t y = (int32_t) p.y;
-		return (size_t) y << 32 | (size_t) x;
+		return ((int64_t) y) << 32 | (size_t) x;
 }
 
 
@@ -211,7 +211,7 @@ void UICircuit::draw() {
 
 		// tooltip
 		if (comp->has_tooltip() && ImGui::IsItemHovered()) {
-			ImGui::SetTooltip(comp->tooltip());
+			ImGui::SetTooltip("%s", comp->tooltip());
 		}
 
 		// draw border + icon
