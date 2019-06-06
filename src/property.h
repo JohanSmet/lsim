@@ -13,6 +13,7 @@ public:
     typedef std::unique_ptr<Property> uptr_t;
 public:
     Property(const char *key) : m_key(key) {}
+    virtual ~Property() = default;
     virtual const char *key() const {return m_key.c_str();};
 
     // value accessors
