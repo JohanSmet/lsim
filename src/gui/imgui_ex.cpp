@@ -39,7 +39,7 @@ namespace ImGuiEx {
 void Text(ImVec2 at, const char *text, TextAlignHor align_hor, TextAlignVer align_ver) {
     auto pos = aligned_position(at, text, align_hor, align_ver);
     ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y));
-    ImGui::Text(text);
+    ImGui::Text("%s", text);
 }
 
 void TextNoClip(ImVec2 at, const char *text, ImU32 col, TextAlignHor align_hor, TextAlignVer align_ver) {

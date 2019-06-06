@@ -4,6 +4,7 @@
 
 #include "imgui/imgui.h"
 #include "algebra.h"
+#include <string>
 
 namespace ImGuiEx {
 
