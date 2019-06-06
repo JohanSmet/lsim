@@ -104,7 +104,6 @@ set(APP_SOURCES
 	"src/gui/component_std.cpp"
 	"src/gui/component_ui.cpp"
 	"src/gui/imgui_ex.cpp"
-	"src/gui/main.cpp"
 	"src/gui/main_gui.cpp"
 )
 
@@ -127,6 +126,7 @@ if (NOT EMSCRIPTEN)
 	set(APP_LIBS ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
 	list(APPEND APP_SOURCES 
 		"src/gui/gl3w/GL/gl3w.c"
+		"src/gui/main.cpp"
 	)
 	list(APPEND APP_HEADERS
 		"src/gui/gl3w/GL/gl3w.h"
@@ -135,9 +135,18 @@ if (NOT EMSCRIPTEN)
 else()
 	list (APPEND APP_LIBS 
 		"-s USE_SDL=2"
+		"-s WASM=1" 
+		"-s ALLOW_MEMORY_GROWTH=1"
+		"-s BINARYEN_TRAP_MODE=clamp"
+		"--no-heap-copy"
+		"--shell-file ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/shell_minimal.html"
+		"-o lsim.html"
 		"--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/examples@/examples --exclude-file *.circ"
 	)
 	list (APPEND APP_COMPILE_FLAGS -s USE_SDL=2)
+	list(APPEND APP_SOURCES 
+		"src/gui/main_emscripten.cpp"
+	)
 endif()
 
 add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
