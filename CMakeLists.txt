@@ -25,8 +25,10 @@ add_subdirectory("libs/pugixml")
 set (PUGIXML_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/pugixml/src)
 list (APPEND EXTRA_LIBS pugixml)
 
-find_package(SDL2 REQUIRED)
-find_package(OpenGL REQUIRED)
+if (NOT EMSCRIPTEN)
+	find_package(SDL2 REQUIRED)
+	find_package(OpenGL REQUIRED)
+endif()
 	
 
 #
@@ -94,21 +96,15 @@ endif()
 set(APP_TARGET lsim_gui)
 
 set(APP_SOURCES
-	"src/gui/gl3w/GL/gl3w.c"
 	"src/gui/imgui/imgui_draw.cpp"
-	"src/gui/imgui/imgui_impl_sdl_gl3.cpp"
 	"src/gui/imgui/imgui.cpp"
 	"src/gui/component_std.cpp"
 	"src/gui/component_ui.cpp"
 	"src/gui/imgui_ex.cpp"
-	"src/gui/main.cpp"
 	"src/gui/main_gui.cpp"
 )
 
 set(APP_HEADERS
-	"src/gui/gl3w/GL/gl3w.h"
-	"src/gui/gl3w/GL/glcorearb.h"
-	"src/gui/imgui/imgui_impl_sdl_gl3.h"
 	"src/gui/imgui/imgui_internal.h"
 	"src/gui/imgui/imgui.h"
 	"src/gui/imgui/stb_rect_pack.h"
@@ -120,10 +116,32 @@ set(APP_HEADERS
 	"src/gui/shapes.h"
 )
 
+if (NOT EMSCRIPTEN)
+	set(APP_INCLUDES ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
+	set(APP_LIBS ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
+	list(APPEND APP_SOURCES 
+		"src/gui/gl3w/GL/gl3w.c"
+		"src/gui/imgui/imgui_impl_sdl_gl3.cpp"
+		"src/gui/main_sdl_gl.cpp"
+	)
+	list(APPEND APP_HEADERS
+		"src/gui/gl3w/GL/gl3w.h"
+		"src/gui/gl3w/GL/glcorearb.h"
+		"src/gui/imgui/imgui_impl_sdl_gl3.h"
+	)
+else()
+	list (APPEND APP_LIBS 
+		"-s USE_SDL=2"
+		"--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/examples@/examples --exclude-file *.circ"
+	)
+	list (APPEND APP_COMPILE_FLAGS -s USE_SDL=2)
+endif()
+
 add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
-target_include_directories(${APP_TARGET} PRIVATE libs src src/gui/gl3w ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
+target_include_directories(${APP_TARGET} PRIVATE libs src src/gui/gl3w ${APP_INCLUDES})
 target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
-target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS})
+target_compile_options(${APP_TARGET} PRIVATE ${APP_COMPILE_FLAGS})
+target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${APP_LIBS} ${CMAKE_DL_LIBS})
 
 #
 # Unit tests
