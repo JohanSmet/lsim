@@ -405,7 +405,7 @@ public:
 
             auto hash = pin_string.find_first_of("#");
             if (hash == pin_string.npos) {
-                ERROR_MSG("Unparseable location \"%s\"; should contain a comma", pin_string);
+                ERROR_MSG("Unparseable location \"%s\"; should contain a comma", pin_string.c_str());
                 return false;
             }
 

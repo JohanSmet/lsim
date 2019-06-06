@@ -594,7 +594,7 @@ bool LogisimParser::handle_splitter(ComponentProperties &props) {
 
 bool LogisimParser::handle_tunnel(ComponentProperties &props) {
     if (props.m_label.empty()) {
-        ERROR_MSG("Cannot process tunnel with an empty label (%s)", props.m_label);
+        ERROR_MSG("Cannot process tunnel with an empty label (%s)", props.m_label.c_str());
         return false;
     }
     
@@ -626,13 +626,13 @@ void LogisimParser::compute_ipin_offsets() {
 
 bool LogisimParser::parse_location(const std::string &loc_string, Position &pos) {
     if (loc_string.front() != '(' || loc_string.back() != ')') {
-        ERROR_MSG("Unparseable location \"%s\"; should start/end with parentheses", loc_string);
+        ERROR_MSG("Unparseable location \"%s\"; should start/end with parentheses", loc_string.c_str());
         return false;
     }
 
     auto comma = loc_string.find_first_of(",");
     if (comma == loc_string.npos) {
-        ERROR_MSG("Unparseable location \"%s\"; should contain a comma", loc_string);
+        ERROR_MSG("Unparseable location \"%s\"; should contain a comma", loc_string.c_str());
         return false;
     }
 
@@ -652,7 +652,7 @@ bool LogisimParser::parse_facing(const std::string &facing_string, LogisimDirect
     } else if (facing_string == "west") {
         facing = LS_WEST;
     } else {
-        ERROR_MSG("Invalid facing \"%s\"", facing_string);
+        ERROR_MSG("Invalid facing \"%s\"", facing_string.c_str());
         return false;
     }
 
@@ -668,7 +668,7 @@ bool LogisimParser::parse_splitter_appearance(const std::string &appear_string, 
     } else if (appear_string == "left") {
         justify = -1;
     } else {
-        ERROR_MSG("Invalid splitter appearance \"%s\"", appear_string);
+        ERROR_MSG("Invalid splitter appearance \"%s\"", appear_string.c_str());
         return false;
     }
 
