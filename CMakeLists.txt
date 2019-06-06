@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.1)
+if (POLICY CMP0072)
+	# prefer GLVND (note: this is the default for cmake >= 3.11)
+	cmake_policy (SET CMP0072 NEW)
+endif()
 
 project(lsim)
 
