@@ -184,7 +184,7 @@ void UICircuit::draw() {
 	draw_grid(draw_list);
 
 	// potential popups
-	ui_embed_circuit_popup();
+	ui_popup_embed_circuit();
 
 	draw_list->ChannelsSplit(2);
 
@@ -384,7 +384,7 @@ void UICircuit::draw() {
 	if (!is_simulating() && mouse_in_window && ImGui::IsMouseReleased(1)) {
 		if (m_state == CS_IDLE && !m_hovered_component) {
 			// popup menu to insert a sub circuit
-			ui_open_embed_circuit_popup();
+			ui_popup_embed_circuit_open();
 		}
 	}
 
@@ -731,7 +731,7 @@ void UICircuit::draw_grid(ImDrawList *draw_list) {
 	}
 }
 
-void UICircuit::ui_embed_circuit_popup() {
+void UICircuit::ui_popup_embed_circuit() {
 	if (ImGui::BeginPopup("embed_circuit")) {
 		auto lib = m_circuit_desc->context()->user_library();
 		auto max = lib->circuit_idx(m_circuit_desc);
@@ -756,7 +756,7 @@ void UICircuit::ui_embed_circuit_popup() {
 	}
 }
 
-void UICircuit::ui_open_embed_circuit_popup() {
+void UICircuit::ui_popup_embed_circuit_open() {
 	ImGui::OpenPopup(POPUP_EMBED_CIRCUIT);
 }
 
