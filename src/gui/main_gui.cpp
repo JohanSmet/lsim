@@ -5,6 +5,7 @@
 #include "component_std.h"
 
 #include "lsim_context.h"
+#include "circuit_instance.h"
 #include "load_logisim.h"
 #include "colors.h"
 
@@ -18,6 +19,8 @@ using namespace lsim;
 using namespace lsim::gui;
 
 static UICircuit::uptr_t ui_circuit = nullptr;
+static std::unique_ptr<CircuitInstance> circuit_instance = nullptr;
+
 static std::string ui_filename = "";
 static int selected_circuit_idx = 0;
 static const char *value_labels[] = {"False", "True", "Undefined", "Error"};
@@ -366,12 +369,14 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::Begin("Circuit", nullptr, ImGuiWindowFlags_NoScrollWithMouse);
 
 		if (ImGui::RadioButton("Editor", !ui_circuit->is_simulating())) {
-			ui_circuit->change_simulation_status(false, sim);
+			circuit_instance = nullptr;
+			ui_circuit->set_simulation_instance(nullptr);
 		}
 		ImGui::SameLine();
 
 		if (ImGui::RadioButton("Simulation", ui_circuit->is_simulating())) {
-			ui_circuit->change_simulation_status(true, sim);
+			circuit_instance = ui_circuit->circuit_desc()->instantiate(lsim_context->sim());
+			ui_circuit->set_simulation_instance(circuit_instance.get());
 			init_input_connectors(ui_circuit->circuit_desc(), ui_circuit->circuit_inst());
 			sim_running = true;
 			sim->init();

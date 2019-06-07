@@ -16,7 +16,6 @@ class ImDrawList;
 namespace lsim {
 
 class CircuitInstance;
-class Simulator;
 
 namespace gui {
 
@@ -90,7 +89,7 @@ public:
     typedef std::unique_ptr<UICircuit>  uptr_t;
 
 public:
-    UICircuit(CircuitDescription *circuit);
+    UICircuit(CircuitDescription *circuit_desc);
 
     UIComponent *create_component(Component *component);
     void remove_component(UIComponent *ui_comp);
@@ -105,7 +104,7 @@ public:
     void create_wire();
 
     CircuitDescription *circuit_desc() const {return m_circuit_desc;}
-    CircuitInstance *circuit_inst() const {return m_circuit_inst.get();}
+    CircuitInstance *circuit_inst() const {return m_circuit_inst;}
 
     // selection
     size_t num_selected_items() const {return m_selection.size();}
@@ -121,7 +120,7 @@ public:
     UIComponent *selected_component() const;
 
     // simulation
-    void change_simulation_status(bool active, Simulator *sim);
+    void set_simulation_instance(CircuitInstance *circuit_inst);
     bool is_simulating() const;
 
     // connections
@@ -176,7 +175,7 @@ private:
     Point               m_segment_start;
     point_container_t   m_line_anchors;
 
-    std::unique_ptr<CircuitInstance>  m_circuit_inst;
+    CircuitInstance *   m_circuit_inst;
 
     Point   m_scroll_delta;
     bool    m_show_grid;

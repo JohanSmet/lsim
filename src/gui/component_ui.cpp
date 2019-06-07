@@ -663,19 +663,18 @@ UIComponent *UICircuit::selected_component() const {
 	}
 }
 
-void UICircuit::change_simulation_status(bool active, Simulator *sim) {
-	assert(sim);
+void UICircuit::set_simulation_instance(CircuitInstance *circuit_inst) {
 
-	if (active && m_circuit_inst == nullptr) {
+	if (circuit_inst && m_circuit_inst == nullptr) {
 		m_state = CS_SIMULATING;
 		clear_selection();
-		m_circuit_inst = m_circuit_desc->instantiate(sim);
 	}
 
-	if (!active && m_circuit_inst != nullptr) {
+	if (!circuit_inst && m_circuit_inst != nullptr) {
 		m_state = CS_IDLE;
-		m_circuit_inst = nullptr;
 	}
+
+	m_circuit_inst = circuit_inst;
 }
 
 bool UICircuit::is_simulating() const {
