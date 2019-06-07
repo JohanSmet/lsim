@@ -177,6 +177,9 @@ void UICircuit::draw() {
 
 	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
 
+	ImGui::PushClipRect(ImGui::GetCursorScreenPos(), Point(ImGui::GetCursorScreenPos()) + ImGui::GetContentRegionMax(), true);
+	draw_list->PushClipRect(ImGui::GetCursorScreenPos(), Point(ImGui::GetCursorScreenPos()) + ImGui::GetContentRegionMax(), true);
+
 	// grid
 	draw_grid(draw_list);
 
@@ -457,6 +460,8 @@ void UICircuit::draw() {
 		move_component_abs(selected_component(), m_mouse_grid_point);
 	}
 	
+	ImGui::PopClipRect();
+	draw_list->PopClipRect();
 	ImGui::EndChild();	// scrolling region
 }
 
