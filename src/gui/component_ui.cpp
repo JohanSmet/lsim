@@ -7,7 +7,6 @@
 #include "nanosvg.h"
 
 #include <algorithm>
-#include <SDL2/SDL_keycode.h>
 #include <set>
 
 #include "colors.h"
@@ -396,7 +395,7 @@ void UICircuit::draw() {
 
 	// -> edit-mode: keyboard
 	if (!is_simulating()) {
-		if (ImGui::GetIO().KeysDown[SDLK_DELETE]) {
+		if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) {
 			delete_selected_components();
 		}
 	}
