@@ -723,5 +723,5 @@
 			<pin value="6#0" />
 		</wire>
 	</circuit>
-	<main name="comp_4bit" />
+	<main name="comp_8bit" />
 </lsim>
