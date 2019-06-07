@@ -394,13 +394,10 @@ void main_gui(LSimContext *lsim_context)
 			sim->step();
 		}
 
-		ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
+		if (ui_circuit) {
+			ui_circuit->draw();
+		}
 
-			if (ui_circuit) {
-				ui_circuit->draw();
-			}
-
-		ImGui::EndChild();	// scrolling region
 
 	ImGui::End();
 }

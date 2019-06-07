@@ -175,6 +175,8 @@ void UICircuit::draw() {
 
 	auto draw_list = ImGui::GetWindowDrawList();
 
+	ImGui::BeginChild("scrolling_region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
+
 	// grid
 	draw_grid(draw_list);
 
@@ -454,6 +456,8 @@ void UICircuit::draw() {
 	if (m_state == CS_CREATE_COMPONENT && selected_component() != nullptr) {
 		move_component_abs(selected_component(), m_mouse_grid_point);
 	}
+	
+	ImGui::EndChild();	// scrolling region
 }
 
 void UICircuit::move_selected_components() {
