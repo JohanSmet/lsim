@@ -14,10 +14,13 @@
 #include "simulator.h"
 #include "circuit_description.h"
 #include "circuit_instance.h"
+#include "circuit_library.h"
+#include "lsim_context.h"
 
 namespace {
 
 static const float GRID_SIZE = 10.0f;
+static const char *POPUP_EMBED_CIRCUIT = "embed_circuit";
 
 } // unnamed namespace
 
@@ -175,6 +178,9 @@ void UICircuit::draw() {
 
 	// grid
 	draw_grid(draw_list);
+
+	// potential popups
+	ui_embed_circuit_popup();
 
 	draw_list->ChannelsSplit(2);
 
@@ -367,6 +373,14 @@ void UICircuit::draw() {
 		if (m_state == CS_CREATE_WIRE) {
 			// end CREATE_WIRE state
 			m_state = CS_IDLE;
+		}
+	}
+
+	// -> edit-mode: right mouse button released
+	if (!is_simulating() && mouse_in_window && ImGui::IsMouseReleased(1)) {
+		if (m_state == CS_IDLE && !m_hovered_component) {
+			// popup menu to insert a sub circuit
+			ui_open_embed_circuit_popup();
 		}
 	}
 
@@ -707,6 +721,35 @@ void UICircuit::draw_grid(ImDrawList *draw_list) {
 	for (float y = fmodf(m_scroll_delta.y, GRID_SIZE); y < win_size.y; y += GRID_SIZE) {
 		draw_list->AddLine(Point(0.0f, y) + win_pos, Point(win_size.x, y) + win_pos, COLOR_GRID_LINE);
 	}
+}
+
+void UICircuit::ui_embed_circuit_popup() {
+	if (ImGui::BeginPopup("embed_circuit")) {
+		auto lib = m_circuit_desc->context()->user_library();
+		auto max = lib->circuit_idx(m_circuit_desc);
+
+		ImGui::Text("Choose circuit to embed:");
+
+		// for now only allow to embed circuits that are define before the current circuit
+		//	- there's no circular dependency checking (yet)
+		//	- the serializer/deserialiser isn't smart enough to handle other case 
+		for (size_t i = 0; i < max; ++i) {
+			auto sub = lib->circuit_by_idx(i);
+			if (ImGui::Selectable(sub->name().c_str())) {
+				embed_circuit(sub->name().c_str());
+			}
+		}
+	
+		if (max <= 0) {
+			ImGui::Text("No circuits available to embed.");
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void UICircuit::ui_open_embed_circuit_popup() {
+	ImGui::OpenPopup(POPUP_EMBED_CIRCUIT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

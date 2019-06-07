@@ -23,6 +23,8 @@ public:
     CircuitDescription(const char *name, class LSimContext *context);
     CircuitDescription(const CircuitDescription &) = delete;
 
+    class LSimContext *context() const {return m_context;}
+
     // name
     const std::string &name() const {return m_name;}
     void change_name(const char *name);

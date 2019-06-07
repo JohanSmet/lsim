@@ -130,6 +130,8 @@ public:
 private:
     void wire_make_connections(Wire *wire);
     void draw_grid(ImDrawList *draw_list);
+    void ui_embed_circuit_popup();
+    void ui_open_embed_circuit_popup();
 
 private:
     struct PointHash {
