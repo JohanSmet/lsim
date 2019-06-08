@@ -29,12 +29,16 @@ public:
     // circuit management
     CircuitDescription *create_circuit(const char *name, LSimContext *context);
     void delete_circuit(CircuitDescription *circuit);
+    void rename_circuit(CircuitDescription *circuit, const char *name);
     void swap_circuits(size_t idx_a, size_t idx_b);
     size_t num_circuits() const {return m_circuits.size();}
     CircuitDescription *circuit_by_idx(size_t idx) const;
     CircuitDescription *circuit_by_name(const char *name) const;
     size_t circuit_idx(CircuitDescription *circuit) const;
     void clear_circuits();
+
+private:
+    void remove_circuit_from_lut(CircuitDescription *circuit);
 
 private:
     typedef std::vector<CircuitDescription::uptr_t>     circuit_container_t;

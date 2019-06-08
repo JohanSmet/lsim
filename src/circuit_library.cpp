@@ -24,9 +24,21 @@ CircuitDescription *CircuitLibrary::create_circuit(const char *name, LSimContext
 
 void CircuitLibrary::delete_circuit(CircuitDescription *circuit) {
     assert (std::find_if(m_circuits.begin(), m_circuits.end(), [=](auto &o) {return o.get() == circuit;}) != m_circuits.end());
+    remove_circuit_from_lut(circuit);
     m_circuits.erase(std::remove_if(m_circuits.begin(), m_circuits.end(), [&circuit](auto &o) {
         return o.get() == circuit;
     }));
+}
+
+void CircuitLibrary::rename_circuit(CircuitDescription *circuit, const char *name) {
+    assert(circuit);
+    assert(name);
+
+    // FIXME: check for duplicates
+    remove_circuit_from_lut(circuit);
+    m_circuit_lut[name] = circuit;
+
+    circuit->change_name(name);
 }
 
 void CircuitLibrary::swap_circuits(size_t idx_a, size_t idx_b) {
@@ -65,6 +77,16 @@ size_t CircuitLibrary::circuit_idx(CircuitDescription *circuit) const {
 void CircuitLibrary::clear_circuits() {
     m_circuits.clear();
     m_circuit_lut.clear();
+}
+
+void CircuitLibrary::remove_circuit_from_lut(CircuitDescription *circuit) {
+    for (auto iter = m_circuit_lut.begin(); iter != m_circuit_lut.end();) {
+        if (iter->second == circuit) {
+            iter = m_circuit_lut.erase(iter);
+        } else {
+            ++iter;
+        }
+    }
 }
 
 } // namespace lsim

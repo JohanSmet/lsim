@@ -295,8 +295,7 @@ static void ui_property_panel(LSimContext *context) {
 		name.resize(256);
 
 		if (ImGui::InputText("Name", name.data(), name.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-			// FIXME: name does not get changed in the library
-			ui_circuit->circuit_desc()->change_name(name.data());
+			context->user_library()->rename_circuit(ui_circuit->circuit_desc(), name.data());
 		}
 
 		bool main_circuit = context->user_library()->main_circuit() == ui_circuit->circuit_desc();
