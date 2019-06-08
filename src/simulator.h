@@ -48,6 +48,7 @@ public:
 
     // nested circuits
     void set_nested_instance(std::unique_ptr<CircuitInstance> instance);
+    CircuitInstance *nested_instance() const {return m_nested_circuit.get();}
 
     // simulation
     void tick();

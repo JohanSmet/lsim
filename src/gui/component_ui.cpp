@@ -15,11 +15,14 @@
 #include "circuit_instance.h"
 #include "circuit_library.h"
 #include "lsim_context.h"
+#include "main_gui.h"
 
 namespace {
 
 static const float GRID_SIZE = 10.0f;
+
 static const char *POPUP_EMBED_CIRCUIT = "embed_circuit";
+static const char *POPUP_SUB_CIRCUIT = "sub_circuit";
 
 } // unnamed namespace
 
@@ -153,10 +156,12 @@ void UIComponent::dematerialize() {
 
 UICircuit::UICircuit(CircuitDescription *circuit_desc) : 
 			m_circuit_desc(circuit_desc),
+			m_circuit_inst(nullptr),
 			m_name(circuit_desc->name()),
 			m_show_grid(true),
 			m_scroll_delta(0,0),
-			m_state(CS_IDLE) {
+			m_state(CS_IDLE),
+			m_popup_component(nullptr) {
 }
 
 UIComponent *UICircuit::create_component(Component *component) {
@@ -185,6 +190,7 @@ void UICircuit::draw() {
 
 	// potential popups
 	ui_popup_embed_circuit();
+	ui_popup_sub_circuit();
 
 	draw_list->ChannelsSplit(2);
 
@@ -388,6 +394,13 @@ void UICircuit::draw() {
 		}
 	}
 
+	// -> simulation-mode: right mouse button released
+	if (is_simulating() && mouse_in_window && ImGui::IsMouseReleased(1)) {
+		if (m_hovered_component && m_hovered_component->component()->type() == COMPONENT_SUB_CIRCUIT) {
+			ui_popup_sub_circuit_open();
+		}
+	}
+
 	// -> edit-mode: double-clicking
 	if (!is_simulating() && mouse_in_window && ImGui::IsMouseDoubleClicked(0)) {
 		if (m_state == CS_CREATE_WIRE) {
@@ -463,6 +476,22 @@ void UICircuit::draw() {
 	ImGui::PopClipRect();
 	draw_list->PopClipRect();
 	ImGui::EndChild();	// scrolling region
+}
+
+Point UICircuit::circuit_dimensions() const {
+	Point result = {0, 0};
+
+	for (const auto &ui_comp : m_ui_components) {
+		auto comp_max = ui_comp->aabb_max();
+		if (comp_max.x > result.x) {
+			result.x = comp_max.x;
+		}
+		if (comp_max.y > result.y) {
+			result.y = comp_max.y;
+		}
+	}
+
+	return result;
 }
 
 void UICircuit::move_selected_components() {
@@ -663,15 +692,17 @@ UIComponent *UICircuit::selected_component() const {
 	}
 }
 
-void UICircuit::set_simulation_instance(CircuitInstance *circuit_inst) {
+void UICircuit::set_simulation_instance(CircuitInstance *circuit_inst, bool view_only) {
 
 	if (circuit_inst && m_circuit_inst == nullptr) {
 		m_state = CS_SIMULATING;
+		m_view_only = view_only;
 		clear_selection();
 	}
 
 	if (!circuit_inst && m_circuit_inst != nullptr) {
 		m_state = CS_IDLE;
+		m_view_only = false;
 	}
 
 	m_circuit_inst = circuit_inst;
@@ -731,7 +762,7 @@ void UICircuit::draw_grid(ImDrawList *draw_list) {
 }
 
 void UICircuit::ui_popup_embed_circuit() {
-	if (ImGui::BeginPopup("embed_circuit")) {
+	if (ImGui::BeginPopup(POPUP_EMBED_CIRCUIT)) {
 		auto lib = m_circuit_desc->context()->user_library();
 		auto max = lib->circuit_idx(m_circuit_desc);
 
@@ -757,6 +788,20 @@ void UICircuit::ui_popup_embed_circuit() {
 
 void UICircuit::ui_popup_embed_circuit_open() {
 	ImGui::OpenPopup(POPUP_EMBED_CIRCUIT);
+}
+
+void UICircuit::ui_popup_sub_circuit() {
+	if (ImGui::BeginPopup(POPUP_SUB_CIRCUIT)) {
+		if (ImGui::Selectable("Drill down ...")) {
+			main_gui_drill_down_sub_circuit(m_circuit_inst, m_popup_component->component());
+		}
+		ImGui::EndPopup();
+	} 
+}
+
+void UICircuit::ui_popup_sub_circuit_open() {
+	m_popup_component = m_hovered_component;
+	ImGui::OpenPopup(POPUP_SUB_CIRCUIT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

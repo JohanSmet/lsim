@@ -94,7 +94,8 @@ void component_register_basic() {
                     ImGui::SetCursorScreenPos(center_pos - Point(8,8));
 
                     ImGui::PushID(i);
-                    if (ui_circuit->is_simulating() && ImGui::InvisibleButton(connector_data_label(cur_val), {16,16})) {
+                    if (ui_circuit->is_simulating() && !ui_circuit->is_view_only_simulation() &&
+                        ImGui::InvisibleButton(connector_data_label(cur_val), {16,16})) {
                         ui_circuit->circuit_inst()->write_pin(
                                 comp->output_pin_id(i), 
                                 static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2)));
@@ -201,7 +202,6 @@ void component_register_basic() {
     UICircuitBuilder::register_materialize_func(
         COMPONENT_SUB_CIRCUIT, [=](Component *comp, UIComponent *ui_comp) {
             auto nested = ui_comp->component()->nested_circuit();
-            ui_comp->change_tooltip("Circuit");
 
             // materialize the sub-circuit
             float width = 160;

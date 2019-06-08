@@ -4,11 +4,14 @@
 namespace lsim {
 
 class LSimContext;
+class CircuitInstance;
+class Component;
 
 namespace gui {
 
 void main_gui_setup(LSimContext *sim, const char *circuit_file);
 void main_gui(LSimContext *sim);
+void main_gui_drill_down_sub_circuit(CircuitInstance *parent_inst, Component *comp);
 
 } // namespace gui
 

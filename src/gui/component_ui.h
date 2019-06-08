@@ -95,6 +95,7 @@ public:
     void remove_component(UIComponent *ui_comp);
 
     void draw();
+    Point circuit_dimensions() const;
 
     void move_selected_components();
     void delete_selected_components();
@@ -120,8 +121,9 @@ public:
     UIComponent *selected_component() const;
 
     // simulation
-    void set_simulation_instance(CircuitInstance *circuit_inst);
+    void set_simulation_instance(CircuitInstance *circuit_inst, bool view_only = false);
     bool is_simulating() const;
+    bool is_view_only_simulation() const {return m_view_only;};
 
     // connections
     void fix_component_connections(UIComponent *ui_comp);
@@ -131,6 +133,8 @@ private:
     void draw_grid(ImDrawList *draw_list);
     void ui_popup_embed_circuit();
     void ui_popup_embed_circuit_open();
+    void ui_popup_sub_circuit();
+    void ui_popup_sub_circuit_open();
 
 private:
     struct PointHash {
@@ -176,6 +180,8 @@ private:
     point_container_t   m_line_anchors;
 
     CircuitInstance *   m_circuit_inst;
+    bool                m_view_only;
+    UIComponent *       m_popup_component;
 
     Point   m_scroll_delta;
     bool    m_show_grid;

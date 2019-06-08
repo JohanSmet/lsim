@@ -8,10 +8,9 @@
 #include "circuit_instance.h"
 #include "load_logisim.h"
 #include "colors.h"
-
 #include "serialize.h"
 
-#include <set>
+#include <list>
 
 namespace {
 
@@ -20,6 +19,7 @@ using namespace lsim::gui;
 
 static UICircuit::uptr_t ui_circuit = nullptr;
 static std::unique_ptr<CircuitInstance> circuit_instance = nullptr;
+static std::list<UICircuit::uptr_t> sub_circuit_drill_downs;
 
 static std::string ui_filename = "";
 static int selected_circuit_idx = 0;
@@ -403,8 +403,36 @@ void main_gui(LSimContext *lsim_context)
 			ui_circuit->draw();
 		}
 
-
 	ImGui::End();
+
+	// display windows for drill-downs
+	auto dd_it = sub_circuit_drill_downs.begin();
+	while (dd_it != sub_circuit_drill_downs.end()) {
+
+		auto drill_down = dd_it->get();
+		bool keep_open = true;
+
+		ImGui::SetNextWindowSize(drill_down->circuit_dimensions() + Point(50,50), ImGuiCond_Appearing);
+		ImGui::Begin(drill_down->circuit_inst()->name(), &keep_open, ImGuiWindowFlags_NoScrollWithMouse);
+			drill_down->draw();
+		ImGui::End();
+
+		if (!keep_open) {
+			dd_it = sub_circuit_drill_downs.erase(dd_it);
+		} else {
+			++dd_it;
+		}
+	}
+}
+
+void main_gui_drill_down_sub_circuit(CircuitInstance *parent_inst, Component *comp) {
+	auto nested_desc = comp->nested_circuit();
+	auto nested_inst = parent_inst->component_by_id(comp->id())->nested_instance();
+
+	auto sub_circuit = UICircuitBuilder::create_circuit(nested_desc);
+	sub_circuit->set_simulation_instance(nested_inst, true);
+
+	sub_circuit_drill_downs.push_front(std::move(sub_circuit));
 }
 
 } // namespace lsim

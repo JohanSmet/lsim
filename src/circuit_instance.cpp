@@ -10,7 +10,8 @@ namespace lsim {
 
 CircuitInstance::CircuitInstance(Simulator *sim, CircuitDescription *circuit_desc) :
         m_sim(sim),
-        m_circuit_desc(circuit_desc) {
+        m_circuit_desc(circuit_desc),
+        m_name("<unnamed>") {
     assert(sim);
     assert(circuit_desc);
 }
@@ -22,6 +23,7 @@ SimComponent *CircuitInstance::add_component(Component *comp) {
 
     if (comp->type() == COMPONENT_SUB_CIRCUIT) {
         auto nested_instance = comp->nested_circuit()->instantiate(m_sim);
+        nested_instance->build_name(comp->id());
 
         for (size_t idx = 0; idx < sim_comp->num_inputs(); ++idx) {
             auto nested_pin = nested_instance->pin_from_pin_id(comp->nested_circuit()->port_by_index(true, idx));
@@ -52,6 +54,11 @@ node_t CircuitInstance::add_wire(Wire *wire) {
     }
 
     return node;
+}
+
+void CircuitInstance::build_name(uint32_t comp_id) {
+    m_name = m_circuit_desc->name();
+    m_name += "#" + std::to_string(comp_id);
 }
 
 Value CircuitInstance::read_pin(pin_id_t pin_id) {
