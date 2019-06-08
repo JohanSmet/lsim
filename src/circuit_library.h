@@ -34,6 +34,7 @@ public:
     CircuitDescription *circuit_by_idx(size_t idx) const;
     CircuitDescription *circuit_by_name(const char *name) const;
     size_t circuit_idx(CircuitDescription *circuit) const;
+    void clear_circuits();
 
 private:
     typedef std::vector<CircuitDescription::uptr_t>     circuit_container_t;

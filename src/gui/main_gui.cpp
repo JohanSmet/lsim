@@ -9,6 +9,7 @@
 #include "load_logisim.h"
 #include "colors.h"
 #include "serialize.h"
+#include "file_selector.h"
 
 #include <list>
 
@@ -34,6 +35,39 @@ static void change_active_circuit(LSimContext *context, CircuitDescription *acti
 		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
 		selected_circuit_idx = context->user_library()->circuit_idx(active_circuit);
 	}
+}
+
+static void close_circuit_library(LSimContext *lsim_context) {
+	sub_circuit_drill_downs.clear();
+	circuit_instance = nullptr;
+	ui_circuit = nullptr;
+	lsim_context->user_library()->clear_circuits();
+}
+
+static void load_circuit_library(LSimContext *lsim_context, const std::string &filename) {
+
+	if (ui_circuit != nullptr) {
+		close_circuit_library(lsim_context);
+	}
+
+	ui_filename = filename;
+	auto ext = ui_filename.substr(ui_filename.find_last_of('.') + 1);
+
+	if (ext == "circ") {
+		// auto circuit = load_logisim(lsim_context, circuit_file);
+		// ui_filename.replace(ui_filename.begin() + ui_filename.find_last_of('.'), ui_filename.end(), ".lsim");
+	} else {
+		deserialize_library(lsim_context, lsim_context->user_library(), filename.c_str());
+		if (lsim_context->user_library()->num_circuits() <= 0) {
+			lsim_context->user_library()->create_circuit("main", lsim_context);
+			lsim_context->user_library()->change_main_circuit("main");
+		}
+	}
+
+	// select main circuit
+	auto main_circuit = lsim_context->user_library()->main_circuit();
+	selected_circuit_idx = lsim_context->user_library()->circuit_idx(main_circuit);
+	change_active_circuit(lsim_context, main_circuit);
 }
 
 static void init_input_connectors(CircuitDescription *desc, CircuitInstance *inst) {
@@ -289,24 +323,7 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 
 	// try to load the circuit specified on the command line
 	if (circuit_file) {
-		ui_filename = circuit_file;
-		auto ext = ui_filename.substr(ui_filename.find_last_of('.') + 1);
-
-		if (ext == "circ") {
-			// auto circuit = load_logisim(lsim_context, circuit_file);
-			// ui_filename.replace(ui_filename.begin() + ui_filename.find_last_of('.'), ui_filename.end(), ".lsim");
-		} else {
-			deserialize_library(lsim_context, lsim_context->user_library(), circuit_file);
-			if (lsim_context->user_library()->num_circuits() <= 0) {
-				lsim_context->user_library()->create_circuit("main", lsim_context);
-				lsim_context->user_library()->change_main_circuit("main");
-			}
-		}
-
-		// select main circuit
-		auto main_circuit = lsim_context->user_library()->main_circuit();
-		selected_circuit_idx = lsim_context->user_library()->circuit_idx(main_circuit);
-		change_active_circuit(lsim_context, main_circuit);
+		load_circuit_library(lsim_context, circuit_file);
 	}
 }
 
@@ -316,6 +333,7 @@ void main_gui(LSimContext *lsim_context)
 	auto lib = lsim_context->user_library();
 
 	static bool sim_running = false;
+	static bool show_file_selector = false;
 
 	///////////////////////////////////////////////////////////////////////////
 	//
@@ -329,6 +347,8 @@ void main_gui(LSimContext *lsim_context)
 
 		// Library management
 		if (ImGui::Button("Load")) {
+			ui_file_selector_init("examples");
+			show_file_selector = true;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Save")) {
@@ -336,6 +356,14 @@ void main_gui(LSimContext *lsim_context)
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Add Library")) {
+		}
+
+		if (show_file_selector) {
+			std::string selection;
+			show_file_selector = ui_file_selector(&selection);
+			if (!show_file_selector && !selection.empty()) {
+				load_circuit_library(lsim_context, selection);
+			}
 		}
 
 		// Circuit management

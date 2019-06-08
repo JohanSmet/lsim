@@ -103,6 +103,7 @@ set(APP_SOURCES
 	"src/gui/imgui/imgui_impl_opengl3.cpp"
 	"src/gui/component_std.cpp"
 	"src/gui/component_ui.cpp"
+	"src/gui/file_selector.cpp"
 	"src/gui/imgui_ex.cpp"
 	"src/gui/main_gui.cpp"
 )
@@ -117,6 +118,8 @@ set(APP_HEADERS
 	"src/gui/imgui/stb_truetype.h"
 	"src/gui/component_std.h"
 	"src/gui/component_ui.h"
+	"src/gui/cute_files.h"
+	"src/gui/file_selector.h"
 	"src/gui/imgui_ex.h"
 	"src/gui/shapes.h"
 )

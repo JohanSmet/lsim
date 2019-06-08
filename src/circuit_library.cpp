@@ -62,4 +62,9 @@ size_t CircuitLibrary::circuit_idx(CircuitDescription *circuit) const {
     return m_circuits.size();
 }
 
+void CircuitLibrary::clear_circuits() {
+    m_circuits.clear();
+    m_circuit_lut.clear();
+}
+
 } // namespace lsim
