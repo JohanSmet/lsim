@@ -345,6 +345,10 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::Begin("Control");
 
 		// Library management
+		if (ImGui::Button("New")) {
+			load_circuit_library(lsim_context, "");
+		}
+		ImGui::SameLine();
 		if (ImGui::Button("Load")) {
 			ui_file_selector_init("examples");
 			show_file_selector = true;
