@@ -70,6 +70,33 @@ static void load_circuit_library(LSimContext *lsim_context, const std::string &f
 	change_active_circuit(lsim_context, main_circuit);
 }
 
+static void save_circuit_library(LSimContext *lsim_context) {
+	if (ui_filename.empty()) {
+		ImGui::OpenPopup("Library name");
+	} else {
+		serialize_library(lsim_context, lsim_context->user_library(), ui_filename.c_str());
+	}
+}
+
+static void ui_popup_library_save_name(LSimContext *lsim_context) {
+	static char buffer[512] = "";
+
+	if (ImGui::BeginPopupModal("Library name")) {
+		ImGui::InputText("Filename", buffer, sizeof(buffer) / sizeof(buffer[0]));
+		if (ImGui::Button("Ok")) {
+			ui_filename = buffer;
+			buffer[0] = '\0';
+			save_circuit_library(lsim_context);
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Cancel")) {
+			buffer[0] = '\0';
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
 static void init_input_connectors(CircuitDescription *desc, CircuitInstance *inst) {
 	auto connector_ids = desc->component_ids_of_type(COMPONENT_CONNECTOR_IN);
 
@@ -345,6 +372,8 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::Begin("Control");
 
 		// Library management
+		ui_popup_library_save_name(lsim_context);
+
 		if (ImGui::Button("New")) {
 			load_circuit_library(lsim_context, "");
 		}
@@ -355,7 +384,7 @@ void main_gui(LSimContext *lsim_context)
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Save")) {
-			serialize_library(lsim_context, lib, ui_filename.c_str());
+			save_circuit_library(lsim_context);
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Add Library")) {
