@@ -248,7 +248,7 @@ static void ui_property_panel(LSimContext *context) {
 			if (ImGui::Combo(caption, &cur_value, value_labels, 4)) {
 				property->value(static_cast<int64_t>(cur_value));
 			}
-			return static_cast<Value>(cur_value);
+			return property->value_as_lsim_value();
 		};
 
 		// orientation - present for all components

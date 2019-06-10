@@ -106,6 +106,11 @@ bool Component::property_value(const char *key, bool def_value) {
     return (result != nullptr) ? result->value_as_boolean() : def_value;
 }
 
+Value Component::property_value(const char *key, Value def_value) {
+    auto result = property(key);
+    return (result != nullptr) ? result->value_as_lsim_value() : def_value;
+}
+
 void Component::set_position(const Point &pos) {
     m_position = pos;
 }

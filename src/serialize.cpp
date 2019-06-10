@@ -365,6 +365,12 @@ public:
                 return false;
         }
 
+        // optional properties
+        auto initial_output_node = comp_node.find_child_by_attribute(XML_EL_PROPERTY, XML_ATTR_KEY, "initial_output");
+        if (!!initial_output_node) {
+            component->property("initial_output")->value(initial_output_node.attribute(XML_ATTR_VALUE).value());
+        }
+
         // visual properties
         auto pos_node = comp_node.child(XML_EL_POSITION);
         if (!!pos_node) {

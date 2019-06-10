@@ -7,6 +7,9 @@
 
 #include <string>
 #include <memory>
+#include "sim_types.h"
+
+namespace lsim {
 
 class Property {
 public:
@@ -20,11 +23,13 @@ public:
     virtual std::string value_as_string() const = 0;
     virtual int64_t value_as_integer() const = 0;
     virtual bool value_as_boolean() const = 0;
+    virtual Value value_as_lsim_value() const = 0;
 
     // value modifiers
     virtual void value(const char *val) = 0;
     virtual void value(int64_t val) = 0;
     virtual void value(bool val) = 0;
+    virtual void value(Value val) = 0;
 
 private:
     std::string m_key;
@@ -38,11 +43,13 @@ public:
     std::string value_as_string() const override;
     int64_t value_as_integer() const override;
     bool value_as_boolean() const override;
+    Value value_as_lsim_value() const override;
 
     // value modifiers
     void value(const char *val) override;
     void value(int64_t val)  override;
     void value(bool val) override;
+    void value(Value val) override;
 
 private:
     std::string m_value;
@@ -56,11 +63,13 @@ public:
     std::string value_as_string() const override;
     int64_t value_as_integer() const override;
     bool value_as_boolean() const override;
+    Value value_as_lsim_value() const override;
 
     // value modifiers
     void value(const char *val) override;
     void value(int64_t val)  override;
     void value(bool val) override;
+    void value(Value val) override;
 
 private:
     int64_t m_value;
@@ -74,14 +83,36 @@ public:
     std::string value_as_string() const override;
     int64_t value_as_integer() const override;
     bool value_as_boolean() const override;
+    Value value_as_lsim_value() const override;
 
     // value modifiers
     void value(const char *val) override;
     void value(int64_t val)  override;
     void value(bool val) override;
+    void value(Value val) override;
 
 private:    
     bool m_value;
+};
+
+class ValueProperty : public Property {
+public:
+    ValueProperty(const char *key, Value value);
+
+    // value accessors
+    std::string value_as_string() const override;
+    int64_t value_as_integer() const override;
+    bool value_as_boolean() const override;
+    Value value_as_lsim_value() const override;
+
+    // value modifiers
+    void value(const char *val) override;
+    void value(int64_t val)  override;
+    void value(bool val) override;
+    void value(Value val) override;
+
+private:    
+    Value m_value;
 };
 
 inline Property::uptr_t make_property(const char *key, const char *value) {
@@ -96,5 +127,10 @@ inline Property::uptr_t make_property(const char *key, bool value) {
     return std::make_unique<BoolProperty>(key, value);
 }
 
+inline Property::uptr_t make_property(const char *key, Value value) {
+    return std::make_unique<ValueProperty>(key, value);
+}
+
+} // namespace lsim
 
 #endif // LSIM_PROPERTY_H

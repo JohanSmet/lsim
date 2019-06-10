@@ -35,9 +35,9 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
         result->add_property(make_property("name", (std::string("c#") + std::to_string(result->id())).c_str()));
         result->add_property(make_property("tri_state", false));
     } else if (type == COMPONENT_CONSTANT) {
-        result->add_property(make_property("value", static_cast<int64_t>(VALUE_FALSE)));
+        result->add_property(make_property("value", VALUE_FALSE));
     } else if (type == COMPONENT_PULL_RESISTOR) {
-        result->add_property(make_property("pull_to", static_cast<int64_t>(VALUE_FALSE)));
+        result->add_property(make_property("pull_to", VALUE_FALSE));
         result->change_priority(PRIORITY_DEFERRED);
     }
 
@@ -255,13 +255,13 @@ Component *CircuitDescription::add_connector_out(const char *name, size_t data_b
 
 Component *CircuitDescription::add_constant(Value value) {
     auto result = create_component(COMPONENT_CONSTANT, 0, 1, 0);
-    result->property("value")->value(static_cast<int64_t>(value));
+    result->property("value")->value(value);
     return result;
 }
 
 Component *CircuitDescription::add_pull_resistor(Value pull_to) {
     auto result = create_component(COMPONENT_PULL_RESISTOR, 0, 1, 0);
-    result->property("pull_to")->value(static_cast<int64_t>(pull_to));
+    result->property("pull_to")->value(pull_to);
     return result;
 }
 

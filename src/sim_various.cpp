@@ -10,7 +10,7 @@ namespace lsim {
 
 void sim_register_various_functions() {
     SIM_FUNC_BEGIN(CONSTANT)  {
-        auto value = static_cast<Value>(comp->description()->property("value")->value_as_integer());
+        auto value = comp->description()->property("value")->value_as_lsim_value();
         comp->write_pin(0, value);
     } SIM_FUNC_END;
 
@@ -20,7 +20,7 @@ void sim_register_various_functions() {
 
     SIM_FUNC_BEGIN(PULL_RESISTOR) {
         if (sim->read_pin_current_step(comp->pin_by_index(0)) == VALUE_UNDEFINED) {
-            auto value = static_cast<Value>(comp->description()->property("pull_to")->value_as_integer());
+            auto value = comp->description()->property("pull_to")->value_as_lsim_value();
             comp->write_pin(0, value);
         }
     } SIM_FUNC_END;
