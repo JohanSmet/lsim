@@ -39,6 +39,8 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
     } else if (type == COMPONENT_PULL_RESISTOR) {
         result->add_property(make_property("pull_to", VALUE_FALSE));
         result->change_priority(PRIORITY_DEFERRED);
+    } else {
+        result->add_property(make_property("initial_output", VALUE_UNDEFINED));
     }
 
     return result;

@@ -30,6 +30,13 @@ SimComponent::SimComponent(Simulator *sim, Component *comp) :
     m_control_start = m_output_start + comp->num_outputs();
     m_sim_func = sim_function(comp->type());
     m_sim_needed_func = sim_needed_function(comp->type());
+
+    auto initial_out = comp->property_value("initial_output", VALUE_UNDEFINED);
+    if (initial_out != VALUE_UNDEFINED) {
+        for (size_t pin = m_output_start; pin < m_control_start; ++pin) {
+            m_values[pin] = initial_out;
+        }
+    }
 }
 
 pin_t SimComponent::pin_by_index(size_t index) const {

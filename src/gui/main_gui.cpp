@@ -316,6 +316,12 @@ static void ui_property_panel(LSimContext *context) {
 			}
 		}
 
+		// initial output state
+		if (component->property("initial_output")) {
+			value_property("Initial Output", component->property("initial_output"));
+		}
+
+
 	} else if (ui_circuit != nullptr) {
 		// no component selected - edit circuit properties
 		std::vector<char> name(ui_circuit->circuit_desc()->name().begin(), ui_circuit->circuit_desc()->name().end());
