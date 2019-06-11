@@ -443,9 +443,9 @@ void main_gui(LSimContext *lsim_context)
 		if (ImGui::RadioButton("Simulation", ui_circuit->is_simulating())) {
 			circuit_instance = ui_circuit->circuit_desc()->instantiate(lsim_context->sim());
 			ui_circuit->set_simulation_instance(circuit_instance.get());
+			sim->init();
 			init_input_connectors(ui_circuit->circuit_desc(), ui_circuit->circuit_inst());
 			sim_running = true;
-			sim->init();
 		}
 
 		if (ui_circuit->is_simulating()) {
