@@ -103,6 +103,15 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, Value)) &CircuitInstance::write_output_pins)
         .def("write_nibble", &CircuitInstance::write_nibble)
         .def("write_byte", &CircuitInstance::write_byte)
+        .def("write_port",
+                [](CircuitInstance *circuit, const char *port, Value value) {
+                    circuit->write_pin(circuit->description()->port_by_name(port), value);
+                })
+        .def("read_port",
+                [](CircuitInstance *circuit, const char *port) -> Value {
+                    return circuit->read_pin(circuit->description()->port_by_name(port));
+                })
+        
         ;
     
 }

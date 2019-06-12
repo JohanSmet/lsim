@@ -13,6 +13,7 @@ namespace lsim {
 class CircuitInstance {
 public:
     CircuitInstance(Simulator *sim, CircuitDescription *circuit_desc);
+    CircuitDescription *description() const {return m_circuit_desc;}
 
     // instantiation
     SimComponent *add_component(Component *comp);
