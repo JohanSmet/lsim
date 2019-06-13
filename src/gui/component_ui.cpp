@@ -408,6 +408,14 @@ void UICircuit::draw() {
 			m_wire_end = {m_mouse_grid_point, PIN_ID_INVALID, nullptr};
 			create_wire();
 			m_state = CS_IDLE;
+		} else if (m_hovered_wire) {
+			// select the entire wire
+			for (size_t idx = 0; idx < m_hovered_wire->num_segments(); ++idx) {
+				auto segment = m_hovered_wire->segment_by_index(idx);
+				if (!is_selected(segment)) {
+					select_wire_segment(segment);
+				}
+			}
 		}
 	}
 
