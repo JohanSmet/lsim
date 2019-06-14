@@ -20,13 +20,14 @@ public:
     typedef std::unique_ptr<CircuitDescription> uptr_t;
     typedef std::unordered_map<uint32_t, Wire::uptr_t> wire_lut_t;
 public:
-    CircuitDescription(const char *name, class LSimContext *context);
+    CircuitDescription(const char *name, class LSimContext *context, class CircuitLibrary *ref_lib);
     CircuitDescription(const CircuitDescription &) = delete;
 
     class LSimContext *context() const {return m_context;}
 
     // name
     const std::string &name() const {return m_name;}
+    std::string qualified_name() const;
     void change_name(const char *name);
 
     // components
@@ -85,6 +86,8 @@ private:
 
 private:
     class LSimContext *m_context;
+    class CircuitLibrary *m_lib;
+
     std::string     m_name;
 
     uint32_t        m_component_id;

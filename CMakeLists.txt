@@ -45,6 +45,7 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/component_description.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"

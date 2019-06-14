@@ -117,7 +117,7 @@ void Component::set_angle(int angle) {
 
 bool Component::sync_nested_circuit(LSimContext *lsim_context) {
 
-    m_nested_circuit = lsim_context->user_library()->circuit_by_name(m_nested_name.c_str());
+    m_nested_circuit = lsim_context->find_circuit(m_nested_name.c_str());
     if (!m_nested_circuit) {
         return false;
     }

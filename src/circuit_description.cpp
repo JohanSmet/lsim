@@ -12,8 +12,9 @@
 
 namespace lsim {
 
-CircuitDescription::CircuitDescription(const char *name, LSimContext *context) :
+CircuitDescription::CircuitDescription(const char *name, LSimContext *context, CircuitLibrary *ref_lib) :
         m_context(context),
+        m_lib(ref_lib),
         m_name(name),
         m_component_id(0),
         m_wire_id(0) {
@@ -22,6 +23,15 @@ CircuitDescription::CircuitDescription(const char *name, LSimContext *context) :
 void CircuitDescription::change_name(const char *name) {
     assert(name);
     m_name = name;
+}
+
+std::string CircuitDescription::qualified_name() const {
+    std::string qname = m_lib->name();
+    if (qname.empty() || qname == "user") {
+        return m_lib->name();
+    }
+    qname += "." + m_name;
+    return qname;
 }
 
 Component *CircuitDescription::create_component(ComponentType type, size_t input_pins, size_t output_pins, size_t control_pins) {

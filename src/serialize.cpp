@@ -28,6 +28,7 @@ static const char *XML_EL_ORIENTATION = "orientation";
 static const char *XML_EL_MAIN = "main";
 static const char *XML_EL_WIRE = "wire";
 static const char *XML_EL_SEGMENT = "segment";
+static const char *XML_EL_REFERENCE = "reference";
 
 static const char *XML_ATTR_VERSION = "version";
 static const char *XML_ATTR_NAME = "name";
@@ -50,6 +51,7 @@ static const char *XML_ATTR_X2 = "x2";
 static const char *XML_ATTR_Y2 = "y2";
 static const char *XML_ATTR_ANGLE = "angle";
 static const char *XML_ATTR_INSTANCE = "instance";
+static const char *XML_ATTR_FILE = "file";
 
 static const std::unordered_map<ComponentType, std::string> component_type_to_name = {
     {COMPONENT_CONNECTOR_IN, "ConnectorIn"},
@@ -100,16 +102,29 @@ private:
 
 class Serializer {
 public:
-    Serializer() {
+    Serializer(LSimContext *context) : m_context(context) {
         m_root = m_xml.append_child(XML_EL_LSIM);
         m_root.append_attribute(XML_ATTR_VERSION).set_value(LSIM_XML_VERSION);
     }
 
     void serialize_library(CircuitLibrary *library) {
+
+        // references
+        for (const auto &ref : library->references()) {
+            auto lib = m_context->library_by_name(ref.c_str());
+            if (lib) {
+                auto ref_node = m_root.append_child(XML_EL_REFERENCE);
+                ref_node.append_attribute(XML_ATTR_NAME).set_value(ref.c_str());
+                ref_node.append_attribute(XML_ATTR_FILE).set_value(lib->path());
+            }
+        }
+
+        // circuit
         for (size_t idx = 0; idx < library->num_circuits(); ++idx) {
             serialize_circuit(library->circuit_by_idx(idx));
         }
 
+        // main circuit
         if (library->main_circuit()) {
             auto main_node = m_root.append_child(XML_EL_MAIN);
             main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit_name());
@@ -153,7 +168,7 @@ private:
 
         // nested circuit
         if (component->nested_circuit()) {
-            comp_node.append_attribute(XML_ATTR_NESTED).set_value(component->nested_circuit()->name().c_str());
+            comp_node.append_attribute(XML_ATTR_NESTED).set_value(component->nested_circuit()->qualified_name().c_str());
         }
 
         // properties
@@ -215,6 +230,7 @@ private:
     }
 
 private:
+    LSimContext *       m_context;
     pugi::xml_document  m_xml;
     pugi::xml_node      m_root;
 };
@@ -459,10 +475,20 @@ public:
             return false;
         }
 
+        // references
+        for (auto ref_node : lsim_node.children(XML_EL_REFERENCE)) {
+            REQUIRED_ATTR(attr_name, ref_node, XML_ATTR_NAME);
+            REQUIRED_ATTR(attr_file, ref_node, XML_ATTR_FILE);
+            m_context->load_reference_library(attr_name.value(), attr_file.value());
+            lib->add_reference(attr_name.value());
+        }
+
+        // circuits
         for (auto circuit_node : lsim_node.children(XML_EL_CIRCUIT)) {
             parse_circuit(circuit_node);
         }
 
+        // main node
         auto main_node = lsim_node.child(XML_EL_MAIN);
         if (!!main_node) {
             REQUIRED_ATTR(attr_name, main_node, XML_ATTR_NAME);
@@ -494,7 +520,7 @@ bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *fi
     assert(lib);
     assert(filename);
 
-    Serializer  serializer;
+    Serializer serializer(context);
     serializer.serialize_library(lib);
     serializer.dump_to_file(filename);
 

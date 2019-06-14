@@ -8,14 +8,15 @@
 
 namespace lsim {
 
-CircuitLibrary::CircuitLibrary(const char *name) :
-        m_name(name) {
+CircuitLibrary::CircuitLibrary(const char *name, const char *path) :
+        m_name(name),
+        m_path(path) {
 }
 
 CircuitDescription *CircuitLibrary::create_circuit(const char *name, LSimContext *context) {
     assert(name);
 
-    m_circuits.push_back(std::make_unique<CircuitDescription>(name, context));
+    m_circuits.push_back(std::make_unique<CircuitDescription>(name, context, this));
     auto circuit = m_circuits.back().get();
     m_circuit_lut[name] = circuit;
 
@@ -86,6 +87,21 @@ void CircuitLibrary::remove_circuit_from_lut(CircuitDescription *circuit) {
         } else {
             ++iter;
         }
+    }
+}
+
+void CircuitLibrary::add_reference(const char *name) {
+    if (std::find(m_references.begin(), m_references.end(), name) != m_references.end()) {
+        return;
+    }
+
+    m_references.push_back(name);
+}
+
+void CircuitLibrary::remove_reference(const char *name) {
+    auto iter = std::remove(m_references.begin(), m_references.end(), name);    
+    if (iter != m_references.end()) {
+        m_references.erase(iter);
     }
 }
 

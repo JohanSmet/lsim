@@ -1,6 +1,4 @@
 // lsim_context.h - Johan Smet - BSD-3-Clause (see LICENSE)
-//
-// every data structure to make lsim work
 
 #ifndef LSIM_LSIM_CONTEXT_H
 #define LSIM_LSIM_CONTEXT_H
@@ -24,11 +22,19 @@ public:
     CircuitDescription *create_user_circuit(const char *name) {
         return m_user_library.create_circuit(name, this);
     }
+    CircuitDescription *find_circuit(const char *name);
+
+    void load_reference_library(const char *name, const char *filename);
+    void clear_reference_libraries();
+    CircuitLibrary *library_by_name(const char *name);
+
+private:
+    typedef std::unordered_map<std::string, CircuitLibrary::uptr_t> library_lut_t;
 
 private:
     Simulator m_sim;
     CircuitLibrary  m_user_library;
-
+    library_lut_t m_reference_libraries;
 };
 
 } // namespace lsim
