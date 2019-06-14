@@ -28,7 +28,7 @@ void CircuitDescription::change_name(const char *name) {
 std::string CircuitDescription::qualified_name() const {
     std::string qname = m_lib->name();
     if (qname.empty() || qname == "user") {
-        return m_lib->name();
+        return m_name;
     }
     qname += "." + m_name;
     return qname;
