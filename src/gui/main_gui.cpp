@@ -32,6 +32,7 @@ static void change_active_circuit(LSimContext *context, CircuitDescription *acti
 	}
 
 	if (active_circuit) {
+		active_circuit->sync_sub_circuit_components();
 		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
 		selected_circuit_idx = context->user_library()->circuit_idx(active_circuit);
 	}
