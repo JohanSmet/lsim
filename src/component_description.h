@@ -36,11 +36,10 @@ public:
     typedef std::unordered_map<std::string, Property::uptr_t> property_lut_t;
 public:
     Component(uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls);
-    Component(uint32_t id, CircuitDescription *nested);
+    Component(uint32_t id, const char *circuit_name, size_t inputs, size_t outputs);
     Component(const Component &) = delete;
     uint32_t id() const {return m_id;}
     ComponentType type() const {return m_type;}
-    CircuitDescription *nested_circuit() const {return m_nested_circuit;}
 
     // priority
     Priority priority() const {return m_priority;}
@@ -74,6 +73,10 @@ public:
     void set_position(const Point &pos);
     void set_angle(int angle);
 
+    // nested circuits
+    CircuitDescription *nested_circuit() const {return m_nested_circuit;}
+    bool sync_nested_circuit(class LSimContext *lsim_context);
+
 private:
     uint32_t m_id;
     ComponentType m_type;
@@ -81,9 +84,12 @@ private:
     size_t m_inputs;
     size_t m_outputs;
     size_t m_controls;
+
+    std::string m_nested_name;
     CircuitDescription *m_nested_circuit;
     port_lut_t m_port_lut;
     property_lut_t m_properties;
+
     Point m_position;
     int m_angle;            // in degrees
 };

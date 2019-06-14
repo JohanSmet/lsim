@@ -46,8 +46,8 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
     return result;
 }
 
-Component *CircuitDescription::create_component(CircuitDescription *nested_circuit) {
-    auto component = std::make_unique<Component>(m_component_id++, nested_circuit);
+Component *CircuitDescription::create_component(const char *circuit_name, size_t input_pins, size_t output_pins) {
+    auto component = std::make_unique<Component>(m_component_id++, circuit_name, input_pins, output_pins);
     auto result = component.get();
     m_components[result->id()] = std::move(component);
     return result;
@@ -107,6 +107,13 @@ void CircuitDescription::remove_component(uint32_t id) {
 
     if (was_connector) {
         rebuild_port_list();
+    }
+}
+
+void CircuitDescription::sync_sub_circuit_components() {
+    for (auto id : component_ids_of_type(COMPONENT_SUB_CIRCUIT)) {
+        auto comp = component_by_id(id);
+        comp->sync_nested_circuit(m_context);
     }
 }
 
@@ -309,8 +316,14 @@ Component *CircuitDescription::add_xnor_gate() {
     return create_component(COMPONENT_XNOR_GATE, 2, 1, 0);
 }
 
+Component *CircuitDescription::add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs) {
+    return create_component(circuit, num_inputs, num_outputs);
+}
+
 Component *CircuitDescription::add_sub_circuit(const char *circuit) {
-    return create_component(m_context->user_library()->circuit_by_name(circuit));
+    auto comp = create_component(circuit, 0, 0);
+    comp->sync_nested_circuit(m_context);
+    return comp;
 }
 
 std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim) {

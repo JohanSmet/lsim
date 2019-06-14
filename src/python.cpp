@@ -59,7 +59,7 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("add_nor_gate", &CircuitDescription::add_nor_gate, py::return_value_policy::reference)
         .def("add_xor_gate", &CircuitDescription::add_xor_gate, py::return_value_policy::reference)
         .def("add_xnor_gate", &CircuitDescription::add_xnor_gate, py::return_value_policy::reference)
-        .def("add_sub_circuit", &CircuitDescription::add_sub_circuit, py::return_value_policy::reference)
+        .def("add_sub_circuit", (Component *(CircuitDescription::*)(const char *))&CircuitDescription::add_sub_circuit, py::return_value_policy::reference)
         .def("create_wire", &CircuitDescription::create_wire, py::return_value_policy::reference)
         .def("connect", &CircuitDescription::connect, py::return_value_policy::reference)
         .def("remove_wire", &CircuitDescription::remove_wire)

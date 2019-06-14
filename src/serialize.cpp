@@ -358,7 +358,7 @@ public:
                 break;
             case COMPONENT_SUB_CIRCUIT : {
                 REQUIRED_ATTR(attr_name, comp_node, XML_ATTR_NESTED);
-                component = circuit->add_sub_circuit(attr_name.as_string());
+                component = circuit->add_sub_circuit(attr_name.as_string(), num_inputs, num_outputs);
                 break;
             }
             default :
@@ -467,6 +467,11 @@ public:
         if (!!main_node) {
             REQUIRED_ATTR(attr_name, main_node, XML_ATTR_NAME);
             lib->change_main_circuit(attr_name.as_string());
+        }
+
+        // sync sub circuits after all circuits have been loaded
+        for (size_t idx = 0; idx < lib->num_circuits(); ++idx) {
+            lib->circuit_by_idx(idx)->sync_sub_circuit_components();
         }
 
         return true;

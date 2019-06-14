@@ -584,7 +584,8 @@ void UICircuit::ui_create_component(Component *comp) {
 }
 
 void UICircuit::embed_circuit(const char *name) {
-	auto comp = m_circuit_desc->add_sub_circuit(name);
+	auto comp = m_circuit_desc->add_sub_circuit(name, 0, 0);
+	comp->sync_nested_circuit(m_circuit_desc->context());
 	comp->set_position(m_mouse_grid_point);
 	create_component(comp);
 }
@@ -772,13 +773,10 @@ void UICircuit::draw_grid(ImDrawList *draw_list) {
 void UICircuit::ui_popup_embed_circuit() {
 	if (ImGui::BeginPopup(POPUP_EMBED_CIRCUIT)) {
 		auto lib = m_circuit_desc->context()->user_library();
-		auto max = lib->circuit_idx(m_circuit_desc);
+		auto max = lib->num_circuits();
 
 		ImGui::Text("Choose circuit to embed:");
 
-		// for now only allow to embed circuits that are define before the current circuit
-		//	- there's no circular dependency checking (yet)
-		//	- the serializer/deserialiser isn't smart enough to handle other case 
 		for (size_t i = 0; i < max; ++i) {
 			auto sub = lib->circuit_by_idx(i);
 			if (ImGui::Selectable(sub->name().c_str())) {

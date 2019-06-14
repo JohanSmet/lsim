@@ -4,6 +4,7 @@
 
 #include "component_description.h"
 #include "circuit_description.h"
+#include "lsim_context.h"
 
 #include <cassert>
 
@@ -16,28 +17,23 @@ Component::Component(uint32_t id, ComponentType type, size_t inputs, size_t outp
         m_inputs(inputs),
         m_outputs(outputs),
         m_controls(controls),
+        m_nested_name(""),
         m_nested_circuit(nullptr),
         m_position(0,0),
         m_angle(0) {
 }
 
-Component::Component(uint32_t id, CircuitDescription *nested) :
+Component::Component(uint32_t id, const char *circuit_name, size_t inputs, size_t outputs) :
         m_id(id),
         m_type(COMPONENT_SUB_CIRCUIT),
         m_priority(PRIORITY_NORMAL),
-        m_inputs(nested->num_input_ports()),
-        m_outputs(nested->num_output_ports()),
+        m_inputs(inputs),
+        m_outputs(outputs),
         m_controls(0),
-        m_nested_circuit(nested),
+        m_nested_name(circuit_name),
+        m_nested_circuit(nullptr),
         m_position(0,0),
         m_angle(0) {
-    for (size_t idx = 0; idx < m_inputs; ++idx) {
-        m_port_lut[nested->port_name(true, idx)] = input_pin_id(idx);
-    }
-
-    for (size_t idx = 0; idx < m_outputs; ++idx) {
-        m_port_lut[nested->port_name(false, idx)] = output_pin_id(idx);
-    }
 }
 
 pin_id_t Component::pin_id(size_t index) const {
@@ -117,6 +113,29 @@ void Component::set_position(const Point &pos) {
 
 void Component::set_angle(int angle) {
     m_angle = angle;
+}
+
+bool Component::sync_nested_circuit(LSimContext *lsim_context) {
+
+    m_nested_circuit = lsim_context->user_library()->circuit_by_name(m_nested_name.c_str());
+    if (!m_nested_circuit) {
+        return false;
+    }
+
+    m_inputs = m_nested_circuit->num_input_ports();
+    m_outputs = m_nested_circuit->num_output_ports();
+
+    m_port_lut.clear();
+
+    for (size_t idx = 0; idx < m_inputs; ++idx) {
+        m_port_lut[m_nested_circuit->port_name(true, idx)] = input_pin_id(idx);
+    }
+
+    for (size_t idx = 0; idx < m_outputs; ++idx) {
+        m_port_lut[m_nested_circuit->port_name(false, idx)] = output_pin_id(idx);
+    }
+
+    return true;
 }
 
 } // namespace lsim

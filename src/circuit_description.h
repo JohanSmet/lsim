@@ -32,13 +32,14 @@ public:
     // components
 protected:
     Component *create_component(ComponentType type, size_t input_pins, size_t output_pins = 1, size_t control_pins = 0);
-    Component *create_component(CircuitDescription *nested_circuit);
+    Component *create_component(const char *circuit_name, size_t input_pins, size_t output_pins);
 public:
     Component *component_by_id(uint32_t id);
     std::vector<uint32_t> component_ids() const;
     std::vector<uint32_t> component_ids_of_type(ComponentType type) const;
     void disconnect_component(uint32_t id);
     void remove_component(uint32_t id);
+    void sync_sub_circuit_components();
 
     // connections
     Wire *create_wire();
@@ -72,6 +73,7 @@ public:
     Component *add_nor_gate(size_t num_inputs);
     Component *add_xor_gate();
     Component *add_xnor_gate();
+    Component *add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs);
     Component *add_sub_circuit(const char *circuit);
 
     // instantiate into a simulator
