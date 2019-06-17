@@ -25,6 +25,8 @@ add_subdirectory("libs/pugixml")
 set (PUGIXML_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/pugixml/src)
 list (APPEND EXTRA_LIBS pugixml)
 
+set (CUTE_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/cute)
+
 if (NOT EMSCRIPTEN)
 	find_package(SDL2 REQUIRED)
 	find_package(OpenGL REQUIRED)
@@ -97,6 +99,7 @@ endif()
 set(APP_TARGET lsim_gui)
 
 set(APP_SOURCES
+	"libs/cute/cute_files.cpp"
 	"src/gui/imgui/imgui_draw.cpp"
 	"src/gui/imgui/imgui.cpp"
 	"src/gui/imgui/imgui_widgets.cpp"
@@ -110,6 +113,7 @@ set(APP_SOURCES
 )
 
 set(APP_HEADERS
+	"libs/cute/cute_files.h"
 	"src/gui/imgui/imgui_internal.h"
 	"src/gui/imgui/imgui.h"
 	"src/gui/imgui/imgui_impl_sdl.h"
@@ -119,14 +123,13 @@ set(APP_HEADERS
 	"src/gui/imgui/stb_truetype.h"
 	"src/gui/component_std.h"
 	"src/gui/component_ui.h"
-	"src/gui/cute_files.h"
 	"src/gui/file_selector.h"
 	"src/gui/imgui_ex.h"
 	"src/gui/shapes.h"
 )
 
 if (NOT EMSCRIPTEN)
-	set(APP_INCLUDES ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
+	set(APP_INCLUDES ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${CUTE_INCLUDE})
 	set(APP_LIBS ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
 	list(APPEND APP_SOURCES 
 		"src/gui/gl3w/GL/gl3w.c"
@@ -137,6 +140,7 @@ if (NOT EMSCRIPTEN)
 		"src/gui/gl3w/GL/glcorearb.h"
 	)
 else()
+	set(APP_INCLUDES ${CUTE_INCLUDE})
 	list (APPEND APP_LIBS 
 		"-s USE_SDL=2"
 		"-s WASM=1" 

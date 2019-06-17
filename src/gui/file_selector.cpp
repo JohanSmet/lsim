@@ -5,7 +5,6 @@
 #include "file_selector.h"
 #include "imgui/imgui.h"
 
-#define CUTE_FILES_IMPLEMENTATION
 #include "cute_files.h"
 
 #include <vector>
