@@ -32,6 +32,9 @@ public:
 
     // folders
     void add_folder(const char *name, const char *path);
+    size_t num_folders() const {return m_folders.size();}
+    std::string folder_name(size_t folder_idx);
+    std::string folder_path(size_t folder_idx);
     std::string full_file_path(const std::string &file);
 
 private:
@@ -42,7 +45,9 @@ private:
     Simulator m_sim;
     CircuitLibrary  m_user_library;
     library_lut_t m_reference_libraries;
-    folder_lut_t m_folders;
+
+    std::vector<std::string> m_folders;
+    folder_lut_t m_folder_lut;
 };
 
 } // namespace lsim

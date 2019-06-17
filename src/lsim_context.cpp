@@ -3,6 +3,8 @@
 #include "lsim_context.h"
 #include "serialize.h"
 
+#include <cassert>
+
 namespace lsim {
 
 void LSimContext::load_reference_library(const char *name, const char *filename) {
@@ -57,11 +59,27 @@ CircuitLibrary *LSimContext::library_by_name(const char *name) {
 }
 
 void LSimContext::add_folder(const char *name, const char *path) {
-    m_folders[name] = path;
+    m_folders.push_back(name);
+    m_folder_lut[name] = path;
+}
+
+std::string LSimContext::folder_name(size_t folder_idx) {
+    assert(folder_idx < m_folders.size());
+    return m_folders[folder_idx];
+}
+
+std::string LSimContext::folder_path(size_t folder_idx) {
+    assert(folder_idx < m_folders.size());
+    auto found = m_folder_lut.find(folder_name(folder_idx));
+    if (found != m_folder_lut.end()) {
+        return found->second;
+    } else {
+        return "";
+    }
 }
 
 std::string LSimContext::full_file_path(const std::string &file) {
-    for (const auto &folder : m_folders) {
+    for (const auto &folder : m_folder_lut) {
         const auto &name = folder.first;
         const auto &path = folder.second;
 
