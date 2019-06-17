@@ -32,6 +32,10 @@ void sim_register_various_functions() {
     SIM_NEEDED_FUNC_BEGIN(SUB_CIRCUIT) {
         return true;
     } SIM_FUNC_END;
+
+    SIM_NEEDED_FUNC_BEGIN(TEXT) {
+        return false;
+    } SIM_FUNC_END;
 }
 
 } // namespace lsim

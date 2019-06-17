@@ -42,6 +42,7 @@ public:
     UIComponent(Component *comp);
 
     Component *component() const {return m_component;}
+    bool has_border() const {return m_border;}
     bool has_tooltip() const {return !m_tooltip.empty();}
     const char *tooltip() const {return m_tooltip.c_str();}
     const ComponentIcon *icon() const {return m_icon;}
@@ -50,6 +51,7 @@ public:
     const Point &aabb_max() const {return m_aabb_max;}
     Point aabb_size() const {return m_aabb_max - m_aabb_min;}
 
+    void show_border(bool show) {m_border = show;}
     void change_tooltip(const char *tooltip);
     void change_icon(const ComponentIcon *icon);
     void change_size(float width, float height);
@@ -72,6 +74,7 @@ private:
 
 private:
     Component *         m_component;
+    bool                m_border;
     std::string         m_tooltip;
     Transform           m_to_circuit;
     Point               m_half_size;

@@ -271,6 +271,30 @@ void component_register_extra() {
             });
         }
     );
+
+    // Text
+    UICircuitBuilder::register_materialize_func(
+        COMPONENT_TEXT, [] (Component *comp, UIComponent *ui_comp) {
+            ui_comp->show_border(false);
+            ui_comp->change_size(20, 20);
+            bool calc_size = true;
+
+            // custom draw function
+            ui_comp->set_custom_ui_callback([&calc_size](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+                auto text = ui_comp->component()->property_value("text", "-");
+
+                if (calc_size) {
+                    auto size = ImGui::CalcTextSize(text.c_str());
+                    const_cast<UIComponent *>(ui_comp)->change_size(size.x, size.y);
+                    calc_size = false;
+                }
+
+                ImGuiEx::TransformStart();  
+                ImGuiEx::TextNoClip(Point(0,0), text.c_str(), COLOR_COMPONENT_BORDER, ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                ImGuiEx::TransformEnd(to_window);
+            });
+        }
+    );
 }
 
 void component_register_gates() {

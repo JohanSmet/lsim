@@ -51,6 +51,7 @@ const ComponentType COMPONENT_NOR_GATE = 0x0017;
 const ComponentType COMPONENT_XOR_GATE = 0x0018;
 const ComponentType COMPONENT_XNOR_GATE = 0x0019;
 const ComponentType COMPONENT_SUB_CIRCUIT = 0x1001;
+const ComponentType COMPONENT_TEXT = 0x2001;
 
 // forward declarations
 class Component;

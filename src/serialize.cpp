@@ -67,7 +67,8 @@ static const std::unordered_map<ComponentType, std::string> component_type_to_na
     {COMPONENT_NOR_GATE, "NorGate"},
     {COMPONENT_XOR_GATE, "XorGate"},
     {COMPONENT_XNOR_GATE, "XnorGate"},
-    {COMPONENT_SUB_CIRCUIT, "SubCircuit"}
+    {COMPONENT_SUB_CIRCUIT, "SubCircuit"},
+    {COMPONENT_TEXT, "Text"}
 };
 
 static const std::unordered_map<Priority, std::string> priority_to_string = {
@@ -375,6 +376,11 @@ public:
             case COMPONENT_SUB_CIRCUIT : {
                 REQUIRED_ATTR(attr_name, comp_node, XML_ATTR_NESTED);
                 component = circuit->add_sub_circuit(attr_name.as_string(), num_inputs, num_outputs);
+                break;
+            }
+            case COMPONENT_TEXT : {
+                REQUIRED_PROP(prop_text, comp_node, "text");
+                component = circuit->add_text(prop_text.value());
                 break;
             }
             default :

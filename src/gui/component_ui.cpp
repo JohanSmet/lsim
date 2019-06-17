@@ -45,6 +45,7 @@ size_t UICircuit::PointHash::operator() (const Point &p) const {
 
 UIComponent::UIComponent(Component *component) :
 		m_component(component),
+		m_border(true),
 		m_tooltip(""),
 		m_half_size(0.0f, 0.0f),
 		m_icon(nullptr),
@@ -241,7 +242,9 @@ void UICircuit::draw() {
 			}
 		}
 
-    	draw_list->AddRect(comp->aabb_min() + offset, comp->aabb_max() + offset, border_color);
+		if (comp->has_border()) {
+  		  	draw_list->AddRect(comp->aabb_min() + offset, comp->aabb_max() + offset, border_color);
+		}
 
 		if (comp->icon()) {
     		comp->icon()->draw(to_screen, comp->aabb_size() - Point(10,10), 

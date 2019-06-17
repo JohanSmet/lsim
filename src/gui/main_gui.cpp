@@ -215,6 +215,7 @@ static void ui_component_pallette(LSimContext *context) {
 		add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](CircuitDescription *circuit) {return circuit->add_connector_out("out", 1);});
 		add_component_button(COMPONENT_CONSTANT, "Constant", [](CircuitDescription *circuit) {return circuit->add_constant(VALUE_TRUE);});
 		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](CircuitDescription *circuit) {return circuit->add_pull_resistor(VALUE_TRUE);});
+		add_component_button(COMPONENT_TEXT, "Text", [](CircuitDescription *circuit) {return circuit->add_text("text");});
 		ImGui::EndGroup();
 	}
 
@@ -333,6 +334,12 @@ static void ui_property_panel(LSimContext *context) {
 			int num_inputs = component->num_inputs();
 			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
 				component->change_input_pins(num_inputs);
+				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
+			}
+		}
+
+		if (component->type() == COMPONENT_TEXT) {
+			if (text_property("Value", component->property("text"))) {
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
 			}
 		}

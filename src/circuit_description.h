@@ -76,6 +76,7 @@ public:
     Component *add_xnor_gate();
     Component *add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs);
     Component *add_sub_circuit(const char *circuit);
+    Component *add_text(const char *text);
 
     // instantiate into a simulator
     std::unique_ptr<class CircuitInstance> instantiate(class Simulator *sim);

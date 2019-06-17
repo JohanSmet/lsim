@@ -49,6 +49,8 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
     } else if (type == COMPONENT_PULL_RESISTOR) {
         result->add_property(make_property("pull_to", VALUE_FALSE));
         result->change_priority(PRIORITY_DEFERRED);
+    } else if (type == COMPONENT_TEXT) {
+        result->add_property(make_property("text", "text"));
     } else {
         result->add_property(make_property("initial_output", VALUE_UNDEFINED));
     }
@@ -333,6 +335,12 @@ Component *CircuitDescription::add_sub_circuit(const char *circuit, size_t num_i
 Component *CircuitDescription::add_sub_circuit(const char *circuit) {
     auto comp = create_component(circuit, 0, 0);
     comp->sync_nested_circuit(m_context);
+    return comp;
+}
+
+Component *CircuitDescription::add_text(const char *text) {
+    auto comp = create_component(COMPONENT_TEXT, 0, 0, 0);
+    comp->property("text")->value(text);
     return comp;
 }
 

@@ -401,6 +401,26 @@
 			<position x="1500" y="150" />
 			<orientation angle="0" />
 		</component>
+		<component id="42" type="Text" priority="normal" inputs="0" outputs="0" controls="0">
+			<property key="text" value="SHIFT BY 1" />
+			<position x="410" y="20" />
+			<orientation angle="0" />
+		</component>
+		<component id="43" type="Text" priority="normal" inputs="0" outputs="0" controls="0">
+			<property key="text" value="SHIFT BY 2" />
+			<position x="680" y="20" />
+			<orientation angle="0" />
+		</component>
+		<component id="44" type="Text" priority="normal" inputs="0" outputs="0" controls="0">
+			<property key="text" value="SHIFT BY 4" />
+			<position x="950" y="20" />
+			<orientation angle="0" />
+		</component>
+		<component id="45" type="Text" priority="normal" inputs="0" outputs="0" controls="0">
+			<property key="text" value="SHIFT BY 8" />
+			<position x="1190" y="20" />
+			<orientation angle="0" />
+		</component>
 		<wire id="0">
 			<segment x1="40" y1="60" x2="70" y2="60" />
 			<pin value="9#0" />
