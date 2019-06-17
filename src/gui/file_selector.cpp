@@ -4,6 +4,7 @@
 
 #include "file_selector.h"
 #include "imgui/imgui.h"
+#include "lsim_context.h"
 
 #include "cute_files.h"
 
@@ -12,7 +13,9 @@
 
 namespace {
 
+// famous last words: there should only ever by one file selection popup open at a time, so why bother.
 std::vector<std::string>  file_list;
+lsim::gui::on_select_func_t on_select_callback = nullptr;
 
 void r_scan_dir(const char *dir_path) {
     std::vector<cf_file_t>  entries;
@@ -61,40 +64,40 @@ namespace lsim {
 
 namespace gui {
 
-void ui_file_selector_init(const char *base_dir) {
+void ui_file_selector_open(LSimContext *context, on_select_func_t on_select) {
     file_list.clear();
-    r_scan_dir(base_dir);
+    for (size_t idx = 0; idx < context->num_folders(); ++idx) {
+        r_scan_dir(context->folder_path(idx).c_str());
+    }
+
+    on_select_callback = on_select;
 
     ImGui::OpenPopup("Select file");
 }
 
-bool ui_file_selector(std::string *selected) {
-
-    bool result = true;
+void ui_file_selector_define() {
 
     ImGui::SetNextWindowPos(ImGui::GetMousePos(), ImGuiCond_Appearing);
     if (ImGui::BeginPopupModal("Select file")) {
-        ImGui::Text("Click to load circuit");
+        ImGui::Text("Click to select library");
         ImGui::Separator();
 
         for (const auto &entry : file_list) {
             if (ImGui::Selectable(entry.c_str())) {
-                *selected = entry;
-                result = false;
+                if (on_select_callback) {
+                    on_select_callback(entry);
+                }
                 break;
             }
         }
 
         ImGui::Separator();
         if (ImGui::Button("Cancel")) {
-            *selected = "";
-            result = false;
+            ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
     }
-
-    return result;
 }
 
 } // namespace gui

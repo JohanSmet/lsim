@@ -368,7 +368,6 @@ void main_gui(LSimContext *lsim_context)
 	auto lib = lsim_context->user_library();
 
 	static bool sim_running = false;
-	static bool show_file_selector = false;
 
 	///////////////////////////////////////////////////////////////////////////
 	//
@@ -382,14 +381,16 @@ void main_gui(LSimContext *lsim_context)
 
 		// Library management
 		ui_popup_library_save_name(lsim_context);
+		ui_file_selector_define();
 
 		if (ImGui::Button("New")) {
 			load_circuit_library(lsim_context, "");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Load")) {
-			ui_file_selector_init("examples");
-			show_file_selector = true;
+			ui_file_selector_open(lsim_context, [lsim_context](const auto &selection) {
+				load_circuit_library(lsim_context, selection);
+			});
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Save")) {
@@ -397,14 +398,6 @@ void main_gui(LSimContext *lsim_context)
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Add Library")) {
-		}
-
-		if (show_file_selector) {
-			std::string selection;
-			show_file_selector = ui_file_selector(&selection);
-			if (!show_file_selector && !selection.empty()) {
-				load_circuit_library(lsim_context, selection);
-			}
 		}
 
 		// Circuit management

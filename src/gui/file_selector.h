@@ -6,13 +6,18 @@
 #define LSIM_GUI_FILE_SELECTOR_H
 
 #include <string>
+#include <functional>
 
 namespace lsim {
 
+class LSimContext;
+
 namespace gui {
 
-void ui_file_selector_init(const char *base_dir);
-bool ui_file_selector(std::string *selected);
+typedef std::function<void(const std::string &)> on_select_func_t;
+
+void ui_file_selector_open(LSimContext *context, on_select_func_t on_select);
+void ui_file_selector_define();
 
 } // namespace gui
 
