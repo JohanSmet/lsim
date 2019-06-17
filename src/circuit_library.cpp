@@ -105,4 +105,8 @@ void CircuitLibrary::remove_reference(const char *name) {
     }
 }
 
+void CircuitLibrary::clear_references() {
+    m_references.clear();
+}
+
 } // namespace lsim

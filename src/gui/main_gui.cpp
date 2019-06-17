@@ -43,6 +43,8 @@ static void close_circuit_library(LSimContext *lsim_context) {
 	circuit_instance = nullptr;
 	ui_circuit = nullptr;
 	lsim_context->user_library()->clear_circuits();
+	lsim_context->user_library()->clear_references();
+	lsim_context->clear_reference_libraries();
 }
 
 static void load_circuit_library(LSimContext *lsim_context, const std::string &filename) {

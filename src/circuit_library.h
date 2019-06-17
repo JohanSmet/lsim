@@ -45,6 +45,7 @@ public:
     // references
     void add_reference(const char *name);
     void remove_reference(const char *name);
+    void clear_references();
     const reference_container_t &references() const {return m_references;}
 
 private:
