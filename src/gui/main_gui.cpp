@@ -168,7 +168,7 @@ static void ui_circuit_management(LSimContext *context) {
 
 static void ui_component_pallette(LSimContext *context) {
 
-	auto add_component_button = [](uint32_t component, const char *caption, Component * (create_func)(CircuitDescription *circuit)) {
+	auto add_component_button = [](uint32_t component, const char *caption, std::function<Component *(CircuitDescription *)> create_func) {
 		Point pos = ImGui::GetCursorScreenPos();
 		auto draw_list = ImGui::GetWindowDrawList();
 
@@ -214,6 +214,24 @@ static void ui_component_pallette(LSimContext *context) {
 		add_component_button(COMPONENT_CONSTANT, "Constant", [](CircuitDescription *circuit) {return circuit->add_constant(VALUE_TRUE);});
 		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](CircuitDescription *circuit) {return circuit->add_pull_resistor(VALUE_TRUE);});
 		ImGui::EndGroup();
+	}
+
+	for (const auto &ref : context->user_library()->references()) {
+		ImGui::Spacing();
+		if (ImGui::TreeNodeEx(ref.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
+			auto ref_lib = context->library_by_name(ref.c_str());
+
+			ImGui::BeginGroup();
+			ImGui::Indent();
+			for (size_t idx = 0; idx < ref_lib->num_circuits(); ++idx) {
+				auto sub_name = ref_lib->circuit_by_idx(idx)->name();
+				add_component_button(COMPONENT_SUB_CIRCUIT, sub_name.c_str(),
+					[ref, sub_name](CircuitDescription *circuit) {
+						return circuit->add_sub_circuit((ref + "." + sub_name).c_str());
+					});
+			}
+			ImGui::EndGroup();
+		}
 	}
 }
 
@@ -398,6 +416,13 @@ void main_gui(LSimContext *lsim_context)
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Add Library")) {
+			ui_file_selector_open(lsim_context, [lsim_context](const std::string &selection) {
+				auto name_begin = selection.find_last_of("/") + 1;
+				auto name_end = selection.find_last_of(".");
+				auto name = selection.substr(name_begin, name_end - name_begin - 1);
+				lsim_context->load_reference_library(name.c_str(), selection.c_str());
+				lsim_context->user_library()->add_reference(name.c_str());
+			});
 		}
 
 		// Circuit management
