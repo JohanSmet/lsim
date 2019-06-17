@@ -11,7 +11,7 @@ void LSimContext::load_reference_library(const char *name, const char *filename)
     }
 
     auto lib = std::make_unique<CircuitLibrary>(name, filename);
-    if (!deserialize_library(this, lib.get(), filename)) {
+    if (!deserialize_library(this, lib.get(), full_file_path(filename).c_str())) {
         lib = nullptr;
         return;
     }
@@ -55,5 +55,24 @@ CircuitLibrary *LSimContext::library_by_name(const char *name) {
         return nullptr;
     }
 }
+
+void LSimContext::add_folder(const char *name, const char *path) {
+    m_folders[name] = path;
+}
+
+std::string LSimContext::full_file_path(const std::string &file) {
+    for (const auto &folder : m_folders) {
+        const auto &name = folder.first;
+        const auto &path = folder.second;
+
+        if (file.find_first_of(name) == 0) {
+            auto result = path + file.substr(name.size());
+            return result;
+        }
+    }
+
+    return file;
+}
+
 
 } // namespace lsim

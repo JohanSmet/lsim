@@ -87,8 +87,9 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("create_user_circuit", &LSimContext::create_user_circuit, py::return_value_policy::reference)
         .def("load_user_library",
                 [](LSimContext *context, const char *name) -> bool {
-                    return deserialize_library(context, context->user_library(), name);
+                    return deserialize_library(context, context->user_library(), context->full_file_path(name).c_str());
                 })
+        .def("add_folder", &LSimContext::add_folder)
         ;
 
     py::class_<CircuitInstance>(m, "CircuitInstance")

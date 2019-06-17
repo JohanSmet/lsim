@@ -19,22 +19,30 @@ public:
     Simulator *sim() {return &m_sim;}
     CircuitLibrary *user_library() {return &m_user_library;}
 
+    // circuits
     CircuitDescription *create_user_circuit(const char *name) {
         return m_user_library.create_circuit(name, this);
     }
     CircuitDescription *find_circuit(const char *name);
 
+    // reference libraries
     void load_reference_library(const char *name, const char *filename);
     void clear_reference_libraries();
     CircuitLibrary *library_by_name(const char *name);
 
+    // folders
+    void add_folder(const char *name, const char *path);
+    std::string full_file_path(const std::string &file);
+
 private:
     typedef std::unordered_map<std::string, CircuitLibrary::uptr_t> library_lut_t;
+    typedef std::unordered_map<std::string, std::string> folder_lut_t;
 
 private:
     Simulator m_sim;
     CircuitLibrary  m_user_library;
     library_lut_t m_reference_libraries;
+    folder_lut_t m_folders;
 };
 
 } // namespace lsim

@@ -354,6 +354,8 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 	component_register_extra();
 	component_register_gates();
 
+	lsim_context->add_folder("examples", "./examples");
+
 	// try to load the circuit specified on the command line
 	if (circuit_file) {
 		load_circuit_library(lsim_context, circuit_file);
