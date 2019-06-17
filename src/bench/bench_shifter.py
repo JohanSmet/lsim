@@ -1,56 +1,55 @@
 #!/usr/bin/env python3
 
 import lsimpy
-
-count_check = 0
-count_failure = 0
-
-def CHECK(was, expected, op_str):
-    global count_check, count_failure
-    count_check = count_check + 1
-    if was != expected:
-        count_failure = count_failure + 1
-        print("FAILURE: {} = {} (expected {})".format(op_str, was, expected))
-
-def print_stats():
-    global count_check, count_failure
-    print("======================================================")
-    if count_failure == 0:
-        print("All tests passed ({} checks executed)".format(count_check))
-    else:
-        print("{} out of {} checks failed!".format(count_failure, count_check))
+from bench_utils import *
 
 def main():
     lsim = lsimpy.LSimContext()
+    lsim.add_folder("examples", "../../examples")
     sim = lsim.sim()
    
-    if (not lsimpy.load_logisim(lsim, "../../examples/shifter.circ")):
+    if (not lsim.load_user_library("examples/shifter.lsim")):
         print("Unable to load circuit\n")
         exit(-1)
 
-    pin_SHL = sim.component_by_name("SHL")
-    pin_D = sim.component_by_name("D")
-    pin_S = sim.component_by_name("S")
-    pin_O = sim.component_by_name("O")
-    pin_CE = sim.component_by_name("CE")
-    pin_OE = sim.component_by_name("OE")
+    circuit_desc = lsim.user_library().circuit_by_name('barrel_8bit')
 
-    pin_OE.write_output_pins(lsimpy.ValueTrue)
+    pin_SHL = circuit_desc.port_by_name("Shl")
+    pin_A = [circuit_desc.port_by_name("A[0]"),
+             circuit_desc.port_by_name("A[1]"),
+             circuit_desc.port_by_name("A[2]"),
+             circuit_desc.port_by_name("A[3]"),
+             circuit_desc.port_by_name("A[4]"),
+             circuit_desc.port_by_name("A[5]"),
+             circuit_desc.port_by_name("A[6]"),
+             circuit_desc.port_by_name("A[7]")]
+    pin_S = [circuit_desc.port_by_name("S[0]"),
+             circuit_desc.port_by_name("S[1]"),
+             circuit_desc.port_by_name("S[2]"),
+             circuit_desc.port_by_name("S[3]")]
+    pin_Y = [circuit_desc.port_by_name("Y[0]"),
+             circuit_desc.port_by_name("Y[1]"),
+             circuit_desc.port_by_name("Y[2]"),
+             circuit_desc.port_by_name("Y[3]"),
+             circuit_desc.port_by_name("Y[4]"),
+             circuit_desc.port_by_name("Y[5]"),
+             circuit_desc.port_by_name("Y[6]"),
+             circuit_desc.port_by_name("Y[7]")]
+
+    circuit = circuit_desc.instantiate(sim)
+    sim.init()
 
     for shl in range(0, 2):
-        pin_SHL.write_output_pins(shl)
-        for d in range (0, 2**4):
-            pin_D.write_output_pins(d)
+        circuit.write_pin(pin_SHL, lsimpy.ValueTrue if shl else lsimpy.ValueFalse)
+        for a in range (0, 2**8):
+            circuit.write_byte(pin_A, a)
             for s in range (0, 2**3):
-                pin_S.write_output_pins(s)
+                circuit.write_nibble(pin_S, s)
                 sim.run_until_stable(5)
-                pin_CE.write_output_pins(lsimpy.ValueTrue)
-                sim.run_until_stable(5)
-                pin_CE.write_output_pins(lsimpy.ValueFalse)
 
-                result = sim.read_nibble(pin_O.pins())
-                expected = (d << s if shl else d >> s) & (2**4-1)
-                CHECK(result, expected, "SHL({}), D({}), S({})".format(shl,d,s))
+                result = circuit.read_byte(pin_Y)
+                expected = (a << s if shl else a >> s) & (2**8-1)
+                CHECK(result, expected, "SHL({}), A({}), S({})".format(shl,a,s))
 
     print_stats()
 

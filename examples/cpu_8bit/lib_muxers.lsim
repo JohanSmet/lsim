@@ -1,5 +1,98 @@
 <?xml version="1.0"?>
 <lsim version="2">
+	<circuit name="mux2to1">
+		<component id="0" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
+			<position x="340" y="190" />
+			<orientation angle="0" />
+		</component>
+		<component id="1" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
+			<position x="340" y="280" />
+			<orientation angle="0" />
+		</component>
+		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="I0" />
+			<position x="40" y="210" />
+			<orientation angle="0" />
+		</component>
+		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="I1" />
+			<position x="40" y="300" />
+			<orientation angle="0" />
+		</component>
+		<component id="4" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Sel" />
+			<position x="100" y="30" />
+			<orientation angle="90" />
+		</component>
+		<component id="5" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
+			<position x="140" y="110" />
+			<orientation angle="90" />
+		</component>
+		<component id="6" type="OrGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
+			<position x="480" y="230" />
+			<orientation angle="0" />
+		</component>
+		<component id="7" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="tri_state" value="false" />
+			<property key="name" value="Y" />
+			<position x="590" y="230" />
+			<orientation angle="0" />
+		</component>
+		<wire id="0">
+			<segment x1="100" y1="40" x2="100" y2="60" />
+			<segment x1="100" y1="60" x2="140" y2="60" />
+			<segment x1="140" y1="60" x2="140" y2="80" />
+			<segment x1="100" y1="60" x2="100" y2="260" />
+			<segment x1="100" y1="260" x2="100" y2="360" />
+			<segment x1="310" y1="260" x2="100" y2="260" />
+			<pin value="4#0" />
+			<pin value="5#0" />
+			<pin value="1#0" />
+		</wire>
+		<wire id="1">
+			<segment x1="140" y1="140" x2="140" y2="170" />
+			<segment x1="140" y1="170" x2="140" y2="360" />
+			<segment x1="310" y1="170" x2="140" y2="170" />
+			<pin value="5#1" />
+			<pin value="0#0" />
+		</wire>
+		<wire id="4">
+			<segment x1="580" y1="230" x2="510" y2="230" />
+			<pin value="7#0" />
+			<pin value="6#2" />
+		</wire>
+		<wire id="5">
+			<segment x1="370" y1="190" x2="400" y2="190" />
+			<segment x1="400" y1="190" x2="400" y2="210" />
+			<segment x1="400" y1="210" x2="450" y2="210" />
+			<pin value="0#2" />
+			<pin value="6#0" />
+		</wire>
+		<wire id="6">
+			<segment x1="370" y1="280" x2="400" y2="280" />
+			<segment x1="400" y1="280" x2="400" y2="250" />
+			<segment x1="400" y1="250" x2="450" y2="250" />
+			<pin value="1#2" />
+			<pin value="6#1" />
+		</wire>
+		<wire id="7">
+			<segment x1="50" y1="210" x2="310" y2="210" />
+			<pin value="2#0" />
+			<pin value="0#1" />
+		</wire>
+		<wire id="8">
+			<segment x1="50" y1="300" x2="310" y2="300" />
+			<pin value="3#0" />
+			<pin value="1#1" />
+		</wire>
+	</circuit>
 	<circuit name="mux2to1s">
 		<component id="0" type="AndGate" priority="normal" inputs="3" outputs="1" controls="0">
 			<property key="initial_output" value="undefined" />
