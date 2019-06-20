@@ -53,6 +53,7 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
         result->add_property(make_property("text", "text"));
     } else if (type == COMPONENT_VIA) {
         result->add_property(make_property("name", "via"));
+        result->add_property(make_property("right", false));
     } else {
         result->add_property(make_property("initial_output", VALUE_UNDEFINED));
     }

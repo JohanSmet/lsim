@@ -379,7 +379,9 @@ public:
                 assert(num_outputs == 0);
                 assert(num_controls == 0);
                 REQUIRED_PROP(prop_name, comp_node, "name");
+                REQUIRED_PROP(prop_right, comp_node, "right");
                 component = circuit->add_via(prop_name.as_string(), num_inputs);
+                component->property("right")->value(prop_right.as_bool());
                 break;
             }
 

@@ -278,12 +278,13 @@ void component_register_extra() {
         COMPONENT_VIA, [=](Component *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Via");
 
+            const bool right_pin = comp->property_value("right", false);
             const float width = 20;
             const float height = 20;
             const float full_height = comp->num_inputs() * height;
             ui_comp->change_size(width, full_height);
             ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
-                                  {-0.5f * width, -full_height * 0.5f + (height * 0.5f)},
+                                  {(right_pin ? 0.5f : -0.5f) * width, -full_height * 0.5f + (height * 0.5f)},
                                   {0, height});
 
             // custom draw function
@@ -308,15 +309,21 @@ void component_register_extra() {
                 ImGui::PopID();
 
                 // label 
-                Point anchor = to_window.apply(origin + Point(width + 5, (full_height / 2.0f)));
+                Point anchor = to_window.apply(origin + Point(right_pin ? -5 : (width + 5), (full_height / 2.0f)));
 
                 static const std::pair<ImGuiEx::TextAlignHor, ImGuiEx::TextAlignVer> label_align[] = {
-                    {ImGuiEx::TAH_LEFT,     ImGuiEx::TAV_CENTER},   // East
-                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_TOP},      // South
-                    {ImGuiEx::TAH_RIGHT,    ImGuiEx::TAV_CENTER},   // West
-                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_BOTTOM}    // North
+                    {ImGuiEx::TAH_LEFT,     ImGuiEx::TAV_CENTER},   // East - left pin
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_TOP},      // South - left pin
+                    {ImGuiEx::TAH_RIGHT,    ImGuiEx::TAV_CENTER},   // West - left pin
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_BOTTOM},   // North - left pin
+                    {ImGuiEx::TAH_RIGHT,    ImGuiEx::TAV_CENTER},   // East - rigth pin
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_BOTTOM},   // South - rigth pin
+                    {ImGuiEx::TAH_LEFT,     ImGuiEx::TAV_CENTER},   // West - rigth pin
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_TOP}       // North - rigth pin
                 };
-                ImGuiEx::Text(anchor, comp->property_value("name", "").c_str(), label_align[orient / 90].first, label_align[orient / 90].second);
+                int align_idx = orient / 90 + (right_pin ? 4 : 0);
+
+                ImGuiEx::Text(anchor, comp->property_value("name", "").c_str(), label_align[align_idx].first, label_align[align_idx].second);
 
                 ImGui::EndGroup();
             });
