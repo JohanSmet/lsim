@@ -23,7 +23,7 @@ public:
     CircuitDescription *create_user_circuit(const char *name) {
         return m_user_library.create_circuit(name, this);
     }
-    CircuitDescription *find_circuit(const char *name);
+    CircuitDescription *find_circuit(const char *name, CircuitLibrary *fallback_lib = nullptr);
 
     // reference libraries
     void load_reference_library(const char *name, const char *filename);

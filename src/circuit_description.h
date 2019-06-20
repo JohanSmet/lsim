@@ -24,6 +24,7 @@ public:
     CircuitDescription(const CircuitDescription &) = delete;
 
     class LSimContext *context() const {return m_context;}
+    class CircuitLibrary *lib() const {return m_lib;}
 
     // name
     const std::string &name() const {return m_name;}
