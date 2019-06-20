@@ -56,6 +56,15 @@ node_t CircuitInstance::add_wire(Wire *wire) {
     return node;
 }
 
+void CircuitInstance::connect_pins(pin_id_t pin_a, pin_id_t pin_b) {
+    auto a = pin_from_pin_id(pin_a);
+    auto b = pin_from_pin_id(pin_b);
+
+    if (a != PIN_UNDEFINED && b != PIN_UNDEFINED) {
+        m_sim->connect_pins(a, b);
+    }
+}
+
 void CircuitInstance::build_name(uint32_t comp_id) {
     m_name = m_circuit_desc->name();
     m_name += "#" + std::to_string(comp_id);

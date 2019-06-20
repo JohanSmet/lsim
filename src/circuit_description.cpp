@@ -51,6 +51,8 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
         result->change_priority(PRIORITY_DEFERRED);
     } else if (type == COMPONENT_TEXT) {
         result->add_property(make_property("text", "text"));
+    } else if (type == COMPONENT_VIA) {
+        result->add_property(make_property("name", "via"));
     } else {
         result->add_property(make_property("initial_output", VALUE_UNDEFINED));
     }
@@ -328,6 +330,12 @@ Component *CircuitDescription::add_xnor_gate() {
     return create_component(COMPONENT_XNOR_GATE, 2, 1, 0);
 }
 
+Component *CircuitDescription::add_via(const char *name, size_t data_bits) {
+    auto comp = create_component(COMPONENT_VIA, data_bits, 0, 0);
+    comp->property("name")->value(name);
+    return comp;
+}
+
 Component *CircuitDescription::add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs) {
     return create_component(circuit, num_inputs, num_outputs);
 }
@@ -346,9 +354,29 @@ Component *CircuitDescription::add_text(const char *text) {
 
 std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim) {
     auto instance = std::make_unique<CircuitInstance>(sim, this);
+    std::unordered_map<std::string, Component *> via_lut;
 
-    for (auto &comp : m_components) {
-        instance->add_component(comp.second.get());
+    // helper function to connect all pins of two vias
+    auto connect_vias = [&instance](Component *via_a, Component *via_b) {
+        assert(via_a->num_inputs() == via_b->num_inputs());
+        for (size_t i = 0; i < via_a->num_inputs(); ++i) {
+            instance->connect_pins(via_a->input_pin_id(i), via_b->input_pin_id(i));
+        }
+    };
+
+    for (auto &comp_it : m_components) {
+        auto comp = comp_it.second.get();
+        instance->add_component(comp);
+
+        if (comp->type() == COMPONENT_VIA) {
+            auto name = comp->property_value("name", "via");
+            auto found = via_lut.find(name);
+            if (found != via_lut.end()) {
+                connect_vias(comp, found->second);
+            } else {
+                via_lut[name] = comp;
+            }
+        }
     }
 
     for (auto &wire : m_wires) {

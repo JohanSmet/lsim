@@ -18,6 +18,7 @@ public:
     // instantiation
     SimComponent *add_component(Component *comp);
     node_t add_wire(Wire *wire);
+    void connect_pins(pin_id_t pin_a, pin_id_t pin_b);
     SimComponent *component_by_id(uint32_t comp_id);
 
     // name
