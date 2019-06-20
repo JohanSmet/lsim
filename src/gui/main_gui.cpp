@@ -215,6 +215,7 @@ static void ui_component_pallette(LSimContext *context) {
 		add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](CircuitDescription *circuit) {return circuit->add_connector_out("out", 1);});
 		add_component_button(COMPONENT_CONSTANT, "Constant", [](CircuitDescription *circuit) {return circuit->add_constant(VALUE_TRUE);});
 		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](CircuitDescription *circuit) {return circuit->add_pull_resistor(VALUE_TRUE);});
+		add_component_button(COMPONENT_VIA, "Via", [](CircuitDescription *circuit) {return circuit->add_via("via", 1);});
 		add_component_button(COMPONENT_TEXT, "Text", [](CircuitDescription *circuit) {return circuit->add_text("text");});
 		ImGui::EndGroup();
 	}
@@ -282,11 +283,13 @@ static void ui_property_panel(LSimContext *context) {
 		}
 
 		// component specific fields
-		if (component->type() == COMPONENT_CONNECTOR_IN || component->type() == COMPONENT_CONNECTOR_OUT) {
+		if (component->type() == COMPONENT_CONNECTOR_IN || component->type() == COMPONENT_CONNECTOR_OUT || component->type() == COMPONENT_VIA) {
 			if (text_property("Name", component->property("name"))) {
 				ui_circuit->circuit_desc()->rebuild_port_list();
 			}
-			boolean_property("TriState", component->property("tri_state"));
+			if (component->type() != COMPONENT_VIA) {
+				boolean_property("TriState", component->property("tri_state"));
+			}
 
 			int data_bits = component->num_inputs() + component->num_outputs();
 			int org_bits = data_bits;

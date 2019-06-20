@@ -272,6 +272,58 @@ void component_register_extra() {
         }
     );
 
+    // Via
+    // auto icon_via = ComponentIcon::cache(COMPONENT_VIA, SHAPE_CONNECTOR_VIA, sizeof(SHAPE_CONNECTOR_VIA));
+    UICircuitBuilder::register_materialize_func(
+        COMPONENT_VIA, [=](Component *comp, UIComponent *ui_comp) {
+            ui_comp->change_tooltip("Via");
+
+            const float width = 20;
+            const float height = 20;
+            const float full_height = comp->num_inputs() * height;
+            ui_comp->change_size(width, full_height);
+            ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
+                                  {-0.5f * width, -full_height * 0.5f + (height * 0.5f)},
+                                  {0, height});
+
+            // custom draw function
+            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+
+                auto origin = Point(-width * 0.5f, -full_height * 0.5f);
+                auto orient = ui_comp->component()->angle();
+
+                ImGui::BeginGroup();
+                ImGui::PushID(comp);
+                for (size_t i = 0; i < comp->num_inputs(); ++ i) {
+                    auto cur_val = VALUE_FALSE;
+                    if (ui_circuit->is_simulating()) {
+                        cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
+                    }
+                    auto center_pos = to_window.apply(Point(origin.x + (width * 0.5f), origin.y + (i * 20.0f) + (height * 0.5f)));
+
+                    ImGui::PushID(i);
+                    ImGui::GetWindowDrawList()->AddCircleFilled(center_pos, 8, COLOR_CONNECTION[cur_val]);
+                    ImGui::PopID();
+                }
+                ImGui::PopID();
+
+                // label 
+                Point anchor = to_window.apply(origin + Point(width + 5, (full_height / 2.0f)));
+
+                static const std::pair<ImGuiEx::TextAlignHor, ImGuiEx::TextAlignVer> label_align[] = {
+                    {ImGuiEx::TAH_LEFT,     ImGuiEx::TAV_CENTER},   // East
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_TOP},      // South
+                    {ImGuiEx::TAH_RIGHT,    ImGuiEx::TAV_CENTER},   // West
+                    {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_BOTTOM}    // North
+                };
+                ImGuiEx::Text(anchor, comp->property_value("name", "").c_str(), label_align[orient / 90].first, label_align[orient / 90].second);
+
+                ImGui::EndGroup();
+            });
+        }
+    );
+
+
     // Text
     UICircuitBuilder::register_materialize_func(
         COMPONENT_TEXT, [] (Component *comp, UIComponent *ui_comp) {
