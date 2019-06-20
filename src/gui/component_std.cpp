@@ -23,8 +23,8 @@ void materialize_gate(UIComponent *ui_comp,
     auto comp = ui_comp->component();
 
     // size of component box depends on pin count
-    const float width = std::max(min_width, 10.0f * (comp->num_controls() + 1));
-    const float height = std::max(min_height, 10.0f * (std::max(comp->num_inputs(), comp->num_outputs()) + 1));
+    const float width = std::max(min_width, 10.0f * std::ceil((comp->num_controls() + 1)/2.0f));
+    const float height = std::max(min_height, 20.0f * (std::ceil((std::max(comp->num_inputs(), comp->num_outputs())+1)/2.0f)));
     const float h_width = width / 2.0f;
     const float h_height = height / 2.0f;
 
