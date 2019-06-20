@@ -37,7 +37,7 @@ std::string CircuitDescription::qualified_name() const {
 Component *CircuitDescription::create_component(ComponentType type, size_t input_pins, size_t output_pins, size_t control_pins) {
     assert(type != COMPONENT_SUB_CIRCUIT);
 
-    auto component = std::make_unique<Component>(m_component_id++, type, input_pins, output_pins, control_pins);
+    auto component = std::make_unique<Component>(this, m_component_id++, type, input_pins, output_pins, control_pins);
     auto result = component.get();
     m_components[result->id()] = std::move(component);
 
@@ -61,7 +61,7 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
 }
 
 Component *CircuitDescription::create_component(const char *circuit_name, size_t input_pins, size_t output_pins) {
-    auto component = std::make_unique<Component>(m_component_id++, circuit_name, input_pins, output_pins);
+    auto component = std::make_unique<Component>(this, m_component_id++, circuit_name, input_pins, output_pins);
     auto result = component.get();
     m_components[result->id()] = std::move(component);
     return result;

@@ -35,8 +35,8 @@ public:
     typedef std::unique_ptr<Component> uptr_t;
     typedef std::unordered_map<std::string, Property::uptr_t> property_lut_t;
 public:
-    Component(uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls);
-    Component(uint32_t id, const char *circuit_name, size_t inputs, size_t outputs);
+    Component(CircuitDescription *parent, uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls);
+    Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, size_t inputs, size_t outputs);
     Component(const Component &) = delete;
     uint32_t id() const {return m_id;}
     ComponentType type() const {return m_type;}
@@ -78,6 +78,7 @@ public:
     bool sync_nested_circuit(class LSimContext *lsim_context);
 
 private:
+    CircuitDescription *m_circuit;
     uint32_t m_id;
     ComponentType m_type;
     Priority m_priority;

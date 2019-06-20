@@ -10,7 +10,8 @@
 
 namespace lsim {
 
-Component::Component(uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls) :
+Component::Component(CircuitDescription *parent, uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls) :
+        m_circuit(parent),
         m_id(id),
         m_type(type),
         m_priority(PRIORITY_NORMAL),
@@ -23,7 +24,8 @@ Component::Component(uint32_t id, ComponentType type, size_t inputs, size_t outp
         m_angle(0) {
 }
 
-Component::Component(uint32_t id, const char *circuit_name, size_t inputs, size_t outputs) :
+Component::Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, size_t inputs, size_t outputs) :
+        m_circuit(parent),
         m_id(id),
         m_type(COMPONENT_SUB_CIRCUIT),
         m_priority(PRIORITY_NORMAL),
