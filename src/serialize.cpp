@@ -384,10 +384,14 @@ public:
                 component->property("right")->value(prop_right.as_bool());
                 break;
             }
-
             case COMPONENT_SUB_CIRCUIT : {
                 REQUIRED_ATTR(attr_name, comp_node, XML_ATTR_NESTED);
                 component = circuit->add_sub_circuit(attr_name.as_string(), num_inputs, num_outputs);
+
+                auto flip_node = comp_node.find_child_by_attribute(XML_EL_PROPERTY, XML_ATTR_KEY, "flip");
+                if (!!flip_node) {
+                    component->property("flip")->value(flip_node.attribute(XML_ATTR_VALUE).as_bool());
+                }
                 break;
             }
             case COMPONENT_TEXT : {

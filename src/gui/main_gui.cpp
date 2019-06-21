@@ -349,6 +349,13 @@ static void ui_property_panel(LSimContext *context) {
 			}
 		}
 
+		if (component->type() == COMPONENT_SUB_CIRCUIT) {
+			if (boolean_property("Flip", component->property("flip"))) {
+				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
+				ui_circuit->fix_component_connections(ui_comp);
+			}
+		}
+
 		if (component->type() == COMPONENT_TEXT) {
 			if (text_property("Value", component->property("text"))) {
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);

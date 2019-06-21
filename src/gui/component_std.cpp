@@ -204,31 +204,45 @@ void component_register_basic() {
             auto nested = ui_comp->component()->nested_circuit();
 
             // materialize the sub-circuit
+            bool flip = comp->property_value("flip", false);
             float width = 160;
             float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 20 + 20;
 
             ui_comp->change_size(width, height);
             ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
-                                  {-width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
+                                  {(flip ? 1.0f : -1.0f) * width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
             ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
-                                  {width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
+                                  {(flip ? -1.0f : 1.0f) * width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
 
             // custom draw function for pin labels
             ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
 
                 ImGuiEx::TransformStart();
 
+                auto pos = [=](bool flipped) {
+                    if (!flipped) {
+                        return Point((-width * 0.5f) + 10, (-height * 0.5f) + 20);
+                    } else {
+                        return Point((width * 0.5f) - 10, (-height * 0.5f) + 20);
+                    }
+                };
+
+                auto align = [](bool flipped) {
+                    return !flipped ? ImGuiEx::TAH_LEFT : ImGuiEx::TAH_RIGHT;
+                };
+
+
                 // input pins - labels
-                auto cursor = Point((-width * 0.5f) + 10, (-height * 0.5f) + 20);
+                auto cursor = pos(flip);
                 for (size_t idx = 0; idx < nested->num_input_ports(); ++idx) {
-                    ImGuiEx::TextNoClip(cursor, nested->port_name(true, idx), COLOR_COMPONENT_BORDER, ImGuiEx::TAH_LEFT, ImGuiEx::TAV_CENTER);
+                    ImGuiEx::TextNoClip(cursor, nested->port_name(true, idx), COLOR_COMPONENT_BORDER, align(flip), ImGuiEx::TAV_CENTER);
                     cursor.y += 20;
                 }
 
                 // output pins - labels
-                cursor = Point((width * 0.5f) - 10, (-height * 0.5f) + 20);
+                cursor = pos(!flip);
                 for (size_t idx = 0; idx < nested->num_output_ports(); ++idx) {
-                    ImGuiEx::TextNoClip(cursor, nested->port_name(false, idx), COLOR_COMPONENT_BORDER, ImGuiEx::TAH_RIGHT, ImGuiEx::TAV_CENTER);
+                    ImGuiEx::TextNoClip(cursor, nested->port_name(false, idx), COLOR_COMPONENT_BORDER, align(!flip), ImGuiEx::TAV_CENTER);
                     cursor.y += 20;
                 }
 

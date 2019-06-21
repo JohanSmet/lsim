@@ -65,6 +65,7 @@ Component *CircuitDescription::create_component(const char *circuit_name, size_t
     auto component = std::make_unique<Component>(this, m_component_id++, circuit_name, input_pins, output_pins);
     auto result = component.get();
     m_components[result->id()] = std::move(component);
+    result->add_property(make_property("flip", false));
     return result;
 }
 
