@@ -423,7 +423,7 @@ void UICircuit::draw() {
 	}
 
 	// -> edit-mode: keyboard
-	if (!is_simulating()) {
+	if (!is_simulating() && ImGui::IsWindowFocused()) {
 		if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) {
 			delete_selected_components();
 		}
