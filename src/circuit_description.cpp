@@ -133,6 +133,16 @@ void CircuitDescription::sync_sub_circuit_components() {
     }
 }
 
+Component *CircuitDescription::paste_component(Component *comp) {
+    auto paste = comp->copy();
+    auto result = paste.get(); 
+
+    result->integrate_into_circuit(this, m_component_id++);
+    m_components[paste->id()] = std::move(paste);
+
+    return result;
+}
+
 Wire *CircuitDescription::create_wire() {
     auto wire = std::make_unique<Wire>(m_wire_id++);
     auto result = wire.get();

@@ -140,4 +140,24 @@ bool Component::sync_nested_circuit(LSimContext *lsim_context) {
     return true;
 }
 
+Component::uptr_t Component::copy() const {
+    auto clone = std::make_unique<Component>(nullptr, -1, m_type, m_inputs, m_outputs, m_controls);
+    clone->m_priority = m_priority;
+    clone->m_nested_name = m_nested_name;
+    clone->m_nested_circuit = m_nested_circuit;
+    clone->m_port_lut = m_port_lut;
+    for (const auto &prop_it : m_properties) {
+        clone->add_property(prop_it.second->clone());
+    }
+    clone->m_position = m_position;
+    clone->m_angle = m_angle;
+
+    return std::move(clone);
+}
+
+void Component::integrate_into_circuit(CircuitDescription *circuit, uint32_t id) {
+    m_circuit = circuit;
+    m_id = id;
+}
+
 } // namespace lsim

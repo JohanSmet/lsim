@@ -57,7 +57,10 @@ namespace lsim {
 StringProperty::StringProperty(const char *key, const char *value) : 
     Property(key),
     m_value(value) {
+}
 
+Property::uptr_t StringProperty::clone() const {
+    return make_property(key(), m_value.c_str());
 }
 
 std::string StringProperty::value_as_string() const {
@@ -102,6 +105,10 @@ IntegerProperty::IntegerProperty(const char *key, int64_t value) :
     m_value(value) {
 }
 
+Property::uptr_t IntegerProperty::clone() const {
+    return make_property(key(), m_value);
+}
+
 std::string IntegerProperty::value_as_string() const {
     return std::to_string(m_value);
 }
@@ -144,6 +151,10 @@ BoolProperty::BoolProperty(const char *key, bool value) :
     m_value(value) {
 }
 
+Property::uptr_t BoolProperty::clone() const {
+    return make_property(key(), m_value);
+}
+
 std::string BoolProperty::value_as_string() const {
     return (m_value) ? "true" : "false";
 }
@@ -184,6 +195,10 @@ void BoolProperty::value(Value val) {
 ValueProperty::ValueProperty(const char *key, Value value) :
     Property(key),
     m_value(value) {
+}
+
+Property::uptr_t ValueProperty::clone() const {
+    return make_property(key(), m_value);
 }
 
 std::string ValueProperty::value_as_string() const {

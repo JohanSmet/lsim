@@ -427,6 +427,15 @@ void UICircuit::draw() {
 		if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) {
 			delete_selected_components();
 		}
+
+		if (ImGui::GetIO().KeyCtrl) {
+			if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C))) {
+				copy_selected_components();
+			}
+			if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V))) {
+				paste_components();
+			}
+		}
 	}
 
 	if (m_state == CS_CREATE_WIRE) {
@@ -743,6 +752,34 @@ void UICircuit::fix_component_connections(UIComponent *ui_comp) {
 				wire->add_pin(pin_id);
 			}
 		}
+	}
+}
+
+void UICircuit::copy_selected_components() {
+	m_copy_components.clear();
+	m_copy_center = {0, 0};
+
+	for (auto &item : m_selection) {
+		if (item.m_component) {
+			auto comp = item.m_component->component();
+			m_copy_components.push_back(comp->copy());
+			m_copy_center = m_copy_center + comp->position();
+		}
+	}
+
+	if (!m_copy_components.empty()) {
+		m_copy_center = m_copy_center * (1.0f / m_copy_components.size());
+	}
+}
+
+void UICircuit::paste_components() {
+	clear_selection();
+
+	for (const auto &comp : m_copy_components) {
+		auto pasted = m_circuit_desc->paste_component(comp.get());
+		pasted->set_position(m_mouse_grid_point + comp->position() - m_copy_center);
+		auto ui_comp = create_component(pasted);
+		select_component(ui_comp);
 	}
 }
 

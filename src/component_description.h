@@ -38,6 +38,7 @@ public:
     Component(CircuitDescription *parent, uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls);
     Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, size_t inputs, size_t outputs);
     Component(const Component &) = delete;
+
     uint32_t id() const {return m_id;}
     ComponentType type() const {return m_type;}
 
@@ -76,6 +77,10 @@ public:
     // nested circuits
     CircuitDescription *nested_circuit() const {return m_nested_circuit;}
     bool sync_nested_circuit(class LSimContext *lsim_context);
+
+    // copy & paste
+    uptr_t copy() const;
+    void integrate_into_circuit(CircuitDescription *circuit, uint32_t id);
 
 private:
     CircuitDescription *m_circuit;

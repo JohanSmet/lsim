@@ -131,6 +131,10 @@ public:
     // connections
     void fix_component_connections(UIComponent *ui_comp);
 
+    // copy & paste
+    void copy_selected_components();
+    void paste_components();
+
 private:
     void wire_make_connections(Wire *wire);
     void draw_grid(ImDrawList *draw_list);
@@ -144,6 +148,7 @@ private:
         size_t operator() (const Point &p) const;
     };
 
+    typedef std::vector<Component::uptr_t>      component_container_t;
     typedef std::vector<UIComponent::uptr_t>    ui_component_container_t;
     typedef std::vector<Point>                  point_container_t;
     typedef std::unordered_map<Point, pin_id_t, PointHash>  point_pin_lut_t;
@@ -167,6 +172,9 @@ private:
     ui_component_container_t  m_ui_components;
     point_pin_lut_t           m_point_pin_lut;
     selection_container_t     m_selection;
+
+    component_container_t     m_copy_components;
+    Point                     m_copy_center;
 
     UICircuitState      m_state;
 

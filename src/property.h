@@ -18,6 +18,7 @@ public:
     Property(const char *key) : m_key(key) {}
     virtual ~Property() = default;
     virtual const char *key() const {return m_key.c_str();};
+    virtual uptr_t clone() const = 0;
 
     // value accessors
     virtual std::string value_as_string() const = 0;
@@ -38,6 +39,7 @@ private:
 class StringProperty : public Property {
 public:
     StringProperty(const char *key, const char *value);
+    uptr_t clone() const override;
 
     // value accessors
     std::string value_as_string() const override;
@@ -58,6 +60,7 @@ private:
 class IntegerProperty : public Property {
 public:
     IntegerProperty(const char *key, int64_t value);
+    uptr_t clone() const override;
 
     // value accessors
     std::string value_as_string() const override;
@@ -78,6 +81,7 @@ private:
 class BoolProperty : public Property {
 public:
     BoolProperty(const char *key, bool value);
+    uptr_t clone() const override;
 
     // value accessors
     std::string value_as_string() const override;
@@ -98,6 +102,7 @@ private:
 class ValueProperty : public Property {
 public:
     ValueProperty(const char *key, Value value);
+    uptr_t clone() const override;
 
     // value accessors
     std::string value_as_string() const override;

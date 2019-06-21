@@ -42,6 +42,7 @@ public:
     void disconnect_component(uint32_t id);
     void remove_component(uint32_t id);
     void sync_sub_circuit_components();
+    Component *paste_component(Component *comp);
 
     // connections
     Wire *create_wire();
