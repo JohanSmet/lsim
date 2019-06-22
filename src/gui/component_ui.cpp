@@ -187,7 +187,9 @@ void UICircuit::draw() {
 	draw_list->PushClipRect(ImGui::GetCursorScreenPos(), Point(ImGui::GetCursorScreenPos()) + ImGui::GetContentRegionMax(), true);
 
 	// grid
-	draw_grid(draw_list);
+	if (!is_simulating()) {
+		draw_grid(draw_list);
+	}
 
 	// potential popups
 	ui_popup_embed_circuit();
