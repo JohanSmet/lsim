@@ -260,7 +260,12 @@ void UICircuit::draw() {
 			auto endpoint_screen = to_screen.apply(pair.second);
 			auto endpoint_circuit = endpoint_screen - offset;
 
-			draw_list->AddCircleFilled(endpoint_screen, 3, COLOR_ENDPOINT);
+			auto pin_color = COLOR_ENDPOINT;
+			if (is_simulating()) {
+				pin_color = COLOR_CONNECTION[m_circuit_inst->pin_output(pair.first)];
+			}
+
+			draw_list->AddCircleFilled(endpoint_screen, 3, pin_color);
 			m_point_pin_lut[endpoint_circuit] = pair.first;
 
 			if (distance_squared(m_mouse_grid_point, endpoint_circuit) <= 2) {

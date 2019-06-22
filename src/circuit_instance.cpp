@@ -182,6 +182,12 @@ void CircuitInstance::write_byte(const pin_id_container_t &pins, uint8_t data) {
     }
 }
 
+Value CircuitInstance::pin_output(pin_id_t pin_id) {
+    auto comp = component_by_id(component_id_from_pin_id(pin_id));
+    assert(comp);
+    return comp->output_value(pin_index_from_pin_id(pin_id));
+}
+
 SimComponent *CircuitInstance::component_by_id(uint32_t comp_id) {
 
     auto found = m_components.find(comp_id);

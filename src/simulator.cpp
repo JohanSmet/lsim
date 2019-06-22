@@ -79,6 +79,11 @@ void SimComponent::write_pin_checked(uint32_t index, bool value) {
     write_pin(index, static_cast<Value>(output));
 }
 
+Value SimComponent::output_value(uint32_t index) const {
+    assert(index < m_pins.size());
+    return m_values[index];
+}
+
 void SimComponent::set_nested_instance(std::unique_ptr<class CircuitInstance> instance) {
     m_nested_circuit = std::move(instance);
 }

@@ -46,6 +46,9 @@ public:
     void write_pin_checked(uint32_t index, bool value);
     void reset_bad_read_check() {m_read_bad = false;}
 
+    // output_value: retrieve the value last written by this component to the specified pin
+    Value output_value(uint32_t index) const;
+
     // nested circuits
     void set_nested_instance(std::unique_ptr<CircuitInstance> instance);
     CircuitInstance *nested_instance() const {return m_nested_circuit.get();}
