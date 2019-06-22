@@ -311,7 +311,8 @@ public:
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
                 REQUIRED_PROP(prop_value, comp_node, "value");
-                component = circuit->add_constant(static_cast<Value>(prop_value.as_int()));
+                component = circuit->add_constant(VALUE_FALSE);
+                component->property("value")->value(prop_value.value());
                 break;
             }
             case COMPONENT_PULL_RESISTOR : {
@@ -319,7 +320,8 @@ public:
                 assert(num_outputs == 1);
                 assert(num_controls == 0);
                 REQUIRED_PROP(prop_value, comp_node, "pull_to");
-                component = circuit->add_pull_resistor(static_cast<Value>(prop_value.as_int()));
+                component = circuit->add_pull_resistor(VALUE_FALSE);
+                component->property("pull_to")->value(prop_value.value());
                 break;
             }
             case COMPONENT_BUFFER : 
