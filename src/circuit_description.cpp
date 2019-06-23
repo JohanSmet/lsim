@@ -44,6 +44,7 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
     if (type == COMPONENT_CONNECTOR_IN || type == COMPONENT_CONNECTOR_OUT) {
         result->add_property(make_property("name", (std::string("c#") + std::to_string(result->id())).c_str()));
         result->add_property(make_property("tri_state", false));
+        result->add_property(make_property("descending", false));
     } else if (type == COMPONENT_CONSTANT) {
         result->add_property(make_property("value", VALUE_FALSE));
     } else if (type == COMPONENT_PULL_RESISTOR) {

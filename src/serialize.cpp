@@ -295,6 +295,11 @@ public:
                 REQUIRED_PROP(prop_name, comp_node, "name");
                 REQUIRED_PROP(prop_tristate, comp_node, "tri_state");
                 component = circuit->add_connector_in(prop_name.as_string(), num_outputs, prop_tristate.as_bool());
+
+                auto desc_node = comp_node.find_child_by_attribute(XML_EL_PROPERTY, XML_ATTR_KEY, "descending");
+                if (!!desc_node) {
+                    component->property("descending")->value(desc_node.attribute(XML_ATTR_VALUE).as_bool());
+                }
                 break;
             }
             case COMPONENT_CONNECTOR_OUT : {
@@ -304,6 +309,11 @@ public:
                 REQUIRED_PROP(prop_name, comp_node, "name");
                 REQUIRED_PROP(prop_tristate, comp_node, "tri_state");
                 component = circuit->add_connector_out(prop_name.as_string(), num_inputs, prop_tristate.as_bool());
+
+                auto desc_node = comp_node.find_child_by_attribute(XML_EL_PROPERTY, XML_ATTR_KEY, "descending");
+                if (!!desc_node) {
+                    component->property("descending")->value(desc_node.attribute(XML_ATTR_VALUE).as_bool());
+                }
                 break;
             }
             case COMPONENT_CONSTANT : {

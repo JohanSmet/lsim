@@ -292,6 +292,11 @@ static void ui_property_panel(LSimContext *context) {
 			}
 			if (component->type() != COMPONENT_VIA) {
 				boolean_property("TriState", component->property("tri_state"));
+
+				if (boolean_property("Descending", component->property("descending"))) {
+					UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
+					ui_circuit->fix_component_connections(ui_comp);
+				}
 			} else {
 				if (boolean_property("Right pin", component->property("right"))) {
 					UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);

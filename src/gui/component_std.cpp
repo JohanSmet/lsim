@@ -69,10 +69,11 @@ void component_register_basic() {
             const float width = 20;
             const float height = 20;
             const float full_height = comp->num_outputs() * height;
+            const bool desc = comp->property_value("descending", false);
             ui_comp->change_size(width, full_height);
             ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
-                                  {0.5f * width, (-full_height * 0.5f) + (height * 0.5f)},
-                                  {0, height});
+                                  {0.5f * width, ((-full_height * 0.5f) + (height * 0.5f)) * (desc ? -1.0f : 1.0f)},
+                                  {0, height * (desc ? -1.0f : 1.0f)});
 
             // custom draw function
             ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
@@ -90,7 +91,7 @@ void component_register_basic() {
                     if (ui_circuit->is_simulating()) {
                         cur_val = ui_circuit->circuit_inst()->read_pin(comp->output_pin_id(i));
                     }
-                    auto center_pos = to_window.apply(Point(0, (-full_height * 0.5f) + ((i + 0.5f) * height)));
+                    auto center_pos = to_window.apply(Point(0, ((-full_height * 0.5f) + ((i + 0.5f) * height)) * (desc ? -1.0f : 1.0f)));
                     ImGui::SetCursorScreenPos(center_pos - Point(8,8));
 
                     ImGui::PushID(i);
@@ -102,7 +103,11 @@ void component_register_basic() {
                     }
 
                     ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);
-                    ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                    if (ui_circuit->is_simulating()) {
+                        ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                    } else {
+                        ImGuiEx::Text(center_pos, std::to_string(i), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                    }
                     ImGui::PopID();
                 }
                 ImGui::PopID();
@@ -133,10 +138,11 @@ void component_register_basic() {
             const float width = 20;
             const float height = 20;
             const float full_height = comp->num_inputs() * height;
+            const bool desc = comp->property_value("descending", false);
             ui_comp->change_size(width, full_height);
             ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
-                                  {-0.5f * width, -full_height * 0.5f + (height * 0.5f)},
-                                  {0, height});
+                                  {-0.5f * width, (-full_height * 0.5f + (height * 0.5f)) * (desc ? -1.0f : 1.0f)},
+                                  {0, desc ? -height : height});
 
             // custom draw function
             ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
@@ -151,11 +157,15 @@ void component_register_basic() {
                     if (ui_circuit->is_simulating()) {
                         cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
                     }
-                    auto center_pos = to_window.apply(Point(origin.x + (width * 0.5f), origin.y + (i * 20.0f) + (height * 0.5f)));
+                    auto center_pos = to_window.apply(Point(0, ((-full_height * 0.5f) + ((i + 0.5f) * height)) * (desc ? -1.0f : 1.0f)));
 
                     ImGui::PushID(i);
                     ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);
-                    ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                    if (ui_circuit->is_simulating()) {
+                        ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                    } else {
+                        ImGuiEx::Text(center_pos, std::to_string(i), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                    }
                     ImGui::PopID();
                 }
                 ImGui::PopID();
