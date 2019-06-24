@@ -182,6 +182,24 @@ void CircuitInstance::write_byte(const pin_id_container_t &pins, uint8_t data) {
     }
 }
 
+void CircuitInstance::write_pins(const pin_id_container_t &pins, const value_container_t &values) {
+    assert(pins.size() == values.size());
+
+    for (size_t idx = 0; idx < pins.size(); ++idx) {
+        auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
+        assert(comp);
+        comp->write_pin(pin_index_from_pin_id(pins[idx]), values[idx]);
+    }
+}
+
+void CircuitInstance::write_pins(const pin_id_container_t &pins, uint64_t data) {
+    for (size_t idx = 0; idx < pins.size(); ++idx) {
+        auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
+        assert(comp);
+        comp->write_pin(pin_index_from_pin_id(pins[idx]), static_cast<Value>((data >> idx) & 1));
+    }
+}
+
 Value CircuitInstance::pin_output(pin_id_t pin_id) {
     auto comp = component_by_id(component_id_from_pin_id(pin_id));
     assert(comp);

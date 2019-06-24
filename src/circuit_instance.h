@@ -39,6 +39,8 @@ public:
 
     void write_nibble(const pin_id_container_t &pins, uint8_t nibble);
     void write_byte(const pin_id_container_t &pins, uint8_t byte);
+    void write_pins(const pin_id_container_t &pins, const value_container_t &values);
+    void write_pins(const pin_id_container_t &pins, uint64_t data);
 
     // get value written to by a specific pin
     Value pin_output(pin_id_t pin_id);
