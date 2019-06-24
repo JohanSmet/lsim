@@ -38,9 +38,14 @@ static void change_active_circuit(LSimContext *context, CircuitDescription *acti
 	}
 }
 
-static void close_circuit_library(LSimContext *lsim_context) {
-	sub_circuit_drill_downs.clear();
+static void stop_simulation() {
 	circuit_instance = nullptr;
+	ui_circuit->set_simulation_instance(nullptr);
+	sub_circuit_drill_downs.clear();
+}
+
+static void close_circuit_library(LSimContext *lsim_context) {
+	stop_simulation();
 	ui_circuit = nullptr;
 	lsim_context->user_library()->clear_circuits();
 	lsim_context->user_library()->clear_references();
@@ -434,10 +439,12 @@ void main_gui(LSimContext *lsim_context)
 		ui_file_selector_define();
 
 		if (ImGui::Button("New")) {
+			stop_simulation();
 			load_circuit_library(lsim_context, "");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Load")) {
+			stop_simulation();
 			ui_file_selector_open(lsim_context, [lsim_context](const auto &selection) {
 				load_circuit_library(lsim_context, selection);
 			});
@@ -488,8 +495,7 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::Begin("Circuit", nullptr, ImGuiWindowFlags_NoScrollWithMouse);
 
 		if (ImGui::RadioButton("Editor", !ui_circuit->is_simulating())) {
-			circuit_instance = nullptr;
-			ui_circuit->set_simulation_instance(nullptr);
+			stop_simulation();
 		}
 		ImGui::SameLine();
 
@@ -498,7 +504,7 @@ void main_gui(LSimContext *lsim_context)
 			ui_circuit->set_simulation_instance(circuit_instance.get());
 			sim->init();
 			init_input_connectors(ui_circuit->circuit_desc(), ui_circuit->circuit_inst());
-			sim_running = true;
+			//sim_running = true;
 		}
 
 		if (ui_circuit->is_simulating()) {
@@ -514,7 +520,7 @@ void main_gui(LSimContext *lsim_context)
 			}
 		}
 
-		if (sim_running) {
+		if (sim_running && !!circuit_instance) {
 			sim->step();
 		}
 
