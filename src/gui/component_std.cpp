@@ -219,10 +219,14 @@ void component_register_basic() {
             float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 20 + 20;
 
             ui_comp->change_size(width, height);
-            ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
-                                  {(flip ? 1.0f : -1.0f) * width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
-            ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
-                                  {(flip ? -1.0f : 1.0f) * width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
+            if (comp->num_inputs() > 0) {
+                ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
+                                    {(flip ? 1.0f : -1.0f) * width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
+            }
+            if (comp->num_outputs() > 0) {
+                ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
+                                    {(flip ? -1.0f : 1.0f) * width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
+            }
 
             // custom draw function for pin labels
             ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
