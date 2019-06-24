@@ -89,7 +89,7 @@ void component_register_basic() {
                 {
                     auto cur_val = VALUE_FALSE;
                     if (ui_circuit->is_simulating()) {
-                        cur_val = ui_circuit->circuit_inst()->read_pin(comp->output_pin_id(i));
+                        cur_val = ui_circuit->circuit_inst()->pin_output(comp->output_pin_id(i));
                     }
                     auto center_pos = to_window.apply(Point(0, ((-full_height * 0.5f) + ((i + 0.5f) * height)) * (desc ? -1.0f : 1.0f)));
                     ImGui::SetCursorScreenPos(center_pos - Point(8,8));
