@@ -689,7 +689,7 @@
 			<orientation angle="90" />
 		</component>
 		<component id="1" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="60" y="110" />
 			<orientation angle="90" />
 		</component>
@@ -700,7 +700,7 @@
 			<orientation angle="90" />
 		</component>
 		<component id="3" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="130" y="110" />
 			<orientation angle="90" />
 		</component>
@@ -711,12 +711,12 @@
 			<orientation angle="90" />
 		</component>
 		<component id="5" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="200" y="110" />
 			<orientation angle="90" />
 		</component>
 		<component id="6" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="260" y="110" />
 			<orientation angle="90" />
 		</component>
@@ -727,42 +727,42 @@
 			<orientation angle="90" />
 		</component>
 		<component id="8" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="360" y="190" />
 			<orientation angle="0" />
 		</component>
 		<component id="9" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="360" y="260" />
 			<orientation angle="0" />
 		</component>
 		<component id="10" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="360" y="330" />
 			<orientation angle="0" />
 		</component>
 		<component id="11" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="360" y="400" />
 			<orientation angle="0" />
 		</component>
 		<component id="12" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="360" y="470" />
 			<orientation angle="0" />
 		</component>
 		<component id="13" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="360" y="540" />
 			<orientation angle="0" />
 		</component>
 		<component id="14" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="360" y="610" />
 			<orientation angle="0" />
 		</component>
 		<component id="15" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="360" y="680" />
 			<orientation angle="0" />
 		</component>
