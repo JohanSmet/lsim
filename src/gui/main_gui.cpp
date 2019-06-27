@@ -458,8 +458,8 @@ void main_gui(LSimContext *lsim_context)
 			ui_file_selector_open(lsim_context, [lsim_context](const std::string &selection) {
 				auto name_begin = selection.find_last_of("/") + 1;
 				auto name_end = selection.find_last_of(".");
-				auto name = selection.substr(name_begin, name_end - name_begin - 1);
-				lsim_context->load_reference_library(name.c_str(), selection.c_str());
+				auto name = selection.substr(name_begin, name_end - name_begin);
+				lsim_context->load_reference_library(name.c_str(), lsim_context->relative_file_path(selection).c_str());
 				lsim_context->user_library()->add_reference(name.c_str());
 			});
 		}

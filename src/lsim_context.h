@@ -36,6 +36,7 @@ public:
     std::string folder_name(size_t folder_idx);
     std::string folder_path(size_t folder_idx);
     std::string full_file_path(const std::string &file);
+    std::string relative_file_path(const std::string &file);
 
 private:
     typedef std::unordered_map<std::string, CircuitLibrary::uptr_t> library_lut_t;

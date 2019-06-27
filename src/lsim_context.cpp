@@ -99,5 +99,18 @@ std::string LSimContext::full_file_path(const std::string &file) {
     return file;
 }
 
+std::string LSimContext::relative_file_path(const std::string &file) {
+    for (const auto &folder : m_folder_lut) {
+        const auto &name = folder.first;
+        const auto &path = folder.second;
+
+        if (file.find_first_of(path) == 0) {
+            auto result = name + file.substr(path.size());
+            return result;
+        }
+    }
+
+    return file;
+}
 
 } // namespace lsim
