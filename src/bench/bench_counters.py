@@ -83,6 +83,7 @@ def test_bin_counter_8b(lsim):
     circuit.write_port("Load", lsimpy.ValueFalse)
     circuit.write_port("Clk",  lsimpy.ValueFalse)
     circuit.write_port("Res",  lsimpy.ValueTrue)
+    circuit.write_port("En",   lsimpy.ValueTrue)
     sim.run_until_stable(2)
     circuit.write_port("Res",  lsimpy.ValueFalse)
     sim.run_until_stable(2)

@@ -615,30 +615,30 @@
 			<pin value="45#0" />
 			<pin value="42#2" />
 		</wire>
-		<wire id="43">
+		<wire id="42">
 			<segment x1="520" y1="1190" x2="370" y2="1190" />
 			<pin value="7#0" />
 			<pin value="52#3" />
 		</wire>
-		<wire id="44">
+		<wire id="43">
 			<segment x1="310" y1="1170" x2="280" y2="1170" />
 			<segment x1="280" y1="1170" x2="280" y2="1160" />
 			<segment x1="280" y1="1160" x2="240" y2="1160" />
 			<pin value="52#0" />
 			<pin value="53#1" />
 		</wire>
-		<wire id="45">
+		<wire id="44">
 			<segment x1="70" y1="1210" x2="310" y2="1210" />
 			<pin value="1#0" />
 			<pin value="52#2" />
 		</wire>
-		<wire id="46">
+		<wire id="45">
 			<segment x1="310" y1="1190" x2="70" y2="1190" />
 			<segment x1="70" y1="1190" x2="70" y2="1160" />
 			<pin value="52#1" />
 			<pin value="54#1" />
 		</wire>
-		<wire id="49">
+		<wire id="46">
 			<segment x1="310" y1="630" x2="290" y2="630" />
 			<segment x1="290" y1="840" x2="310" y2="840" />
 			<segment x1="290" y1="770" x2="290" y2="840" />
@@ -723,8 +723,10 @@
 			<position x="580" y="410" />
 			<orientation angle="0" />
 		</component>
-		<component id="8" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="value" value="true" />
+		<component id="8" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="descending" value="false" />
+			<property key="name" value="En" />
+			<property key="tri_state" value="false" />
 			<position x="260" y="130" />
 			<orientation angle="0" />
 		</component>
@@ -836,11 +838,6 @@
 			<pin value="7#0" />
 			<pin value="1#12" />
 		</wire>
-		<wire id="16">
-			<segment x1="270" y1="130" x2="290" y2="130" />
-			<pin value="8#0" />
-			<pin value="0#2" />
-		</wire>
 		<wire id="17">
 			<segment x1="290" y1="470" x2="160" y2="470" />
 			<segment x1="160" y1="140" x2="70" y2="140" />
@@ -878,6 +875,11 @@
 			<segment x1="110" y1="150" x2="290" y2="150" />
 			<pin value="5#0" />
 			<pin value="0#3" />
+		</wire>
+		<wire id="22">
+			<segment x1="270" y1="130" x2="290" y2="130" />
+			<pin value="8#0" />
+			<pin value="0#2" />
 		</wire>
 	</circuit>
 	<main name="BinCounter 4b" />
