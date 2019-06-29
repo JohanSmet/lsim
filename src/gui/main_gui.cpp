@@ -423,6 +423,8 @@ void main_gui(LSimContext *lsim_context)
 	auto lib = lsim_context->user_library();
 
 	static bool sim_running = false;
+	static bool sim_single_step = false;
+	static int cycles_per_frame = 5;
 
 	///////////////////////////////////////////////////////////////////////////
 	//
@@ -504,7 +506,6 @@ void main_gui(LSimContext *lsim_context)
 			ui_circuit->set_simulation_instance(circuit_instance.get());
 			sim->init();
 			init_input_connectors(ui_circuit->circuit_desc(), ui_circuit->circuit_inst());
-			//sim_running = true;
 		}
 
 		if (ui_circuit->is_simulating()) {
@@ -515,13 +516,23 @@ void main_gui(LSimContext *lsim_context)
 				sim->init();
 			}
 			ImGui::SameLine();
-			if (ImGui::Button("Step")) {
-				sim->step();
+			sim_single_step = ImGui::Button("Step");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(80);
+			if (ImGui::InputInt("Cycles per frame", &cycles_per_frame)) {
+				if (cycles_per_frame <= 0) {
+					cycles_per_frame = 1;
+				}
 			}
 		}
 
-		if (sim_running && !!circuit_instance) {
+		if (sim_single_step) {
 			sim->step();
+			sim_single_step = false;
+		} else if (sim_running && !!circuit_instance) {
+			for (int i = 0; i < cycles_per_frame; ++i) {
+				sim->step();
+			}
 		}
 
 		if (ui_circuit) {
