@@ -79,6 +79,7 @@ public:
 
     // components
     SimComponent *create_component(Component *desc);
+    void clear_components();
 
     // pins
     pin_t assign_pin();

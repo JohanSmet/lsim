@@ -117,6 +117,11 @@ SimComponent *Simulator::create_component(Component *desc) {
     return result;
 }
 
+void Simulator::clear_components() {
+    m_components[0].clear();
+    m_components[1].clear();
+}
+
 pin_t Simulator::assign_pin() {
     auto result = m_pin_nodes.size();
     m_pin_nodes.push_back(assign_node());
