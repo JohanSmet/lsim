@@ -206,6 +206,19 @@ void UICircuit::draw() {
 		roundf(mouse_pos.y / GRID_SIZE) * GRID_SIZE
 	};
 
+	if (m_state == CS_CREATE_WIRE) {
+		// snap to diagonal (45 degree) / vertical / horizontal when creating wires
+		auto delta = m_mouse_grid_point - m_segment_start;
+		auto abs_delta = Point(fabs(delta.x), fabs(delta.y));
+		if (abs_delta.x > 0 && abs_delta.y > 0 && abs(abs_delta.y - abs_delta.x) < 10) {
+			m_mouse_grid_point = m_segment_start + Point(delta.x, abs_delta.x * ((delta.y < 0) ? -1.0f : 1.0f));
+		} else if (abs_delta.y > abs_delta.x) {
+			m_mouse_grid_point.x = m_segment_start.x;
+		} else {
+			m_mouse_grid_point.y = m_segment_start.y;
+		}
+	}
+
 	// components
 	m_hovered_pin = PIN_ID_INVALID;
 	m_hovered_wire = nullptr;
@@ -312,6 +325,17 @@ void UICircuit::draw() {
 			}
 		}
 	} 
+
+	if (m_state == CS_CREATE_WIRE) {
+		m_line_anchors.back() = m_mouse_grid_point;
+		Point p0 = m_line_anchors.front() + offset;
+
+		for (const auto &anchor : m_line_anchors) {
+			Point p1 = anchor + offset;
+			draw_list->AddLine(p0, p1, IM_COL32(0, 0, 255, 255), 4);
+			p0 = p1;
+		}
+	}
 
 	// handle input
 	bool mouse_in_window = ImGui::IsMouseHoveringWindow();
@@ -445,26 +469,6 @@ void UICircuit::draw() {
 		}
 	}
 
-	if (m_state == CS_CREATE_WIRE) {
-		// snap to diagonal (45 degree) / vertical / horizontal
-		auto delta = m_mouse_grid_point - m_segment_start;
-		auto abs_delta = Point(fabs(delta.x), fabs(delta.y));
-		if (abs_delta.x > 0 && abs_delta.y > 0 && abs(abs_delta.y - abs_delta.x) < 10) {
-			m_line_anchors.back() = m_segment_start + Point(delta.x, abs_delta.x * ((delta.y < 0) ? -1.0f : 1.0f));
-		} else if (abs_delta.y > abs_delta.x) {
-			m_line_anchors.back() = {m_segment_start.x, m_mouse_grid_point.y};
-		} else {
-			m_line_anchors.back() = {m_mouse_grid_point.x, m_segment_start.y};
-		}
-
-		Point p0 = m_line_anchors.front() + offset;
-
-		for (const auto &anchor : m_line_anchors) {
-			Point p1 = anchor + offset;
-			draw_list->AddLine(p0, p1, IM_COL32(0, 0, 255, 255), 4);
-			p0 = p1;
-		}
-	}
 
 	draw_list->ChannelsMerge();
 
