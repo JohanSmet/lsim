@@ -52,6 +52,8 @@ static const char *XML_ATTR_Y2 = "y2";
 static const char *XML_ATTR_ANGLE = "angle";
 static const char *XML_ATTR_INSTANCE = "instance";
 static const char *XML_ATTR_FILE = "file";
+static const char *XML_ATTR_LOW_DURATION = "low_duration";
+static const char *XML_ATTR_HIGH_DURATION = "high_duration";
 
 static const std::unordered_map<ComponentType, std::string> component_type_to_name = {
     {COMPONENT_CONNECTOR_IN, "ConnectorIn"},
@@ -68,6 +70,7 @@ static const std::unordered_map<ComponentType, std::string> component_type_to_na
     {COMPONENT_XOR_GATE, "XorGate"},
     {COMPONENT_XNOR_GATE, "XnorGate"},
     {COMPONENT_VIA, "Via"},
+    {COMPONENT_OSCILLATOR, "Oscillator"},
     {COMPONENT_SUB_CIRCUIT, "SubCircuit"},
     {COMPONENT_TEXT, "Text"}
 };
@@ -394,6 +397,15 @@ public:
                 REQUIRED_PROP(prop_right, comp_node, "right");
                 component = circuit->add_via(prop_name.as_string(), num_inputs);
                 component->property("right")->value(prop_right.as_bool());
+                break;
+            }
+            case COMPONENT_OSCILLATOR: {
+                assert(num_inputs == 0);
+                assert(num_outputs == 1);
+                assert(num_controls == 0);
+                REQUIRED_PROP(prop_low, comp_node, "low_duration");
+                REQUIRED_PROP(prop_high, comp_node, "high_duration");
+                component = circuit->add_oscillator(prop_low.as_int(), prop_high.as_int());
                 break;
             }
             case COMPONENT_SUB_CIRCUIT : {

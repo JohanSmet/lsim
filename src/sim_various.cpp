@@ -40,6 +40,18 @@ void sim_register_various_functions() {
     SIM_NEEDED_FUNC_BEGIN(VIA) {
         return false;
     } SIM_FUNC_END;
+
+    SIM_NEEDED_FUNC_BEGIN(OSCILLATOR) {
+        auto cycle_len = sim->current_time() - sim->pin_last_change_time(comp->output_pin_index(0));
+        auto part = (comp->output_value(0) == VALUE_TRUE) ? "high_duration" : "low_duration";
+        auto max = comp->description()->property_value(part, 1l);
+        return cycle_len >= max;
+    } SIM_FUNC_END;
+
+    SIM_FUNC_BEGIN(OSCILLATOR) {
+        auto new_value = comp->output_value(0) == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
+        comp->write_pin(comp->output_pin_index(0), new_value);
+    } SIM_FUNC_END;
 }
 
 } // namespace lsim

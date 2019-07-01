@@ -55,6 +55,10 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
     } else if (type == COMPONENT_VIA) {
         result->add_property(make_property("name", "via"));
         result->add_property(make_property("right", false));
+    } else if (type == COMPONENT_OSCILLATOR) {
+        result->add_property(make_property("low_duration", 5l));
+        result->add_property(make_property("high_duration", 5l));
+        result->add_property(make_property("initial_output", VALUE_FALSE));
     } else {
         result->add_property(make_property("initial_output", VALUE_UNDEFINED));
     }
@@ -346,6 +350,13 @@ Component *CircuitDescription::add_xnor_gate() {
 Component *CircuitDescription::add_via(const char *name, size_t data_bits) {
     auto comp = create_component(COMPONENT_VIA, data_bits, 0, 0);
     comp->property("name")->value(name);
+    return comp;
+}
+
+Component *CircuitDescription::add_oscillator(size_t low_duration, size_t high_duration) {
+    auto comp = create_component(COMPONENT_OSCILLATOR, 0, 1, 0);
+    comp->property("low_duration")->value(static_cast<int64_t>(low_duration));
+    comp->property("high_duration")->value(static_cast<int64_t>(high_duration));
     return comp;
 }
 

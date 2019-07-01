@@ -77,6 +77,7 @@ public:
     Component *add_xor_gate();
     Component *add_xnor_gate();
     Component *add_via(const char *name, size_t data_bits);
+    Component *add_oscillator(size_t low_duration, size_t high_duration);
     Component *add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs);
     Component *add_sub_circuit(const char *circuit);
     Component *add_text(const char *text);
