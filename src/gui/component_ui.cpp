@@ -780,6 +780,10 @@ void UICircuit::copy_selected_components() {
 
 	if (!m_copy_components.empty()) {
 		m_copy_center = m_copy_center * (1.0f / m_copy_components.size());
+		m_copy_center = {
+			roundf(m_copy_center.x / GRID_SIZE) * GRID_SIZE,
+			roundf(m_copy_center.y / GRID_SIZE) * GRID_SIZE
+		};
 	}
 }
 
