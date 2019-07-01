@@ -74,6 +74,8 @@ private:
 
 class Simulator {
 public:
+    typedef uint64_t timestamp_t;
+public:
     Simulator();
     Simulator(const Simulator &) = delete;
 
@@ -88,6 +90,7 @@ public:
     Value read_pin(pin_t pin) const;
     Value read_pin_current_step(pin_t pin) const;
     bool pin_changed_previous_step(pin_t pin) const;
+    timestamp_t pin_last_change_time(pin_t pin) const;
 
     // nodes
     node_t assign_node();
@@ -99,15 +102,15 @@ public:
     Value read_node_current_step(node_t node_id) const;
 
     bool node_changed_previous_step(node_t node_id) const;
+    timestamp_t node_last_change_time(node_t node_id) const;
 
     // simulation
     void init();
     void step();
     void run_until_stable(size_t stable_ticks);
+    timestamp_t current_time() const {return m_time;}
 
 private:
-    typedef uint64_t timestamp_t;
-
     typedef std::vector<timestamp_t> timestamp_container_t;
     typedef std::vector<SimComponent::uptr_t> component_container_t;
     typedef std::array<component_container_t, 2> component_prio_container_t;
