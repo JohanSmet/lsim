@@ -358,6 +358,16 @@ void component_register_extra() {
         }
     );
 
+    // oscillator
+    auto icon_oscillator = ComponentIcon::cache(COMPONENT_OSCILLATOR, SHAPE_OSCILLATOR, sizeof(SHAPE_OSCILLATOR));
+    UICircuitBuilder::register_materialize_func(
+        COMPONENT_OSCILLATOR, [=](Component *comp, UIComponent *ui_comp) {
+            ui_comp->change_tooltip("Oscillator");
+            ui_comp->change_icon(icon_oscillator);
+            materialize_gate(ui_comp);
+        }
+    );
+
 
     // Text
     UICircuitBuilder::register_materialize_func(

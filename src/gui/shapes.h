@@ -106,5 +106,10 @@ constexpr const char SHAPE_CONSTANT[] = R"(FILE
 </svg>
 FILE)";
 
+constexpr const char SHAPE_OSCILLATOR[] = R"(FILE 
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
+    <path d="m 5,35 h 5 V 5 H 30 V 35 H 50.049801 V 5 H 55"/>
+</svg>
+FILE)";
 
 #endif // LSIM_GUI_SHAPES_H

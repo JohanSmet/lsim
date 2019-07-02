@@ -222,6 +222,7 @@ static void ui_component_pallette(LSimContext *context) {
 		add_component_button(COMPONENT_CONSTANT, "Constant", [](CircuitDescription *circuit) {return circuit->add_constant(VALUE_TRUE);});
 		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](CircuitDescription *circuit) {return circuit->add_pull_resistor(VALUE_TRUE);});
 		add_component_button(COMPONENT_VIA, "Via", [](CircuitDescription *circuit) {return circuit->add_via("via", 1);});
+		add_component_button(COMPONENT_OSCILLATOR, "Oscillator", [](CircuitDescription *circuit) {return circuit->add_oscillator(5, 5);});
 		add_component_button(COMPONENT_TEXT, "Text", [](CircuitDescription *circuit) {return circuit->add_text("text");});
 		ImGui::EndGroup();
 	}
@@ -269,6 +270,16 @@ static void ui_property_panel(LSimContext *context) {
 			bool value = property->value_as_boolean();
 			if (ImGui::Checkbox(caption, &value)) {
 				property->value(value);
+				return true;
+			} else {
+				return false;
+			}
+		};
+
+		auto integer_property = [](const char *caption, Property *property) {
+			int value = property->value_as_integer();
+			if (ImGui::InputInt(caption, &value)) {
+				property->value(static_cast<int64_t>(value));
 				return true;
 			} else {
 				return false;
@@ -357,6 +368,21 @@ static void ui_property_panel(LSimContext *context) {
 			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
 				component->change_input_pins(num_inputs);
 				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
+			}
+		}
+
+		if (component->type() == COMPONENT_OSCILLATOR) {
+			auto low = component->property("low_duration");
+			if (integer_property("Low Duration", low)) {
+				if (low->value_as_integer() <= 0) {
+					low->value(1l);
+				}
+			};
+			auto high = component->property("high_duration");
+			if (integer_property("High Duration", high)) {
+				if (high->value_as_integer() <= 0) {
+					high->value(1l);
+				}
 			}
 		}
 
