@@ -301,10 +301,11 @@ void component_register_extra() {
     );
 
     // Via
-    // auto icon_via = ComponentIcon::cache(COMPONENT_VIA, SHAPE_CONNECTOR_VIA, sizeof(SHAPE_CONNECTOR_VIA));
+    auto icon_via = ComponentIcon::cache(COMPONENT_VIA, SHAPE_VIA, sizeof(SHAPE_VIA));
     UICircuitBuilder::register_materialize_func(
         COMPONENT_VIA, [=](Component *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Via");
+            ui_comp->change_icon(icon_via);
 
             const bool right_pin = comp->property_value("right", false);
             const float width = 20;
@@ -370,9 +371,11 @@ void component_register_extra() {
 
 
     // Text
+    auto icon_text = ComponentIcon::cache(COMPONENT_TEXT, SHAPE_TEXT, sizeof(SHAPE_TEXT));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_TEXT, [] (Component *comp, UIComponent *ui_comp) {
+        COMPONENT_TEXT, [icon_text] (Component *comp, UIComponent *ui_comp) {
             ui_comp->show_border(false);
+            ui_comp->change_icon(icon_text);
             ui_comp->change_size(20, 20);
             bool calc_size = true;
 

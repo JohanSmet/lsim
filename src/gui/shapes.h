@@ -106,10 +106,28 @@ constexpr const char SHAPE_CONSTANT[] = R"(FILE
 </svg>
 FILE)";
 
+
+constexpr const char SHAPE_VIA[] = R"(FILE 
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
+    <circle r="12" cy="20.097609" cx="12.5"/>
+    <circle r="12" cy="20.097609" cx="45.579681"/>
+    <path d="M 15,20 H 45"/>
+    <path d="m 40,15 5,5 -5,5"/>
+    <path d="m 20,15 -5,5 5,5"/>
+</svg>
+FILE)";
+
 constexpr const char SHAPE_OSCILLATOR[] = R"(FILE 
 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
     <path d="m 5,35 h 5 V 5 H 30 V 35 H 50.049801 V 5 H 55"/>
 </svg>
 FILE)";
+
+constexpr const char SHAPE_TEXT[] = R"(FILE 
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
+    <path d="m 32.651154,7.9680183 h 2.202667 c 4.368,0 5.152,0.8213333 5.6,4.8906667 h 1.12 V 6.6613517 H 20.032488 v 6.1973333 h 1.12 c 0.448,-4.0693334 1.232,-4.8906667 5.6,-4.8906667 h 2.202667 V 29.024018 c 0,2.090666 -0.112,2.165333 -4.106667,2.389333 v 1.082666 h 11.909333 v -1.082666 c -3.994667,-0.224 -4.106667,-0.298667 -4.106667,-2.389333 z" />
+</svg>
+FILE)";
+
 
 #endif // LSIM_GUI_SHAPES_H

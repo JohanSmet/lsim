@@ -261,7 +261,7 @@ void UICircuit::draw() {
   		  	draw_list->AddRect(comp->aabb_min() + offset, comp->aabb_max() + offset, border_color);
 		}
 
-		if (comp->icon()) {
+		if (comp->has_border() && comp->icon()) {
     		comp->icon()->draw(to_screen, comp->aabb_size() - Point(10,10), 
 							   draw_list, 2, COLOR_COMPONENT_ICON);
 		}
