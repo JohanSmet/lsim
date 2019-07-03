@@ -2,173 +2,208 @@
 <lsim version="2">
 	<circuit name="comp_4bit">
 		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="4" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="160" y="50" />
 			<orientation angle="90" />
 		</component>
 		<component id="1" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="70" y="140" />
 			<orientation angle="90" />
 		</component>
 		<component id="2" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="130" y="140" />
 			<orientation angle="90" />
 		</component>
 		<component id="3" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="190" y="140" />
 			<orientation angle="90" />
 		</component>
 		<component id="4" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="250" y="140" />
 			<orientation angle="90" />
 		</component>
 		<component id="5" type="ConnectorIn" priority="normal" inputs="0" outputs="4" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="B" />
+			<property key="tri_state" value="false" />
 			<position x="420" y="50" />
 			<orientation angle="90" />
 		</component>
 		<component id="6" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="330" y="140" />
 			<orientation angle="90" />
 		</component>
 		<component id="7" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="390" y="140" />
 			<orientation angle="90" />
 		</component>
 		<component id="8" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="450" y="140" />
 			<orientation angle="90" />
 		</component>
 		<component id="9" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="510" y="140" />
 			<orientation angle="90" />
 		</component>
 		<component id="10" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="true" />
+			<property key="descending" value="false" />
 			<property key="name" value="iLT" />
+			<property key="tri_state" value="true" />
 			<position x="570" y="50" />
 			<orientation angle="90" />
 		</component>
 		<component id="11" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="true" />
+			<property key="descending" value="false" />
 			<property key="name" value="iEQ" />
+			<property key="tri_state" value="true" />
 			<position x="600" y="50" />
 			<orientation angle="90" />
 		</component>
 		<component id="12" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="true" />
+			<property key="descending" value="false" />
 			<property key="name" value="iGT" />
+			<property key="tri_state" value="true" />
 			<position x="630" y="50" />
 			<orientation angle="90" />
 		</component>
 		<component id="13" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="220" />
 			<orientation angle="0" />
 		</component>
 		<component id="14" type="AndGate" priority="normal" inputs="3" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="290" />
 			<orientation angle="0" />
 		</component>
 		<component id="15" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="360" />
 			<orientation angle="0" />
 		</component>
 		<component id="16" type="AndGate" priority="normal" inputs="5" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="430" />
 			<orientation angle="0" />
 		</component>
 		<component id="17" type="OrGate" priority="normal" inputs="4" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="1030" y="320" />
 			<orientation angle="0" />
 		</component>
 		<component id="18" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="1130" y="300" />
 			<orientation angle="0" />
 		</component>
 		<component id="19" type="OrGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="1230" y="280" />
 			<orientation angle="0" />
 		</component>
 		<component id="20" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="LT" />
+			<property key="tri_state" value="false" />
 			<position x="1330" y="280" />
 			<orientation angle="0" />
 		</component>
 		<component id="21" type="XnorGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="750" y="590" />
 			<orientation angle="0" />
 		</component>
 		<component id="22" type="XnorGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="750" y="520" />
 			<orientation angle="0" />
 		</component>
 		<component id="23" type="XnorGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="750" y="660" />
 			<orientation angle="0" />
 		</component>
 		<component id="24" type="XnorGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="750" y="730" />
 			<orientation angle="0" />
 		</component>
 		<component id="25" type="AndGate" priority="normal" inputs="5" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="630" />
 			<orientation angle="0" />
 		</component>
 		<component id="26" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="EQ" />
+			<property key="tri_state" value="false" />
 			<position x="1330" y="630" />
 			<orientation angle="0" />
 		</component>
 		<component id="27" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="830" />
 			<orientation angle="0" />
 		</component>
 		<component id="28" type="AndGate" priority="normal" inputs="3" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="900" />
 			<orientation angle="0" />
 		</component>
 		<component id="29" type="AndGate" priority="normal" inputs="4" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="970" />
 			<orientation angle="0" />
 		</component>
 		<component id="30" type="AndGate" priority="normal" inputs="5" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="890" y="1040" />
 			<orientation angle="0" />
 		</component>
 		<component id="31" type="OrGate" priority="normal" inputs="4" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="1030" y="930" />
 			<orientation angle="0" />
 		</component>
 		<component id="32" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="1140" y="950" />
 			<orientation angle="0" />
 		</component>
 		<component id="33" type="OrGate" priority="normal" inputs="2" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
 			<position x="1240" y="970" />
 			<orientation angle="0" />
 		</component>
 		<component id="34" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="GT" />
+			<property key="tri_state" value="false" />
 			<position x="1330" y="970" />
 			<orientation angle="0" />
 		</component>
 		<component id="35" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
-			<property key="pull_to" value="0" />
+			<property key="pull_to" value="false" />
 			<position x="570" y="1140" />
 			<orientation angle="270" />
 		</component>
 		<component id="36" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
-			<property key="pull_to" value="1" />
+			<property key="pull_to" value="true" />
 			<position x="600" y="1140" />
 			<orientation angle="270" />
 		</component>
 		<component id="37" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
-			<property key="pull_to" value="0" />
+			<property key="pull_to" value="false" />
 			<position x="630" y="1140" />
 			<orientation angle="270" />
 		</component>
@@ -432,50 +467,50 @@
 			<pin value="30#2" />
 			<pin value="25#2" />
 		</wire>
-		<wire id="23">
+		<wire id="22">
 			<segment x1="1000" y1="300" x2="980" y2="300" />
 			<segment x1="980" y1="300" x2="980" y2="220" />
 			<segment x1="980" y1="220" x2="920" y2="220" />
 			<pin value="17#0" />
 			<pin value="13#2" />
 		</wire>
-		<wire id="24">
+		<wire id="23">
 			<segment x1="1000" y1="310" x2="970" y2="310" />
 			<segment x1="970" y1="310" x2="970" y2="290" />
 			<segment x1="970" y1="290" x2="920" y2="290" />
 			<pin value="17#1" />
 			<pin value="14#3" />
 		</wire>
-		<wire id="25">
+		<wire id="24">
 			<segment x1="1000" y1="340" x2="980" y2="340" />
 			<segment x1="980" y1="340" x2="980" y2="430" />
 			<segment x1="980" y1="430" x2="920" y2="430" />
 			<pin value="17#3" />
 			<pin value="16#5" />
 		</wire>
-		<wire id="26">
+		<wire id="25">
 			<segment x1="1000" y1="330" x2="970" y2="330" />
 			<segment x1="970" y1="330" x2="970" y2="360" />
 			<segment x1="970" y1="360" x2="920" y2="360" />
 			<pin value="17#2" />
 			<pin value="15#4" />
 		</wire>
-		<wire id="27">
+		<wire id="26">
 			<segment x1="1060" y1="320" x2="1100" y2="320" />
 			<pin value="17#4" />
 			<pin value="18#1" />
 		</wire>
-		<wire id="28">
+		<wire id="27">
 			<segment x1="1200" y1="300" x2="1160" y2="300" />
 			<pin value="19#1" />
 			<pin value="18#2" />
 		</wire>
-		<wire id="29">
+		<wire id="28">
 			<segment x1="1320" y1="280" x2="1260" y2="280" />
 			<pin value="20#0" />
 			<pin value="19#2" />
 		</wire>
-		<wire id="30">
+		<wire id="29">
 			<segment x1="810" y1="980" x2="860" y2="980" />
 			<segment x1="860" y1="620" x2="840" y2="620" />
 			<segment x1="840" y1="620" x2="840" y2="590" />
@@ -495,57 +530,57 @@
 			<pin value="15#3" />
 			<pin value="30#3" />
 		</wire>
-		<wire id="31">
+		<wire id="30">
 			<segment x1="1000" y1="910" x2="980" y2="910" />
 			<segment x1="980" y1="910" x2="980" y2="830" />
 			<segment x1="980" y1="830" x2="920" y2="830" />
 			<pin value="31#0" />
 			<pin value="27#2" />
 		</wire>
-		<wire id="32">
+		<wire id="31">
 			<segment x1="1000" y1="920" x2="970" y2="920" />
 			<segment x1="970" y1="920" x2="970" y2="900" />
 			<segment x1="970" y1="900" x2="920" y2="900" />
 			<pin value="31#1" />
 			<pin value="28#3" />
 		</wire>
-		<wire id="33">
+		<wire id="32">
 			<segment x1="1000" y1="940" x2="970" y2="940" />
 			<segment x1="970" y1="940" x2="970" y2="970" />
 			<segment x1="970" y1="970" x2="920" y2="970" />
 			<pin value="31#2" />
 			<pin value="29#4" />
 		</wire>
-		<wire id="34">
+		<wire id="33">
 			<segment x1="1060" y1="930" x2="1110" y2="930" />
 			<pin value="31#4" />
 			<pin value="32#0" />
 		</wire>
-		<wire id="35">
+		<wire id="34">
 			<segment x1="1170" y1="950" x2="1210" y2="950" />
 			<pin value="32#2" />
 			<pin value="33#0" />
 		</wire>
-		<wire id="36">
+		<wire id="35">
 			<segment x1="1270" y1="970" x2="1320" y2="970" />
 			<pin value="33#2" />
 			<pin value="34#0" />
 		</wire>
-		<wire id="37">
+		<wire id="36">
 			<segment x1="920" y1="1040" x2="980" y2="1040" />
 			<segment x1="980" y1="1040" x2="980" y2="950" />
 			<segment x1="980" y1="950" x2="1000" y2="950" />
 			<pin value="30#5" />
 			<pin value="31#3" />
 		</wire>
-		<wire id="38">
+		<wire id="37">
 			<segment x1="840" y1="730" x2="780" y2="730" />
 			<segment x1="860" y1="640" x2="840" y2="640" />
 			<segment x1="840" y1="640" x2="840" y2="730" />
 			<pin value="24#2" />
 			<pin value="25#3" />
 		</wire>
-		<wire id="39">
+		<wire id="38">
 			<segment x1="920" y1="630" x2="1320" y2="630" />
 			<pin value="25#5" />
 			<pin value="26#0" />
@@ -553,40 +588,47 @@
 	</circuit>
 	<circuit name="comp_8bit">
 		<component id="0" type="SubCircuit" priority="normal" inputs="11" outputs="3" controls="0" nested="comp_4bit">
+			<property key="flip" value="false" />
 			<position x="580" y="430" />
 			<orientation angle="0" />
 		</component>
 		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="140" y="50" />
 			<orientation angle="90" />
 		</component>
 		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="B" />
+			<property key="tri_state" value="false" />
 			<position x="350" y="50" />
 			<orientation angle="90" />
 		</component>
 		<component id="3" type="SubCircuit" priority="normal" inputs="11" outputs="3" controls="0" nested="comp_4bit">
+			<property key="flip" value="false" />
 			<position x="870" y="240" />
 			<orientation angle="0" />
 		</component>
 		<component id="4" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="LT" />
+			<property key="tri_state" value="false" />
 			<position x="1070" y="130" />
 			<orientation angle="0" />
 		</component>
 		<component id="5" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="EQ" />
+			<property key="tri_state" value="false" />
 			<position x="1070" y="150" />
 			<orientation angle="0" />
 		</component>
 		<component id="6" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="GT" />
+			<property key="tri_state" value="false" />
 			<position x="1070" y="170" />
 			<orientation angle="0" />
 		</component>
