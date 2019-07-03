@@ -1,7 +1,7 @@
 // component_ui.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 
 #include "component_ui.h"
-#include "imgui/imgui.h"
+#include "imgui_ex.h"
 
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"
@@ -326,6 +326,13 @@ void UICircuit::draw() {
 		}
 	} 
 
+	// draw area selection box
+	if (m_state == CS_AREA_SELECT) {
+		ImGuiEx::RectFilled(m_area_sel_a + offset, m_mouse_grid_point + offset, 
+							IM_COL32(0, 0, 128, 128));
+	}
+
+	// draw wire under construction
 	if (m_state == CS_CREATE_WIRE) {
 		m_line_anchors.back() = m_mouse_grid_point;
 		Point p0 = m_line_anchors.front() + offset;
@@ -362,8 +369,12 @@ void UICircuit::draw() {
 				   m_hovered_pin == PIN_ID_INVALID &&
 				   m_hovered_wire == nullptr &&
 				   m_hovered_component == nullptr) {
-			// clicking on the circuit background clears the selection
+			// clicking on the circuit background clears the selection ...
 			clear_selection();
+
+			// ... and starts area select mode
+			m_state = CS_AREA_SELECT;
+			m_area_sel_a = m_mouse_grid_point;
 		} else if (m_state == CS_CREATE_WIRE && m_mouse_grid_point != m_wire_start.m_position) {
 			// clicking while in CREATE_WIRE mode
 			bool sw_create = false;
@@ -389,16 +400,8 @@ void UICircuit::draw() {
 
 	// -> edit-mode: left mouse button up
 	if (!is_simulating() && mouse_in_window && ImGui::IsMouseReleased(0)) {
-		if (m_state == CS_IDLE && m_hovered_component != nullptr) {
-			// component selection
-			if (!ImGui::GetIO().KeyShift) {
-				clear_selection();
-				select_component(m_hovered_component);
-			} else {
-				toggle_selection(m_hovered_component);
-			}
-		} else if (m_state == CS_CREATE_WIRE && m_hovered_wire != nullptr &&
-				   m_hovered_wire == m_wire_start.m_wire) {
+		if (m_state == CS_CREATE_WIRE && m_hovered_wire != nullptr &&
+			m_hovered_wire == m_wire_start.m_wire) {
 			// wire selection
 			m_state = CS_IDLE;
 			auto segment = m_hovered_wire->segment_at_point(m_mouse_grid_point);
@@ -409,6 +412,17 @@ void UICircuit::draw() {
 			} else {
 				toggle_selection(segment);
 			}
+		} else if (m_state == CS_IDLE && m_hovered_component != nullptr) {
+			// component selection
+			if (!ImGui::GetIO().KeyShift) {
+				clear_selection();
+				select_component(m_hovered_component);
+			} else {
+				toggle_selection(m_hovered_component);
+			}
+		} else if (m_state == CS_AREA_SELECT) {
+			select_by_area(m_area_sel_a, m_mouse_grid_point);
+			m_state = CS_IDLE;
 		}
 	}
 
@@ -688,6 +702,25 @@ void UICircuit::select_wire_segment(WireSegment *segment) {
 void UICircuit::deselect_wire_segment(WireSegment *segment) {
 	m_selection.erase(std::remove_if(m_selection.begin(), m_selection.end(),
 						[segment](const auto &s) {return s.m_segment == segment;}));
+}
+
+void UICircuit::select_by_area(Point p0, Point p1) {
+	auto area_min = p0;
+	auto area_max = p1;
+	if (area_min.x > area_max.x) {
+		std::swap(area_min.x, area_max.x);
+	}
+	if (area_min.y > area_max.y) {
+		std::swap(area_min.y, area_max.y);
+	}
+
+	clear_selection();
+	for (const auto &ui_comp : m_ui_components) {
+		if (ui_comp->aabb_min().x >= area_min.x && ui_comp->aabb_max().x <= area_max.x &&
+		    ui_comp->aabb_min().y >= area_min.y && ui_comp->aabb_max().y <= area_max.y) {
+			select_component(ui_comp.get());
+		}
+	}
 }
 
 void UICircuit::toggle_selection(UIComponent *component) {

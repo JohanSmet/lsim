@@ -28,6 +28,7 @@ typedef std::function<void (UICircuit *, const UIComponent *, Transform)> ui_com
 enum UICircuitState {
     CS_IDLE = 0,
     CS_DRAGGING,
+    CS_AREA_SELECT,
     CS_CREATE_COMPONENT,
     CS_CREATE_WIRE,
     CS_SIMULATING
@@ -117,6 +118,7 @@ public:
     void deselect_component(UIComponent *component);
     void select_wire_segment(WireSegment *segment);
     void deselect_wire_segment(WireSegment *segment);
+    void select_by_area(Point p0, Point p1);
     void toggle_selection(UIComponent *component);
     void toggle_selection(WireSegment *segment);
     bool is_selected(UIComponent *component);
@@ -175,6 +177,8 @@ private:
 
     component_container_t     m_copy_components;
     Point                     m_copy_center;
+
+    Point                     m_area_sel_a;
 
     UICircuitState      m_state;
 
