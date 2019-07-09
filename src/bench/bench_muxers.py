@@ -174,6 +174,21 @@ def test_decode5to32():
 
     run_thruth_table(lsim, "decode5to32", truth_table)
 
+def test_decode6to64():
+    truth_table = []
+
+    for s in [LOW, HIGH]:
+        for v in range(0, 64):
+            inputs = {'/Strobe' : s}
+            outputs = {}
+            for i in range(0, 6):
+                inputs.update([('I[{}]'.format(i), HIGH if ((v >> i) & 1) == 1 else LOW)])
+            for o in range(0, 64):
+                outputs.update([('O[{}]'.format(o), HIGH if v == o and s == LOW else LOW)])
+
+            truth_table.append([inputs, outputs])
+
+    run_thruth_table(lsim, "decode6to64", truth_table)
 
 def test_demux1to2():
     truth_table = [
@@ -256,6 +271,22 @@ def test_demux1to32():
 
     run_thruth_table(lsim, "demux1to32", truth_table)
 
+def test_demux1to64():
+    truth_table = []
+
+    for s in [HIGH, LOW]:
+        for v in range(0, 64):
+            inputs = {'I' : s}
+            outputs = {}
+            for i in range(0, 6):
+                inputs.update([('Sel[{}]'.format(i), HIGH if ((v >> i) & 1) == 1 else LOW)])
+            for o in range(0, 64):
+                outputs.update([('O[{}]'.format(o), HIGH if v == o and s == HIGH else LOW)])
+
+            truth_table.append([inputs, outputs])
+
+    run_thruth_table(lsim, "demux1to64", truth_table)
+
 def test_prio_encode4to2():
     truth_table = [
         [{'I0': LOW,  'I1': LOW,  'I2': LOW,  'I3': LOW},  {'O0': LOW,  'O1': LOW,  'V': LOW}],
@@ -310,11 +341,13 @@ def main():
     test_decode3to8()
     test_decode4to16()
     test_decode5to32()
+    test_decode6to64()
     test_demux1to2()
     test_demux1to4()
     test_demux1to8()
     test_demux1to16()
     test_demux1to32()
+    test_demux1to64()
     test_prio_encode4to2()
     test_prio_encode8to3()
 
