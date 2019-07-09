@@ -31,6 +31,7 @@ public:
     uint8_t read_nibble(const pin_id_container_t &pins);
     uint8_t read_byte(uint32_t comp_id);
     uint8_t read_byte(const pin_id_container_t &pins);
+    uint64_t read_pins(const pin_id_container_t &pins);
 
     void write_pin(pin_id_t pin_id, Value value);
     void write_output_pins(uint32_t comp_id, value_container_t values);

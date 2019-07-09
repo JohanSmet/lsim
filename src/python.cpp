@@ -13,6 +13,8 @@ namespace py = pybind11;
 using namespace lsim;
 
 PYBIND11_MODULE(lsimpy, m) {
+    m.def("pin_id_invalid", [](pin_id_t pin) -> bool {return pin == PIN_ID_INVALID;});
+
     py::enum_<Value>(m, "Value", py::arithmetic())
         .value("ValueFalse", lsim::Value::VALUE_FALSE)
         .value("ValueTrue", Value::VALUE_TRUE)
@@ -20,6 +22,12 @@ PYBIND11_MODULE(lsimpy, m) {
         .value("ValueError", Value::VALUE_ERROR)
         .export_values()
     ;
+
+    py::class_<Point>(m, "Point")
+        .def(py::init<float, float>())
+        .def("x", [](Point *point) -> float { return point->x; })
+        .def("y", [](Point *point) -> float { return point->y; })
+        ;
 
     py::class_<Component>(m, "Component")
         .def("id", &Component::id)
@@ -32,6 +40,10 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("output_pin_id", &Component::output_pin_id)
         .def("control_pin_id", &Component::control_pin_id)
         .def("port_by_name", &Component::port_by_name)
+        .def("position", &Component::position)
+        .def("set_position", &Component::set_position)
+        .def("angle", &Component::angle)
+        .def("set_angle", &Component::set_angle)
         ;
 
     py::class_<Wire>(m, "Wire")
@@ -77,7 +89,11 @@ PYBIND11_MODULE(lsimpy, m) {
     py::class_<CircuitLibrary>(m, "CircuitLibrary")
         .def(py::init<const char *>())
         .def("main_circuit", &CircuitLibrary::main_circuit, py::return_value_policy::reference)
+        .def("change_main_circuit", &CircuitLibrary::change_main_circuit)
         .def("circuit_by_name", &CircuitLibrary::circuit_by_name, py::return_value_policy::reference)
+        .def("rename_circuit", &CircuitLibrary::rename_circuit)
+        .def("clear_circuits", &CircuitLibrary::clear_circuits)
+        .def("add_reference", &CircuitLibrary::add_reference)
         ;
 
     py::class_<LSimContext>(m, "LSimContext")
@@ -89,6 +105,11 @@ PYBIND11_MODULE(lsimpy, m) {
                 [](LSimContext *context, const char *name) -> bool {
                     return deserialize_library(context, context->user_library(), context->full_file_path(name).c_str());
                 })
+        .def("save_user_library",
+                [](LSimContext *context, const char *name) -> bool {
+                    return serialize_library(context, context->user_library(), context->full_file_path(name).c_str());
+                })
+        .def("load_reference_library", &LSimContext::load_reference_library)
         .def("add_folder", &LSimContext::add_folder)
         ;
 
@@ -98,6 +119,7 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("read_nibble", (uint8_t (CircuitInstance::*)(const pin_id_container_t &)) &CircuitInstance::read_nibble)
         .def("read_byte", (uint8_t (CircuitInstance::*)(uint32_t)) &CircuitInstance::read_byte)
         .def("read_byte", (uint8_t (CircuitInstance::*)(const pin_id_container_t &)) &CircuitInstance::read_byte)
+        .def("read_pins", &CircuitInstance::read_pins)
         .def("write_pin", &CircuitInstance::write_pin)
         .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, value_container_t)) &CircuitInstance::write_output_pins)
         .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, uint64_t)) &CircuitInstance::write_output_pins)
