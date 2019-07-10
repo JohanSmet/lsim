@@ -59,6 +59,8 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
         result->add_property(make_property("low_duration", 5l));
         result->add_property(make_property("high_duration", 5l));
         result->add_property(make_property("initial_output", VALUE_FALSE));
+    } else if (type == COMPONENT_7_SEGMENT_LED) {
+        result->change_priority(PRIORITY_DEFERRED);
     } else {
         result->add_property(make_property("initial_output", VALUE_UNDEFINED));
     }
@@ -358,6 +360,10 @@ Component *CircuitDescription::add_oscillator(size_t low_duration, size_t high_d
     comp->property("low_duration")->value(static_cast<int64_t>(low_duration));
     comp->property("high_duration")->value(static_cast<int64_t>(high_duration));
     return comp;
+}
+
+Component *CircuitDescription::add_7_segment_led() {
+    return create_component(COMPONENT_7_SEGMENT_LED, 8, 0, 0);
 }
 
 Component *CircuitDescription::add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs) {

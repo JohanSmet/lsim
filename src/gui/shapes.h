@@ -123,6 +123,19 @@ constexpr const char SHAPE_OSCILLATOR[] = R"(FILE
 </svg>
 FILE)";
 
+constexpr const char SHAPE_7_SEGMENT_LED[] = R"(FILE 
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="18">
+    <polygon points="2,0 8,0 9,1 8,2 2,2 1,1"/>
+    <polygon points="10,2 10,8 9,9 8,8 8,2 9,1"/>
+    <polygon points="10,10 10,16 9,17 8,16 8,10 9,9"/>
+    <polygon points="8,18 2,18 1,17 2,16 8,16 9,17"/>
+    <polygon points="0,16 0,10 1,9 2,10 2,16 1,17"/>
+    <polygon points="0,8 0,2 1,1 2,2 2,8 1,9"/>
+    <polygon points="2,8 8,8 9,9 8,10 2,10 1,9"/>
+</svg>
+FILE)";
+
+
 constexpr const char SHAPE_TEXT[] = R"(FILE 
 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
     <path d="m 32.651154,7.9680183 h 2.202667 c 4.368,0 5.152,0.8213333 5.6,4.8906667 h 1.12 V 6.6613517 H 20.032488 v 6.1973333 h 1.12 c 0.448,-4.0693334 1.232,-4.8906667 5.6,-4.8906667 h 2.202667 V 29.024018 c 0,2.090666 -0.112,2.165333 -4.106667,2.389333 v 1.082666 h 11.909333 v -1.082666 c -3.994667,-0.224 -4.106667,-0.298667 -4.106667,-2.389333 z" />

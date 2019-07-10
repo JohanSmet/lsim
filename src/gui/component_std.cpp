@@ -488,6 +488,61 @@ void component_register_gates() {
     );
 }
 
+void component_register_input_output() {
+
+    auto icon_7_segment_led = ComponentIcon::cache(COMPONENT_7_SEGMENT_LED, SHAPE_7_SEGMENT_LED, sizeof(SHAPE_7_SEGMENT_LED));
+    UICircuitBuilder::register_materialize_func(
+        COMPONENT_7_SEGMENT_LED, [=](Component *comp, UIComponent *ui_comp) {
+            ui_comp->change_tooltip("7-segment LED");
+
+            const float width = 60;
+            const float height = 80;
+            ui_comp->change_size(width, height);
+            ui_comp->add_pin_line(comp->input_pin_id(0), 4,
+                                  width, {0, height * 0.5f}, {1, 0});
+            ui_comp->add_pin_line(comp->input_pin_id(0) + 4, 4,
+                                  width, {0, -height * 0.5f}, {1, 0});
+
+            // custom draw function
+            ui_comp->set_custom_ui_callback([](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+                auto draw_list = ImGui::GetWindowDrawList();
+                auto comp = ui_comp->component();
+                const auto slope = 5.0f / 30.f;
+                const auto color_off = IM_COL32(100, 0, 0, 255);
+                const auto color_on = IM_COL32(255, 0, 0, 255);
+                const auto width = 4;
+
+                auto sim_comp = ui_circuit->is_simulating() ? ui_circuit->circuit_inst()->component_by_id(comp->id()) : nullptr;
+
+                const auto led_color = [sim_comp, color_on, color_off](uint32_t idx) -> ImU32 {
+                    if (sim_comp) {
+                        auto value = sim_comp->read_pin(idx);
+                        return value == VALUE_TRUE ? color_on : color_off;
+                    } else {
+                        return color_off;
+                    }
+                };
+
+                // LED-pinout
+                // pin 0 = E    // pin 1 = D    // pin 2 = C    // pin 3 = DP
+                // pin 4 = G    // pin 5 = F    // pin 6 = A    // pin 7 = B
+
+                ImGuiEx::TransformStart();  
+                draw_list->AddLine({-15,-30}, {20,-30}, led_color(6), width);                               // A
+                draw_list->AddLine({-15 - 5 * slope, -25}, {-15 - 25 * slope, -5}, led_color(5), width);    // F 
+                draw_list->AddLine({ 20 - 5 * slope, -25}, { 20 - 25 * slope, -5}, led_color(7), width);    // B 
+                draw_list->AddLine({-20,  0}, {15,  0}, led_color(4), width);                               // G
+                draw_list->AddLine({-20 - 5 * slope, 5}, {-20 - 25 * slope, 25}, led_color(0), width);      // E 
+                draw_list->AddLine({ 15 - 5 * slope, 5}, { 15 - 25 * slope, 25}, led_color(2), width);      // C 
+                draw_list->AddLine({-25, 30}, {10, 30}, led_color(1), width);                               // D
+                draw_list->AddCircleFilled({20, 30}, 3, led_color(3));                                      // DP
+                ImGuiEx::TransformEnd(to_window);
+
+            });
+        }
+    );
+}
+
 } // namespace lsim::gui
 
 } // namespace lsim

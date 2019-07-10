@@ -227,6 +227,14 @@ static void ui_component_pallette(LSimContext *context) {
 		ImGui::EndGroup();
 	}
 
+	ImGui::Spacing();
+	if (ImGui::TreeNodeEx("I/O", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
+		ImGui::BeginGroup();
+		ImGui::Indent();
+		add_component_button(COMPONENT_7_SEGMENT_LED, "7-segment LED", [](CircuitDescription *circuit) {return circuit->add_7_segment_led();});
+		ImGui::EndGroup();
+	}
+
 	for (const auto &ref : context->user_library()->references()) {
 		ImGui::Spacing();
 		if (ImGui::TreeNodeEx(ref.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
@@ -435,6 +443,7 @@ void main_gui_setup(LSimContext *lsim_context, const char *circuit_file) {
 	component_register_basic();
 	component_register_extra();
 	component_register_gates();
+	component_register_input_output();
 
 	lsim_context->add_folder("examples", "./examples");
 

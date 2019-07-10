@@ -14,6 +14,7 @@ class ComponentUI;
 void component_register_basic();
 void component_register_extra();
 void component_register_gates();
+void component_register_input_output();
 
 } // namespace lsim::gui
 

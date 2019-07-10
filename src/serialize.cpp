@@ -71,6 +71,7 @@ static const std::unordered_map<ComponentType, std::string> component_type_to_na
     {COMPONENT_XNOR_GATE, "XnorGate"},
     {COMPONENT_VIA, "Via"},
     {COMPONENT_OSCILLATOR, "Oscillator"},
+    {COMPONENT_7_SEGMENT_LED, "7SegmentLED"},
     {COMPONENT_SUB_CIRCUIT, "SubCircuit"},
     {COMPONENT_TEXT, "Text"}
 };
@@ -408,6 +409,13 @@ public:
                 component = circuit->add_oscillator(prop_low.as_int(), prop_high.as_int());
                 break;
             }
+            case COMPONENT_7_SEGMENT_LED: 
+                assert(num_inputs == 8);
+                assert(num_outputs == 0);
+                assert(num_controls == 0);
+                component = circuit->add_7_segment_led();
+                break;
+
             case COMPONENT_SUB_CIRCUIT : {
                 REQUIRED_ATTR(attr_name, comp_node, XML_ATTR_NESTED);
                 component = circuit->add_sub_circuit(attr_name.as_string(), num_inputs, num_outputs);

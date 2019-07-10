@@ -52,6 +52,10 @@ void sim_register_various_functions() {
         auto new_value = comp->output_value(0) == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
         comp->write_pin(comp->output_pin_index(0), new_value);
     } SIM_FUNC_END;
+
+    SIM_NEEDED_FUNC_BEGIN(7_SEGMENT_LED) {
+        return false;
+    } SIM_FUNC_END;
 }
 
 } // namespace lsim

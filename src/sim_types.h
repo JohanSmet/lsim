@@ -52,6 +52,7 @@ const ComponentType COMPONENT_XOR_GATE = 0x0018;
 const ComponentType COMPONENT_XNOR_GATE = 0x0019;
 const ComponentType COMPONENT_VIA = 0x0020;
 const ComponentType COMPONENT_OSCILLATOR = 0x0021;
+const ComponentType COMPONENT_7_SEGMENT_LED = 0x0101;
 const ComponentType COMPONENT_SUB_CIRCUIT = 0x1001;
 const ComponentType COMPONENT_TEXT = 0x2001;
 
