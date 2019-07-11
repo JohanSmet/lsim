@@ -363,7 +363,7 @@ Component *CircuitDescription::add_oscillator(size_t low_duration, size_t high_d
 }
 
 Component *CircuitDescription::add_7_segment_led() {
-    return create_component(COMPONENT_7_SEGMENT_LED, 8, 0, 0);
+    return create_component(COMPONENT_7_SEGMENT_LED, 8, 0, 1);
 }
 
 Component *CircuitDescription::add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs) {

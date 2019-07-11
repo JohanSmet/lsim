@@ -412,7 +412,7 @@ public:
             case COMPONENT_7_SEGMENT_LED: 
                 assert(num_inputs == 8);
                 assert(num_outputs == 0);
-                assert(num_controls == 0);
+                assert(num_controls == 1);
                 component = circuit->add_7_segment_led();
                 break;
 
