@@ -157,3 +157,38 @@ TEST_CASE("Oscillator", "[extra]") {
         REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_TRUE);
     }
 }
+
+TEST_CASE("Oscillator Long", "[extra]") {
+
+    LSimContext lsim_context;
+    auto sim = lsim_context.sim();
+
+    auto circuit_desc = lsim_context.create_user_circuit("main");
+    REQUIRE(circuit_desc);
+
+    auto clock = circuit_desc->add_oscillator(40, 40);
+    REQUIRE(clock);
+
+    auto out = circuit_desc->add_connector_out("out", 1);
+    REQUIRE(out);
+
+    circuit_desc->connect(clock->output_pin_id(0), out->pin_id(0));
+
+    auto circuit = circuit_desc->instantiate(sim);
+    REQUIRE(circuit);
+
+    sim->init();
+    REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_UNDEFINED);
+
+    for (int i = 0; i < 20; ++i) {
+        for (int j = 0; j < 40; ++j) {
+            sim->step();
+            REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_FALSE);
+        }
+
+        for (int j = 0; j < 40; ++j) {
+            sim->step();
+            REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_TRUE);
+        }
+    }
+}
