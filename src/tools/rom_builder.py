@@ -13,13 +13,14 @@ import argparse
 import sys
 
 class RomBuilder:
-    def __init__(self, word_size, word_count):
+    def __init__(self, name, word_size, word_count):
         assert word_count > 0 and ((word_count & (word_count - 1)) == 0), "word_count should be a power of two"
         assert word_size in [8, 16, 32], "word_size should be 8/16/32"
         assert word_count * word_size / 8 <= 512 * 1024, "ROM is limited to a maximum of 512k bytes"
 
         self.lsim = lsimpy.LSimContext()
         self.lsim.add_folder("examples", "../../examples")
+        self.name = name
         self.word_size = word_size
         self.word_count = word_count
 
@@ -174,13 +175,13 @@ class RomBuilder:
 
         # build main circuit
         if self.segment_count == 1:
-            self.lsim.user_library().rename_circuit(self.segments[0]["circuit_desc"], "rom")
-            self.lsim.user_library().change_main_circuit("rom")
+            self.lsim.user_library().rename_circuit(self.segments[0]["circuit_desc"], self.name)
+            self.lsim.user_library().change_main_circuit(self.name)
             return
 
         # create wrapper for multiple segments
-        circuit_desc = self.lsim.create_user_circuit("rom")
-        self.lsim.user_library().change_main_circuit("rom")
+        circuit_desc = self.lsim.create_user_circuit(self.name)
+        self.lsim.user_library().change_main_circuit(self.name)
 
         # >> input connectors
         pin_CE = circuit_desc.add_connector_in("CE", 1, False)
@@ -275,6 +276,7 @@ def main():
     parser.add_argument("data_file", help="filename of binary data to write to the ROM-circuit")
     parser.add_argument("-w", "--word-size", type=int, choices=[8,16,32], default=8,
                         help="number of bits in the output of the ROM")
+    parser.add_argument("-n", "--name", type=str, default='rom', help="specify the name of the main circuit")
     args = parser.parse_args()
 
     # read input data
@@ -289,7 +291,7 @@ def main():
     # create rom
     print ("*** preparing ROM")
     print ("word-size = {} - word-count = {}".format(args.word_size, word_count))
-    rom = RomBuilder(args.word_size, word_count)
+    rom = RomBuilder(args.name, args.word_size, word_count)
     rom.prepare_rom()
 
     print ("*** programming ROM")
