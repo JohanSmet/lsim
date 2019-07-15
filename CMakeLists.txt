@@ -164,6 +164,21 @@ target_compile_options(${APP_TARGET} PRIVATE ${APP_COMPILE_FLAGS})
 target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${APP_LIBS} ${CMAKE_DL_LIBS})
 
 #
+# speedtest
+#
+
+set(SPEED_TARGET speedtest)
+
+set(SPEED_SOURCES
+		"src/tools/speedtest/speedtest_main.cpp"
+)
+
+add_executable(${SPEED_TARGET} ${SPEED_SOURCES})
+target_include_directories(${SPEED_TARGET} PRIVATE libs src) 
+target_compile_definitions(${SPEED_TARGET} PRIVATE ${PLATFORM_DEF})
+target_link_libraries(${SPEED_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+
+#
 # Unit tests
 #
 
