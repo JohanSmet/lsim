@@ -16,6 +16,7 @@ typedef std::unordered_map<lsim::ComponentType, simulation_func_t> function_lut_
 typedef std::unordered_map<lsim::ComponentType, simulation_needed_func_t> sim_needed_lut_t;
 
 function_lut_t g_sim_function;
+function_lut_t g_sim_setup_functions;
 sim_needed_lut_t g_sim_needed_functions;
 
 static void dummy_sim_func(Simulator *sim, SimComponent *comp) {
@@ -40,12 +41,30 @@ static bool default_sim_needed_func(Simulator *sim, SimComponent *comp) {
 
 namespace lsim {
 
+void sim_register_setup_function(ComponentType type, simulation_func_t func) {
+    g_sim_setup_functions[type] = func;
+}
+
 void sim_register_function(ComponentType type, simulation_func_t func) {
     g_sim_function[type] = func;
 }
 
 void sim_register_needed_function(ComponentType type, simulation_needed_func_t func) {
     g_sim_needed_functions[type] = func;
+}
+
+bool sim_has_setup_function(ComponentType type) {
+    auto found = g_sim_setup_functions.find(type);
+    return found != g_sim_setup_functions.end();
+}
+
+simulation_func_t sim_setup_function(ComponentType type) {
+    auto found = g_sim_setup_functions.find(type);
+    if (found != g_sim_setup_functions.end()) {
+        return found->second;
+    } else {
+        return dummy_sim_func;
+    }
 }
 
 simulation_func_t sim_function(ComponentType type) {
@@ -65,7 +84,6 @@ simulation_needed_func_t sim_needed_function(ComponentType type) {
         return default_sim_needed_func;
     }
 }
-
 
 void sim_register_component_functions() {
     void sim_register_gate_functions();

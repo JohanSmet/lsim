@@ -114,12 +114,18 @@ SimComponent *Simulator::create_component(Component *desc) {
     auto sim_comp = std::make_unique<SimComponent>(this, desc);
     auto result = sim_comp.get();
     m_components[desc->priority()].push_back(std::move(sim_comp));
+
+    if (sim_has_setup_function(desc->type())) {
+        m_init_components.push_back(result);       
+    }
+
     return result;
 }
 
 void Simulator::clear_components() {
     m_components[0].clear();
     m_components[1].clear();
+    m_init_components.clear();
 }
 
 pin_t Simulator::assign_pin() {
@@ -252,6 +258,11 @@ void Simulator::init() {
     std::fill(std::begin(m_node_values_write), std::end(m_node_values_write), VALUE_UNDEFINED);
     std::fill(std::begin(m_node_write_time), std::end(m_node_write_time), 0);
     std::fill(std::begin(m_node_change_time), std::end(m_node_change_time), 0);
+
+    for (auto comp : m_init_components) {
+        auto setup_func = sim_setup_function(comp->description()->type());
+        setup_func(this, comp);
+    }
 }
 
 void Simulator::step() {

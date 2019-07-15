@@ -114,11 +114,13 @@ private:
     typedef std::vector<timestamp_t> timestamp_container_t;
     typedef std::vector<SimComponent::uptr_t> component_container_t;
     typedef std::array<component_container_t, 2> component_prio_container_t;
+    typedef std::vector<SimComponent *> component_refs_t;
 
 private:
     timestamp_t    m_time;
 
     component_prio_container_t  m_components;
+    component_refs_t            m_init_components;
     node_container_t            m_pin_nodes;
 
     node_container_t          m_free_nodes;
