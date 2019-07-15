@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <lsim version="2">
-	<reference name="lib_muxer" file="./examples/cpu_8bit/lib_muxers.lsim" />
+	<reference name="lib_muxer" file="examples/cpu_8bit/lib_muxers.lsim" />
 	<reference name="lib_latches" file="examples/cpu_8bit/lib_latches.lsim" />
 	<reference name="rom_hexled" file="examples/rom_hexled.lsim" />
 	<reference name="lib_counter" file="examples/cpu_8bit/lib_counter.lsim" />
