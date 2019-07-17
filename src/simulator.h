@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include <array>
+#include <set>
 
 namespace lsim {
 
@@ -23,11 +24,14 @@ public:
     SimComponent(Simulator *sim, Component *comp);
     Component *description() const {return m_comp_desc;}
 
+    void apply_initial_values();
+
     // pins
     pin_t pin_by_index(size_t index) const;
     size_t input_pin_index(size_t index) const {return index;}
     size_t output_pin_index(size_t index) const {return m_output_start + index;}
     size_t control_pin_index(size_t index) const {return m_control_start + index;}
+    const pin_container_t &pins() const {return m_pins;}
     pin_container_t input_pins() const;
     pin_container_t output_pins() const;
     pin_container_t control_pins() const;
@@ -54,7 +58,8 @@ public:
     CircuitInstance *nested_instance() const {return m_nested_circuit.get();}
 
     // simulation
-    void tick();
+    void sim_input_changed();
+    void sim_independent();
 
 private:
     Simulator *m_sim;
@@ -66,7 +71,8 @@ private:
     size_t m_control_start;
     bool m_read_bad;
 
-    simulation_func_t m_sim_func;
+    simulation_func_t m_sim_input_changed_func;
+    simulation_func_t m_sim_independent_func;
     simulation_needed_func_t m_sim_needed_func;
 
     std::unique_ptr<CircuitInstance>    m_nested_circuit;
@@ -84,8 +90,11 @@ public:
     void clear_components();
 
     // pins
-    pin_t assign_pin();
+    pin_t assign_pin(SimComponent *component, bool used_as_input);
     node_t connect_pins(pin_t pin_a, pin_t pin_b);
+    void clear_pins();
+    void pin_set_default(pin_t pin, Value value);
+    void pin_set_initial_value(pin_t pin, Value value);
     void write_pin(pin_t pin, Value value);
     Value read_pin(pin_t pin) const;
     Value read_pin_current_step(pin_t pin) const;
@@ -93,9 +102,13 @@ public:
     timestamp_t pin_last_change_time(pin_t pin) const;
 
     // nodes
-    node_t assign_node();
+    node_t assign_node(SimComponent *component, bool used_as_input);
     void release_node(node_t node_id);
     node_t merge_nodes(node_t node_a, node_t node_b);
+    void clear_nodes();
+
+    void node_set_default(node_t node_id, Value value);
+    void node_set_initial_value(node_t node_id, Value value);
 
     void write_node(node_t node_id, Value value);
     Value read_node(node_t node_id) const;
@@ -111,21 +124,33 @@ public:
     timestamp_t current_time() const {return m_time;}
 
 private:
+    void postprocess_dirty_nodes();
+
+private:
     typedef std::vector<timestamp_t> timestamp_container_t;
     typedef std::vector<SimComponent::uptr_t> component_container_t;
     typedef std::array<component_container_t, 2> component_prio_container_t;
     typedef std::vector<SimComponent *> component_refs_t;
+    typedef std::set<node_t> node_set_t;
+    typedef std::set<SimComponent *> component_set_t;
+    typedef std::vector<component_set_t> node_component_matrix_t;
 
 private:
     timestamp_t    m_time;
 
     component_prio_container_t  m_components;
     component_refs_t            m_init_components;
+    component_refs_t            m_independent_components;
     node_container_t            m_pin_nodes;
 
+    node_component_matrix_t   m_node_components;
     node_container_t          m_free_nodes;
     value_container_t         m_node_values_read;
     value_container_t         m_node_values_write;
+    value_container_t         m_node_defaults;
+    node_set_t                m_dirty_nodes_read;
+    node_set_t                m_dirty_nodes_write;
+
     timestamp_container_t     m_node_write_time;          // timestamp when node was last written to
     timestamp_container_t     m_node_change_time;         // timestamp when node last changed value
 };

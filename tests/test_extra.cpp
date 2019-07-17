@@ -142,10 +142,8 @@ TEST_CASE("Oscillator", "[extra]") {
     REQUIRE(circuit);
 
     sim->init();
-    REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_UNDEFINED);
 
     for (int i = 0; i < 3; ++i) {
-        sim->step();
         REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_FALSE);
         sim->step();
         REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_FALSE);
@@ -155,6 +153,7 @@ TEST_CASE("Oscillator", "[extra]") {
         REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_TRUE);
         sim->step();
         REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_TRUE);
+        sim->step();
     }
 }
 
@@ -178,17 +177,16 @@ TEST_CASE("Oscillator Long", "[extra]") {
     REQUIRE(circuit);
 
     sim->init();
-    REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_UNDEFINED);
 
     for (int i = 0; i < 20; ++i) {
         for (int j = 0; j < 40; ++j) {
-            sim->step();
             REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_FALSE);
+            sim->step();
         }
 
         for (int j = 0; j < 40; ++j) {
-            sim->step();
             REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_TRUE);
+            sim->step();
         }
     }
 }

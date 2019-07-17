@@ -18,15 +18,14 @@ void sim_register_various_functions() {
         return true;
     } SIM_FUNC_END;
 
-    SIM_FUNC_BEGIN(PULL_RESISTOR) {
-        if (sim->read_pin_current_step(comp->pin_by_index(0)) == VALUE_UNDEFINED) {
-            auto value = comp->description()->property("pull_to")->value_as_lsim_value();
-            comp->write_pin(0, value);
-        }
+    SIM_INDEPENDENT_FUNC_BEGIN(CONSTANT) {
+        auto value = comp->description()->property("value")->value_as_lsim_value();
+        comp->write_pin(0, value);
     } SIM_FUNC_END;
 
-    SIM_NEEDED_FUNC_BEGIN(PULL_RESISTOR) {
-        return true;
+    SIM_SETUP_FUNC_BEGIN(PULL_RESISTOR) {
+        auto value = comp->description()->property("pull_to")->value_as_lsim_value();
+        sim->pin_set_default(comp->pin_by_index(0), value);
     } SIM_FUNC_END;
 
     SIM_NEEDED_FUNC_BEGIN(SUB_CIRCUIT) {
@@ -41,16 +40,15 @@ void sim_register_various_functions() {
         return false;
     } SIM_FUNC_END;
 
-    SIM_NEEDED_FUNC_BEGIN(OSCILLATOR) {
+    SIM_INDEPENDENT_FUNC_BEGIN(OSCILLATOR) {
         auto cycle_len = sim->current_time() - sim->pin_last_change_time(comp->pin_by_index(0));
         auto part = (comp->output_value(0) == VALUE_TRUE) ? "high_duration" : "low_duration";
         auto max = comp->description()->property_value(part, 1l);
-        return cycle_len >= max;
-    } SIM_FUNC_END;
 
-    SIM_FUNC_BEGIN(OSCILLATOR) {
-        auto new_value = comp->output_value(0) == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
-        comp->write_pin(comp->output_pin_index(0), new_value);
+        if (cycle_len >= max) {
+            auto new_value = comp->output_value(0) == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
+            comp->write_pin(comp->output_pin_index(0), new_value);
+        }
     } SIM_FUNC_END;
 
     SIM_NEEDED_FUNC_BEGIN(7_SEGMENT_LED) {
