@@ -9,13 +9,9 @@
 namespace lsim {
 
 void sim_register_various_functions() {
-    SIM_FUNC_BEGIN(CONSTANT)  {
+    SIM_SETUP_FUNC_BEGIN(CONSTANT)  {
         auto value = comp->description()->property("value")->value_as_lsim_value();
-        comp->write_pin(0, value);
-    } SIM_FUNC_END;
-
-    SIM_NEEDED_FUNC_BEGIN(CONSTANT) {
-        return true;
+        sim->pin_set_initial_value(comp->pin_by_index(0), value);
     } SIM_FUNC_END;
 
     SIM_INDEPENDENT_FUNC_BEGIN(CONSTANT) {
