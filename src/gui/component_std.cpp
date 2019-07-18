@@ -89,7 +89,7 @@ void component_register_basic() {
                 {
                     auto cur_val = VALUE_FALSE;
                     if (ui_circuit->is_simulating()) {
-                        cur_val = ui_circuit->circuit_inst()->pin_output(comp->output_pin_id(i));
+                        cur_val = ui_circuit->circuit_inst()->user_value(comp->output_pin_id(i));
                     }
                     auto center_pos = to_window.apply(Point(0, ((-full_height * 0.5f) + ((i + 0.5f) * height)) * (desc ? -1.0f : 1.0f)));
                     ImGui::SetCursorScreenPos(center_pos - Point(8,8));
@@ -97,9 +97,8 @@ void component_register_basic() {
                     ImGui::PushID(i);
                     if (ui_circuit->is_simulating() && !ui_circuit->is_view_only_simulation() &&
                         ImGui::InvisibleButton(connector_data_label(cur_val), {16,16})) {
-                        ui_circuit->circuit_inst()->write_pin(
-                                comp->output_pin_id(i), 
-                                static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2)));
+                        cur_val = static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2));
+                        ui_circuit->circuit_inst()->write_pin(comp->output_pin_id(i), cur_val);
                     }
 
                     ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);

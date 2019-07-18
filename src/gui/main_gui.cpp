@@ -106,20 +106,6 @@ static void ui_popup_library_save_name(LSimContext *lsim_context) {
 	}
 }
 
-static void init_input_connectors(CircuitDescription *desc, CircuitInstance *inst) {
-	auto connector_ids = desc->component_ids_of_type(COMPONENT_CONNECTOR_IN);
-
-	for (const auto &id : connector_ids) {
-		auto connector = desc->component_by_id(id);
-		auto pin = connector->output_pin_id(0);
-		if (!connector->property_value("tri_state", false)) {
-			for (size_t idx = 0; idx < connector->num_outputs(); ++idx) {
-				inst->write_pin(pin++, VALUE_FALSE);
-			}
-		}
-	}
-}
-
 static void ui_circuit_management(LSimContext *context) {
 
 	auto lib = context->user_library();
@@ -541,7 +527,6 @@ void main_gui(LSimContext *lsim_context)
 			circuit_instance = ui_circuit->circuit_desc()->instantiate(lsim_context->sim());
 			ui_circuit->set_simulation_instance(circuit_instance.get());
 			sim->init();
-			init_input_connectors(ui_circuit->circuit_desc(), ui_circuit->circuit_inst());
 		}
 
 		if (ui_circuit->is_simulating()) {

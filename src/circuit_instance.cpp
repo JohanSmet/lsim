@@ -22,7 +22,7 @@ SimComponent *CircuitInstance::add_component(Component *comp) {
     m_components[comp->id()] = sim_comp;
 
     if (comp->type() == COMPONENT_SUB_CIRCUIT) {
-        auto nested_instance = comp->nested_circuit()->instantiate(m_sim);
+        auto nested_instance = comp->nested_circuit()->instantiate(m_sim, false);
         nested_instance->build_name(comp->id());
 
         for (size_t idx = 0; idx < sim_comp->num_inputs(); ++idx) {
@@ -139,7 +139,7 @@ void CircuitInstance::write_pin(pin_id_t pin_id, Value value) {
     auto comp = component_by_id(component_id_from_pin_id(pin_id));
     assert(comp);
 
-    comp->write_pin(pin_index_from_pin_id(pin_id), value);
+    comp->set_user_value(pin_index_from_pin_id(pin_id), value);
 }
 
 void CircuitInstance::write_output_pins(uint32_t comp_id, value_container_t values) {
@@ -149,7 +149,7 @@ void CircuitInstance::write_output_pins(uint32_t comp_id, value_container_t valu
     assert(values.size() == comp->num_outputs());
 
     for (size_t idx = 0; idx < values.size(); ++idx) {
-        comp->write_pin(comp->output_pin_index(idx), values[idx]);
+        comp->set_user_value(comp->output_pin_index(idx), values[idx]);
     }
 }
 
@@ -158,7 +158,7 @@ void CircuitInstance::write_output_pins(uint32_t comp_id, uint64_t data) {
     assert(comp);
 
     for (size_t idx = 0; idx < comp->num_outputs(); ++idx) {
-        comp->write_pin(comp->output_pin_index(idx), static_cast<Value>((data >> idx) & 1));
+        comp->set_user_value(comp->output_pin_index(idx), static_cast<Value>((data >> idx) & 1));
     }
 }
 
@@ -166,7 +166,7 @@ void CircuitInstance::write_output_pins(uint32_t comp_id, Value value) {
     auto comp = component_by_id(comp_id);
     assert(comp);
 
-    comp->write_pin(comp->output_pin_index(0), value);
+    comp->set_user_value(comp->output_pin_index(0), value);
 }
 
 void CircuitInstance::write_nibble(const pin_id_container_t &pins, uint8_t data) {
@@ -177,7 +177,7 @@ void CircuitInstance::write_nibble(const pin_id_container_t &pins, uint8_t data)
 
         auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
         assert(comp);
-        comp->write_pin(pin_index_from_pin_id(pins[idx]), value);
+        comp->set_user_value(pin_index_from_pin_id(pins[idx]), value);
     }
 }
 
@@ -189,7 +189,7 @@ void CircuitInstance::write_byte(const pin_id_container_t &pins, uint8_t data) {
 
         auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
         assert(comp);
-        comp->write_pin(pin_index_from_pin_id(pins[idx]), value);
+        comp->set_user_value(pin_index_from_pin_id(pins[idx]), value);
     }
 }
 
@@ -199,7 +199,7 @@ void CircuitInstance::write_pins(const pin_id_container_t &pins, const value_con
     for (size_t idx = 0; idx < pins.size(); ++idx) {
         auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
         assert(comp);
-        comp->write_pin(pin_index_from_pin_id(pins[idx]), values[idx]);
+        comp->set_user_value(pin_index_from_pin_id(pins[idx]), values[idx]);
     }
 }
 
@@ -207,7 +207,7 @@ void CircuitInstance::write_pins(const pin_id_container_t &pins, uint64_t data) 
     for (size_t idx = 0; idx < pins.size(); ++idx) {
         auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
         assert(comp);
-        comp->write_pin(pin_index_from_pin_id(pins[idx]), static_cast<Value>((data >> idx) & 1));
+        comp->set_user_value(pin_index_from_pin_id(pins[idx]), static_cast<Value>((data >> idx) & 1));
     }
 }
 
@@ -215,6 +215,12 @@ Value CircuitInstance::pin_output(pin_id_t pin_id) {
     auto comp = component_by_id(component_id_from_pin_id(pin_id));
     assert(comp);
     return comp->output_value(pin_index_from_pin_id(pin_id));
+}
+
+Value CircuitInstance::user_value(pin_id_t pin_id) {
+    auto comp = component_by_id(component_id_from_pin_id(pin_id));
+    assert(comp);
+    return comp->user_value(pin_index_from_pin_id(pin_id));
 }
 
 SimComponent *CircuitInstance::component_by_id(uint32_t comp_id) {

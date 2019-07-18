@@ -9,6 +9,32 @@
 namespace lsim {
 
 void sim_register_various_functions() {
+    SIM_SETUP_FUNC_BEGIN(CONNECTOR_IN) {
+        if (!comp->user_values_enabled()) {
+            return;
+        }
+        for (size_t pin = 0; pin < comp->num_outputs(); ++pin) {
+            auto user_value = comp->user_value(comp->output_pin_index(pin));
+            if (user_value != VALUE_UNDEFINED) {
+                sim->pin_set_initial_value(comp->pin_by_index(pin), user_value);
+                comp->set_output_value(comp->output_pin_index(pin), user_value);
+            }
+        }
+    } SIM_FUNC_END;
+
+    SIM_INDEPENDENT_FUNC_BEGIN(CONNECTOR_IN) {
+        if (!comp->user_values_enabled()) {
+            return;
+        }
+        for (size_t pin = 0; pin < comp->num_outputs(); ++pin) {
+            auto last_value = comp->output_value(comp->output_pin_index(pin));
+            auto user_value = comp->user_value(comp->output_pin_index(pin));
+            if (last_value != user_value || user_value != VALUE_UNDEFINED) {
+                comp->write_pin(pin, user_value);
+            }
+        }
+    } SIM_FUNC_END;
+
     SIM_SETUP_FUNC_BEGIN(CONSTANT)  {
         auto value = comp->description()->property("value")->value_as_lsim_value();
         sim->pin_set_initial_value(comp->pin_by_index(0), value);

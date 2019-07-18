@@ -45,6 +45,7 @@ public:
 
     // get value written to by a specific pin
     Value pin_output(pin_id_t pin_id);
+    Value user_value(pin_id_t pin_id);
 
 private: 
     pin_t pin_from_pin_id(pin_id_t pin_id);

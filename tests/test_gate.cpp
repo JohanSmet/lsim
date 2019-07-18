@@ -32,17 +32,16 @@ TEST_CASE("Buffer", "[gate]") {
     sim->init();
     REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_UNDEFINED);
 
-    // buffer takes a cycle to change output
     circuit->write_output_pins(in->id(), {VALUE_TRUE, VALUE_FALSE, VALUE_FALSE, VALUE_UNDEFINED});
     REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_UNDEFINED);
-    sim->step();
+    sim->run_until_stable(5);
     REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_TRUE);
     REQUIRE(circuit->read_pin(out->pin_id(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_pin(out->pin_id(2)) == VALUE_FALSE);
     REQUIRE(circuit->read_pin(out->pin_id(3)) == VALUE_UNDEFINED);
 
     circuit->write_output_pins(in->id(), {VALUE_FALSE, VALUE_FALSE, VALUE_TRUE, VALUE_ERROR});
-    sim->step();
+    sim->run_until_stable(5);
     REQUIRE(circuit->read_pin(out->pin_id(0)) == VALUE_FALSE);
     REQUIRE(circuit->read_pin(out->pin_id(1)) == VALUE_FALSE);
     REQUIRE(circuit->read_pin(out->pin_id(2)) == VALUE_TRUE);

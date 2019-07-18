@@ -4,8 +4,9 @@
 	<reference name="lib_latche" file="examples/cpu_8bit/lib_latches.lsim" />
 	<circuit name="adder_1b_pg">
 		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Ci" />
+			<property key="tri_state" value="false" />
 			<position x="40" y="20" />
 			<orientation angle="0" />
 		</component>
@@ -15,14 +16,16 @@
 			<orientation angle="0" />
 		</component>
 		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="40" y="50" />
 			<orientation angle="0" />
 		</component>
 		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="B" />
+			<property key="tri_state" value="false" />
 			<position x="40" y="90" />
 			<orientation angle="0" />
 		</component>
@@ -32,14 +35,16 @@
 			<orientation angle="0" />
 		</component>
 		<component id="5" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="O" />
+			<property key="tri_state" value="false" />
 			<position x="470" y="50" />
 			<orientation angle="0" />
 		</component>
 		<component id="6" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="P" />
+			<property key="tri_state" value="false" />
 			<position x="470" y="100" />
 			<orientation angle="0" />
 		</component>
@@ -49,8 +54,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="8" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="G" />
+			<property key="tri_state" value="false" />
 			<position x="470" y="150" />
 			<orientation angle="0" />
 		</component>
@@ -116,8 +122,9 @@
 	</circuit>
 	<circuit name="adder_cla_4b">
 		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="C0" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="20" />
 			<orientation angle="0" />
 		</component>
@@ -127,14 +134,16 @@
 			<orientation angle="0" />
 		</component>
 		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="P0" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="60" />
 			<orientation angle="0" />
 		</component>
 		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="G0" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="90" />
 			<orientation angle="0" />
 		</component>
@@ -144,8 +153,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="5" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="P1" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="160" />
 			<orientation angle="0" />
 		</component>
@@ -165,8 +175,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="9" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="G1" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="250" />
 			<orientation angle="0" />
 		</component>
@@ -176,8 +187,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="11" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="P2" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="330" />
 			<orientation angle="0" />
 		</component>
@@ -197,8 +209,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="15" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="G2" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="490" />
 			<orientation angle="0" />
 		</component>
@@ -208,38 +221,44 @@
 			<orientation angle="0" />
 		</component>
 		<component id="17" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="P3" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="580" />
 			<orientation angle="0" />
 		</component>
 		<component id="18" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="C1" />
+			<property key="tri_state" value="false" />
 			<position x="910" y="60" />
 			<orientation angle="0" />
 		</component>
 		<component id="19" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="C2" />
+			<property key="tri_state" value="false" />
 			<position x="910" y="180" />
 			<orientation angle="0" />
 		</component>
 		<component id="20" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="C3" />
+			<property key="tri_state" value="false" />
 			<position x="910" y="370" />
 			<orientation angle="0" />
 		</component>
 		<component id="21" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="C4" />
+			<property key="tri_state" value="false" />
 			<position x="910" y="670" />
 			<orientation angle="0" />
 		</component>
 		<component id="22" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Po" />
+			<property key="tri_state" value="false" />
 			<position x="910" y="560" />
 			<orientation angle="0" />
 		</component>
@@ -269,8 +288,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="28" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="G3" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="860" />
 			<orientation angle="0" />
 		</component>
@@ -280,8 +300,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="30" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Go" />
+			<property key="tri_state" value="false" />
 			<position x="910" y="740" />
 			<orientation angle="0" />
 		</component>
@@ -547,8 +568,9 @@
 	</circuit>
 	<circuit name="adder_8b">
 		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Ci" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="10" />
 			<orientation angle="0" />
 		</component>
@@ -598,20 +620,23 @@
 			<orientation angle="0" />
 		</component>
 		<component id="10" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="260" />
 			<orientation angle="0" />
 		</component>
 		<component id="11" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="B" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="510" />
 			<orientation angle="0" />
 		</component>
 		<component id="12" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Y" />
+			<property key="tri_state" value="false" />
 			<position x="1040" y="440" />
 			<orientation angle="0" />
 		</component>
@@ -621,8 +646,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="14" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Co" />
+			<property key="tri_state" value="false" />
 			<position x="1040" y="880" />
 			<orientation angle="0" />
 		</component>
@@ -1047,8 +1073,9 @@
 	</circuit>
 	<circuit name="complement_8b">
 		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="60" y="120" />
 			<orientation angle="0" />
 		</component>
@@ -1098,14 +1125,16 @@
 			<orientation angle="0" />
 		</component>
 		<component id="10" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Inv" />
+			<property key="tri_state" value="false" />
 			<position x="60" y="580" />
 			<orientation angle="0" />
 		</component>
 		<component id="11" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Y" />
+			<property key="tri_state" value="false" />
 			<position x="430" y="140" />
 			<orientation angle="0" />
 		</component>
@@ -1292,20 +1321,23 @@
 			<orientation angle="0" />
 		</component>
 		<component id="8" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="70" y="110" />
 			<orientation angle="0" />
 		</component>
 		<component id="9" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Rev" />
+			<property key="tri_state" value="false" />
 			<position x="70" y="850" />
 			<orientation angle="0" />
 		</component>
 		<component id="10" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Y" />
+			<property key="tri_state" value="false" />
 			<position x="660" y="110" />
 			<orientation angle="0" />
 		</component>
@@ -1524,8 +1556,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="9" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="30" y="130" />
 			<orientation angle="0" />
 		</component>
@@ -1575,8 +1608,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="19" type="ConnectorIn" priority="normal" inputs="0" outputs="4" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="S" />
+			<property key="tri_state" value="false" />
 			<position x="90" y="950" />
 			<orientation angle="0" />
 		</component>
@@ -1586,8 +1620,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="21" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Shl" />
+			<property key="tri_state" value="false" />
 			<position x="110" y="310" />
 			<orientation angle="180" />
 		</component>
@@ -1682,8 +1717,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="40" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Y" />
+			<property key="tri_state" value="false" />
 			<position x="1630" y="130" />
 			<orientation angle="0" />
 		</component>
@@ -2269,14 +2305,16 @@
 			<orientation angle="0" />
 		</component>
 		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="90" y="160" />
 			<orientation angle="0" />
 		</component>
 		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="B" />
+			<property key="tri_state" value="false" />
 			<position x="90" y="350" />
 			<orientation angle="0" />
 		</component>
@@ -2321,8 +2359,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="11" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Y" />
+			<property key="tri_state" value="false" />
 			<position x="550" y="180" />
 			<orientation angle="0" />
 		</component>
@@ -2496,14 +2535,16 @@
 			<orientation angle="0" />
 		</component>
 		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="90" y="160" />
 			<orientation angle="0" />
 		</component>
 		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="B" />
+			<property key="tri_state" value="false" />
 			<position x="90" y="350" />
 			<orientation angle="0" />
 		</component>
@@ -2548,8 +2589,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="11" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Y" />
+			<property key="tri_state" value="false" />
 			<position x="550" y="180" />
 			<orientation angle="0" />
 		</component>
@@ -2723,14 +2765,16 @@
 			<orientation angle="0" />
 		</component>
 		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="90" y="160" />
 			<orientation angle="0" />
 		</component>
 		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="B" />
+			<property key="tri_state" value="false" />
 			<position x="90" y="350" />
 			<orientation angle="0" />
 		</component>
@@ -2775,8 +2819,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="11" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Y" />
+			<property key="tri_state" value="false" />
 			<position x="550" y="180" />
 			<orientation angle="0" />
 		</component>
@@ -2950,8 +2995,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="A" />
+			<property key="tri_state" value="false" />
 			<position x="40" y="100" />
 			<orientation angle="0" />
 		</component>
@@ -2962,8 +3008,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="B" />
+			<property key="tri_state" value="false" />
 			<position x="40" y="280" />
 			<orientation angle="0" />
 		</component>
@@ -2974,8 +3021,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="5" type="ConnectorIn" priority="normal" inputs="0" outputs="4" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Instr" />
+			<property key="tri_state" value="false" />
 			<position x="50" y="440" />
 			<orientation angle="0" />
 		</component>
@@ -3041,8 +3089,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="17" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="OE" />
+			<property key="tri_state" value="false" />
 			<position x="40" y="780" />
 			<orientation angle="0" />
 		</component>
@@ -3118,8 +3167,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="31" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="Y" />
+			<property key="tri_state" value="false" />
 			<position x="920" y="1150" />
 			<orientation angle="90" />
 		</component>
@@ -3266,8 +3316,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="57" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="ZF" />
+			<property key="tri_state" value="false" />
 			<position x="370" y="1040" />
 			<orientation angle="0" />
 		</component>
@@ -3289,8 +3340,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="61" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="CF" />
+			<property key="tri_state" value="false" />
 			<position x="370" y="1130" />
 			<orientation angle="0" />
 		</component>
@@ -3306,8 +3358,9 @@
 			<orientation angle="0" />
 		</component>
 		<component id="64" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
-			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
 			<property key="name" value="CE" />
+			<property key="tri_state" value="false" />
 			<position x="40" y="700" />
 			<orientation angle="0" />
 		</component>
@@ -3600,25 +3653,6 @@
 			<segment x1="240" y1="580" x2="260" y2="580" />
 			<pin value="9#8" />
 			<pin value="13#0" />
-		</wire>
-		<wire id="45">
-			<segment x1="370" y1="50" x2="410" y2="50" />
-			<segment x1="410" y1="50" x2="450" y2="90" />
-			<segment x1="450" y1="90" x2="470" y2="90" />
-			<pin value="8#3" />
-			<pin value="14#0" />
-		</wire>
-		<wire id="46">
-			<segment x1="370" y1="90" x2="410" y2="90" />
-			<segment x1="410" y1="90" x2="450" y2="50" />
-			<segment x1="450" y1="50" x2="470" y2="50" />
-			<pin value="8#1" />
-			<pin value="14#2" />
-		</wire>
-		<wire id="47">
-			<segment x1="370" y1="70" x2="470" y2="70" />
-			<pin value="8#2" />
-			<pin value="14#1" />
 		</wire>
 		<wire id="48">
 			<segment x1="630" y1="240" x2="650" y2="240" />
@@ -4029,7 +4063,7 @@
 			<pin value="35#0" />
 			<pin value="26#16" />
 		</wire>
-		<wire id="110">
+		<wire id="108">
 			<segment x1="800" y1="430" x2="910" y2="430" />
 			<segment x1="910" y1="590" x2="910" y2="430" />
 			<segment x1="910" y1="700" x2="910" y2="590" />
@@ -4052,7 +4086,7 @@
 			<pin value="11#12" />
 			<pin value="32#11" />
 		</wire>
-		<wire id="111">
+		<wire id="109">
 			<segment x1="800" y1="450" x2="930" y2="450" />
 			<segment x1="930" y1="570" x2="930" y2="450" />
 			<segment x1="930" y1="680" x2="930" y2="570" />
@@ -4075,7 +4109,7 @@
 			<pin value="11#11" />
 			<pin value="32#12" />
 		</wire>
-		<wire id="112">
+		<wire id="110">
 			<segment x1="940" y1="970" x2="950" y2="970" />
 			<segment x1="800" y1="460" x2="950" y2="460" />
 			<segment x1="950" y1="560" x2="950" y2="460" />
@@ -4100,7 +4134,7 @@
 			<pin value="11#10" />
 			<pin value="32#13" />
 		</wire>
-		<wire id="113">
+		<wire id="111">
 			<segment x1="950" y1="980" x2="970" y2="980" />
 			<segment x1="800" y1="470" x2="970" y2="470" />
 			<segment x1="970" y1="550" x2="970" y2="470" />
@@ -4125,378 +4159,378 @@
 			<pin value="11#9" />
 			<pin value="32#14" />
 		</wire>
-		<wire id="114">
+		<wire id="112">
 			<segment x1="1060" y1="270" x2="1060" y2="240" />
 			<pin value="36#0" />
 			<pin value="32#16" />
 		</wire>
-		<wire id="115">
+		<wire id="113">
 			<segment x1="1350" y1="480" x2="1370" y2="480" />
 			<pin value="27#0" />
 			<pin value="37#0" />
 		</wire>
-		<wire id="116">
+		<wire id="114">
 			<segment x1="1370" y1="500" x2="1350" y2="500" />
 			<pin value="37#1" />
 			<pin value="27#1" />
 		</wire>
-		<wire id="117">
+		<wire id="115">
 			<segment x1="1350" y1="520" x2="1370" y2="520" />
 			<pin value="27#2" />
 			<pin value="37#2" />
 		</wire>
-		<wire id="118">
+		<wire id="116">
 			<segment x1="1370" y1="540" x2="1350" y2="540" />
 			<pin value="37#3" />
 			<pin value="27#3" />
 		</wire>
-		<wire id="119">
+		<wire id="117">
 			<segment x1="1350" y1="560" x2="1370" y2="560" />
 			<pin value="27#4" />
 			<pin value="37#4" />
 		</wire>
-		<wire id="120">
+		<wire id="118">
 			<segment x1="1370" y1="580" x2="1350" y2="580" />
 			<pin value="37#5" />
 			<pin value="27#5" />
 		</wire>
-		<wire id="121">
+		<wire id="119">
 			<segment x1="1350" y1="600" x2="1370" y2="600" />
 			<pin value="27#6" />
 			<pin value="37#6" />
 		</wire>
-		<wire id="122">
+		<wire id="120">
 			<segment x1="1370" y1="620" x2="1350" y2="620" />
 			<pin value="37#7" />
 			<pin value="27#7" />
 		</wire>
-		<wire id="123">
+		<wire id="121">
 			<segment x1="1350" y1="640" x2="1370" y2="640" />
 			<pin value="27#8" />
 			<pin value="38#0" />
 		</wire>
-		<wire id="124">
+		<wire id="122">
 			<segment x1="1370" y1="660" x2="1350" y2="660" />
 			<pin value="38#1" />
 			<pin value="27#9" />
 		</wire>
-		<wire id="125">
+		<wire id="123">
 			<segment x1="1350" y1="680" x2="1360" y2="680" />
 			<segment x1="1360" y1="680" x2="1370" y2="680" />
 			<pin value="27#10" />
 			<pin value="38#2" />
 		</wire>
-		<wire id="126">
+		<wire id="124">
 			<segment x1="1370" y1="700" x2="1350" y2="700" />
 			<pin value="38#3" />
 			<pin value="27#11" />
 		</wire>
-		<wire id="127">
+		<wire id="125">
 			<segment x1="1350" y1="720" x2="1370" y2="720" />
 			<pin value="27#12" />
 			<pin value="38#4" />
 		</wire>
-		<wire id="128">
+		<wire id="126">
 			<segment x1="1370" y1="740" x2="1350" y2="740" />
 			<pin value="38#5" />
 			<pin value="27#13" />
 		</wire>
-		<wire id="129">
+		<wire id="127">
 			<segment x1="1350" y1="760" x2="1370" y2="760" />
 			<pin value="27#14" />
 			<pin value="38#6" />
 		</wire>
-		<wire id="130">
+		<wire id="128">
 			<segment x1="1370" y1="780" x2="1350" y2="780" />
 			<pin value="38#7" />
 			<pin value="27#15" />
 		</wire>
-		<wire id="131">
+		<wire id="129">
 			<segment x1="1350" y1="870" x2="1360" y2="870" />
 			<segment x1="1360" y1="870" x2="1370" y2="870" />
 			<pin value="28#0" />
 			<pin value="39#0" />
 		</wire>
-		<wire id="132">
+		<wire id="130">
 			<segment x1="1370" y1="890" x2="1350" y2="890" />
 			<pin value="39#1" />
 			<pin value="28#1" />
 		</wire>
-		<wire id="133">
+		<wire id="131">
 			<segment x1="1350" y1="910" x2="1370" y2="910" />
 			<pin value="28#2" />
 			<pin value="39#2" />
 		</wire>
-		<wire id="134">
+		<wire id="132">
 			<segment x1="1370" y1="930" x2="1350" y2="930" />
 			<pin value="39#3" />
 			<pin value="28#3" />
 		</wire>
-		<wire id="135">
+		<wire id="133">
 			<segment x1="1350" y1="950" x2="1370" y2="950" />
 			<pin value="28#4" />
 			<pin value="39#4" />
 		</wire>
-		<wire id="136">
+		<wire id="134">
 			<segment x1="1370" y1="970" x2="1350" y2="970" />
 			<pin value="39#5" />
 			<pin value="28#5" />
 		</wire>
-		<wire id="137">
+		<wire id="135">
 			<segment x1="1350" y1="990" x2="1370" y2="990" />
 			<pin value="28#6" />
 			<pin value="39#6" />
 		</wire>
-		<wire id="138">
+		<wire id="136">
 			<segment x1="1370" y1="1010" x2="1350" y2="1010" />
 			<pin value="39#7" />
 			<pin value="28#7" />
 		</wire>
-		<wire id="139">
+		<wire id="137">
 			<segment x1="1370" y1="1030" x2="1350" y2="1030" />
 			<pin value="40#0" />
 			<pin value="28#8" />
 		</wire>
-		<wire id="140">
+		<wire id="138">
 			<segment x1="1370" y1="1050" x2="1350" y2="1050" />
 			<pin value="40#1" />
 			<pin value="28#9" />
 		</wire>
-		<wire id="141">
+		<wire id="139">
 			<segment x1="1370" y1="1070" x2="1350" y2="1070" />
 			<pin value="40#2" />
 			<pin value="28#10" />
 		</wire>
-		<wire id="142">
+		<wire id="140">
 			<segment x1="1370" y1="1090" x2="1350" y2="1090" />
 			<pin value="40#3" />
 			<pin value="28#11" />
 		</wire>
-		<wire id="143">
+		<wire id="141">
 			<segment x1="1370" y1="1110" x2="1350" y2="1110" />
 			<pin value="40#4" />
 			<pin value="28#12" />
 		</wire>
-		<wire id="144">
+		<wire id="142">
 			<segment x1="1370" y1="1130" x2="1350" y2="1130" />
 			<pin value="40#5" />
 			<pin value="28#13" />
 		</wire>
-		<wire id="145">
+		<wire id="143">
 			<segment x1="1370" y1="1150" x2="1350" y2="1150" />
 			<pin value="40#6" />
 			<pin value="28#14" />
 		</wire>
-		<wire id="146">
+		<wire id="144">
 			<segment x1="1370" y1="1170" x2="1350" y2="1170" />
 			<pin value="40#7" />
 			<pin value="28#15" />
 		</wire>
-		<wire id="147">
+		<wire id="145">
 			<segment x1="650" y1="90" x2="630" y2="90" />
 			<pin value="44#0" />
 			<pin value="8#7" />
 		</wire>
-		<wire id="148">
+		<wire id="146">
 			<segment x1="650" y1="110" x2="630" y2="110" />
 			<pin value="45#0" />
 			<pin value="8#8" />
 		</wire>
-		<wire id="149">
+		<wire id="147">
 			<segment x1="1090" y1="620" x2="1190" y2="620" />
 			<pin value="27#23" />
 			<pin value="46#0" />
 		</wire>
-		<wire id="150">
+		<wire id="148">
 			<segment x1="1190" y1="600" x2="1180" y2="600" />
 			<segment x1="1180" y1="600" x2="1180" y2="610" />
 			<segment x1="1180" y1="610" x2="1090" y2="610" />
 			<pin value="27#22" />
 			<pin value="46#1" />
 		</wire>
-		<wire id="151">
+		<wire id="149">
 			<segment x1="1090" y1="600" x2="1170" y2="600" />
 			<segment x1="1170" y1="600" x2="1170" y2="580" />
 			<segment x1="1170" y1="580" x2="1190" y2="580" />
 			<pin value="27#21" />
 			<pin value="46#2" />
 		</wire>
-		<wire id="152">
+		<wire id="150">
 			<segment x1="1090" y1="590" x2="1160" y2="590" />
 			<segment x1="1160" y1="590" x2="1160" y2="560" />
 			<segment x1="1160" y1="560" x2="1190" y2="560" />
 			<pin value="27#20" />
 			<pin value="46#3" />
 		</wire>
-		<wire id="153">
+		<wire id="151">
 			<segment x1="1090" y1="570" x2="1150" y2="570" />
 			<segment x1="1150" y1="570" x2="1150" y2="540" />
 			<segment x1="1150" y1="540" x2="1190" y2="540" />
 			<pin value="27#19" />
 			<pin value="46#4" />
 		</wire>
-		<wire id="154">
+		<wire id="152">
 			<segment x1="1090" y1="560" x2="1140" y2="560" />
 			<segment x1="1140" y1="560" x2="1140" y2="520" />
 			<segment x1="1140" y1="520" x2="1190" y2="520" />
 			<pin value="27#18" />
 			<pin value="46#5" />
 		</wire>
-		<wire id="155">
+		<wire id="153">
 			<segment x1="1190" y1="500" x2="1130" y2="500" />
 			<segment x1="1130" y1="500" x2="1130" y2="550" />
 			<segment x1="1130" y1="550" x2="1090" y2="550" />
 			<pin value="27#17" />
 			<pin value="46#6" />
 		</wire>
-		<wire id="156">
+		<wire id="154">
 			<segment x1="1090" y1="540" x2="1120" y2="540" />
 			<segment x1="1120" y1="540" x2="1120" y2="480" />
 			<segment x1="1120" y1="480" x2="1190" y2="480" />
 			<pin value="27#16" />
 			<pin value="46#7" />
 		</wire>
-		<wire id="157">
+		<wire id="155">
 			<segment x1="1060" y1="650" x2="1060" y2="630" />
 			<pin value="47#0" />
 			<pin value="46#16" />
 		</wire>
-		<wire id="158">
+		<wire id="156">
 			<segment x1="650" y1="400" x2="630" y2="400" />
 			<pin value="50#0" />
 			<pin value="16#25" />
 		</wire>
-		<wire id="159">
+		<wire id="157">
 			<segment x1="720" y1="440" x2="740" y2="440" />
 			<pin value="52#0" />
 			<pin value="51#8" />
 		</wire>
-		<wire id="160">
+		<wire id="158">
 			<segment x1="120" y1="1040" x2="150" y2="1040" />
 			<pin value="55#0" />
 			<pin value="53#0" />
 		</wire>
-		<wire id="161">
+		<wire id="159">
 			<segment x1="120" y1="1060" x2="150" y2="1060" />
 			<pin value="56#0" />
 			<pin value="53#1" />
 		</wire>
-		<wire id="162">
+		<wire id="160">
 			<segment x1="310" y1="1040" x2="360" y2="1040" />
 			<pin value="53#2" />
 			<pin value="57#0" />
 		</wire>
-		<wire id="163">
+		<wire id="161">
 			<segment x1="370" y1="30" x2="470" y2="30" />
 			<pin value="8#0" />
 			<pin value="66#0" />
 		</wire>
-		<wire id="164">
+		<wire id="162">
 			<segment x1="1090" y1="870" x2="1190" y2="870" />
 			<pin value="48#7" />
 			<pin value="28#16" />
 		</wire>
-		<wire id="165">
+		<wire id="163">
 			<segment x1="1090" y1="880" x2="1180" y2="880" />
 			<segment x1="1180" y1="880" x2="1180" y2="890" />
 			<segment x1="1180" y1="890" x2="1190" y2="890" />
 			<pin value="48#6" />
 			<pin value="28#17" />
 		</wire>
-		<wire id="166">
+		<wire id="164">
 			<segment x1="1090" y1="890" x2="1170" y2="890" />
 			<segment x1="1170" y1="890" x2="1170" y2="910" />
 			<segment x1="1170" y1="910" x2="1190" y2="910" />
 			<pin value="48#5" />
 			<pin value="28#18" />
 		</wire>
-		<wire id="167">
+		<wire id="165">
 			<segment x1="1090" y1="900" x2="1160" y2="900" />
 			<segment x1="1160" y1="900" x2="1160" y2="930" />
 			<segment x1="1160" y1="930" x2="1190" y2="930" />
 			<pin value="48#4" />
 			<pin value="28#19" />
 		</wire>
-		<wire id="168">
+		<wire id="166">
 			<segment x1="1090" y1="920" x2="1150" y2="920" />
 			<segment x1="1150" y1="920" x2="1150" y2="950" />
 			<segment x1="1150" y1="950" x2="1190" y2="950" />
 			<pin value="48#3" />
 			<pin value="28#20" />
 		</wire>
-		<wire id="169">
+		<wire id="167">
 			<segment x1="1090" y1="930" x2="1140" y2="930" />
 			<segment x1="1140" y1="930" x2="1140" y2="970" />
 			<segment x1="1140" y1="970" x2="1190" y2="970" />
 			<pin value="48#2" />
 			<pin value="28#21" />
 		</wire>
-		<wire id="170">
+		<wire id="168">
 			<segment x1="1090" y1="940" x2="1130" y2="940" />
 			<segment x1="1130" y1="940" x2="1130" y2="990" />
 			<segment x1="1130" y1="990" x2="1190" y2="990" />
 			<pin value="48#1" />
 			<pin value="28#22" />
 		</wire>
-		<wire id="171">
+		<wire id="169">
 			<segment x1="1090" y1="950" x2="1120" y2="950" />
 			<segment x1="1120" y1="950" x2="1120" y2="1010" />
 			<segment x1="1120" y1="1010" x2="1190" y2="1010" />
 			<pin value="48#0" />
 			<pin value="28#23" />
 		</wire>
-		<wire id="172">
+		<wire id="170">
 			<segment x1="1060" y1="980" x2="1060" y2="960" />
 			<pin value="49#0" />
 			<pin value="48#16" />
 		</wire>
-		<wire id="173">
+		<wire id="171">
 			<segment x1="120" y1="1130" x2="150" y2="1130" />
 			<pin value="59#0" />
 			<pin value="58#0" />
 		</wire>
-		<wire id="174">
+		<wire id="172">
 			<segment x1="120" y1="1150" x2="150" y2="1150" />
 			<pin value="60#0" />
 			<pin value="58#1" />
 		</wire>
-		<wire id="175">
+		<wire id="173">
 			<segment x1="360" y1="1130" x2="310" y2="1130" />
 			<pin value="61#0" />
 			<pin value="58#2" />
 		</wire>
-		<wire id="176">
+		<wire id="174">
 			<segment x1="910" y1="1080" x2="910" y2="1140" />
 			<pin value="62#12" />
 			<pin value="31#4" />
 		</wire>
-		<wire id="177">
+		<wire id="175">
 			<segment x1="930" y1="1080" x2="930" y2="1140" />
 			<pin value="62#11" />
 			<pin value="31#3" />
 		</wire>
-		<wire id="178">
+		<wire id="176">
 			<segment x1="940" y1="1080" x2="940" y2="1120" />
 			<segment x1="940" y1="1120" x2="950" y2="1120" />
 			<segment x1="950" y1="1120" x2="950" y2="1140" />
 			<pin value="62#10" />
 			<pin value="31#2" />
 		</wire>
-		<wire id="179">
+		<wire id="177">
 			<segment x1="950" y1="1080" x2="950" y2="1110" />
 			<segment x1="950" y1="1110" x2="970" y2="1110" />
 			<segment x1="970" y1="1110" x2="970" y2="1140" />
 			<pin value="62#9" />
 			<pin value="31#1" />
 		</wire>
-		<wire id="180">
+		<wire id="178">
 			<segment x1="960" y1="1080" x2="960" y2="1100" />
 			<segment x1="960" y1="1100" x2="990" y2="1100" />
 			<segment x1="990" y1="1100" x2="990" y2="1140" />
 			<pin value="62#8" />
 			<pin value="31#0" />
 		</wire>
-		<wire id="181">
+		<wire id="179">
 			<segment x1="900" y1="1120" x2="890" y2="1120" />
 			<segment x1="890" y1="1120" x2="890" y2="1140" />
 			<segment x1="900" y1="1080" x2="900" y2="1120" />
@@ -4504,26 +4538,26 @@
 			<pin value="31#5" />
 			<pin value="31#5" />
 		</wire>
-		<wire id="182">
+		<wire id="180">
 			<segment x1="890" y1="1080" x2="890" y2="1110" />
 			<segment x1="890" y1="1110" x2="870" y2="1110" />
 			<segment x1="870" y1="1110" x2="870" y2="1140" />
 			<pin value="62#14" />
 			<pin value="31#6" />
 		</wire>
-		<wire id="183">
+		<wire id="181">
 			<segment x1="880" y1="1080" x2="880" y2="1100" />
 			<segment x1="880" y1="1100" x2="850" y2="1100" />
 			<segment x1="850" y1="1100" x2="850" y2="1140" />
 			<pin value="62#15" />
 			<pin value="31#7" />
 		</wire>
-		<wire id="184">
+		<wire id="182">
 			<segment x1="990" y1="1050" x2="970" y2="1050" />
 			<pin value="63#0" />
 			<pin value="62#16" />
 		</wire>
-		<wire id="185">
+		<wire id="183">
 			<segment x1="80" y1="700" x2="60" y2="700" />
 			<segment x1="60" y1="700" x2="50" y2="700" />
 			<segment x1="60" y1="700" x2="60" y2="740" />
@@ -4532,17 +4566,17 @@
 			<pin value="64#0" />
 			<pin value="67#0" />
 		</wire>
-		<wire id="186">
+		<wire id="184">
 			<segment x1="140" y1="760" x2="170" y2="760" />
 			<pin value="67#2" />
 			<pin value="54#0" />
 		</wire>
-		<wire id="187">
+		<wire id="185">
 			<segment x1="50" y1="780" x2="80" y2="780" />
 			<pin value="17#0" />
 			<pin value="67#1" />
 		</wire>
-		<wire id="202">
+		<wire id="186">
 			<segment x1="890" y1="1020" x2="890" y2="980" />
 			<segment x1="890" y1="980" x2="870" y2="980" />
 			<segment x1="870" y1="980" x2="870" y2="940" />
@@ -4567,7 +4601,7 @@
 			<pin value="11#14" />
 			<pin value="32#9" />
 		</wire>
-		<wire id="203">
+		<wire id="187">
 			<segment x1="890" y1="970" x2="900" y2="970" />
 			<segment x1="900" y1="970" x2="900" y2="1020" />
 			<segment x1="800" y1="420" x2="890" y2="420" />
@@ -4591,6 +4625,21 @@
 			<pin value="46#10" />
 			<pin value="11#13" />
 			<pin value="32#10" />
+		</wire>
+		<wire id="194">
+			<segment x1="370" y1="50" x2="470" y2="50" />
+			<pin value="14#0" />
+			<pin value="8#1" />
+		</wire>
+		<wire id="195">
+			<segment x1="470" y1="70" x2="370" y2="70" />
+			<pin value="8#2" />
+			<pin value="14#1" />
+		</wire>
+		<wire id="196">
+			<segment x1="370" y1="90" x2="470" y2="90" />
+			<pin value="14#2" />
+			<pin value="8#3" />
 		</wire>
 	</circuit>
 	<main name="alu" />

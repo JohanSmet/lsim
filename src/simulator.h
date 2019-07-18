@@ -50,7 +50,14 @@ public:
     void write_pin_checked(uint32_t index, bool value);
     void reset_bad_read_check() {m_read_bad = false;}
 
-    // output_value: retrieve the value last written by this component to the specified pin
+    // user_values: input from outside the circuit
+    void enable_user_values();
+    Value user_value(uint32_t index) const;
+    void set_user_value(uint32_t index, Value value);
+    bool user_values_enabled() const {return !m_user_values.empty();}
+
+    // output_value: set/retrieve the value last written by this component to the specified pin
+    void set_output_value(uint32_t index, Value value);
     Value output_value(uint32_t index) const;
 
     // nested circuits
@@ -66,6 +73,7 @@ private:
     Component *m_comp_desc;
     pin_container_t m_pins;
     value_container_t m_values;
+    value_container_t m_user_values;
 
     size_t m_output_start;
     size_t m_control_start;

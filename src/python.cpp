@@ -76,7 +76,7 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("connect", &CircuitDescription::connect, py::return_value_policy::reference)
         .def("remove_wire", &CircuitDescription::remove_wire)
         .def("port_by_name", &CircuitDescription::port_by_name)
-        .def("instantiate", &CircuitDescription::instantiate)
+        .def("instantiate", &CircuitDescription::instantiate, py::arg("sim"), py::arg("top_level") = true)
     ;
 
     py::class_<Simulator>(m, "Simulator")

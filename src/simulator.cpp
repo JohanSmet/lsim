@@ -41,6 +41,16 @@ void SimComponent::apply_initial_values() {
             m_sim->pin_set_initial_value(m_pins[pin], initial_out);
         }
     }
+
+    if (m_comp_desc->type() == COMPONENT_CONNECTOR_IN && 
+        !m_user_values.empty() &&
+        !m_comp_desc->property_value("tri_state", false)) {
+        for (size_t pin = m_output_start; pin < m_control_start; ++pin) {
+            m_user_values[pin] = VALUE_FALSE;
+            m_values[pin] = VALUE_FALSE;
+            m_sim->pin_set_initial_value(m_pins[pin], initial_out);
+        }
+    }
 }
 
 pin_t SimComponent::pin_by_index(size_t index) const {
@@ -81,6 +91,29 @@ bool SimComponent::read_pin_checked(uint32_t index) {
 void SimComponent::write_pin_checked(uint32_t index, bool value) {
     auto output = m_read_bad ? VALUE_ERROR : value;
     write_pin(index, static_cast<Value>(output));
+}
+
+void SimComponent::enable_user_values() {
+    m_user_values.clear();
+    std::copy(std::begin(m_values), std::end(m_values), std::back_inserter(m_user_values));
+}
+
+Value SimComponent::user_value(uint32_t index) const {
+    if (index < m_user_values.size()) {
+        return m_user_values[index];
+    } else {
+        return VALUE_UNDEFINED;
+    }
+}
+
+void SimComponent::set_user_value(uint32_t index, Value value) {
+    assert(index < m_pins.size());
+    m_user_values[index] = value;
+}
+
+void SimComponent::set_output_value(uint32_t index, Value value) {
+    assert(index < m_pins.size());
+    m_values[index] = value;
 }
 
 Value SimComponent::output_value(uint32_t index) const {
@@ -341,19 +374,14 @@ void Simulator::init() {
 
     // mark all nodes as dirty for the first run
     for (node_t node = 0; node < m_node_values_read.size(); ++node) {
-        m_dirty_nodes_write.insert(node);
         m_dirty_nodes_read.insert(node);
     }
 }
 
 void Simulator::step() {
-
-    // process any nodes that were changed from outside the simulation cycle (e.g. external inputs)
-    postprocess_dirty_nodes();
+    component_set_t sim_components;
 
     m_time = m_time + 1;
-
-    component_set_t sim_components;
 
     // >> build a unique list of components with changed input values
     for (auto node_id : m_dirty_nodes_read) {

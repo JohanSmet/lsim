@@ -84,7 +84,7 @@ public:
     Component *add_text(const char *text);
 
     // instantiate into a simulator
-    std::unique_ptr<class CircuitInstance> instantiate(class Simulator *sim);
+    std::unique_ptr<class CircuitInstance> instantiate(class Simulator *sim, bool top_level = true);
 
 private:
     typedef std::unordered_map<uint32_t, Component::uptr_t> component_lut_t;

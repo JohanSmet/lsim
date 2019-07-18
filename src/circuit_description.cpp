@@ -382,7 +382,7 @@ Component *CircuitDescription::add_text(const char *text) {
     return comp;
 }
 
-std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim) {
+std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim, bool top_level) {
     auto instance = std::make_unique<CircuitInstance>(sim, this);
     std::unordered_map<std::string, Component *> via_lut;
 
@@ -396,7 +396,7 @@ std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim)
 
     for (auto &comp_it : m_components) {
         auto comp = comp_it.second.get();
-        instance->add_component(comp);
+        auto sim_comp = instance->add_component(comp);
 
         if (comp->type() == COMPONENT_VIA) {
             auto name = comp->property_value("name", "via");
@@ -406,6 +406,10 @@ std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim)
             } else {
                 via_lut[name] = comp;
             }
+        }
+
+        if (top_level && comp->type() == COMPONENT_CONNECTOR_IN) {
+            sim_comp->enable_user_values();
         }
     }
 

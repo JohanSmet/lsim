@@ -2,12 +2,12 @@
 <lsim version="2">
 	<circuit name="mux2to1">
 		<component id="0" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="340" y="190" />
 			<orientation angle="0" />
 		</component>
 		<component id="1" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="340" y="280" />
 			<orientation angle="0" />
 		</component>
@@ -33,12 +33,12 @@
 			<orientation angle="90" />
 		</component>
 		<component id="5" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="140" y="110" />
 			<orientation angle="90" />
 		</component>
 		<component id="6" type="OrGate" priority="normal" inputs="2" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="480" y="230" />
 			<orientation angle="0" />
 		</component>
@@ -2433,7 +2433,7 @@
 			<orientation angle="0" />
 		</component>
 		<component id="1" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
-			<property key="initial_output" value="undefined" />
+			<property key="initial_output" value="false" />
 			<position x="110" y="120" />
 			<orientation angle="0" />
 		</component>
