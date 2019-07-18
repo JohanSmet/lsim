@@ -243,6 +243,11 @@ Simulator::timestamp_t Simulator::pin_last_change_time(pin_t pin) const {
     return node_last_change_time(node_id);
 }
 
+node_t Simulator::pin_node(pin_t pin) const {
+    assert(pin < m_pin_nodes.size());
+    return m_pin_nodes[pin];
+}
+
 node_t Simulator::assign_node(SimComponent *component, bool used_as_input) {
     if (!m_free_nodes.empty()) {
         auto id = m_free_nodes.back();
@@ -348,6 +353,11 @@ bool Simulator::node_changed_previous_step(node_t node_id) const {
 Simulator::timestamp_t Simulator::node_last_change_time(node_t node_id) const {
     assert(node_id < m_node_change_time.size());
     return m_node_change_time[node_id];
+}
+
+bool Simulator::node_dirty(node_t node_id) const {
+    assert(node_id < m_node_change_time.size());
+    return m_dirty_nodes_read.find(node_id) != m_dirty_nodes_read.end();
 }
 
 void Simulator::init() {

@@ -211,6 +211,14 @@ void CircuitInstance::write_pins(const pin_id_container_t &pins, uint64_t data) 
     }
 }
 
+node_t CircuitInstance::pin_node(pin_id_t pin_id) {
+    return m_sim->pin_node(pin_from_pin_id(pin_id));
+}
+
+bool CircuitInstance::node_dirty(node_t node_id) {
+    return m_sim->node_dirty(node_id);
+}
+
 Value CircuitInstance::pin_output(pin_id_t pin_id) {
     auto comp = component_by_id(component_id_from_pin_id(pin_id));
     assert(comp);

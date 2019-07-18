@@ -297,14 +297,23 @@ void UICircuit::draw() {
 	for (const auto &wire_it : m_circuit_desc->wires()) {
 		auto wire = wire_it.second.get();
 		auto wire_color = COLOR_CONNECTION_UNDEFINED;
+		bool dirty_node = false;
 
 		if (is_simulating() && wire->num_pins() > 0) {
 			auto value = m_circuit_inst->read_pin(wire->pin(0));
 			wire_color = COLOR_CONNECTION[value];
+
+			auto node_id = m_circuit_inst->pin_node(wire->pin(0));
+			dirty_node = m_circuit_inst->node_dirty(node_id);
 		}
 
 		// segments
 		for (size_t idx = 0; idx < wire->num_segments(); ++idx) {
+			if (dirty_node) {
+				draw_list->AddLine( wire->segment_point(idx, 0) + offset, wire->segment_point(idx, 1) + offset, 
+									COLOR_CONNECTION_DIRTY, 4.0f);
+			}
+
 			auto segment_color = is_selected(wire->segment_by_index(idx)) ? COLOR_WIRE_SELECTED : wire_color;
 			draw_list->AddLine(wire->segment_point(idx, 0) + offset, wire->segment_point(idx, 1) + offset, 
 							   segment_color, 2.0f);

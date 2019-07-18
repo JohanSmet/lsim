@@ -17,6 +17,7 @@ constexpr const auto COLOR_CONNECTION_FALSE = IM_COL32(0, 75, 0, 255);
 constexpr const auto COLOR_CONNECTION_TRUE  = IM_COL32(0, 175, 0, 255);
 constexpr const auto COLOR_CONNECTION_UNDEFINED = IM_COL32(120, 120, 120, 255);
 constexpr const auto COLOR_CONNECTION_ERROR = IM_COL32(200, 0, 0, 255);
+constexpr const auto COLOR_CONNECTION_DIRTY = IM_COL32(150, 150, 150, 175);
 
 constexpr const auto COLOR_ENDPOINT = IM_COL32(150, 150, 150, 255);
 constexpr const auto COLOR_ENDPOINT_HOVER = IM_COL32(255, 255, 0, 200);

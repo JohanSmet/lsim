@@ -43,6 +43,9 @@ public:
     void write_pins(const pin_id_container_t &pins, const value_container_t &values);
     void write_pins(const pin_id_container_t &pins, uint64_t data);
 
+    node_t pin_node(pin_id_t pin_id);
+    bool node_dirty(node_t node_id);
+
     // get value written to by a specific pin
     Value pin_output(pin_id_t pin_id);
     Value user_value(pin_id_t pin_id);

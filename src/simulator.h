@@ -108,6 +108,7 @@ public:
     Value read_pin_current_step(pin_t pin) const;
     bool pin_changed_previous_step(pin_t pin) const;
     timestamp_t pin_last_change_time(pin_t pin) const;
+    node_t pin_node(pin_t pin) const;
 
     // nodes
     node_t assign_node(SimComponent *component, bool used_as_input);
@@ -124,6 +125,8 @@ public:
 
     bool node_changed_previous_step(node_t node_id) const;
     timestamp_t node_last_change_time(node_t node_id) const;
+
+    bool node_dirty(node_t node_id) const;
 
     // simulation
     void init();
