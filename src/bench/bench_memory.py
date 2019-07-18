@@ -7,6 +7,7 @@ BYTE_UNDEFINED = [lsimpy.ValueUndefined, lsimpy.ValueUndefined, lsimpy.ValueUnde
                   lsimpy.ValueUndefined, lsimpy.ValueUndefined, lsimpy.ValueUndefined, lsimpy.ValueUndefined]
 
 def test_mem_cell(lsim):
+    print("* Testing mem_cell")
     sim = lsim.sim()
 
     circuit_desc = lsim.user_library().circuit_by_name('mem_cell')
@@ -21,6 +22,7 @@ def test_mem_cell(lsim):
               circuit_desc.port_by_name("D[7]")]
 
     circuit = circuit_desc.instantiate(sim)
+
     sim.init()
 
     for d in range(0, 2**8):
@@ -42,6 +44,7 @@ def test_mem_cell(lsim):
         sim.run_until_stable(2)
 
 def test_ram_8byte(lsim):
+    print("* Testing ram_8byte")
     sim = lsim.sim()
 
     circuit_desc = lsim.user_library().circuit_by_name('ram_8byte')
@@ -88,6 +91,7 @@ def test_ram_8byte(lsim):
             sim.run_until_stable(2)
 
 def test_ram_64byte(lsim):
+    print("* Testing ram_64byte")
     sim = lsim.sim()
 
     circuit_desc = lsim.user_library().circuit_by_name('ram_64byte')
@@ -112,7 +116,6 @@ def test_ram_64byte(lsim):
     sim.init()
 
     for d in range(0, 2**8):
-
         for addr in range(0, 2**6):
             circuit.write_pins(pins_Addr, addr)
             circuit.write_pins(pins_D, (d + addr) % 256)
