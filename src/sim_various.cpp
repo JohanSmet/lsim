@@ -74,8 +74,20 @@ void sim_register_various_functions() {
         }
     } SIM_FUNC_END;
 
-    SIM_NEEDED_FUNC_BEGIN(7_SEGMENT_LED) {
-        return false;
+    SIM_SETUP_FUNC_BEGIN(7_SEGMENT_LED) {
+        comp->set_extra_data_size(sizeof(ExtraData7SegmentLED));
+    } SIM_FUNC_END;
+
+    SIM_INDEPENDENT_FUNC_BEGIN(7_SEGMENT_LED) {
+        auto *extra = reinterpret_cast<ExtraData7SegmentLED *>(comp->extra_data());
+        auto led_on = comp->read_pin(comp->control_pin_index(0));
+
+        if (led_on == VALUE_TRUE) {
+            for (size_t pin_idx = 0; pin_idx < comp->num_inputs(); ++pin_idx) {
+                extra->m_samples[pin_idx] += comp->read_pin(comp->input_pin_index(pin_idx)) == VALUE_TRUE ? 1: 0;
+            }
+        }
+        extra->m_num_samples += 1;
     } SIM_FUNC_END;
 }
 

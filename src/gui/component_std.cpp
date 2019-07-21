@@ -517,26 +517,36 @@ void component_register_input_output() {
                 auto sim_comp = ui_circuit->is_simulating() ? ui_circuit->circuit_inst()->component_by_id(comp->id()) : nullptr;
                 auto enabled  = ui_circuit->is_simulating() ? sim_comp->read_pin(sim_comp->control_pin_index(0)) == VALUE_TRUE : false;
 
-                const auto led_color = [sim_comp, color_on, color_off, enabled](uint32_t idx) -> ImU32 {
-                    if (sim_comp && enabled) {
-                        auto value = sim_comp->read_pin(idx);
-                        return value == VALUE_TRUE ? color_on : color_off;
-                    } else {
-                        return color_off;
+                ImU32 led_colors[8] = {color_off, color_off, color_off, color_off,color_off, color_off, color_off, color_off};
+
+                if (sim_comp) {
+                    auto *extra = reinterpret_cast<ExtraData7SegmentLED *>(sim_comp->extra_data());
+
+                    if (extra->m_num_samples > 0) {
+                        for (size_t idx = 0; idx < 8; ++idx) {
+                            float fraction = (extra->m_samples[idx] * 3.0f) / extra->m_num_samples;
+                            extra->m_samples[idx] = 0;
+                            led_colors[idx] = IM_COL32(std::min(255, 50 + (int) (205 * fraction)), 0, 0, 255);
+                        } 
+                        extra->m_num_samples = 0;
+                    } else if (enabled) {
+                        for (size_t idx = 0; idx < 8; ++idx) {
+                            led_colors[idx] = sim_comp->read_pin(idx) == VALUE_TRUE ? color_on : color_off;
+                        }
                     }
-                };
+                } 
 
                 // LED-pinout: the pinout does not emulate the pinout of real 7-segment LED components.
                 //  This was done on purpose to make it easier and simpler to make nice circuits.
                 ImGuiEx::TransformStart();  
-                draw_list->AddLine({-15,-30}, {20,-30}, led_color(0), width);                               // A
-                draw_list->AddLine({-15 - 5 * slope, -25}, {-15 - 25 * slope, -5}, led_color(5), width);    // F 
-                draw_list->AddLine({ 20 - 5 * slope, -25}, { 20 - 25 * slope, -5}, led_color(1), width);    // B 
-                draw_list->AddLine({-20,  0}, {15,  0}, led_color(6), width);                               // G
-                draw_list->AddLine({-20 - 5 * slope, 5}, {-20 - 25 * slope, 25}, led_color(4), width);      // E 
-                draw_list->AddLine({ 15 - 5 * slope, 5}, { 15 - 25 * slope, 25}, led_color(2), width);      // C 
-                draw_list->AddLine({-25, 30}, {10, 30}, led_color(3), width);                               // D
-                draw_list->AddCircleFilled({20, 30}, 3, led_color(7));                                      // DP
+                draw_list->AddLine({-15,-30}, {20,-30}, led_colors[0], width);                               // A
+                draw_list->AddLine({-15 - 5 * slope, -25}, {-15 - 25 * slope, -5}, led_colors[5], width);    // F 
+                draw_list->AddLine({ 20 - 5 * slope, -25}, { 20 - 25 * slope, -5}, led_colors[1], width);    // B 
+                draw_list->AddLine({-20,  0}, {15,  0}, led_colors[6], width);                               // G
+                draw_list->AddLine({-20 - 5 * slope, 5}, {-20 - 25 * slope, 25}, led_colors[4], width);      // E 
+                draw_list->AddLine({ 15 - 5 * slope, 5}, { 15 - 25 * slope, 25}, led_colors[2], width);      // C 
+                draw_list->AddLine({-25, 30}, {10, 30}, led_colors[3], width);                               // D
+                draw_list->AddCircleFilled({20, 30}, 3, led_colors[7]);                                      // DP
                 ImGuiEx::TransformEnd(to_window);
 
             });
