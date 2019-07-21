@@ -56,6 +56,12 @@ const ComponentType COMPONENT_7_SEGMENT_LED = 0x0101;
 const ComponentType COMPONENT_SUB_CIRCUIT = 0x1001;
 const ComponentType COMPONENT_TEXT = 0x2001;
 
+// component extra data types
+struct ExtraData7SegmentLED {
+    size_t   m_num_samples;
+    uint32_t m_samples[8];
+};
+
 // forward declarations
 class Component;
 class CircuitDescription;

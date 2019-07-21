@@ -68,12 +68,18 @@ public:
     void sim_input_changed();
     void sim_independent();
 
+    // extra-data: component specific data structure
+    void set_extra_data_size(size_t size) {m_extra_data.resize(size);};
+    uint8_t *extra_data() {return m_extra_data.data();}
+
+
 private:
     Simulator *m_sim;
     Component *m_comp_desc;
     pin_container_t m_pins;
     value_container_t m_values;
     value_container_t m_user_values;
+    std::vector<uint8_t> m_extra_data;
 
     size_t m_output_start;
     size_t m_control_start;
