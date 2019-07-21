@@ -402,7 +402,7 @@ void component_register_gates() {
         COMPONENT_BUFFER, [=](Component *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Buffer");
             ui_comp->change_icon(icon_buffer);
-            materialize_gate(ui_comp);
+            materialize_gate(ui_comp, 60, 40);
         }
     );
 
