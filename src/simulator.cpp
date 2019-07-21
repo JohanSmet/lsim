@@ -77,6 +77,9 @@ Value SimComponent::read_pin(uint32_t index) const {
 
 void SimComponent::write_pin(uint32_t index, Value value) {
     assert(index < m_pins.size());
+    if (value == VALUE_UNDEFINED && m_values[index] == value) {
+        return;
+    }
     m_values[index] = value;
     m_sim->write_pin(m_pins[index], value);
 }
