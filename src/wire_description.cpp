@@ -25,7 +25,10 @@ void WireJunction::add_segment(WireSegment *segment) {
 }
 
 void WireJunction::remove_segment(WireSegment *segment) {
-    m_segments.erase(std::remove(m_segments.begin(), m_segments.end(), segment));
+    auto iter = std::remove(m_segments.begin(), m_segments.end(), segment);
+    if (iter != m_segments.end()) {
+        m_segments.erase(iter);
+    }
 }
 
 WireSegment *WireJunction::segment(size_t idx) const {
