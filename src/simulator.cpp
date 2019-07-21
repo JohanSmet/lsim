@@ -363,8 +363,8 @@ bool Simulator::node_dirty(node_t node_id) const {
 void Simulator::init() {
     m_time = 1;
 
-    std::fill(std::begin(m_node_values_read), std::end(m_node_values_read), VALUE_UNDEFINED);
-    std::fill(std::begin(m_node_values_write), std::end(m_node_values_write), VALUE_UNDEFINED);
+    std::fill(std::begin(m_node_values_read), std::end(m_node_values_read), VALUE_FALSE);
+    std::fill(std::begin(m_node_values_write), std::end(m_node_values_write), VALUE_FALSE);
     std::fill(std::begin(m_node_defaults), std::end(m_node_defaults), VALUE_UNDEFINED);
     std::fill(std::begin(m_node_write_time), std::end(m_node_write_time), 0);
     std::fill(std::begin(m_node_change_time), std::end(m_node_change_time), 0);
