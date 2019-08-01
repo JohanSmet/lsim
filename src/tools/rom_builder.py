@@ -230,7 +230,7 @@ class RomBuilder:
         self.lsim.save_user_library(filename)
 
     def __unpack_data(self, data_bin):
-        data_fmt = "=%il" if self.word_size == 32 else "=%ih" if self.word_size == 16 else "=%iB"
+        data_fmt = "=%iL" if self.word_size == 32 else "=%iH" if self.word_size == 16 else "=%iB"
         data_len = len(data_bin) / (self.word_size / 8)
         data = struct.unpack(data_fmt % data_len, data_bin)
         return data
@@ -259,7 +259,7 @@ class RomBuilder:
         for loc in (range(min(len(data), self.word_count))):
             circuit.write_pins(pins_Addr, loc)
             sim.run_until_stable(5)
-            value = circuit.read_byte(pins_Y)      # XXX read_pins or something
+            value = circuit.read_pins(pins_Y)     
             if value != data[loc]:
                 print("Verify: ERROR at location {}: is {} but expected {}".format(loc,value, data[loc]))
 
