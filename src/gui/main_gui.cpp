@@ -166,7 +166,7 @@ static void ui_component_pallette(LSimContext *context) {
 		Point pos = ImGui::GetCursorScreenPos();
 		auto draw_list = ImGui::GetWindowDrawList();
 
-		ImGui::PushID(caption);
+		ImGui::PushID((std::string("lsim_") + caption).c_str());
 		if (ImGui::Button("", {40, 40})) {
 			if (!ui_circuit->is_simulating()) {
 				auto component = create_func(ui_circuit->circuit_desc());
