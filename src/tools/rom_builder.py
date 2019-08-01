@@ -307,7 +307,7 @@ def main():
 
 def test():
     # simple test routine
-    rom = RomBuilder(8, 1024)
+    rom = RomBuilder("rom", 8, 1024)
 
     print ("*** preparing data")
     data_mask = (1 << rom.word_size) - 1
