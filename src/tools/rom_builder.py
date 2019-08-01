@@ -52,6 +52,8 @@ class RomBuilder:
         self.seg_shift = self.row_lines + self.col_lines
         self.seg_mask = ((1 << self.segment_lines) - 1) << self.seg_shift
 
+        print(f"segments = {self.segment_count:} columns = {self.col_count:} rows = {self.row_count:}")
+
         self.segments = []
 
     def __split_address(self, address):
