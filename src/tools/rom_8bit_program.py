@@ -15,15 +15,52 @@ def emit_op(op, addr = 0):
     raw = (op & 0b00011111) | ((addr & 0b00000111) << 5)
     return emit_literal(raw)
 
+def emit_op_data(op, data):
+    pc = emit_op(op)
+    emit_literal(data)
+    return pc
+
+def prog_counter():
+    emit_op_data(c.OPCODE_LTA, 0)   # move 0 into register-A
+    emit_op_data(c.OPCODE_LTB, 1)   # move 1 into register-B
+    emit_op(c.OPCODE_PRA)           # display register-A
+    l = emit_op(c.OPCODE_ADD)       # add register-B to register-A
+    emit_op(c.OPCODE_PRA)           # display register-A
+    emit_op_data(c.OPCODE_JMP, l)   # jump to label-l
+    emit_op(c.OPCODE_HLT)           # halt CPU (never reached but still :-)
+
+def prog_count_down():
+    emit_op_data(c.OPCODE_LTA, 255) # move start value into register-A
+    emit_op_data(c.OPCODE_LTB, 1)   # move 1 into register-B
+    l = emit_op(c.OPCODE_PRA)       # display register-A
+    emit_op(c.OPCODE_SUB)           # subtract register-B from register-A
+    emit_op_data(c.OPCODE_JMP, l)   # jump to label-l
+    emit_op(c.OPCODE_HLT)           # halt CPU (never reached but still :-)
+
+def prog_fibonnaci():
+    # initialize memory
+    emit_op_data(c.OPCODE_LTA, 0)   # move 0 into register-A
+    emit_op(c.OPCODE_STA, 1)        # store register-A to mem[1]
+    emit_op_data(c.OPCODE_LTA, 1)   # move 1 into register-A
+    emit_op(c.OPCODE_STA, 2)        # store register-A to mem[2]
+    emit_op_data(c.OPCODE_LTA, 14)  # move number of iterations into register-A
+    emit_op(c.OPCODE_STA, 3)        # store register-A to mem[3]
+    # fibonnaci loop
+    l = emit_op(c.OPCODE_LDA, 1)    # load register-A from mem[1]
+    emit_op(c.OPCODE_PRA)           # display register-A
+    emit_op(c.OPCODE_LDB, 2)        # load register-B from mem[2]
+    emit_op(c.OPCODE_ADD)           # add register-B to register-A
+    emit_op(c.OPCODE_STB, 1)        # store register-B to mem[1]
+    emit_op(c.OPCODE_STA, 2)        # store register-A to mem[2]
+    emit_op(c.OPCODE_LDA, 3)        # load loop-counter into register-A
+    emit_op_data(c.OPCODE_LTB, 1)   # move 1 into register-B
+    emit_op(c.OPCODE_SUB)           # substract register-B from register-A
+    emit_op(c.OPCODE_STA, 3)        # store loop-counter 
+    emit_op_data(c.OPCODE_JNZ, l)   # jump to label-l
+    emit_op(c.OPCODE_HLT)           # halt CPU 
+
 def main():
-    emit_op(c.OPCODE_LTA)
-    emit_literal(15)
-    emit_op(c.OPCODE_LTB)
-    emit_literal(1)
-    emit_op(c.OPCODE_PRA)
-    emit_op(c.OPCODE_ADD)
-    emit_op(c.OPCODE_PRA)
-    emit_op(c.OPCODE_HLT)
+    prog_fibonnaci()
     for i in range(len(rom_data), 256):
         rom_data.append(0xff)
     c.write_binary("prog_8bit.bin", rom_data, 8)
