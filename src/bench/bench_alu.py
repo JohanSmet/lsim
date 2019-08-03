@@ -71,14 +71,14 @@ def check_subtraction(circuit, sim):
             sim.run_until_stable(2)
 
             expected_y = a - b
-            expected_co = 1
+            expected_co = 0
             if expected_y < 0:
-                expected_co = 0
+                expected_co = 1
                 expected_y = expected_y + 2**8
 
-            CHECK(circuit.read_port("CF"), expected_co, "{} + {}".format(a, b))
-            CHECK(circuit.read_port("ZF"), expected_y == 0, "{} + {}".format(a, b))
-            CHECK(circuit.read_byte(pins_Y), expected_y, "{} + {}".format(a, b))
+            CHECK(circuit.read_port("CF"), expected_co, "{} - {}".format(a, b))
+            CHECK(circuit.read_port("ZF"), expected_y == 0, "{} - {}".format(a, b))
+            CHECK(circuit.read_byte(pins_Y), expected_y, "{} - {}".format(a, b))
 
             circuit.write_pin(pin_CE, lsimpy.ValueFalse)
             circuit.write_pin(pin_OE, lsimpy.ValueFalse)

@@ -112,7 +112,8 @@ def opcode_HLT():
 def opcode_alu(op):
     opcode_start(op)
     emit(SIGNAL_CE)
-    emit(SIGNAL_CE | SIGNAL_CO | SIGNAL_AI)
+    emit(SIGNAL_CO | SIGNAL_AI)
+    emit(SIGNAL_RS)
 
 def main():
     opcode_NOP()
