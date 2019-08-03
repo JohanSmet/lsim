@@ -349,8 +349,8 @@
 	<circuit name="Clock">
 		<component id="0" type="Oscillator" priority="normal" inputs="0" outputs="1" controls="0">
 			<property key="initial_output" value="false" />
-			<property key="low_duration" value="5000" />
-			<property key="high_duration" value="5000" />
+			<property key="low_duration" value="3000" />
+			<property key="high_duration" value="3000" />
 			<position x="60" y="40" />
 			<orientation angle="0" />
 		</component>
@@ -1742,95 +1742,117 @@
 		</component>
 		<component id="7" type="TriStateBuffer" priority="normal" inputs="8" outputs="8" controls="1">
 			<property key="initial_output" value="undefined" />
-			<position x="450" y="540" />
+			<position x="640" y="580" />
 			<orientation angle="0" />
 		</component>
 		<component id="8" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="D" />
 			<property key="tri_state" value="false" />
-			<position x="590" y="540" />
+			<position x="750" y="580" />
+			<orientation angle="0" />
+		</component>
+		<component id="9" type="SubCircuit" priority="normal" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+			<property key="flip" value="false" />
+			<position x="450" y="670" />
+			<orientation angle="0" />
+		</component>
+		<component id="10" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="name" value="Clk" />
+			<property key="tri_state" value="false" />
+			<property key="descending" value="false" />
+			<position x="280" y="40" />
+			<orientation angle="90" />
+		</component>
+		<component id="12" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+			<property key="initial_output" value="undefined" />
+			<position x="280" y="350" />
+			<orientation angle="90" />
+		</component>
+		<component id="13" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+			<property key="value" value="false" />
+			<position x="320" y="690" />
 			<orientation angle="0" />
 		</component>
 		<wire id="0">
 			<segment x1="190" y1="50" x2="190" y2="90" />
 			<segment x1="370" y1="90" x2="190" y2="90" />
-			<segment x1="190" y1="90" x2="190" y2="500" />
-			<segment x1="190" y1="500" x2="190" y2="1030" />
-			<segment x1="420" y1="500" x2="190" y2="500" />
+			<segment x1="190" y1="90" x2="190" y2="510" />
+			<segment x1="190" y1="510" x2="190" y2="1030" />
+			<segment x1="370" y1="510" x2="190" y2="510" />
 			<pin value="0#0" />
 			<pin value="3#0" />
-			<pin value="7#0" />
+			<pin value="9#0" />
 		</wire>
 		<wire id="1">
 			<segment x1="170" y1="50" x2="170" y2="110" />
 			<segment x1="370" y1="110" x2="170" y2="110" />
-			<segment x1="170" y1="110" x2="170" y2="510" />
-			<segment x1="170" y1="510" x2="170" y2="1030" />
-			<segment x1="420" y1="510" x2="170" y2="510" />
+			<segment x1="170" y1="110" x2="170" y2="530" />
+			<segment x1="170" y1="530" x2="170" y2="1030" />
+			<segment x1="370" y1="530" x2="170" y2="530" />
 			<pin value="0#1" />
 			<pin value="3#1" />
-			<pin value="7#1" />
+			<pin value="9#1" />
 		</wire>
 		<wire id="2">
 			<segment x1="150" y1="50" x2="150" y2="130" />
 			<segment x1="370" y1="130" x2="150" y2="130" />
-			<segment x1="150" y1="130" x2="150" y2="520" />
-			<segment x1="150" y1="520" x2="150" y2="1030" />
-			<segment x1="420" y1="520" x2="150" y2="520" />
+			<segment x1="150" y1="130" x2="150" y2="550" />
+			<segment x1="150" y1="550" x2="150" y2="1030" />
+			<segment x1="370" y1="550" x2="150" y2="550" />
 			<pin value="0#2" />
 			<pin value="3#2" />
-			<pin value="7#2" />
+			<pin value="9#2" />
 		</wire>
 		<wire id="3">
 			<segment x1="130" y1="50" x2="130" y2="150" />
 			<segment x1="370" y1="150" x2="130" y2="150" />
-			<segment x1="130" y1="150" x2="130" y2="530" />
-			<segment x1="130" y1="530" x2="130" y2="1030" />
-			<segment x1="420" y1="530" x2="130" y2="530" />
+			<segment x1="130" y1="150" x2="130" y2="570" />
+			<segment x1="130" y1="570" x2="130" y2="1030" />
+			<segment x1="370" y1="570" x2="130" y2="570" />
 			<pin value="0#3" />
 			<pin value="3#3" />
-			<pin value="7#3" />
+			<pin value="9#3" />
 		</wire>
 		<wire id="4">
 			<segment x1="110" y1="50" x2="110" y2="170" />
 			<segment x1="370" y1="170" x2="110" y2="170" />
-			<segment x1="110" y1="170" x2="110" y2="550" />
-			<segment x1="110" y1="550" x2="110" y2="1030" />
-			<segment x1="420" y1="550" x2="110" y2="550" />
+			<segment x1="110" y1="170" x2="110" y2="590" />
+			<segment x1="110" y1="590" x2="110" y2="1030" />
+			<segment x1="370" y1="590" x2="110" y2="590" />
 			<pin value="0#4" />
 			<pin value="3#4" />
-			<pin value="7#4" />
+			<pin value="9#4" />
 		</wire>
 		<wire id="5">
 			<segment x1="90" y1="50" x2="90" y2="190" />
 			<segment x1="370" y1="190" x2="90" y2="190" />
-			<segment x1="90" y1="190" x2="90" y2="560" />
-			<segment x1="90" y1="560" x2="90" y2="1030" />
-			<segment x1="420" y1="560" x2="90" y2="560" />
+			<segment x1="90" y1="190" x2="90" y2="610" />
+			<segment x1="90" y1="610" x2="90" y2="1030" />
+			<segment x1="370" y1="610" x2="90" y2="610" />
 			<pin value="0#5" />
 			<pin value="3#5" />
-			<pin value="7#5" />
+			<pin value="9#5" />
 		</wire>
 		<wire id="6">
 			<segment x1="70" y1="50" x2="70" y2="210" />
 			<segment x1="370" y1="210" x2="70" y2="210" />
-			<segment x1="70" y1="210" x2="70" y2="570" />
-			<segment x1="70" y1="570" x2="70" y2="1030" />
-			<segment x1="420" y1="570" x2="70" y2="570" />
+			<segment x1="70" y1="210" x2="70" y2="630" />
+			<segment x1="70" y1="630" x2="70" y2="1030" />
+			<segment x1="370" y1="630" x2="70" y2="630" />
 			<pin value="0#6" />
 			<pin value="3#6" />
-			<pin value="7#6" />
+			<pin value="9#6" />
 		</wire>
 		<wire id="7">
 			<segment x1="50" y1="50" x2="50" y2="230" />
 			<segment x1="370" y1="230" x2="50" y2="230" />
-			<segment x1="50" y1="230" x2="50" y2="580" />
-			<segment x1="50" y1="580" x2="50" y2="1030" />
-			<segment x1="420" y1="580" x2="50" y2="580" />
+			<segment x1="50" y1="230" x2="50" y2="650" />
+			<segment x1="50" y1="650" x2="50" y2="1030" />
+			<segment x1="370" y1="650" x2="50" y2="650" />
 			<pin value="0#7" />
 			<pin value="3#7" />
-			<pin value="7#7" />
+			<pin value="9#7" />
 		</wire>
 		<wire id="8">
 			<segment x1="250" y1="50" x2="250" y2="250" />
@@ -1889,65 +1911,136 @@
 			<pin value="3#9" />
 			<pin value="3#10" />
 		</wire>
-		<wire id="18">
+		<wire id="27">
 			<segment x1="220" y1="50" x2="220" y2="470" />
-			<segment x1="220" y1="470" x2="450" y2="470" />
-			<segment x1="450" y1="470" x2="450" y2="490" />
+			<segment x1="640" y1="530" x2="640" y2="470" />
+			<segment x1="640" y1="470" x2="220" y2="470" />
 			<pin value="2#0" />
 			<pin value="7#16" />
 		</wire>
-		<wire id="19">
-			<segment x1="580" y1="530" x2="490" y2="530" />
-			<segment x1="490" y1="530" x2="480" y2="530" />
-			<pin value="8#3" />
+		<wire id="30">
+			<segment x1="280" y1="670" x2="370" y2="670" />
+			<segment x1="280" y1="380" x2="280" y2="670" />
+			<pin value="9#8" />
+			<pin value="12#1" />
+		</wire>
+		<wire id="31">
+			<segment x1="280" y1="50" x2="280" y2="320" />
+			<pin value="10#0" />
+			<pin value="12#0" />
+		</wire>
+		<wire id="32">
+			<segment x1="610" y1="570" x2="530" y2="570" />
+			<pin value="7#3" />
+			<pin value="9#14" />
+		</wire>
+		<wire id="33">
+			<segment x1="530" y1="590" x2="610" y2="590" />
+			<pin value="9#15" />
+			<pin value="7#4" />
+		</wire>
+		<wire id="34">
+			<segment x1="610" y1="620" x2="590" y2="620" />
+			<segment x1="590" y1="620" x2="590" y2="650" />
+			<segment x1="590" y1="650" x2="530" y2="650" />
+			<pin value="7#7" />
+			<pin value="9#18" />
+		</wire>
+		<wire id="35">
+			<segment x1="610" y1="610" x2="580" y2="610" />
+			<segment x1="580" y1="610" x2="580" y2="630" />
+			<segment x1="580" y1="630" x2="530" y2="630" />
+			<pin value="7#6" />
+			<pin value="9#17" />
+		</wire>
+		<wire id="36">
+			<segment x1="610" y1="600" x2="570" y2="600" />
+			<segment x1="570" y1="600" x2="570" y2="610" />
+			<segment x1="570" y1="610" x2="530" y2="610" />
+			<pin value="7#5" />
+			<pin value="9#16" />
+		</wire>
+		<wire id="37">
+			<segment x1="610" y1="540" x2="590" y2="540" />
+			<segment x1="590" y1="540" x2="590" y2="510" />
+			<segment x1="590" y1="510" x2="530" y2="510" />
+			<pin value="7#0" />
+			<pin value="9#11" />
+		</wire>
+		<wire id="38">
+			<segment x1="610" y1="550" x2="580" y2="550" />
+			<segment x1="580" y1="550" x2="580" y2="530" />
+			<segment x1="580" y1="530" x2="530" y2="530" />
+			<pin value="7#1" />
+			<pin value="9#12" />
+		</wire>
+		<wire id="39">
+			<segment x1="610" y1="560" x2="570" y2="560" />
+			<segment x1="570" y1="560" x2="570" y2="550" />
+			<segment x1="570" y1="550" x2="530" y2="550" />
+			<pin value="7#2" />
+			<pin value="9#13" />
+		</wire>
+		<wire id="40">
+			<segment x1="670" y1="570" x2="740" y2="570" />
 			<pin value="7#11" />
+			<pin value="8#3" />
 		</wire>
-		<wire id="20">
-			<segment x1="480" y1="550" x2="580" y2="550" />
-			<pin value="7#12" />
+		<wire id="41">
+			<segment x1="740" y1="590" x2="670" y2="590" />
 			<pin value="8#4" />
+			<pin value="7#12" />
 		</wire>
-		<wire id="21">
-			<segment x1="480" y1="560" x2="560" y2="560" />
-			<segment x1="560" y1="560" x2="560" y2="570" />
-			<segment x1="560" y1="570" x2="580" y2="570" />
-			<pin value="7#13" />
-			<pin value="8#5" />
+		<wire id="42">
+			<segment x1="670" y1="540" x2="690" y2="540" />
+			<segment x1="690" y1="540" x2="690" y2="510" />
+			<segment x1="690" y1="510" x2="740" y2="510" />
+			<pin value="7#8" />
+			<pin value="8#0" />
 		</wire>
-		<wire id="22">
-			<segment x1="480" y1="570" x2="550" y2="570" />
-			<segment x1="550" y1="570" x2="550" y2="590" />
-			<segment x1="550" y1="590" x2="580" y2="590" />
-			<pin value="7#14" />
-			<pin value="8#6" />
-		</wire>
-		<wire id="23">
-			<segment x1="480" y1="580" x2="540" y2="580" />
-			<segment x1="540" y1="580" x2="540" y2="610" />
-			<segment x1="540" y1="610" x2="580" y2="610" />
-			<pin value="7#15" />
-			<pin value="8#7" />
-		</wire>
-		<wire id="24">
-			<segment x1="480" y1="520" x2="560" y2="520" />
-			<segment x1="560" y1="520" x2="560" y2="510" />
-			<segment x1="560" y1="510" x2="580" y2="510" />
-			<pin value="7#10" />
-			<pin value="8#2" />
-		</wire>
-		<wire id="25">
-			<segment x1="480" y1="510" x2="550" y2="510" />
-			<segment x1="550" y1="510" x2="550" y2="490" />
-			<segment x1="550" y1="490" x2="580" y2="490" />
+		<wire id="43">
+			<segment x1="670" y1="550" x2="700" y2="550" />
+			<segment x1="700" y1="550" x2="700" y2="530" />
+			<segment x1="700" y1="530" x2="740" y2="530" />
 			<pin value="7#9" />
 			<pin value="8#1" />
 		</wire>
-		<wire id="26">
-			<segment x1="480" y1="500" x2="540" y2="500" />
-			<segment x1="540" y1="500" x2="540" y2="470" />
-			<segment x1="540" y1="470" x2="580" y2="470" />
-			<pin value="7#8" />
-			<pin value="8#0" />
+		<wire id="44">
+			<segment x1="670" y1="560" x2="710" y2="560" />
+			<segment x1="710" y1="560" x2="710" y2="550" />
+			<segment x1="710" y1="550" x2="740" y2="550" />
+			<pin value="7#10" />
+			<pin value="8#2" />
+		</wire>
+		<wire id="45">
+			<segment x1="670" y1="620" x2="690" y2="620" />
+			<segment x1="690" y1="620" x2="690" y2="650" />
+			<segment x1="690" y1="650" x2="740" y2="650" />
+			<pin value="7#15" />
+			<pin value="8#7" />
+		</wire>
+		<wire id="46">
+			<segment x1="670" y1="610" x2="700" y2="610" />
+			<segment x1="700" y1="610" x2="700" y2="630" />
+			<segment x1="700" y1="630" x2="740" y2="630" />
+			<pin value="7#14" />
+			<pin value="8#6" />
+		</wire>
+		<wire id="47">
+			<segment x1="670" y1="600" x2="710" y2="600" />
+			<segment x1="710" y1="600" x2="710" y2="610" />
+			<segment x1="710" y1="610" x2="740" y2="610" />
+			<pin value="7#13" />
+			<pin value="8#5" />
+		</wire>
+		<wire id="48">
+			<segment x1="330" y1="690" x2="350" y2="690" />
+			<segment x1="350" y1="690" x2="370" y2="690" />
+			<segment x1="370" y1="710" x2="350" y2="710" />
+			<segment x1="350" y1="710" x2="350" y2="690" />
+			<pin value="13#0" />
+			<pin value="9#9" />
+			<pin value="9#10" />
 		</wire>
 	</circuit>
 	<circuit name="Ctrl Logic">
@@ -2616,232 +2709,232 @@
 			<pin value="33#7" />
 			<pin value="39#7" />
 		</wire>
-		<wire id="48">
+		<wire id="47">
 			<segment x1="60" y1="640" x2="110" y2="640" />
 			<pin value="33#8" />
 			<pin value="41#0" />
 		</wire>
-		<wire id="49">
+		<wire id="48">
 			<segment x1="270" y1="480" x2="310" y2="480" />
 			<pin value="33#11" />
 			<pin value="19#0" />
 		</wire>
-		<wire id="50">
+		<wire id="49">
 			<segment x1="270" y1="500" x2="310" y2="500" />
 			<pin value="33#12" />
 			<pin value="20#0" />
 		</wire>
-		<wire id="51">
+		<wire id="50">
 			<segment x1="310" y1="520" x2="270" y2="520" />
 			<pin value="21#0" />
 			<pin value="33#13" />
 		</wire>
-		<wire id="52">
+		<wire id="51">
 			<segment x1="270" y1="540" x2="310" y2="540" />
 			<pin value="33#14" />
 			<pin value="22#0" />
 		</wire>
-		<wire id="53">
+		<wire id="52">
 			<segment x1="270" y1="560" x2="310" y2="560" />
 			<pin value="33#15" />
 			<pin value="23#0" />
 		</wire>
-		<wire id="54">
+		<wire id="53">
 			<segment x1="310" y1="580" x2="270" y2="580" />
 			<pin value="24#0" />
 			<pin value="33#16" />
 		</wire>
-		<wire id="55">
+		<wire id="54">
 			<segment x1="270" y1="600" x2="310" y2="600" />
 			<pin value="33#17" />
 			<pin value="26#0" />
 		</wire>
-		<wire id="56">
+		<wire id="55">
 			<segment x1="310" y1="620" x2="270" y2="620" />
 			<pin value="25#0" />
 			<pin value="33#18" />
 		</wire>
-		<wire id="57">
+		<wire id="56">
 			<segment x1="640" y1="480" x2="680" y2="480" />
 			<pin value="43#11" />
 			<pin value="27#0" />
 		</wire>
-		<wire id="58">
+		<wire id="57">
 			<segment x1="680" y1="500" x2="640" y2="500" />
 			<pin value="28#0" />
 			<pin value="43#12" />
 		</wire>
-		<wire id="59">
+		<wire id="58">
 			<segment x1="640" y1="520" x2="680" y2="520" />
 			<pin value="43#13" />
 			<pin value="29#0" />
 		</wire>
-		<wire id="60">
+		<wire id="59">
 			<segment x1="680" y1="540" x2="640" y2="540" />
 			<pin value="30#0" />
 			<pin value="43#14" />
 		</wire>
-		<wire id="61">
+		<wire id="60">
 			<segment x1="640" y1="560" x2="680" y2="560" />
 			<pin value="43#15" />
 			<pin value="31#0" />
 		</wire>
-		<wire id="62">
+		<wire id="61">
 			<segment x1="680" y1="580" x2="640" y2="580" />
 			<pin value="32#0" />
 			<pin value="43#16" />
 		</wire>
-		<wire id="63">
+		<wire id="62">
 			<segment x1="680" y1="620" x2="640" y2="620" />
 			<pin value="44#0" />
 			<pin value="43#18" />
 		</wire>
-		<wire id="64">
+		<wire id="63">
 			<segment x1="440" y1="480" x2="480" y2="480" />
 			<pin value="45#0" />
 			<pin value="43#0" />
 		</wire>
-		<wire id="65">
+		<wire id="64">
 			<segment x1="480" y1="500" x2="440" y2="500" />
 			<pin value="43#1" />
 			<pin value="45#1" />
 		</wire>
-		<wire id="66">
+		<wire id="65">
 			<segment x1="440" y1="520" x2="480" y2="520" />
 			<pin value="45#2" />
 			<pin value="43#2" />
 		</wire>
-		<wire id="67">
+		<wire id="66">
 			<segment x1="480" y1="540" x2="450" y2="540" />
 			<segment x1="450" y1="540" x2="440" y2="540" />
 			<pin value="43#3" />
 			<pin value="45#3" />
 		</wire>
-		<wire id="68">
+		<wire id="67">
 			<segment x1="440" y1="560" x2="480" y2="560" />
 			<pin value="45#4" />
 			<pin value="43#4" />
 		</wire>
-		<wire id="69">
+		<wire id="68">
 			<segment x1="480" y1="580" x2="440" y2="580" />
 			<pin value="43#5" />
 			<pin value="45#5" />
 		</wire>
-		<wire id="70">
+		<wire id="69">
 			<segment x1="440" y1="600" x2="480" y2="600" />
 			<pin value="45#6" />
 			<pin value="43#6" />
 		</wire>
-		<wire id="71">
+		<wire id="70">
 			<segment x1="480" y1="620" x2="440" y2="620" />
 			<pin value="43#7" />
 			<pin value="45#7" />
 		</wire>
-		<wire id="72">
+		<wire id="71">
 			<segment x1="440" y1="640" x2="480" y2="640" />
 			<pin value="43#8" />
 			<pin value="47#0" />
 		</wire>
-		<wire id="74">
+		<wire id="72">
 			<segment x1="60" y1="890" x2="60" y2="920" />
 			<pin value="49#7" />
 			<pin value="51#0" />
 		</wire>
-		<wire id="75">
+		<wire id="73">
 			<segment x1="80" y1="920" x2="80" y2="890" />
 			<pin value="52#0" />
 			<pin value="49#6" />
 		</wire>
-		<wire id="76">
+		<wire id="74">
 			<segment x1="100" y1="890" x2="100" y2="920" />
 			<pin value="49#5" />
 			<pin value="53#0" />
 		</wire>
-		<wire id="77">
+		<wire id="75">
 			<segment x1="120" y1="920" x2="120" y2="890" />
 			<pin value="54#0" />
 			<pin value="49#4" />
 		</wire>
-		<wire id="78">
+		<wire id="76">
 			<segment x1="140" y1="890" x2="140" y2="920" />
 			<pin value="49#3" />
 			<pin value="55#0" />
 		</wire>
-		<wire id="79">
+		<wire id="77">
 			<segment x1="160" y1="920" x2="160" y2="890" />
 			<pin value="56#0" />
 			<pin value="49#2" />
 		</wire>
-		<wire id="80">
+		<wire id="78">
 			<segment x1="180" y1="890" x2="180" y2="920" />
 			<pin value="49#1" />
 			<pin value="57#0" />
 		</wire>
-		<wire id="81">
+		<wire id="79">
 			<segment x1="200" y1="920" x2="200" y2="900" />
 			<segment x1="200" y1="900" x2="200" y2="890" />
 			<pin value="58#0" />
 			<pin value="49#0" />
 		</wire>
-		<wire id="82">
+		<wire id="80">
 			<segment x1="220" y1="890" x2="220" y2="920" />
 			<pin value="50#7" />
 			<pin value="59#0" />
 		</wire>
-		<wire id="83">
+		<wire id="81">
 			<segment x1="240" y1="920" x2="240" y2="890" />
 			<pin value="60#0" />
 			<pin value="50#6" />
 		</wire>
-		<wire id="84">
+		<wire id="82">
 			<segment x1="260" y1="890" x2="260" y2="920" />
 			<pin value="50#5" />
 			<pin value="61#0" />
 		</wire>
-		<wire id="85">
+		<wire id="83">
 			<segment x1="280" y1="920" x2="280" y2="890" />
 			<pin value="62#0" />
 			<pin value="50#4" />
 		</wire>
-		<wire id="86">
+		<wire id="84">
 			<segment x1="300" y1="890" x2="300" y2="920" />
 			<pin value="50#3" />
 			<pin value="63#0" />
 		</wire>
-		<wire id="87">
+		<wire id="85">
 			<segment x1="320" y1="920" x2="320" y2="890" />
 			<pin value="64#0" />
 			<pin value="50#2" />
 		</wire>
-		<wire id="88">
+		<wire id="86">
 			<segment x1="340" y1="890" x2="340" y2="920" />
 			<pin value="50#1" />
 			<pin value="65#0" />
 		</wire>
-		<wire id="89">
+		<wire id="87">
 			<segment x1="360" y1="920" x2="360" y2="890" />
 			<pin value="66#0" />
 			<pin value="50#0" />
 		</wire>
-		<wire id="90">
+		<wire id="88">
 			<segment x1="90" y1="680" x2="110" y2="680" />
 			<segment x1="60" y1="680" x2="70" y2="680" />
 			<segment x1="70" y1="680" x2="90" y2="680" />
 			<pin value="33#10" />
 			<pin value="42#0" />
 		</wire>
-		<wire id="92">
+		<wire id="89">
 			<segment x1="480" y1="680" x2="460" y2="680" />
 			<segment x1="460" y1="680" x2="440" y2="680" />
 			<pin value="43#10" />
 			<pin value="48#0" />
 		</wire>
-		<wire id="94">
+		<wire id="90">
 			<segment x1="480" y1="660" x2="440" y2="660" />
 			<pin value="43#9" />
 			<pin value="46#0" />
 		</wire>
-		<wire id="95">
+		<wire id="91">
 			<segment x1="60" y1="660" x2="110" y2="660" />
 			<pin value="40#0" />
 			<pin value="33#9" />
@@ -2902,7 +2995,7 @@
 			<position x="310" y="920" />
 			<orientation angle="0" />
 		</component>
-		<component id="10" type="SubCircuit" priority="normal" inputs="10" outputs="16" controls="0" nested="InstrDecoder">
+		<component id="10" type="SubCircuit" priority="normal" inputs="11" outputs="16" controls="0" nested="InstrDecoder">
 			<property key="flip" value="false" />
 			<position x="740" y="920" />
 			<orientation angle="0" />
@@ -3201,6 +3294,12 @@
 			<property key="right" value="false" />
 			<property key="name" value="sRO" />
 			<position x="1170" y="820" />
+			<orientation angle="0" />
+		</component>
+		<component id="61" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+			<property key="right" value="true" />
+			<property key="name" value="vClk" />
+			<position x="640" y="960" />
 			<orientation angle="0" />
 		</component>
 		<wire id="0">
@@ -3673,53 +3772,48 @@
 			<pin value="9#9" />
 		</wire>
 		<wire id="89">
-			<segment x1="820" y1="760" x2="840" y2="760" />
-			<segment x1="840" y1="760" x2="960" y2="760" />
 			<segment x1="560" y1="490" x2="500" y2="490" />
 			<segment x1="500" y1="490" x2="500" y2="720" />
 			<segment x1="500" y1="720" x2="840" y2="720" />
 			<segment x1="840" y1="720" x2="840" y2="760" />
-			<pin value="10#10" />
-			<pin value="32#2" />
+			<segment x1="820" y1="760" x2="840" y2="760" />
+			<segment x1="960" y1="760" x2="840" y2="760" />
 			<pin value="3#16" />
+			<pin value="10#11" />
+			<pin value="32#2" />
 		</wire>
 		<wire id="90">
-			<segment x1="820" y1="780" x2="850" y2="780" />
-			<segment x1="850" y1="780" x2="960" y2="780" />
 			<segment x1="560" y1="510" x2="510" y2="510" />
 			<segment x1="510" y1="510" x2="510" y2="710" />
 			<segment x1="510" y1="710" x2="850" y2="710" />
 			<segment x1="850" y1="710" x2="850" y2="780" />
-			<pin value="10#11" />
-			<pin value="32#3" />
+			<segment x1="820" y1="780" x2="850" y2="780" />
+			<segment x1="960" y1="780" x2="850" y2="780" />
 			<pin value="3#17" />
+			<pin value="10#12" />
+			<pin value="32#3" />
 		</wire>
 		<wire id="91">
-			<segment x1="820" y1="800" x2="860" y2="800" />
-			<segment x1="860" y1="800" x2="960" y2="800" />
 			<segment x1="560" y1="530" x2="520" y2="530" />
 			<segment x1="520" y1="530" x2="520" y2="700" />
 			<segment x1="520" y1="700" x2="860" y2="700" />
 			<segment x1="860" y1="700" x2="860" y2="800" />
-			<pin value="10#12" />
-			<pin value="32#4" />
+			<segment x1="820" y1="800" x2="860" y2="800" />
+			<segment x1="960" y1="800" x2="860" y2="800" />
 			<pin value="3#18" />
+			<pin value="10#13" />
+			<pin value="32#4" />
 		</wire>
 		<wire id="92">
-			<segment x1="820" y1="820" x2="870" y2="820" />
-			<segment x1="870" y1="820" x2="960" y2="820" />
 			<segment x1="560" y1="550" x2="530" y2="550" />
 			<segment x1="530" y1="550" x2="530" y2="690" />
 			<segment x1="530" y1="690" x2="870" y2="690" />
 			<segment x1="870" y1="690" x2="870" y2="820" />
-			<pin value="10#13" />
-			<pin value="32#5" />
+			<segment x1="820" y1="820" x2="870" y2="820" />
+			<segment x1="960" y1="820" x2="870" y2="820" />
 			<pin value="3#19" />
-		</wire>
-		<wire id="93">
-			<segment x1="820" y1="840" x2="960" y2="840" />
 			<pin value="10#14" />
-			<pin value="32#6" />
+			<pin value="32#5" />
 		</wire>
 		<wire id="94">
 			<segment x1="940" y1="860" x2="960" y2="860" />
@@ -3882,62 +3976,6 @@
 			<pin value="51#7" />
 			<pin value="52#7" />
 		</wire>
-		<wire id="124">
-			<segment x1="820" y1="920" x2="840" y2="920" />
-			<pin value="10#18" />
-			<pin value="53#0" />
-		</wire>
-		<wire id="125">
-			<segment x1="840" y1="940" x2="820" y2="940" />
-			<pin value="53#1" />
-			<pin value="10#19" />
-		</wire>
-		<wire id="126">
-			<segment x1="820" y1="960" x2="840" y2="960" />
-			<pin value="10#20" />
-			<pin value="53#2" />
-		</wire>
-		<wire id="127">
-			<segment x1="840" y1="980" x2="820" y2="980" />
-			<pin value="53#3" />
-			<pin value="10#21" />
-		</wire>
-		<wire id="128">
-			<segment x1="820" y1="1000" x2="840" y2="1000" />
-			<pin value="10#22" />
-			<pin value="53#4" />
-		</wire>
-		<wire id="129">
-			<segment x1="840" y1="1020" x2="820" y2="1020" />
-			<pin value="53#5" />
-			<pin value="10#23" />
-		</wire>
-		<wire id="130">
-			<segment x1="820" y1="1040" x2="840" y2="1040" />
-			<pin value="10#24" />
-			<pin value="53#6" />
-		</wire>
-		<wire id="131">
-			<segment x1="840" y1="1060" x2="820" y2="1060" />
-			<pin value="53#7" />
-			<pin value="10#25" />
-		</wire>
-		<wire id="132">
-			<segment x1="840" y1="860" x2="830" y2="860" />
-			<segment x1="830" y1="860" x2="820" y2="860" />
-			<pin value="10#15" />
-			<pin value="54#0" />
-		</wire>
-		<wire id="133">
-			<segment x1="820" y1="880" x2="840" y2="880" />
-			<pin value="10#16" />
-			<pin value="54#1" />
-		</wire>
-		<wire id="134">
-			<segment x1="840" y1="900" x2="820" y2="900" />
-			<pin value="54#2" />
-			<pin value="10#17" />
-		</wire>
 		<wire id="135">
 			<segment x1="1150" y1="430" x2="1180" y2="430" />
 			<pin value="55#0" />
@@ -3977,6 +4015,73 @@
 			<segment x1="1120" y1="800" x2="1160" y2="800" />
 			<pin value="32#13" />
 			<pin value="59#0" />
+		</wire>
+		<wire id="143">
+			<segment x1="650" y1="960" x2="660" y2="960" />
+			<pin value="61#0" />
+			<pin value="10#10" />
+		</wire>
+		<wire id="144">
+			<segment x1="820" y1="840" x2="960" y2="840" />
+			<pin value="10#15" />
+			<pin value="32#6" />
+		</wire>
+		<wire id="145">
+			<segment x1="840" y1="860" x2="830" y2="860" />
+			<segment x1="830" y1="860" x2="820" y2="860" />
+			<pin value="54#0" />
+			<pin value="10#16" />
+		</wire>
+		<wire id="146">
+			<segment x1="820" y1="880" x2="830" y2="880" />
+			<segment x1="830" y1="880" x2="840" y2="880" />
+			<pin value="10#17" />
+			<pin value="54#1" />
+		</wire>
+		<wire id="147">
+			<segment x1="840" y1="900" x2="820" y2="900" />
+			<pin value="54#2" />
+			<pin value="10#18" />
+		</wire>
+		<wire id="148">
+			<segment x1="820" y1="920" x2="840" y2="920" />
+			<pin value="10#19" />
+			<pin value="53#0" />
+		</wire>
+		<wire id="149">
+			<segment x1="820" y1="940" x2="840" y2="940" />
+			<pin value="10#20" />
+			<pin value="53#1" />
+		</wire>
+		<wire id="150">
+			<segment x1="840" y1="960" x2="820" y2="960" />
+			<pin value="53#2" />
+			<pin value="10#21" />
+		</wire>
+		<wire id="151">
+			<segment x1="820" y1="980" x2="840" y2="980" />
+			<pin value="10#22" />
+			<pin value="53#3" />
+		</wire>
+		<wire id="152">
+			<segment x1="840" y1="1000" x2="820" y2="1000" />
+			<pin value="53#4" />
+			<pin value="10#23" />
+		</wire>
+		<wire id="153">
+			<segment x1="820" y1="1020" x2="840" y2="1020" />
+			<pin value="10#24" />
+			<pin value="53#5" />
+		</wire>
+		<wire id="154">
+			<segment x1="840" y1="1040" x2="820" y2="1040" />
+			<pin value="53#6" />
+			<pin value="10#25" />
+		</wire>
+		<wire id="155">
+			<segment x1="820" y1="1060" x2="840" y2="1060" />
+			<pin value="10#26" />
+			<pin value="53#7" />
 		</wire>
 	</circuit>
 	<main name="main" />

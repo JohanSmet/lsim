@@ -14,6 +14,8 @@ OPCODE_LTB = 0b00100    # (4) Load literal into Register-B
 OPCODE_STA = 0b00101    # (5) Store from Register-A to memory    
 OPCODE_STB = 0b00110    # (6) Store from Register-B to memory    
 OPCODE_PRA = 0b00111    # (7) Output Register-A to display
+OPCODE_JMP = 0b01000    # (8) Jump to address
+OPCODE_JNZ = 0b01001    # (9) Conditional Jump (zero-flag NOT set) to address
 OPCODE_HLT = 0b01111    # (15) Halt CPU
 
 OPCODE_ADD = 0b10000    # (16) Add register-B to register-A (result in register-A)
