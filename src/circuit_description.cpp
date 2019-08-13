@@ -56,8 +56,9 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
         result->add_property(make_property("name", "via"));
         result->add_property(make_property("right", false));
     } else if (type == COMPONENT_OSCILLATOR) {
-        result->add_property(make_property("low_duration", 5l));
-        result->add_property(make_property("high_duration", 5l));
+        int64_t default_cycle = 5;
+        result->add_property(make_property("low_duration", default_cycle));
+        result->add_property(make_property("high_duration", default_cycle));
         result->add_property(make_property("initial_output", VALUE_FALSE));
     } else if (type == COMPONENT_7_SEGMENT_LED) {
         result->change_priority(PRIORITY_DEFERRED);
