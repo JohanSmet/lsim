@@ -367,15 +367,16 @@ static void ui_property_panel(LSimContext *context) {
 
 		if (component->type() == COMPONENT_OSCILLATOR) {
 			auto low = component->property("low_duration");
+			int64_t min_value = 1;
 			if (integer_property("Low Duration", low)) {
-				if (low->value_as_integer() <= 0) {
-					low->value(1l);
+				if (low->value_as_integer() < min_value) {
+					low->value(min_value);
 				}
 			};
 			auto high = component->property("high_duration");
 			if (integer_property("High Duration", high)) {
-				if (high->value_as_integer() <= 0) {
-					high->value(1l);
+				if (high->value_as_integer() < min_value) {
+					high->value(min_value);
 				}
 			}
 		}

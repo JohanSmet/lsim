@@ -66,7 +66,7 @@ void sim_register_various_functions() {
     SIM_INDEPENDENT_FUNC_BEGIN(OSCILLATOR) {
         auto cycle_len = sim->current_time() - sim->pin_last_change_time(comp->pin_by_index(0));
         auto part = (comp->output_value(0) == VALUE_TRUE) ? "high_duration" : "low_duration";
-        auto max = comp->description()->property_value(part, 1l);
+        auto max = comp->description()->property_value(part, static_cast<int64_t> (1));
 
         if (cycle_len >= max) {
             auto new_value = comp->output_value(0) == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
