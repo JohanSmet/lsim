@@ -87,6 +87,18 @@ private:
     std::unique_ptr<CircuitInstance>    m_nested_circuit;
 };
 
+struct NodeMetadata {
+    typedef std::set<SimComponent *> component_set_t;
+
+    // construction
+    NodeMetadata() : m_default(VALUE_UNDEFINED) {
+    }
+
+    // data
+    Value               m_default;
+    component_set_t     m_dependents;
+};
+
 class Simulator {
 public:
     typedef uint64_t timestamp_t;
@@ -148,7 +160,7 @@ private:
     typedef std::vector<SimComponent *> component_refs_t;
     typedef std::set<node_t> node_set_t;
     typedef std::set<SimComponent *> component_set_t;
-    typedef std::vector<component_set_t> node_component_matrix_t;
+    typedef std::vector<NodeMetadata> node_metadata_container_t;
 
 private:
     timestamp_t    m_time;
@@ -159,11 +171,10 @@ private:
     node_container_t            m_pin_nodes;
     value_container_t           m_pin_values;
 
-    node_component_matrix_t   m_node_components;
+    node_metadata_container_t m_node_metadata;
     node_container_t          m_free_nodes;
     value_container_t         m_node_values_read;
     value_container_t         m_node_values_write;
-    value_container_t         m_node_defaults;
     node_set_t                m_dirty_nodes_read;
     node_set_t                m_dirty_nodes_write;
 

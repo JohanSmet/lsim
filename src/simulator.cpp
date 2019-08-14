@@ -258,25 +258,23 @@ node_t Simulator::assign_node(SimComponent *component, bool used_as_input) {
         m_free_nodes.pop_back();
         m_node_values_read[id] = VALUE_UNDEFINED;
         m_node_values_write[id] = VALUE_UNDEFINED;
-        m_node_defaults[id] = VALUE_UNDEFINED;
+        m_node_metadata[id].m_default = VALUE_UNDEFINED;
+        m_node_metadata[id].m_dependents = {};
         m_node_write_time[id] = 0;
         m_node_change_time[id] = 0;
-        m_node_components[id].clear();
         if (used_as_input) {
-            m_node_components[id].insert(component);
+            m_node_metadata[id].m_dependents.insert(component);
         }
         return id;
     }
 
     m_node_values_read.push_back(VALUE_UNDEFINED);
     m_node_values_write.push_back(VALUE_UNDEFINED);
-    m_node_defaults.push_back(VALUE_UNDEFINED);
+    m_node_metadata.push_back(NodeMetadata());
     m_node_write_time.push_back(0);
     m_node_change_time.push_back(0);
     if (used_as_input) {
-       m_node_components.push_back({component});
-    } else {
-       m_node_components.push_back({});
+        m_node_metadata.back().m_dependents.insert(component);
     }
 
     return m_node_values_read.size() - 1;
@@ -288,11 +286,10 @@ void Simulator::release_node(node_t node_id) {
 }
 
 void Simulator::clear_nodes() {
-    m_node_components.clear();
     m_free_nodes.clear();
     m_node_values_read.clear();
     m_node_values_write.clear();
-    m_node_defaults.clear();
+    m_node_metadata.clear();
     m_dirty_nodes_read.clear();
     m_dirty_nodes_write.clear();
     m_node_write_time.clear();
@@ -303,19 +300,19 @@ node_t Simulator::merge_nodes(node_t node_a, node_t node_b) {
     assert(node_a != node_b);
     release_node(node_b);
     std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
-    for (const auto &comp : m_node_components[node_b]) {
-        m_node_components[node_a].insert(comp);
+    for (const auto &comp : m_node_metadata[node_b].m_dependents) {
+        m_node_metadata[node_a].m_dependents.insert(comp);
     }
     return node_a;
 }
 
 void Simulator::node_set_default(node_t node_id, Value value) {
-    assert(node_id < m_node_defaults.size());
-    m_node_defaults[node_id] = value;
+    assert(node_id < m_node_metadata.size());
+    m_node_metadata[node_id].m_default = value;
 }
 
 void Simulator::node_set_initial_value(node_t node_id, Value value) {
-    assert(node_id < m_node_defaults.size());
+    assert(node_id < m_node_metadata.size());
     m_node_values_read[node_id] = value;
     m_node_values_write[node_id] = value;
     m_node_write_time[node_id] = m_time;
@@ -369,9 +366,12 @@ void Simulator::init() {
 
     std::fill(std::begin(m_node_values_read), std::end(m_node_values_read), VALUE_FALSE);
     std::fill(std::begin(m_node_values_write), std::end(m_node_values_write), VALUE_FALSE);
-    std::fill(std::begin(m_node_defaults), std::end(m_node_defaults), VALUE_UNDEFINED);
     std::fill(std::begin(m_node_write_time), std::end(m_node_write_time), 0);
     std::fill(std::begin(m_node_change_time), std::end(m_node_change_time), 0);
+
+    for (auto &meta : m_node_metadata) {
+        meta.m_default = VALUE_UNDEFINED;
+    }
 
     // apply initial values
     for (const auto &prio_comps : m_components) {
@@ -399,7 +399,7 @@ void Simulator::step() {
 
     // >> build a unique list of components with changed input values
     for (auto node_id : m_dirty_nodes_read) {
-        for (auto comp : m_node_components[node_id]) {
+        for (auto comp : m_node_metadata[node_id].m_dependents) {
             sim_components.insert(comp);
         }
     }
@@ -442,7 +442,7 @@ void Simulator::postprocess_dirty_nodes() {
 
     for (auto node_id : m_dirty_nodes_write) {
         if (m_node_write_time[node_id] < m_time) {
-            m_node_values_write[node_id] = m_node_defaults[node_id];
+            m_node_values_write[node_id] = m_node_metadata[node_id].m_default;
             m_node_write_time[node_id] = m_time;
         }
 
