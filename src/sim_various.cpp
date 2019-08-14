@@ -17,7 +17,7 @@ void sim_register_various_functions() {
             auto user_value = comp->user_value(comp->output_pin_index(pin));
             if (user_value != VALUE_UNDEFINED) {
                 sim->pin_set_initial_value(comp->pin_by_index(pin), user_value);
-                comp->set_output_value(comp->output_pin_index(pin), user_value);
+                sim->pin_set_output_value(comp->pin_by_index(pin), user_value);
             }
         }
     } SIM_FUNC_END;
@@ -27,7 +27,7 @@ void sim_register_various_functions() {
             return;
         }
         for (size_t pin = 0; pin < comp->num_outputs(); ++pin) {
-            auto last_value = comp->output_value(comp->output_pin_index(pin));
+            auto last_value = sim->pin_output_value(comp->pin_by_index(comp->output_pin_index(pin)));
             auto user_value = comp->user_value(comp->output_pin_index(pin));
             if (last_value != user_value || user_value != VALUE_UNDEFINED) {
                 comp->write_pin(pin, user_value);
@@ -65,11 +65,12 @@ void sim_register_various_functions() {
 
     SIM_INDEPENDENT_FUNC_BEGIN(OSCILLATOR) {
         auto cycle_len = sim->current_time() - sim->pin_last_change_time(comp->pin_by_index(0));
-        auto part = (comp->output_value(0) == VALUE_TRUE) ? "high_duration" : "low_duration";
+        auto value = sim->pin_output_value(comp->pin_by_index(0));
+        auto part = (value == VALUE_TRUE) ? "high_duration" : "low_duration";
         auto max = comp->description()->property_value(part, static_cast<int64_t> (1));
 
         if (cycle_len >= max) {
-            auto new_value = comp->output_value(0) == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
+            auto new_value = value == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
             comp->write_pin(comp->output_pin_index(0), new_value);
         }
     } SIM_FUNC_END;

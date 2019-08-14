@@ -26,7 +26,6 @@ SimComponent::SimComponent(Simulator *sim, Component *comp) :
     m_control_start = m_output_start + comp->num_outputs();
     for (size_t idx = 0; idx < num_pins; ++idx) {
         m_pins.push_back(sim->assign_pin(this, idx < m_output_start || idx >= m_control_start));
-        m_values.push_back(VALUE_UNDEFINED);
     }
     m_sim_input_changed_func = sim_function(comp->type());
     m_sim_independent_func = sim_independent_function(comp->type());
@@ -37,7 +36,6 @@ void SimComponent::apply_initial_values() {
     auto initial_out = m_comp_desc->property_value("initial_output", VALUE_UNDEFINED);
     if (initial_out != VALUE_UNDEFINED) {
         for (size_t pin = m_output_start; pin < m_control_start; ++pin) {
-            m_values[pin] = initial_out;
             m_sim->pin_set_initial_value(m_pins[pin], initial_out);
         }
     }
@@ -47,7 +45,6 @@ void SimComponent::apply_initial_values() {
         !m_comp_desc->property_value("tri_state", false)) {
         for (size_t pin = m_output_start; pin < m_control_start; ++pin) {
             m_user_values[pin] = VALUE_FALSE;
-            m_values[pin] = VALUE_FALSE;
             m_sim->pin_set_initial_value(m_pins[pin], initial_out);
         }
     }
@@ -77,10 +74,10 @@ Value SimComponent::read_pin(uint32_t index) const {
 
 void SimComponent::write_pin(uint32_t index, Value value) {
     assert(index < m_pins.size());
-    if (value == VALUE_UNDEFINED && m_values[index] == value) {
+    // XXX: is the second test really necessary?
+    if (value == VALUE_UNDEFINED && m_sim->pin_output_value(m_pins[index]) == value) {
         return;
     }
-    m_values[index] = value;
     m_sim->write_pin(m_pins[index], value);
 }
 
@@ -98,7 +95,7 @@ void SimComponent::write_pin_checked(uint32_t index, bool value) {
 
 void SimComponent::enable_user_values() {
     m_user_values.clear();
-    std::copy(std::begin(m_values), std::end(m_values), std::back_inserter(m_user_values));
+    m_user_values.resize(m_pins.size(), VALUE_UNDEFINED);
 }
 
 Value SimComponent::user_value(uint32_t index) const {
@@ -112,16 +109,6 @@ Value SimComponent::user_value(uint32_t index) const {
 void SimComponent::set_user_value(uint32_t index, Value value) {
     assert(index < m_pins.size());
     m_user_values[index] = value;
-}
-
-void SimComponent::set_output_value(uint32_t index, Value value) {
-    assert(index < m_pins.size());
-    m_values[index] = value;
-}
-
-Value SimComponent::output_value(uint32_t index) const {
-    assert(index < m_pins.size());
-    return m_values[index];
 }
 
 void SimComponent::set_nested_instance(std::unique_ptr<class CircuitInstance> instance) {
@@ -174,6 +161,7 @@ void Simulator::clear_components() {
 pin_t Simulator::assign_pin(SimComponent *component, bool used_as_input) {
     auto result = m_pin_nodes.size();
     m_pin_nodes.push_back(assign_node(component, used_as_input));
+    m_pin_values.push_back(VALUE_UNDEFINED);
     return result;
 }
 
@@ -195,6 +183,7 @@ node_t Simulator::connect_pins(pin_t pin_a, pin_t pin_b) {
 
 void Simulator::clear_pins() {
     m_pin_nodes.clear();
+    m_pin_values.clear();
 }
 
 void Simulator::pin_set_default(pin_t pin, Value value) {
@@ -208,6 +197,7 @@ void Simulator::pin_set_initial_value(pin_t pin, Value value) {
     assert(pin < m_pin_nodes.size());
 
     auto node_id = m_pin_nodes[pin];
+    m_pin_values[pin] = value;
     node_set_initial_value(node_id, value);
 }
 
@@ -215,6 +205,7 @@ void Simulator::write_pin(pin_t pin, Value value) {
     assert(pin < m_pin_nodes.size());
 
     auto node_id = m_pin_nodes[pin];
+    m_pin_values[pin] = value;
     write_node(node_id, value);
 }
 
@@ -249,6 +240,16 @@ Simulator::timestamp_t Simulator::pin_last_change_time(pin_t pin) const {
 node_t Simulator::pin_node(pin_t pin) const {
     assert(pin < m_pin_nodes.size());
     return m_pin_nodes[pin];
+}
+
+Value Simulator::pin_output_value(pin_t pin) const {
+    assert(pin < m_pin_nodes.size());
+    return m_pin_values[pin];
+}
+
+void Simulator::pin_set_output_value(pin_t pin, Value value) {
+    assert(pin < m_pin_nodes.size());
+    m_pin_values[pin] = value;
 }
 
 node_t Simulator::assign_node(SimComponent *component, bool used_as_input) {

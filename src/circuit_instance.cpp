@@ -220,9 +220,7 @@ bool CircuitInstance::node_dirty(node_t node_id) {
 }
 
 Value CircuitInstance::pin_output(pin_id_t pin_id) {
-    auto comp = component_by_id(component_id_from_pin_id(pin_id));
-    assert(comp);
-    return comp->output_value(pin_index_from_pin_id(pin_id));
+    return m_sim->pin_output_value(pin_from_pin_id(pin_id));
 }
 
 Value CircuitInstance::user_value(pin_id_t pin_id) {

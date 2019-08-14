@@ -56,10 +56,6 @@ public:
     void set_user_value(uint32_t index, Value value);
     bool user_values_enabled() const {return !m_user_values.empty();}
 
-    // output_value: set/retrieve the value last written by this component to the specified pin
-    void set_output_value(uint32_t index, Value value);
-    Value output_value(uint32_t index) const;
-
     // nested circuits
     void set_nested_instance(std::unique_ptr<CircuitInstance> instance);
     CircuitInstance *nested_instance() const {return m_nested_circuit.get();}
@@ -77,7 +73,6 @@ private:
     Simulator *m_sim;
     Component *m_comp_desc;
     pin_container_t m_pins;
-    value_container_t m_values;
     value_container_t m_user_values;
     std::vector<uint8_t> m_extra_data;
 
@@ -114,7 +109,10 @@ public:
     Value read_pin_current_step(pin_t pin) const;
     bool pin_changed_previous_step(pin_t pin) const;
     timestamp_t pin_last_change_time(pin_t pin) const;
+
     node_t pin_node(pin_t pin) const;
+    Value pin_output_value(pin_t pin) const;
+    void pin_set_output_value(pin_t pin, Value value);
 
     // nodes
     node_t assign_node(SimComponent *component, bool used_as_input);
@@ -159,6 +157,7 @@ private:
     component_refs_t            m_init_components;
     component_refs_t            m_independent_components;
     node_container_t            m_pin_nodes;
+    value_container_t           m_pin_values;
 
     node_component_matrix_t   m_node_components;
     node_container_t          m_free_nodes;
