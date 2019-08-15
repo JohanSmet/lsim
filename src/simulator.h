@@ -152,6 +152,9 @@ public:
     void run_until_stable(size_t stable_ticks);
     timestamp_t current_time() const {return m_time;}
 
+    void activate_independent_simulation_func(SimComponent *comp);
+    void deactivate_independent_simulation_func(SimComponent *comp);
+
 private:
     void postprocess_dirty_nodes();
 

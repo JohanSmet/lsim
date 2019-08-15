@@ -440,6 +440,24 @@ void Simulator::run_until_stable(size_t stable_ticks) {
     }
 }
 
+void Simulator::activate_independent_simulation_func(SimComponent *comp) {
+    if (!sim_has_independent_function(comp->description()->type())) {
+        return;
+    }
+
+    auto iter = std::find(m_independent_components.begin(), m_independent_components.end(), comp);
+    if (iter == m_independent_components.end()) {
+        m_independent_components.push_back(comp);
+    }
+}
+
+void Simulator::deactivate_independent_simulation_func(SimComponent *comp) {
+    auto iter = std::find(m_independent_components.begin(), m_independent_components.end(), comp);
+    if (iter != m_independent_components.end()) {
+        m_independent_components.erase(iter);
+    }
+}
+
 void Simulator::postprocess_dirty_nodes() {
 
     for (auto node_id : m_dirty_nodes_write) {
