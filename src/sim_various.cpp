@@ -48,18 +48,6 @@ void sim_register_various_functions() {
         sim->pin_set_initial_value(comp->pin_by_index(0), value);
     } SIM_FUNC_END;
 
-    SIM_NEEDED_FUNC_BEGIN(SUB_CIRCUIT) {
-        return true;
-    } SIM_FUNC_END;
-
-    SIM_NEEDED_FUNC_BEGIN(TEXT) {
-        return false;
-    } SIM_FUNC_END;
-
-    SIM_NEEDED_FUNC_BEGIN(VIA) {
-        return false;
-    } SIM_FUNC_END;
-
     SIM_SETUP_FUNC_BEGIN(OSCILLATOR) {
         comp->set_extra_data_size(sizeof(ExtraDataOscillator));
         auto *extra = reinterpret_cast<ExtraDataOscillator *>(comp->extra_data());

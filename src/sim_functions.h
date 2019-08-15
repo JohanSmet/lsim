@@ -14,10 +14,6 @@
     sim_register_function(COMPONENT_##type,     \
         [](Simulator *sim, SimComponent *comp) {
 
-#define SIM_NEEDED_FUNC_BEGIN(type)                 \
-    sim_register_needed_function(COMPONENT_##type,  \
-        [](Simulator *sim, SimComponent *comp) -> bool {
-
 #define SIM_SETUP_FUNC_BEGIN(type)                    \
     sim_register_setup_function(COMPONENT_##type,     \
         [](Simulator *sim, SimComponent *comp) {
@@ -36,7 +32,6 @@ typedef std::function<bool (Simulator *, SimComponent *comp)> simulation_needed_
 void sim_register_setup_function(ComponentType type, simulation_func_t func);
 void sim_register_independent_function(ComponentType type, simulation_func_t func);
 void sim_register_function(ComponentType type, simulation_func_t func);
-void sim_register_needed_function(ComponentType type, simulation_needed_func_t func);
 void sim_register_component_functions();
 
 bool sim_has_setup_function(ComponentType type);
@@ -44,7 +39,6 @@ simulation_func_t sim_setup_function(ComponentType type);
 bool sim_has_independent_function(ComponentType type);
 simulation_func_t sim_independent_function(ComponentType type);
 simulation_func_t sim_function(ComponentType type);
-simulation_needed_func_t sim_needed_function(ComponentType type);
 
 } // namespace lsim
 

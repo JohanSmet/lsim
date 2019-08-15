@@ -29,7 +29,6 @@ SimComponent::SimComponent(Simulator *sim, Component *comp) :
     }
     m_sim_input_changed_func = sim_function(comp->type());
     m_sim_independent_func = sim_independent_function(comp->type());
-    m_sim_needed_func = sim_needed_function(comp->type());
 }
 
 void SimComponent::apply_initial_values() {

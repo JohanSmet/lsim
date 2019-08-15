@@ -82,7 +82,6 @@ private:
 
     simulation_func_t m_sim_input_changed_func;
     simulation_func_t m_sim_independent_func;
-    simulation_needed_func_t m_sim_needed_func;
 
     std::unique_ptr<CircuitInstance>    m_nested_circuit;
 };
