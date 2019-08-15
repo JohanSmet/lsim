@@ -449,8 +449,12 @@ void Simulator::postprocess_dirty_nodes() {
                 m_node_values_write[node_id] = m_node_metadata[node_id].m_default;
                 m_node_write_time[node_id] = m_time;
                 break;
-            case 1 :        // normal case - 1 active writer
+            case 1 : {      // normal case - 1 active writer
+                pin_t pin = *m_node_metadata[node_id].m_active_pins.begin();
+                m_node_values_write[node_id] = m_pin_values[pin];
+                m_node_write_time[node_id] = m_time;
                 break;
+            }
             default :       // multiple active writers
                m_node_values_write[node_id] = VALUE_ERROR;
                break;
