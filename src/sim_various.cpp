@@ -40,11 +40,6 @@ void sim_register_various_functions() {
         sim->pin_set_initial_value(comp->pin_by_index(0), value);
     } SIM_FUNC_END;
 
-    SIM_INDEPENDENT_FUNC_BEGIN(CONSTANT) {
-        auto value = comp->description()->property("value")->value_as_lsim_value();
-        comp->write_pin(0, value);
-    } SIM_FUNC_END;
-
     SIM_SETUP_FUNC_BEGIN(PULL_RESISTOR) {
         auto value = comp->description()->property("pull_to")->value_as_lsim_value();
         sim->pin_set_default(comp->pin_by_index(0), value);
