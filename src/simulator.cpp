@@ -206,7 +206,7 @@ void Simulator::write_pin(pin_t pin, Value value) {
 
     auto node_id = m_pin_nodes[pin];
     m_pin_values[pin] = value;
-    write_node(node_id, value);
+    write_node(node_id, value, pin);
 }
 
 Value Simulator::read_pin(pin_t pin) const {
@@ -319,21 +319,23 @@ void Simulator::node_set_initial_value(node_t node_id, Value value) {
     m_node_change_time[node_id] = m_time;
 }
 
-void Simulator::write_node(node_t node_id, Value value) {
+void Simulator::write_node(node_t node_id, Value value, pin_t from_pin) {
     assert(node_id < m_node_values_write.size());
 
     m_dirty_nodes_write.insert(node_id);
 
     if (value == VALUE_UNDEFINED) {
+        // remove from active pin list
+        auto iter = std::find(m_node_metadata[node_id].m_active_pins.begin(), m_node_metadata[node_id].m_active_pins.end(), from_pin);
+        if (iter != m_node_metadata[node_id].m_active_pins.end()) {
+            m_node_metadata[node_id].m_active_pins.erase(iter);
+        }
         return;
     }
 
-    if (m_node_write_time[node_id] < m_time) {
-        m_node_write_time[node_id] = m_time;
-        m_node_values_write[node_id] = value;
-    } else {
-        m_node_values_write[node_id] = VALUE_ERROR;
-    }
+    m_node_write_time[node_id] = m_time;
+    m_node_values_write[node_id] = value;
+    m_node_metadata[node_id].m_active_pins.insert(from_pin);
 }
 
 Value Simulator::read_node(node_t node_id) const {
@@ -441,9 +443,17 @@ void Simulator::run_until_stable(size_t stable_ticks) {
 void Simulator::postprocess_dirty_nodes() {
 
     for (auto node_id : m_dirty_nodes_write) {
-        if (m_node_write_time[node_id] < m_time) {
-            m_node_values_write[node_id] = m_node_metadata[node_id].m_default;
-            m_node_write_time[node_id] = m_time;
+
+        switch (m_node_metadata[node_id].m_active_pins.size()) {
+            case 0 :        // no active writers: use default value (i.e. pull-up/down resistor)
+                m_node_values_write[node_id] = m_node_metadata[node_id].m_default;
+                m_node_write_time[node_id] = m_time;
+                break;
+            case 1 :        // normal case - 1 active writer
+                break;
+            default :       // multiple active writers
+               m_node_values_write[node_id] = VALUE_ERROR;
+               break;
         }
 
         if (m_node_values_read[node_id] != m_node_values_write[node_id]) {

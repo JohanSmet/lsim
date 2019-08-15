@@ -89,6 +89,7 @@ private:
 
 struct NodeMetadata {
     typedef std::set<SimComponent *> component_set_t;
+    typedef std::set<pin_t> pin_set_t;
 
     // construction
     NodeMetadata() : m_default(VALUE_UNDEFINED) {
@@ -97,6 +98,7 @@ struct NodeMetadata {
     // data
     Value               m_default;
     component_set_t     m_dependents;
+    pin_set_t           m_active_pins;
 };
 
 class Simulator {
@@ -135,7 +137,7 @@ public:
     void node_set_default(node_t node_id, Value value);
     void node_set_initial_value(node_t node_id, Value value);
 
-    void write_node(node_t node_id, Value value);
+    void write_node(node_t node_id, Value value, pin_t from_pin);
     Value read_node(node_t node_id) const;
     Value read_node_current_step(node_t node_id) const;
 
