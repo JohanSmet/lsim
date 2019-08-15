@@ -57,6 +57,11 @@ const ComponentType COMPONENT_SUB_CIRCUIT = 0x1001;
 const ComponentType COMPONENT_TEXT = 0x2001;
 
 // component extra data types
+struct ExtraDataOscillator {
+    time_t  m_next_change;
+    int64_t m_duration[2];
+};
+
 struct ExtraData7SegmentLED {
     size_t   m_num_samples;
     uint32_t m_samples[8];

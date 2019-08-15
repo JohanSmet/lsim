@@ -60,14 +60,24 @@ void sim_register_various_functions() {
         return false;
     } SIM_FUNC_END;
 
-    SIM_INDEPENDENT_FUNC_BEGIN(OSCILLATOR) {
-        auto cycle_len = sim->current_time() - sim->pin_last_change_time(comp->pin_by_index(0));
-        auto value = sim->pin_output_value(comp->pin_by_index(0));
-        auto part = (value == VALUE_TRUE) ? "high_duration" : "low_duration";
-        auto max = comp->description()->property_value(part, static_cast<int64_t> (1));
+    SIM_SETUP_FUNC_BEGIN(OSCILLATOR) {
+        comp->set_extra_data_size(sizeof(ExtraDataOscillator));
+        auto *extra = reinterpret_cast<ExtraDataOscillator *>(comp->extra_data());
 
-        if (cycle_len >= max) {
-            auto new_value = value == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
+        auto value = sim->pin_output_value(comp->pin_by_index(0));
+
+        extra->m_duration[0] = comp->description()->property_value("low_duration", static_cast<int64_t>(1));
+        extra->m_duration[1] = comp->description()->property_value("high_duration", static_cast<int64_t>(1));
+        extra->m_next_change = sim->current_time() + extra->m_duration[value];
+    } SIM_FUNC_END;
+
+    SIM_INDEPENDENT_FUNC_BEGIN(OSCILLATOR) {
+        auto *extra = reinterpret_cast<ExtraDataOscillator *>(comp->extra_data());
+        if (sim->current_time() >= extra->m_next_change) {
+            auto cur_value = sim->pin_output_value(comp->pin_by_index(0));
+            auto new_value = cur_value == VALUE_TRUE ? VALUE_FALSE : VALUE_TRUE;
+            
+            extra->m_next_change = sim->current_time() + extra->m_duration[new_value];
             comp->write_pin(comp->output_pin_index(0), new_value);
         }
     } SIM_FUNC_END;
