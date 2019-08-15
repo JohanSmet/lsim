@@ -20,12 +20,12 @@ void sim_register_various_functions() {
                 sim->pin_set_output_value(comp->pin_by_index(pin), user_value);
             }
         }
+
+        // disable the independent simulation function until the user interacts with the connector
+        sim->deactivate_independent_simulation_func(comp);
     } SIM_FUNC_END;
 
     SIM_INDEPENDENT_FUNC_BEGIN(CONNECTOR_IN) {
-        if (!comp->user_values_enabled()) {
-            return;
-        }
         for (size_t pin = 0; pin < comp->num_outputs(); ++pin) {
             auto last_value = sim->pin_output_value(comp->pin_by_index(comp->output_pin_index(pin)));
             auto user_value = comp->user_value(comp->output_pin_index(pin));
@@ -33,6 +33,8 @@ void sim_register_various_functions() {
                 comp->write_pin(pin, user_value);
             }
         }
+
+        sim->deactivate_independent_simulation_func(comp);
     } SIM_FUNC_END;
 
     SIM_SETUP_FUNC_BEGIN(CONSTANT)  {

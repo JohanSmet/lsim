@@ -109,6 +109,7 @@ Value SimComponent::user_value(uint32_t index) const {
 void SimComponent::set_user_value(uint32_t index, Value value) {
     assert(index < m_pins.size());
     m_user_values[index] = value;
+    m_sim->activate_independent_simulation_func(this);
 }
 
 void SimComponent::set_nested_instance(std::unique_ptr<class CircuitInstance> instance) {
