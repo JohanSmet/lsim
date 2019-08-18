@@ -73,10 +73,15 @@ def prog_fibonnaci():
     emit_op_data(c.OPCODE_JMP, l)   # jump to label-l
     emit_op(c.OPCODE_HLT)           # halt CPU 
 
+def fill_rom(size):
+    for i in range(len(rom_data), size):
+        rom_data.append(0xff)
+
 def main():
     prog_count_up_down()
-    for i in range(len(rom_data), 256):
-        rom_data.append(0xff)
+    fill_rom(256)
+    prog_fibonnaci()
+    fill_rom(512)
     c.write_binary("prog_8bit.bin", rom_data, 8)
 
 if __name__ == "__main__":
