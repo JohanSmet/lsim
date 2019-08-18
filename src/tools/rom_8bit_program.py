@@ -69,7 +69,8 @@ def prog_fibonnaci():
     emit_op_data(c.OPCODE_LTB, 1)   # move 1 into register-B
     emit_op(c.OPCODE_SUB)           # substract register-B from register-A
     emit_op(c.OPCODE_STA, 3)        # store loop-counter 
-    emit_op_data(c.OPCODE_JNZ, l)   # jump to label-l
+    emit_op_data(c.OPCODE_JZ, 0)    # jump to initialization when done
+    emit_op_data(c.OPCODE_JMP, l)   # jump to label-l
     emit_op(c.OPCODE_HLT)           # halt CPU 
 
 def main():
