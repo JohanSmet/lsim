@@ -37,6 +37,19 @@ def prog_count_down():
     emit_op_data(c.OPCODE_JMP, l)   # jump to label-l
     emit_op(c.OPCODE_HLT)           # halt CPU (never reached but still :-)
 
+def prog_count_up_down():
+    emit_op_data(c.OPCODE_LTA, 0)   # (0+1) move 0 into register-A
+    emit_op_data(c.OPCODE_LTB, 1)   # (2+3) move 1 into register-B
+    l = emit_op(c.OPCODE_ADD)       # (4) add register-B to register-A
+    emit_op_data(c.OPCODE_JC, 10)   # (5+6) jump to second loop if carry flag is set
+    emit_op(c.OPCODE_PRA)           # (7) display register-A
+    emit_op_data(c.OPCODE_JMP, l)   # (8+9) jump to label-l
+    k = emit_op(c.OPCODE_SUB)       # (10) subtract register-B from register-A
+    emit_op(c.OPCODE_PRA)           # (11) display register-A
+    emit_op_data(c.OPCODE_JZ, l)    # (12+13) jump to first loop if zero flag is set
+    emit_op_data(c.OPCODE_JMP, k)   # (14+15) jump to label-k
+    emit_op(c.OPCODE_HLT)           # (16) halt CPU (never reached but still :-)
+
 def prog_fibonnaci():
     # initialize memory
     emit_op_data(c.OPCODE_LTA, 0)   # move 0 into register-A
@@ -60,7 +73,7 @@ def prog_fibonnaci():
     emit_op(c.OPCODE_HLT)           # halt CPU 
 
 def main():
-    prog_fibonnaci()
+    prog_count_up_down()
     for i in range(len(rom_data), 256):
         rom_data.append(0xff)
     c.write_binary("prog_8bit.bin", rom_data, 8)

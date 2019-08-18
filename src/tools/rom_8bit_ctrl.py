@@ -119,6 +119,19 @@ def opcode_JNZ():
 
     opcode_start(c.OPCODE_JNZ, zf=[1])
     emit(SIGNAL_RS)
+def opcode_JZ():
+    opcode_start(c.OPCODE_JZ, zf=[0])
+    emit(SIGNAL_INC | SIGNAL_RS)
+
+    opcode_start(c.OPCODE_JZ, zf=[1])
+    emit(SIGNAL_DL | SIGNAL_JMP | SIGNAL_RS)
+
+def opcode_JC():
+    opcode_start(c.OPCODE_JC, cf=[0])
+    emit(SIGNAL_INC | SIGNAL_RS)
+
+    opcode_start(c.OPCODE_JC, cf=[1])
+    emit(SIGNAL_DL | SIGNAL_JMP | SIGNAL_RS)
 
 def opcode_alu(op):
     opcode_start(op)
@@ -137,6 +150,8 @@ def main():
     opcode_STB()
     opcode_JMP()
     opcode_JNZ()
+    opcode_JZ()
+    opcode_JC()
     opcode_HLT()
     opcode_alu(c.OPCODE_ADD)
     opcode_alu(c.OPCODE_SUB)
