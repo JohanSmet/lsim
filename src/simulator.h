@@ -102,8 +102,6 @@ struct NodeMetadata {
 
 class Simulator {
 public:
-    typedef uint64_t timestamp_t;
-public:
     Simulator();
     Simulator(const Simulator &) = delete;
 

@@ -11,6 +11,7 @@ namespace lsim {
 
 typedef uint32_t node_t;
 typedef uint32_t pin_t;
+typedef uint64_t timestamp_t;
 
 enum Value {
     VALUE_FALSE         = 0,
@@ -58,7 +59,7 @@ const ComponentType COMPONENT_TEXT = 0x2001;
 
 // component extra data types
 struct ExtraDataOscillator {
-    time_t  m_next_change;
+    timestamp_t  m_next_change;
     int64_t m_duration[2];
 };
 

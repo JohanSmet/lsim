@@ -230,7 +230,7 @@ bool Simulator::pin_changed_previous_step(pin_t pin) const {
     return node_changed_previous_step(node_id);
 }
 
-Simulator::timestamp_t Simulator::pin_last_change_time(pin_t pin) const {
+timestamp_t Simulator::pin_last_change_time(pin_t pin) const {
     assert(pin < m_pin_nodes.size());
 
     auto node_id = m_pin_nodes[pin];
@@ -353,7 +353,7 @@ bool Simulator::node_changed_previous_step(node_t node_id) const {
     return m_node_change_time[node_id] == m_time - 1;
 }
 
-Simulator::timestamp_t Simulator::node_last_change_time(node_t node_id) const {
+timestamp_t Simulator::node_last_change_time(node_t node_id) const {
     assert(node_id < m_node_change_time.size());
     return m_node_change_time[node_id];
 }
