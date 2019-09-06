@@ -34,7 +34,6 @@ static const char *XML_ATTR_VERSION = "version";
 static const char *XML_ATTR_NAME = "name";
 static const char *XML_ATTR_ID = "id";
 static const char *XML_ATTR_TYPE = "type";
-static const char *XML_ATTR_PRIORITY = "priority";
 static const char *XML_ATTR_INPUTS = "inputs";
 static const char *XML_ATTR_OUTPUTS = "outputs";
 static const char *XML_ATTR_CONTROLS = "controls";
@@ -74,11 +73,6 @@ static const std::unordered_map<ComponentType, std::string> component_type_to_na
     {COMPONENT_7_SEGMENT_LED, "7SegmentLED"},
     {COMPONENT_SUB_CIRCUIT, "SubCircuit"},
     {COMPONENT_TEXT, "Text"}
-};
-
-static const std::unordered_map<Priority, std::string> priority_to_string = {
-    {PRIORITY_NORMAL, "normal"},
-    {PRIORITY_DEFERRED, "deferred"}
 };
 
 static std::unordered_map<std::string, ComponentType> build_component_type_lut() {
@@ -159,12 +153,6 @@ private:
             comp_node.append_attribute(XML_ATTR_TYPE).set_value(type_name->second.c_str());
         } else {
             comp_node.append_attribute(XML_ATTR_TYPE).set_value(component->type());
-        }
-
-        // priority
-        auto prio = priority_to_string.find(component->priority());
-        if (prio != priority_to_string.end()) {
-            comp_node.append_attribute(XML_ATTR_PRIORITY).set_value(prio->second.c_str());
         }
 
         // pins

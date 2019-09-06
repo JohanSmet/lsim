@@ -42,10 +42,6 @@ public:
     uint32_t id() const {return m_id;}
     ComponentType type() const {return m_type;}
 
-    // priority
-    Priority priority() const {return m_priority;}
-    void change_priority(Priority priority) {m_priority = priority;}
-
     // pins
     uint32_t num_inputs() const {return m_inputs;}
     uint32_t num_outputs() const {return m_outputs;}
@@ -86,7 +82,6 @@ private:
     CircuitDescription *m_circuit;
     uint32_t m_id;
     ComponentType m_type;
-    Priority m_priority;
     uint32_t m_inputs;
     uint32_t m_outputs;
     uint32_t m_controls;

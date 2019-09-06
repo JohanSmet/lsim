@@ -49,7 +49,6 @@ Component *CircuitDescription::create_component(ComponentType type, uint32_t inp
         result->add_property(make_property("value", VALUE_FALSE));
     } else if (type == COMPONENT_PULL_RESISTOR) {
         result->add_property(make_property("pull_to", VALUE_FALSE));
-        result->change_priority(PRIORITY_DEFERRED);
     } else if (type == COMPONENT_TEXT) {
         result->add_property(make_property("text", "text"));
     } else if (type == COMPONENT_VIA) {
@@ -61,7 +60,6 @@ Component *CircuitDescription::create_component(ComponentType type, uint32_t inp
         result->add_property(make_property("high_duration", default_cycle));
         result->add_property(make_property("initial_output", VALUE_FALSE));
     } else if (type == COMPONENT_7_SEGMENT_LED) {
-        result->change_priority(PRIORITY_DEFERRED);
     } else {
         result->add_property(make_property("initial_output", VALUE_UNDEFINED));
     }

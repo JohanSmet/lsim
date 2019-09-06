@@ -136,7 +136,7 @@ Simulator::Simulator() :
 SimComponent *Simulator::create_component(Component *desc) {
     auto sim_comp = std::make_unique<SimComponent>(this, desc);
     auto result = sim_comp.get();
-    m_components[desc->priority()].push_back(std::move(sim_comp));
+    m_components.push_back(std::move(sim_comp));
 
     if (sim_has_setup_function(desc->type())) {
         m_init_components.push_back(result);       
@@ -150,8 +150,7 @@ SimComponent *Simulator::create_component(Component *desc) {
 }
 
 void Simulator::clear_components() {
-    m_components[0].clear();
-    m_components[1].clear();
+    m_components.clear();
     m_init_components.clear();
     m_independent_components.clear();
     clear_pins();
@@ -376,10 +375,8 @@ void Simulator::init() {
     }
 
     // apply initial values
-    for (const auto &prio_comps : m_components) {
-        for (auto &comp : prio_comps) {
-            comp->apply_initial_values();
-        }
+    for (auto &comp : m_components) {
+		comp->apply_initial_values();
     }
 
     // run one time setup functions

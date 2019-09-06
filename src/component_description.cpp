@@ -14,7 +14,6 @@ Component::Component(CircuitDescription *parent, uint32_t id, ComponentType type
         m_circuit(parent),
         m_id(id),
         m_type(type),
-        m_priority(PRIORITY_NORMAL),
         m_inputs(inputs),
         m_outputs(outputs),
         m_controls(controls),
@@ -28,7 +27,6 @@ Component::Component(CircuitDescription *parent, uint32_t id, const char *circui
         m_circuit(parent),
         m_id(id),
         m_type(COMPONENT_SUB_CIRCUIT),
-        m_priority(PRIORITY_NORMAL),
         m_inputs(inputs),
         m_outputs(outputs),
         m_controls(0),
@@ -142,7 +140,6 @@ bool Component::sync_nested_circuit(LSimContext *lsim_context) {
 
 Component::uptr_t Component::copy() const {
     auto clone = std::make_unique<Component>(nullptr, -1, m_type, m_inputs, m_outputs, m_controls);
-    clone->m_priority = m_priority;
     clone->m_nested_name = m_nested_name;
     clone->m_nested_circuit = m_nested_circuit;
     clone->m_port_lut = m_port_lut;

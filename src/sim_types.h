@@ -20,11 +20,6 @@ enum Value {
     VALUE_ERROR         = 3,
 };
 
-enum Priority {
-    PRIORITY_NORMAL     = 0,
-    PRIORITY_DEFERRED   = 1
-};
-
 typedef std::vector<node_t> node_container_t;
 typedef std::vector<pin_t> pin_container_t;
 typedef std::vector<Value> value_container_t;
