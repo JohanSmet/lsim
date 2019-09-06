@@ -26,6 +26,10 @@ static void dummy_sim_func(Simulator *sim, SimComponent *comp) {
 
 namespace lsim {
 
+// prototypes for registration functions defined in separate modules. (I guess somebody is too lazy to put them in a header?)
+void sim_register_gate_functions();
+void sim_register_various_functions();
+
 void sim_register_setup_function(ComponentType type, simulation_func_t func) {
     g_sim_setup_functions[type] = func;
 }
@@ -75,10 +79,8 @@ simulation_func_t sim_function(ComponentType type) {
     }
 }
 
-void sim_register_component_functions() {
-    void sim_register_gate_functions();
-    void sim_register_various_functions();
 
+void sim_register_component_functions() {
     sim_register_gate_functions();
     sim_register_various_functions();
 }
