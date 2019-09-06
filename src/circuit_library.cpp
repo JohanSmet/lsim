@@ -65,8 +65,8 @@ CircuitDescription *CircuitLibrary::circuit_by_name(const char *name) const {
     }
 }
 
-size_t CircuitLibrary::circuit_idx(CircuitDescription *circuit) const {
-    for (size_t i = 0; i < m_circuits.size(); ++i) {
+uint32_t CircuitLibrary::circuit_idx(CircuitDescription *circuit) const {
+    for (auto i = 0u; i < m_circuits.size(); ++i) {
         if (m_circuits[i].get() == circuit) {
             return i;
         }

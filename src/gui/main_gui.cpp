@@ -271,7 +271,7 @@ static void ui_property_panel(LSimContext *context) {
 		};
 
 		auto integer_property = [](const char *caption, Property *property) {
-			int value = property->value_as_integer();
+			int value = static_cast<int> (property->value_as_integer());
 			if (ImGui::InputInt(caption, &value)) {
 				property->value(static_cast<int64_t>(value));
 				return true;
@@ -281,7 +281,7 @@ static void ui_property_panel(LSimContext *context) {
 		};
 
 		auto value_property = [](const char *caption, Property *property) -> Value {
-			int cur_value = property->value_as_integer();
+			int cur_value = static_cast<int> (property->value_as_integer());
 			if (ImGui::Combo(caption, &cur_value, value_labels, 4)) {
 				property->value(static_cast<int64_t>(cur_value));
 			}

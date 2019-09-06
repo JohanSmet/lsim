@@ -63,7 +63,7 @@ void UIComponent::change_icon(const ComponentIcon *icon) {
 
 void UIComponent::build_transform() {
 	m_to_circuit.reset();
-	m_to_circuit.rotate(m_component->angle());
+	m_to_circuit.rotate(static_cast<float>(m_component->angle()));
 	m_to_circuit.translate(m_component->position());
 	recompute_aabb();
 }
@@ -105,7 +105,7 @@ void UIComponent::add_pin_line(pin_id_t pin_start, size_t pin_count, float size,
 	}
 
 	auto odd  = pin_count % 2;
-	auto half = (pin_count - odd) / 2;
+	float half = (pin_count - odd) * 0.5f;
 	float segment_len = size / (2.0f * (half + 1));
 	segment_len = roundf(segment_len / GRID_SIZE) * GRID_SIZE;
 	auto segment_delta = inc * segment_len;
@@ -985,7 +985,7 @@ void ComponentIcon::draw(Transform transform, Point draw_size, ImDrawList *draw_
 			transform.apply(curve[2] * scale), 
 			transform.apply(curve[3] * scale), 
 			color, 
-			line_width);
+			static_cast<float>(line_width));
 	}
 }
 

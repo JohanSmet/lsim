@@ -49,7 +49,7 @@ void SimComponent::apply_initial_values() {
     }
 }
 
-pin_t SimComponent::pin_by_index(size_t index) const {
+pin_t SimComponent::pin_by_index(uint32_t index) const {
     assert(index < m_pins.size());
     return m_pins[index];
 }
@@ -159,7 +159,7 @@ void Simulator::clear_components() {
 }
 
 pin_t Simulator::assign_pin(SimComponent *component, bool used_as_input) {
-    auto result = m_pin_nodes.size();
+    pin_t result = static_cast<pin_t>(m_pin_nodes.size());
     m_pin_nodes.push_back(assign_node(component, used_as_input));
     m_pin_values.push_back(VALUE_UNDEFINED);
     return result;
@@ -277,7 +277,7 @@ node_t Simulator::assign_node(SimComponent *component, bool used_as_input) {
         m_node_metadata.back().m_dependents.insert(component);
     }
 
-    return m_node_values_read.size() - 1;
+    return static_cast<node_t> (m_node_values_read.size()) - 1;
 }
 
 void Simulator::release_node(node_t node_id) {

@@ -34,7 +34,7 @@ std::string CircuitDescription::qualified_name() const {
     return qname;
 }
 
-Component *CircuitDescription::create_component(ComponentType type, size_t input_pins, size_t output_pins, size_t control_pins) {
+Component *CircuitDescription::create_component(ComponentType type, uint32_t input_pins, uint32_t output_pins, uint32_t control_pins) {
     assert(type != COMPONENT_SUB_CIRCUIT);
 
     auto component = std::make_unique<Component>(this, m_component_id++, type, input_pins, output_pins, control_pins);
@@ -69,7 +69,7 @@ Component *CircuitDescription::create_component(ComponentType type, size_t input
     return result;
 }
 
-Component *CircuitDescription::create_component(const char *circuit_name, size_t input_pins, size_t output_pins) {
+Component *CircuitDescription::create_component(const char *circuit_name, uint32_t input_pins, uint32_t output_pins) {
     auto component = std::make_unique<Component>(this, m_component_id++, circuit_name, input_pins, output_pins);
     auto result = component.get();
     m_components[result->id()] = std::move(component);
@@ -219,14 +219,14 @@ void CircuitDescription::rebuild_port_list() {
         auto conn_ids = component_ids_of_type(type);
         for (auto id : conn_ids) {
             auto connector = component_by_id(id);
-            size_t num_ports = connector->num_inputs() + connector->num_outputs();
+            auto num_ports = connector->num_inputs() + connector->num_outputs();
             std::string name = connector->property("name")->value_as_string();
 
             if (num_ports == 1) {
                 m_ports_lut[name] = connector->pin_id(0);
                 ports.push_back(name);
             } else {
-                for (size_t idx = 0; idx < num_ports; ++idx) {
+                for (auto idx = 0u; idx < num_ports; ++idx) {
                     std::string pin_name = name + "[" + std::to_string(idx) + "]";
                     m_ports_lut[pin_name] = connector->pin_id(idx);
                     ports.push_back(pin_name);
@@ -240,7 +240,7 @@ void CircuitDescription::rebuild_port_list() {
     process_connectors(COMPONENT_CONNECTOR_OUT, m_output_ports);
 }
 
-void CircuitDescription::change_port_pin_count(uint32_t comp_id, size_t new_count) {
+void CircuitDescription::change_port_pin_count(uint32_t comp_id, uint32_t new_count) {
     auto comp = component_by_id(comp_id);
     assert(comp);
 
@@ -280,7 +280,7 @@ const std::string &CircuitDescription::port_name(bool input, size_t index) const
     return container[index];
 }
 
-Component *CircuitDescription::add_connector_in(const char *name, size_t data_bits, bool tri_state) {
+Component *CircuitDescription::add_connector_in(const char *name, uint32_t data_bits, bool tri_state) {
     auto result = create_component(COMPONENT_CONNECTOR_IN, 0, data_bits, 0);
     result->property("name")->value(name);
     result->property("tri_state")->value(tri_state);
@@ -288,7 +288,7 @@ Component *CircuitDescription::add_connector_in(const char *name, size_t data_bi
     return result;
 }
 
-Component *CircuitDescription::add_connector_out(const char *name, size_t data_bits, bool tri_state) {
+Component *CircuitDescription::add_connector_out(const char *name, uint32_t data_bits, bool tri_state) {
     auto result = create_component(COMPONENT_CONNECTOR_OUT, data_bits, 0, 0);
     result->property("name")->value(name);
     result->property("tri_state")->value(tri_state);
@@ -308,22 +308,22 @@ Component *CircuitDescription::add_pull_resistor(Value pull_to) {
     return result;
 }
 
-Component *CircuitDescription::add_buffer(size_t data_bits) {
+Component *CircuitDescription::add_buffer(uint32_t data_bits) {
     assert(data_bits >= 1);
     return create_component(COMPONENT_BUFFER, data_bits, data_bits, 0);
 }
 
-Component *CircuitDescription::add_tristate_buffer(size_t data_bits) {
+Component *CircuitDescription::add_tristate_buffer(uint32_t data_bits) {
     assert(data_bits >= 1);
    return create_component(COMPONENT_TRISTATE_BUFFER, data_bits, data_bits, 1);
 }
 
-Component *CircuitDescription::add_and_gate(size_t num_inputs) {
+Component *CircuitDescription::add_and_gate(uint32_t num_inputs) {
     assert(num_inputs >= 2);
     return create_component(COMPONENT_AND_GATE, num_inputs, 1, 0);
 }
 
-Component *CircuitDescription::add_or_gate(size_t num_inputs) {
+Component *CircuitDescription::add_or_gate(uint32_t num_inputs) {
     assert(num_inputs >= 2);
     return create_component(COMPONENT_OR_GATE, num_inputs, 1, 0);
 }
@@ -332,12 +332,12 @@ Component *CircuitDescription::add_not_gate() {
     return create_component(COMPONENT_NOT_GATE, 1, 1, 0);
 }
 
-Component *CircuitDescription::add_nand_gate(size_t num_inputs) {
+Component *CircuitDescription::add_nand_gate(uint32_t num_inputs) {
     assert(num_inputs >= 2);
     return create_component(COMPONENT_NAND_GATE, num_inputs, 1, 0);
 }
 
-Component *CircuitDescription::add_nor_gate(size_t num_inputs) {
+Component *CircuitDescription::add_nor_gate(uint32_t num_inputs) {
     assert(num_inputs >= 2);
     return create_component(COMPONENT_NOR_GATE, num_inputs, 1, 0);
 }
@@ -350,13 +350,13 @@ Component *CircuitDescription::add_xnor_gate() {
     return create_component(COMPONENT_XNOR_GATE, 2, 1, 0);
 }
 
-Component *CircuitDescription::add_via(const char *name, size_t data_bits) {
+Component *CircuitDescription::add_via(const char *name, uint32_t data_bits) {
     auto comp = create_component(COMPONENT_VIA, data_bits, 0, 0);
     comp->property("name")->value(name);
     return comp;
 }
 
-Component *CircuitDescription::add_oscillator(size_t low_duration, size_t high_duration) {
+Component *CircuitDescription::add_oscillator(uint32_t low_duration, uint32_t high_duration) {
     auto comp = create_component(COMPONENT_OSCILLATOR, 0, 1, 0);
     comp->property("low_duration")->value(static_cast<int64_t>(low_duration));
     comp->property("high_duration")->value(static_cast<int64_t>(high_duration));
@@ -367,7 +367,7 @@ Component *CircuitDescription::add_7_segment_led() {
     return create_component(COMPONENT_7_SEGMENT_LED, 8, 0, 1);
 }
 
-Component *CircuitDescription::add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs) {
+Component *CircuitDescription::add_sub_circuit(const char *circuit, uint32_t num_inputs, uint32_t num_outputs) {
     return create_component(circuit, num_inputs, num_outputs);
 }
 
@@ -390,7 +390,7 @@ std::unique_ptr<CircuitInstance> CircuitDescription::instantiate(Simulator *sim,
     // helper function to connect all pins of two vias
     auto connect_vias = [&instance](Component *via_a, Component *via_b) {
         assert(via_a->num_inputs() == via_b->num_inputs());
-        for (size_t i = 0; i < via_a->num_inputs(); ++i) {
+        for (uint32_t i = 0u; i < via_a->num_inputs(); ++i) {
             instance->connect_pins(via_a->input_pin_id(i), via_b->input_pin_id(i));
         }
     };

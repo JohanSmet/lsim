@@ -71,17 +71,17 @@ private:
     };
 
     struct ComponentProperties {
-        size_t              m_size;
-        size_t              m_extra_size;
-        size_t              m_inputs;
+        uint32_t            m_size;
+        uint32_t            m_extra_size;
+        uint32_t            m_inputs;
         Position            m_location;
         LogisimDirection    m_facing;
         std::string         m_label;
-        size_t              m_width;
+        uint32_t            m_width;
         bool                m_negate_output;
         bool                m_negate_input;
-        size_t              m_splitter_fanout;
-        size_t              m_splitter_incoming;
+        uint32_t            m_splitter_fanout;
+        uint32_t            m_splitter_incoming;
         int                 m_splitter_justify;
         bool                m_pin_output;
         bool                m_pin_tristate;
@@ -126,7 +126,7 @@ private:
     void add_pin_location(const Position &loc, pin_id_t start, size_t count);
 
     Position input_pin_location(Position base, 
-                                size_t index, 
+                                uint32_t index, 
                                 ComponentProperties &props);
     wire_node_t *point_on_wire(Position position);
 
@@ -708,7 +708,7 @@ void LogisimParser::add_pin_location(const Position &loc, pin_id_t start, size_t
 
 LogisimParser::Position LogisimParser::input_pin_location( 
         Position base, 
-        size_t index, 
+        uint32_t index, 
         ComponentProperties &props) {
 
     int axis_length = props.m_size + props.m_extra_size + (props.m_negate_output ? 10 : 0);

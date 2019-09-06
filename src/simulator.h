@@ -27,10 +27,10 @@ public:
     void apply_initial_values();
 
     // pins
-    pin_t pin_by_index(size_t index) const;
-    size_t input_pin_index(size_t index) const {return index;}
-    size_t output_pin_index(size_t index) const {return m_output_start + index;}
-    size_t control_pin_index(size_t index) const {return m_control_start + index;}
+    pin_t pin_by_index(uint32_t index) const;
+    uint32_t input_pin_index(uint32_t index) const {return index;}
+    uint32_t output_pin_index(uint32_t index) const {return m_output_start + index;}
+    uint32_t control_pin_index(uint32_t index) const {return m_control_start + index;}
     const pin_container_t &pins() const {return m_pins;}
     pin_container_t input_pins() const;
     pin_container_t output_pins() const;
@@ -76,8 +76,8 @@ private:
     value_container_t m_user_values;
     std::vector<uint8_t> m_extra_data;
 
-    size_t m_output_start;
-    size_t m_control_start;
+    uint32_t m_output_start;
+    uint32_t m_control_start;
     bool m_read_bad;
 
     simulation_func_t m_sim_input_changed_func;

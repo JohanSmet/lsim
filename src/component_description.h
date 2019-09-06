@@ -35,8 +35,8 @@ public:
     typedef std::unique_ptr<Component> uptr_t;
     typedef std::unordered_map<std::string, Property::uptr_t> property_lut_t;
 public:
-    Component(CircuitDescription *parent, uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls);
-    Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, size_t inputs, size_t outputs);
+    Component(CircuitDescription *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls);
+    Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs);
     Component(const Component &) = delete;
 
     uint32_t id() const {return m_id;}
@@ -47,15 +47,15 @@ public:
     void change_priority(Priority priority) {m_priority = priority;}
 
     // pins
-    size_t num_inputs() const {return m_inputs;}
-    size_t num_outputs() const {return m_outputs;}
-    size_t num_controls() const {return m_controls;}
-    pin_id_t pin_id(size_t index) const;
-    pin_id_t input_pin_id(size_t index) const;
-    pin_id_t output_pin_id(size_t index) const;
-    pin_id_t control_pin_id(size_t index) const;
-    void change_input_pins(size_t new_count);
-    void change_output_pins(size_t new_count);
+    uint32_t num_inputs() const {return m_inputs;}
+    uint32_t num_outputs() const {return m_outputs;}
+    uint32_t num_controls() const {return m_controls;}
+    pin_id_t pin_id(uint32_t index) const;
+    pin_id_t input_pin_id(uint32_t index) const;
+    pin_id_t output_pin_id(uint32_t index) const;
+    pin_id_t control_pin_id(uint32_t index) const;
+    void change_input_pins(uint32_t new_count);
+    void change_output_pins(uint32_t new_count);
 
     pin_id_t port_by_name(const char *name) const;
 
@@ -87,9 +87,9 @@ private:
     uint32_t m_id;
     ComponentType m_type;
     Priority m_priority;
-    size_t m_inputs;
-    size_t m_outputs;
-    size_t m_controls;
+    uint32_t m_inputs;
+    uint32_t m_outputs;
+    uint32_t m_controls;
 
     std::string m_nested_name;
     CircuitDescription *m_nested_circuit;

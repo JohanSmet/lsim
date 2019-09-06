@@ -33,8 +33,8 @@ public:
 
     // components
 protected:
-    Component *create_component(ComponentType type, size_t input_pins, size_t output_pins = 1, size_t control_pins = 0);
-    Component *create_component(const char *circuit_name, size_t input_pins, size_t output_pins);
+    Component *create_component(ComponentType type, uint32_t input_pins, uint32_t output_pins = 1, uint32_t control_pins = 0);
+    Component *create_component(const char *circuit_name, uint32_t input_pins, uint32_t output_pins);
 public:
     Component *component_by_id(uint32_t id);
     std::vector<uint32_t> component_ids() const;
@@ -55,31 +55,31 @@ public:
 
     // ports
     void rebuild_port_list();
-    void change_port_pin_count(uint32_t comp_id, size_t new_count);
+    void change_port_pin_count(uint32_t comp_id, uint32_t new_count);
     pin_id_t port_by_name(const char *name) const;
     pin_id_t port_by_index(bool input, size_t index) const;
     const std::string &port_name(bool input, size_t index) const;
-    size_t num_input_ports() const {return m_input_ports.size();}
-    size_t num_output_ports() const {return m_output_ports.size();}
+    uint32_t num_input_ports() const {return static_cast<uint32_t>(m_input_ports.size());}
+    uint32_t num_output_ports() const {return static_cast<uint32_t>(m_output_ports.size());}
 
     // specialized component creation functions
-    Component *add_connector_in(const char *name, size_t data_bits, bool tri_state = false);
-    Component *add_connector_out(const char *name, size_t data_bits, bool tri_state = false);
+    Component *add_connector_in(const char *name, uint32_t data_bits, bool tri_state = false);
+    Component *add_connector_out(const char *name, uint32_t data_bits, bool tri_state = false);
     Component *add_constant(Value value);
     Component *add_pull_resistor(Value pull_to);
-    Component *add_buffer(size_t data_bits);
-    Component *add_tristate_buffer(size_t data_bits);
-    Component *add_and_gate(size_t num_inputs);
-    Component *add_or_gate(size_t num_inputs);
+    Component *add_buffer(uint32_t data_bits);
+    Component *add_tristate_buffer(uint32_t data_bits);
+    Component *add_and_gate(uint32_t num_inputs);
+    Component *add_or_gate(uint32_t num_inputs);
     Component *add_not_gate();
-    Component *add_nand_gate(size_t num_inputs);
-    Component *add_nor_gate(size_t num_inputs);
+    Component *add_nand_gate(uint32_t num_inputs);
+    Component *add_nor_gate(uint32_t num_inputs);
     Component *add_xor_gate();
     Component *add_xnor_gate();
-    Component *add_via(const char *name, size_t data_bits);
-    Component *add_oscillator(size_t low_duration, size_t high_duration);
+    Component *add_via(const char *name, uint32_t data_bits);
+    Component *add_oscillator(uint32_t low_duration, uint32_t high_duration);
     Component *add_7_segment_led();
-    Component *add_sub_circuit(const char *circuit, size_t num_inputs, size_t num_outputs);
+    Component *add_sub_circuit(const char *circuit, uint32_t num_inputs, uint32_t num_outputs);
     Component *add_sub_circuit(const char *circuit);
     Component *add_text(const char *text);
 

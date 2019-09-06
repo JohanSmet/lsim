@@ -10,7 +10,7 @@
 
 namespace lsim {
 
-Component::Component(CircuitDescription *parent, uint32_t id, ComponentType type, size_t inputs, size_t outputs, size_t controls) :
+Component::Component(CircuitDescription *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls) :
         m_circuit(parent),
         m_id(id),
         m_type(type),
@@ -24,7 +24,7 @@ Component::Component(CircuitDescription *parent, uint32_t id, ComponentType type
         m_angle(0) {
 }
 
-Component::Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, size_t inputs, size_t outputs) :
+Component::Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs) :
         m_circuit(parent),
         m_id(id),
         m_type(COMPONENT_SUB_CIRCUIT),
@@ -38,31 +38,31 @@ Component::Component(CircuitDescription *parent, uint32_t id, const char *circui
         m_angle(0) {
 }
 
-pin_id_t Component::pin_id(size_t index) const {
+pin_id_t Component::pin_id(uint32_t index) const {
     assert(index < m_inputs + m_outputs + m_controls);
     return (static_cast<pin_id_t>(m_id) << 32) | (index & 0xffffffff);
 }
 
-pin_id_t Component::input_pin_id(size_t index) const {
+pin_id_t Component::input_pin_id(uint32_t index) const {
     assert(index < m_inputs);
     return pin_id(index);
 }
 
-pin_id_t Component::output_pin_id(size_t index) const {
+pin_id_t Component::output_pin_id(uint32_t index) const {
     assert(index < m_outputs);
     return pin_id(m_inputs + index);
 }
 
-pin_id_t Component::control_pin_id(size_t index) const {
+pin_id_t Component::control_pin_id(uint32_t index) const {
     assert(index < m_controls);
     return pin_id(m_inputs + m_outputs + index);
 }
 
-void Component::change_input_pins(size_t new_count) {
+void Component::change_input_pins(uint32_t new_count) {
     m_inputs = new_count;
 }
 
-void Component::change_output_pins(size_t new_count) {
+void Component::change_output_pins(uint32_t new_count) {
     m_outputs = new_count;
 }
 
@@ -129,11 +129,11 @@ bool Component::sync_nested_circuit(LSimContext *lsim_context) {
 
     m_port_lut.clear();
 
-    for (size_t idx = 0; idx < m_inputs; ++idx) {
+    for (auto idx = 0u; idx < m_inputs; ++idx) {
         m_port_lut[m_nested_circuit->port_name(true, idx)] = input_pin_id(idx);
     }
 
-    for (size_t idx = 0; idx < m_outputs; ++idx) {
+    for (auto idx = 0u; idx < m_outputs; ++idx) {
         m_port_lut[m_nested_circuit->port_name(false, idx)] = output_pin_id(idx);
     }
 

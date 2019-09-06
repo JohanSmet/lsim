@@ -25,12 +25,12 @@ SimComponent *CircuitInstance::add_component(Component *comp) {
         auto nested_instance = comp->nested_circuit()->instantiate(m_sim, false);
         nested_instance->build_name(comp->id());
 
-        for (size_t idx = 0; idx < sim_comp->num_inputs(); ++idx) {
+        for (auto idx = 0u; idx < sim_comp->num_inputs(); ++idx) {
             auto nested_pin = nested_instance->pin_from_pin_id(comp->nested_circuit()->port_by_index(true, idx));
             auto node = m_sim->connect_pins(nested_pin, sim_comp->pin_by_index(sim_comp->input_pin_index(idx)));
         }        
 
-        for (size_t idx = 0; idx < sim_comp->num_outputs(); ++idx) {
+        for (auto idx = 0u; idx < sim_comp->num_outputs(); ++idx) {
             auto nested_pin = nested_instance->pin_from_pin_id(comp->nested_circuit()->port_by_index(false, idx));
             auto node = m_sim->connect_pins(nested_pin, sim_comp->pin_by_index(sim_comp->output_pin_index(idx)));
         }        
@@ -49,7 +49,7 @@ node_t CircuitInstance::add_wire(Wire *wire) {
 
     auto first_pin = pin_from_pin_id(wire->pin(0));
     auto node = NODE_INVALID;
-    for (size_t index = 1; index < wire->num_pins(); ++index) {
+    for (auto index = 1u; index < wire->num_pins(); ++index) {
         node = m_sim->connect_pins(first_pin, pin_from_pin_id(wire->pin(index)));
     }
 
@@ -148,7 +148,7 @@ void CircuitInstance::write_output_pins(uint32_t comp_id, value_container_t valu
 
     assert(values.size() == comp->num_outputs());
 
-    for (size_t idx = 0; idx < values.size(); ++idx) {
+    for (auto idx = 0u; idx < values.size(); ++idx) {
         comp->set_user_value(comp->output_pin_index(idx), values[idx]);
     }
 }
@@ -157,7 +157,7 @@ void CircuitInstance::write_output_pins(uint32_t comp_id, uint64_t data) {
     auto comp = component_by_id(comp_id);
     assert(comp);
 
-    for (size_t idx = 0; idx < comp->num_outputs(); ++idx) {
+    for (auto idx = 0u; idx < comp->num_outputs(); ++idx) {
         comp->set_user_value(comp->output_pin_index(idx), static_cast<Value>((data >> idx) & 1));
     }
 }

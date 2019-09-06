@@ -46,6 +46,10 @@ Point Point::operator*(float scale) const {
     return Point(x * scale, y * scale);
 }
 
+Point Point::operator*(int scale) const {
+    return Point(x * scale, y * scale);
+}
+
 Point Point::operator*(const Point &p) const {
     return Point(x * p.x, y * p.y);
 }

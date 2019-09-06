@@ -285,9 +285,9 @@ public:
         REQUIRED_ATTR(inputs_attr, comp_node, XML_ATTR_INPUTS);
         REQUIRED_ATTR(outputs_attr, comp_node, XML_ATTR_OUTPUTS);
         REQUIRED_ATTR(controls_attr, comp_node, XML_ATTR_CONTROLS);
-        size_t num_inputs = inputs_attr.as_int();
-        size_t num_outputs = outputs_attr.as_int();
-        size_t num_controls = controls_attr.as_int();
+        uint32_t num_inputs = inputs_attr.as_int();
+        uint32_t num_outputs = outputs_attr.as_int();
+        uint32_t num_controls = controls_attr.as_int();
 
         Component *component = nullptr;
 

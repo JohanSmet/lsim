@@ -85,7 +85,7 @@ void component_register_basic() {
 
                 ImGui::BeginGroup();
                 ImGui::PushID(comp);
-                for (size_t i = 0; i < comp->num_outputs(); ++ i)
+                for (auto i = 0u; i < comp->num_outputs(); ++ i)
                 {
                     auto cur_val = VALUE_FALSE;
                     if (ui_circuit->is_simulating()) {
@@ -151,7 +151,7 @@ void component_register_basic() {
 
                 ImGui::BeginGroup();
                 ImGui::PushID(comp);
-                for (size_t i = 0; i < comp->num_inputs(); ++ i) {
+                for (auto i = 0u; i < comp->num_inputs(); ++ i) {
                     auto cur_val = VALUE_FALSE;
                     if (ui_circuit->is_simulating()) {
                         cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
@@ -215,7 +215,7 @@ void component_register_basic() {
             // materialize the sub-circuit
             bool flip = comp->property_value("flip", false);
             float width = 160;
-            float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 20 + 20;
+            float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 20.0f + 20.0f;
 
             ui_comp->change_size(width, height);
             if (comp->num_inputs() > 0) {
@@ -247,21 +247,21 @@ void component_register_basic() {
 
                 // input pins - labels
                 auto cursor = pos(flip);
-                for (size_t idx = 0; idx < nested->num_input_ports(); ++idx) {
+                for (auto idx = 0u; idx < nested->num_input_ports(); ++idx) {
                     ImGuiEx::TextNoClip(cursor, nested->port_name(true, idx), COLOR_COMPONENT_BORDER, align(flip), ImGuiEx::TAV_CENTER);
                     cursor.y += 20;
                 }
 
                 // output pins - labels
                 cursor = pos(!flip);
-                for (size_t idx = 0; idx < nested->num_output_ports(); ++idx) {
+                for (auto idx = 0u; idx < nested->num_output_ports(); ++idx) {
                     ImGuiEx::TextNoClip(cursor, nested->port_name(false, idx), COLOR_COMPONENT_BORDER, align(!flip), ImGuiEx::TAV_CENTER);
                     cursor.y += 20;
                 }
 
                 // caption
-                ImGuiEx::RectFilled(Point(-width * 0.5f, (height * 0.5) - 20), 
-                                    Point(width * 0.5f, (height * 0.5)), 
+                ImGuiEx::RectFilled(Point(-width * 0.5f, (height * 0.5f) - 20), 
+                                    Point(width * 0.5f, (height * 0.5f)), 
                                     COLOR_COMPONENT_BORDER);
                 cursor = Point(0, (height * 0.5f) - 10);
                 ImGuiEx::TextNoClip(cursor, nested->name() + "#" + std::to_string(comp->id()), IM_COL32(0,0,0,255), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
@@ -323,7 +323,7 @@ void component_register_extra() {
 
                 ImGui::BeginGroup();
                 ImGui::PushID(comp);
-                for (size_t i = 0; i < comp->num_inputs(); ++ i) {
+                for (auto i = 0u; i < comp->num_inputs(); ++ i) {
                     auto cur_val = VALUE_FALSE;
                     if (ui_circuit->is_simulating()) {
                         cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
@@ -530,7 +530,7 @@ void component_register_input_output() {
                         } 
                         extra->m_num_samples = 0;
                     } else if (enabled) {
-                        for (size_t idx = 0; idx < 8; ++idx) {
+                        for (auto idx = 0u; idx < 8; ++idx) {
                             led_colors[idx] = sim_comp->read_pin(idx) == VALUE_TRUE ? color_on : color_off;
                         }
                     }

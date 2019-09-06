@@ -13,7 +13,7 @@ void sim_register_various_functions() {
         if (!comp->user_values_enabled()) {
             return;
         }
-        for (size_t pin = 0; pin < comp->num_outputs(); ++pin) {
+        for (auto pin = 0u; pin < comp->num_outputs(); ++pin) {
             auto user_value = comp->user_value(comp->output_pin_index(pin));
             if (user_value != VALUE_UNDEFINED) {
                 sim->pin_set_initial_value(comp->pin_by_index(pin), user_value);
@@ -26,7 +26,7 @@ void sim_register_various_functions() {
     } SIM_FUNC_END;
 
     SIM_INDEPENDENT_FUNC_BEGIN(CONNECTOR_IN) {
-        for (size_t pin = 0; pin < comp->num_outputs(); ++pin) {
+        for (auto pin = 0u; pin < comp->num_outputs(); ++pin) {
             auto last_value = sim->pin_output_value(comp->pin_by_index(comp->output_pin_index(pin)));
             auto user_value = comp->user_value(comp->output_pin_index(pin));
             if (last_value != user_value || user_value != VALUE_UNDEFINED) {
@@ -79,7 +79,7 @@ void sim_register_various_functions() {
         auto led_on = comp->read_pin(comp->control_pin_index(0));
 
         if (led_on == VALUE_TRUE) {
-            for (size_t pin_idx = 0; pin_idx < comp->num_inputs(); ++pin_idx) {
+            for (auto pin_idx = 0u; pin_idx < comp->num_inputs(); ++pin_idx) {
                 extra->m_samples[pin_idx] += comp->read_pin(comp->input_pin_index(pin_idx)) == VALUE_TRUE ? 1: 0;
             }
         }

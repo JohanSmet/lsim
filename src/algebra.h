@@ -21,6 +21,7 @@ public:
     Point operator-(const Point &p) const;
     Point operator-() const;
     Point operator*(float scale) const;
+	Point operator*(int scale) const;
     Point operator*(const Point &p) const;
     Point operator/(const Point &p) const;
 

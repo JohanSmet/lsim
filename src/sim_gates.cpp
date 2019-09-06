@@ -10,7 +10,7 @@ namespace lsim {
 void sim_register_gate_functions() {
 
     SIM_FUNC_BEGIN(BUFFER) {
-        for (size_t pin = 0; pin < comp->num_inputs(); ++pin) {
+        for (auto pin = 0u; pin < comp->num_inputs(); ++pin) {
             auto value = comp->read_pin(comp->input_pin_index(pin));
             comp->write_pin(comp->output_pin_index(pin), value);
         }
@@ -18,11 +18,11 @@ void sim_register_gate_functions() {
 
     SIM_FUNC_BEGIN(TRISTATE_BUFFER) {
          if (comp->read_pin(comp->control_pin_index(0)) != VALUE_TRUE) {
-            for (size_t pin = 0; pin < comp->num_outputs(); ++pin) {
+            for (auto pin = 0u; pin < comp->num_outputs(); ++pin) {
                 comp->write_pin(comp->output_pin_index(pin), VALUE_UNDEFINED);
             }
         } else {
-            for (size_t pin = 0; pin < comp->num_inputs(); ++pin) {
+            for (auto pin = 0u; pin < comp->num_inputs(); ++pin) {
                 auto value = comp->read_pin(comp->input_pin_index(pin));
                 comp->write_pin(comp->output_pin_index(pin), value);
             }
