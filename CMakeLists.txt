@@ -157,7 +157,7 @@ else()
 	)
 endif()
 
-add_executable(${APP_TARGET} ${APP_SOURCES} ${APP_HEADERS})
+add_executable(${APP_TARGET} WIN32 ${APP_SOURCES} ${APP_HEADERS})
 target_include_directories(${APP_TARGET} PRIVATE libs src src/gui/gl3w ${APP_INCLUDES})
 target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
 target_compile_options(${APP_TARGET} PRIVATE ${APP_COMPILE_FLAGS})
