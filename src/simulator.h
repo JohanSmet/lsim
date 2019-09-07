@@ -181,7 +181,7 @@ private:
     node_container_t          m_free_nodes;
     value_container_t         m_node_values_read;
     value_container_t         m_node_values_write;
-    node_set_t                m_dirty_nodes_read;
+    node_container_t          m_dirty_nodes_read;
     node_set_t                m_dirty_nodes_write;
 
     timestamp_container_t     m_node_write_time;          // timestamp when node was last written to

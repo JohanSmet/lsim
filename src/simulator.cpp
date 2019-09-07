@@ -362,7 +362,8 @@ timestamp_t Simulator::node_last_change_time(node_t node_id) const {
 
 bool Simulator::node_dirty(node_t node_id) const {
     assert(node_id < m_node_change_time.size());
-    return m_dirty_nodes_read.find(node_id) != m_dirty_nodes_read.end();
+	// if this ends up being a hotspot in a profiler: change to a timestamp-flag in the node metadata?
+	return std::find(std::begin(m_dirty_nodes_read), std::end(m_dirty_nodes_read), node_id) != std::end(m_dirty_nodes_read);
 }
 
 void Simulator::init() {
@@ -390,7 +391,7 @@ void Simulator::init() {
 
     // mark all nodes as dirty for the first run
     for (node_t node = 0; node < m_node_values_read.size(); ++node) {
-        m_dirty_nodes_read.insert(node);
+        m_dirty_nodes_read.push_back(node);
     }
 }
 
@@ -483,7 +484,7 @@ void Simulator::postprocess_dirty_nodes() {
         if (m_node_values_read[node_id] != m_node_values_write[node_id]) {
             m_node_change_time[node_id] = m_time;
             m_node_values_read[node_id] = m_node_values_write[node_id];
-            m_dirty_nodes_read.insert(node_id);
+            m_dirty_nodes_read.push_back(node_id);
         }
     }
 
