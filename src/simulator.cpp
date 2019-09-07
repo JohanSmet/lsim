@@ -15,9 +15,10 @@ namespace lsim {
 // SimComponent
 //
 
-SimComponent::SimComponent(Simulator *sim, Component *comp) :
+SimComponent::SimComponent(Simulator *sim, Component *comp, uint32_t id) :
         m_sim(sim),
         m_comp_desc(comp),
+		m_id(id),
         m_read_bad(false),
         m_nested_circuit(nullptr) {
     
@@ -134,9 +135,11 @@ Simulator::Simulator() :
 }
 
 SimComponent *Simulator::create_component(Component *desc) {
-    auto sim_comp = std::make_unique<SimComponent>(this, desc);
+    auto sim_comp = std::make_unique<SimComponent>(this, desc, static_cast<uint32_t> (m_components.size()));
     auto result = sim_comp.get();
+
     m_components.push_back(std::move(sim_comp));
+	m_input_changed.push_back(0);
 
     if (sim_has_setup_function(desc->type())) {
         m_init_components.push_back(result);       
@@ -392,19 +395,21 @@ void Simulator::init() {
 }
 
 void Simulator::step() {
-    component_set_t sim_components;
-
     m_time = m_time + 1;
+	m_dirty_components.clear();
 
     // >> build a unique list of components with changed input values
     for (auto node_id : m_dirty_nodes_read) {
         for (auto comp : m_node_metadata[node_id].m_dependents) {
-            sim_components.insert(comp);
+			if (m_input_changed[comp->id()] != m_time) {
+				m_dirty_components.push_back(comp);
+				m_input_changed[comp->id()] = m_time;
+			}
         }
     }
 
     // >> run simulation: changed inputs
-    for (auto comp : sim_components) {
+    for (auto comp : m_dirty_components) {
         comp->sim_input_changed();
     }
 

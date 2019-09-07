@@ -21,8 +21,9 @@ class SimComponent {
 public:
     typedef std::unique_ptr<SimComponent>   uptr_t;
 public:
-    SimComponent(Simulator *sim, Component *comp);
+    SimComponent(Simulator *sim, Component *comp, uint32_t id);
     Component *description() const {return m_comp_desc;}
+	uint32_t id() const {return m_id;}
 
     void apply_initial_values();
 
@@ -72,6 +73,8 @@ public:
 private:
     Simulator *m_sim;
     Component *m_comp_desc;
+	uint32_t m_id;
+
     pin_container_t m_pins;
     value_container_t m_user_values;
     std::vector<uint8_t> m_extra_data;
@@ -160,15 +163,17 @@ private:
     typedef std::vector<SimComponent::uptr_t> component_container_t;
     typedef std::vector<SimComponent *> component_refs_t;
     typedef std::set<node_t> node_set_t;
-    typedef std::set<SimComponent *> component_set_t;
     typedef std::vector<NodeMetadata> node_metadata_container_t;
 
 private:
     timestamp_t    m_time;
 
-    component_container_t		m_components;
-    component_refs_t            m_init_components;
-    component_refs_t            m_independent_components;
+    component_container_t		m_components;				// all simulator components
+	timestamp_container_t		m_input_changed;			// timestamp when component was last added to "to simulate" list
+    component_refs_t            m_init_components;			// components with an init function
+    component_refs_t            m_independent_components;	// components with an input independent update function
+	component_refs_t			m_dirty_components;			// components with changed input values
+
     node_container_t            m_pin_nodes;
     value_container_t           m_pin_values;
 
