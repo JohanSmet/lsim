@@ -11,7 +11,6 @@
 #include <vector>
 #include <memory>
 #include <array>
-#include <set>
 
 namespace lsim {
 
@@ -94,13 +93,15 @@ struct NodeMetadata {
     typedef std::set<pin_t> pin_set_t;
 
     // construction
-    NodeMetadata() : m_default(VALUE_UNDEFINED) {
+    NodeMetadata() : m_default(VALUE_UNDEFINED),
+					 m_time_dirty_write(0) {
     }
 
     // data
     Value               m_default;
     component_set_t     m_dependents;
     pin_set_t           m_active_pins;
+	timestamp_t			m_time_dirty_write;
 };
 
 class Simulator {
@@ -162,7 +163,6 @@ private:
     typedef std::vector<timestamp_t> timestamp_container_t;
     typedef std::vector<SimComponent::uptr_t> component_container_t;
     typedef std::vector<SimComponent *> component_refs_t;
-    typedef std::set<node_t> node_set_t;
     typedef std::vector<NodeMetadata> node_metadata_container_t;
 
 private:
@@ -182,7 +182,7 @@ private:
     value_container_t         m_node_values_read;
     value_container_t         m_node_values_write;
     node_container_t          m_dirty_nodes_read;
-    node_set_t                m_dirty_nodes_write;
+    node_container_t          m_dirty_nodes_write;
 
     timestamp_container_t     m_node_write_time;          // timestamp when node was last written to
     timestamp_container_t     m_node_change_time;         // timestamp when node last changed value

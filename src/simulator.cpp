@@ -323,21 +323,25 @@ void Simulator::node_set_initial_value(node_t node_id, Value value) {
 
 void Simulator::write_node(node_t node_id, Value value, pin_t from_pin) {
     assert(node_id < m_node_values_write.size());
+	auto &node_meta = m_node_metadata[node_id];
 
-    m_dirty_nodes_write.insert(node_id);
+	if (node_meta.m_time_dirty_write != m_time) {
+		m_dirty_nodes_write.push_back(node_id);
+		node_meta.m_time_dirty_write = m_time;
+	}
 
     if (value == VALUE_UNDEFINED) {
         // remove from active pin list
-        auto iter = std::find(m_node_metadata[node_id].m_active_pins.begin(), m_node_metadata[node_id].m_active_pins.end(), from_pin);
-        if (iter != m_node_metadata[node_id].m_active_pins.end()) {
-            m_node_metadata[node_id].m_active_pins.erase(iter);
+        auto iter = std::find(node_meta.m_active_pins.begin(), node_meta.m_active_pins.end(), from_pin);
+        if (iter != node_meta.m_active_pins.end()) {
+            node_meta.m_active_pins.erase(iter);
         }
         return;
     }
 
     m_node_write_time[node_id] = m_time;
     m_node_values_write[node_id] = value;
-    m_node_metadata[node_id].m_active_pins.insert(from_pin);
+    node_meta.m_active_pins.insert(from_pin);
 }
 
 Value Simulator::read_node(node_t node_id) const {
