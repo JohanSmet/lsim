@@ -166,26 +166,29 @@ private:
     typedef std::vector<NodeMetadata> node_metadata_container_t;
 
 private:
-    timestamp_t    m_time;
+    timestamp_t    m_time;									// current simulation timestamp
 
+	// components
     component_container_t		m_components;				// all simulator components
 	timestamp_container_t		m_input_changed;			// timestamp when component was last added to "to simulate" list
     component_refs_t            m_init_components;			// components with an init function
     component_refs_t            m_independent_components;	// components with an input independent update function
 	component_refs_t			m_dirty_components;			// components with changed input values
 
-    node_container_t            m_pin_nodes;
-    value_container_t           m_pin_values;
+	// pins
+    node_container_t            m_pin_nodes;				// node assignment for each pin
+    value_container_t           m_pin_values;				// last value written to a pin
 
-    node_metadata_container_t m_node_metadata;
-    node_container_t          m_free_nodes;
-    value_container_t         m_node_values_read;
-    value_container_t         m_node_values_write;
-    node_container_t          m_dirty_nodes_read;
-    node_container_t          m_dirty_nodes_write;
+	// nodes
+    node_metadata_container_t m_node_metadata;				// assorted metadata
+    node_container_t          m_free_nodes;					// list of node-ids that can be reused
+    value_container_t         m_node_values_read;			// values of the nodes after the last simulation run
+    value_container_t         m_node_values_write;			// values of the nodes in the current simulation run
+    node_container_t          m_dirty_nodes_read;			// nodes that were changed in the last simulation run
+    node_container_t          m_dirty_nodes_write;			// nodes that were changed in the current simulation run
 
-    timestamp_container_t     m_node_write_time;          // timestamp when node was last written to
-    timestamp_container_t     m_node_change_time;         // timestamp when node last changed value
+    timestamp_container_t     m_node_write_time;			// timestamp when node was last written to
+    timestamp_container_t     m_node_change_time;			// timestamp when node last changed value
 };
 
 } // namespace lsim
