@@ -49,9 +49,6 @@ public:
     const reference_container_t &references() const {return m_references;}
 
 private:
-    void remove_circuit_from_lut(CircuitDescription *circuit);
-
-private:
     typedef std::vector<CircuitDescription::uptr_t>     circuit_container_t;
     typedef std::unordered_map<std::string, CircuitDescription *>  circuit_map_t;
 

@@ -6,7 +6,7 @@
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"
 
-#include <algorithm>
+#include "std_helper.h"
 #include <set>
 
 #include "colors.h"
@@ -173,8 +173,7 @@ UIComponent *UICircuit::create_component(Component *component) {
 }
 
 void UICircuit::remove_component(UIComponent *ui_comp) {
-	m_ui_components.erase(std::remove_if(m_ui_components.begin(), m_ui_components.end(),
-							[ui_comp](const auto &uc) {return uc.get() == ui_comp;}));
+	remove_owner(m_ui_components, ui_comp);
 }
 
 void UICircuit::draw() {
@@ -696,8 +695,7 @@ void UICircuit::select_component(UIComponent *component) {
 }
 
 void UICircuit::deselect_component(UIComponent *component) {
-	m_selection.erase(std::remove_if(m_selection.begin(), m_selection.end(),
-						[component](const auto &s) {return s.m_component == component;}));
+	remove_if(m_selection, [component](const auto &s) {return s.m_component == component;});
 }
 
 void UICircuit::select_wire_segment(WireSegment *segment) {
@@ -709,8 +707,7 @@ void UICircuit::select_wire_segment(WireSegment *segment) {
 }
 
 void UICircuit::deselect_wire_segment(WireSegment *segment) {
-	m_selection.erase(std::remove_if(m_selection.begin(), m_selection.end(),
-						[segment](const auto &s) {return s.m_segment == segment;}));
+	remove_if(m_selection, [segment](const auto &s) {return s.m_segment == segment;});
 }
 
 void UICircuit::select_by_area(Point p0, Point p1) {

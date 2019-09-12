@@ -200,10 +200,7 @@ Wire *CircuitDescription::wire_by_id(uint32_t id) const {
 }
 
 void CircuitDescription::remove_wire(uint32_t id) {
-    auto found = m_wires.find(id);
-    if (found != m_wires.end()) {
-        m_wires.erase(found);
-    }
+	m_wires.erase(id);
 }
 
 void CircuitDescription::rebuild_port_list() {

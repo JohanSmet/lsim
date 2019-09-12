@@ -6,7 +6,7 @@
 #include "circuit_description.h"
 
 #include <cassert>
-#include <algorithm>
+#include "std_helper.h"
 
 namespace lsim {
 
@@ -25,10 +25,7 @@ void WireJunction::add_segment(WireSegment *segment) {
 }
 
 void WireJunction::remove_segment(WireSegment *segment) {
-    auto iter = std::remove(m_segments.begin(), m_segments.end(), segment);
-    if (iter != m_segments.end()) {
-        m_segments.erase(iter);
-    }
+	remove(m_segments, segment);
 }
 
 WireSegment *WireJunction::segment(size_t idx) const {
@@ -79,20 +76,14 @@ pin_id_t Wire::pin(size_t index) const {
 }
 
 void Wire::remove_component_pins(uint32_t component_id) {
-    auto iter = std::remove_if(m_pins.begin(), m_pins.end(),
-                 [component_id](const auto &pin_id) {
-                     return component_id_from_pin_id(pin_id) == component_id;
-                 });
-    if (iter != m_pins.end()) {
-        m_pins.erase(iter);
-    }
+    remove_if(m_pins, [component_id](const auto &pin_id) {
+							return component_id_from_pin_id(pin_id) == component_id;
+					  }
+			 );
 }
 
 void Wire::remove_pin(pin_id_t pin) {
-    auto iter = std::remove(m_pins.begin(), m_pins.end(), pin);
-    if (iter != m_pins.end()) {
-        m_pins.erase(iter);
-    }
+	remove(m_pins, pin);
 }
 
 void Wire::clear_pins() {
@@ -263,9 +254,7 @@ bool Wire::in_one_piece() const {
 
 void Wire::remove_junction(WireJunction *junction) {
     assert(junction);
-    m_junctions.erase(std::remove_if(m_junctions.begin(), m_junctions.end(), 
-                        [junction](const auto &j) {return j.get() == junction;}
-    ));
+	remove_owner(m_junctions, junction);
 }
 
 void Wire::remove_segment_from_junction(WireJunction *junction, WireSegment *segment) {
@@ -281,9 +270,7 @@ void Wire::remove_redundant_segment(WireSegment *segment) {
     assert(segment);
     remove_segment_from_junction(segment->junction(0), segment);
     remove_segment_from_junction(segment->junction(1), segment);
-    m_segments.erase(std::remove_if(m_segments.begin(), m_segments.end(),
-                        [segment](const auto &s) {return s.get() == segment;}
-    ));
+	remove_owner(m_segments, segment);
 }
 
 

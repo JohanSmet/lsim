@@ -6,7 +6,7 @@
 #include "circuit_instance.h"
 
 #include <cassert>
-#include <algorithm>
+#include "std_helper.h"
 
 namespace lsim {
 
@@ -332,10 +332,7 @@ void Simulator::write_node(node_t node_id, Value value, pin_t from_pin) {
 
     if (value == VALUE_UNDEFINED) {
         // remove from active pin list
-        auto iter = std::find(node_meta.m_active_pins.begin(), node_meta.m_active_pins.end(), from_pin);
-        if (iter != node_meta.m_active_pins.end()) {
-            node_meta.m_active_pins.erase(iter);
-        }
+		node_meta.m_active_pins.erase(from_pin);
         return;
     }
 
@@ -459,10 +456,7 @@ void Simulator::activate_independent_simulation_func(SimComponent *comp) {
 }
 
 void Simulator::deactivate_independent_simulation_func(SimComponent *comp) {
-    auto iter = std::find(m_independent_components.begin(), m_independent_components.end(), comp);
-    if (iter != m_independent_components.end()) {
-        m_independent_components.erase(iter);
-    }
+	remove(m_independent_components, comp);
 }
 
 void Simulator::postprocess_dirty_nodes() {

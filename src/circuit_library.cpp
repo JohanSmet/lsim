@@ -3,7 +3,7 @@
 // a collection of circuits
 
 #include "circuit_library.h"
-#include <algorithm>
+#include "std_helper.h"
 #include <cassert>
 
 namespace lsim {
@@ -25,10 +25,8 @@ CircuitDescription *CircuitLibrary::create_circuit(const char *name, LSimContext
 
 void CircuitLibrary::delete_circuit(CircuitDescription *circuit) {
     assert (std::find_if(m_circuits.begin(), m_circuits.end(), [=](auto &o) {return o.get() == circuit;}) != m_circuits.end());
-    remove_circuit_from_lut(circuit);
-    m_circuits.erase(std::remove_if(m_circuits.begin(), m_circuits.end(), [&circuit](auto &o) {
-        return o.get() == circuit;
-    }));
+	remove_value(m_circuit_lut, circuit);
+	remove_owner(m_circuits, circuit);
 }
 
 void CircuitLibrary::rename_circuit(CircuitDescription *circuit, const char *name) {
@@ -36,7 +34,7 @@ void CircuitLibrary::rename_circuit(CircuitDescription *circuit, const char *nam
     assert(name);
 
     // FIXME: check for duplicates
-    remove_circuit_from_lut(circuit);
+	remove_value(m_circuit_lut, circuit);
     m_circuit_lut[name] = circuit;
 
     circuit->change_name(name);
@@ -80,16 +78,6 @@ void CircuitLibrary::clear_circuits() {
     m_circuit_lut.clear();
 }
 
-void CircuitLibrary::remove_circuit_from_lut(CircuitDescription *circuit) {
-    for (auto iter = m_circuit_lut.begin(); iter != m_circuit_lut.end();) {
-        if (iter->second == circuit) {
-            iter = m_circuit_lut.erase(iter);
-        } else {
-            ++iter;
-        }
-    }
-}
-
 void CircuitLibrary::add_reference(const char *name) {
     if (std::find(m_references.begin(), m_references.end(), name) != m_references.end()) {
         return;
@@ -99,10 +87,7 @@ void CircuitLibrary::add_reference(const char *name) {
 }
 
 void CircuitLibrary::remove_reference(const char *name) {
-    auto iter = std::remove(m_references.begin(), m_references.end(), name);    
-    if (iter != m_references.end()) {
-        m_references.erase(iter);
-    }
+	remove(m_references, string(name));
 }
 
 void CircuitLibrary::clear_references() {
