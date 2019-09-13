@@ -5,40 +5,41 @@
 #ifndef LSIM_SIM_FUNCTIONS_H
 #define LSIM_SIM_FUNCTIONS_H
 
+#include <array>
 #include <functional>
 #include <vector>
 
 #include "sim_types.h"
 
-#define SIM_FUNC_BEGIN(type)                    \
-    sim_register_function(COMPONENT_##type,     \
+
+namespace lsim {
+
+using SimFuncType = unsigned int;
+constexpr SimFuncType SIM_FUNCTION_SETUP = 0;
+constexpr SimFuncType SIM_FUNCTION_INPUT_CHANGED = 1;
+constexpr SimFuncType SIM_FUNCTION_INDEPENDENT = 2;
+
+using simulation_func_t = std::function<void (Simulator *, SimComponent *comp)>;
+using sim_component_functions_t = std::array<simulation_func_t, 3>;
+
+#define SIM_SETUP_FUNC_BEGIN(type)                          \
+    sim->register_sim_function(COMPONENT_##type,            \
+        SIM_FUNCTION_SETUP,                                 \
         [](Simulator *sim, SimComponent *comp) {
 
-#define SIM_SETUP_FUNC_BEGIN(type)                    \
-    sim_register_setup_function(COMPONENT_##type,     \
+#define SIM_INPUT_CHANGED_FUNC_BEGIN(type)                  \
+    sim->register_sim_function(COMPONENT_##type,            \
+        SIM_FUNCTION_INPUT_CHANGED,                         \
         [](Simulator *sim, SimComponent *comp) {
 
 #define SIM_INDEPENDENT_FUNC_BEGIN(type)                    \
-    sim_register_independent_function(COMPONENT_##type,     \
+    sim->register_sim_function(COMPONENT_##type,            \
+        SIM_FUNCTION_INDEPENDENT,                           \
         [](Simulator *sim, SimComponent *comp) {
 
 #define SIM_FUNC_END   }); 
 
-namespace lsim {
-
-typedef std::function<void (Simulator *, SimComponent *comp)> simulation_func_t;
-typedef std::function<bool (Simulator *, SimComponent *comp)> simulation_needed_func_t;
-
-void sim_register_setup_function(ComponentType type, simulation_func_t func);
-void sim_register_independent_function(ComponentType type, simulation_func_t func);
-void sim_register_function(ComponentType type, simulation_func_t func);
-void sim_register_component_functions();
-
-bool sim_has_setup_function(ComponentType type);
-simulation_func_t sim_setup_function(ComponentType type);
-bool sim_has_independent_function(ComponentType type);
-simulation_func_t sim_independent_function(ComponentType type);
-simulation_func_t sim_function(ComponentType type);
+void sim_register_component_functions(Simulator *sim);
 
 } // namespace lsim
 

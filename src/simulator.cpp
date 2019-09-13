@@ -28,8 +28,6 @@ SimComponent::SimComponent(Simulator *sim, Component *comp, uint32_t id) :
     for (size_t idx = 0; idx < num_pins; ++idx) {
         m_pins.push_back(sim->assign_pin(this, idx < m_output_start || idx >= m_control_start));
     }
-    m_sim_input_changed_func = sim_function(comp->type());
-    m_sim_independent_func = sim_independent_function(comp->type());
 }
 
 void SimComponent::apply_initial_values() {
@@ -116,15 +114,6 @@ void SimComponent::set_nested_instance(std::unique_ptr<class CircuitInstance> in
     m_nested_circuit = std::move(instance);
 }
 
-void SimComponent::sim_input_changed() {
-    m_sim_input_changed_func(m_sim, this);
-}
-
-void SimComponent::sim_independent() {
-    m_sim_independent_func(m_sim, this);
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Simulator
@@ -141,11 +130,11 @@ SimComponent *Simulator::create_component(Component *desc) {
     m_components.push_back(std::move(sim_comp));
 	m_input_changed.push_back(0);
 
-    if (sim_has_setup_function(desc->type())) {
+    if (component_has_function(desc->type(), SIM_FUNCTION_SETUP)) {
         m_init_components.push_back(result);       
     }
 
-    if (sim_has_independent_function(desc->type())) {
+    if (component_has_function(desc->type(), SIM_FUNCTION_INDEPENDENT)) {
         m_independent_components.push_back(result);
     }
 
@@ -367,6 +356,23 @@ bool Simulator::node_dirty(node_t node_id) const {
 	return std::find(std::begin(m_dirty_nodes_read), std::end(m_dirty_nodes_read), node_id) != std::end(m_dirty_nodes_read);
 }
 
+void Simulator::register_sim_function(ComponentType comp_type, SimFuncType func_type, simulation_func_t func) {
+    assert(comp_type <= COMPONENT_MAX_TYPE_ID);
+    assert(func_type <= 3);
+
+    if (m_sim_functions.size() <= comp_type) {
+        m_sim_functions.resize(COMPONENT_MAX_TYPE_ID + 1, {nullptr, [](auto, auto) {}, nullptr});
+    }
+
+    m_sim_functions[comp_type][func_type] = func;
+}
+
+bool Simulator::component_has_function(ComponentType comp_type, SimFuncType func_type) {
+    assert(comp_type <= COMPONENT_MAX_TYPE_ID);
+    assert(func_type <= 3);
+    return m_sim_functions[comp_type][func_type] != nullptr;
+}
+
 void Simulator::init() {
     m_time = 1;
 
@@ -386,7 +392,7 @@ void Simulator::init() {
 
     // run one time setup functions
     for (auto comp : m_init_components) {
-        auto setup_func = sim_setup_function(comp->description()->type());
+        auto &setup_func = m_sim_functions[comp->description()->type()][SIM_FUNCTION_SETUP];
         setup_func(this, comp);
     }
 
@@ -412,12 +418,14 @@ void Simulator::step() {
 
     // >> run simulation: changed inputs
     for (auto comp : m_dirty_components) {
-        comp->sim_input_changed();
+        auto &input_func = m_sim_functions[comp->description()->type()][SIM_FUNCTION_INPUT_CHANGED];
+        input_func(this, comp);
     }
 
     // >> run simulation: independent components
     for (auto comp : m_independent_components) {
-        comp->sim_independent();
+        auto &func = m_sim_functions[comp->description()->type()][SIM_FUNCTION_INDEPENDENT];
+        func(this, comp);
     }
 
     // >> post-process the dirty nodes
@@ -445,7 +453,7 @@ void Simulator::run_until_stable(size_t stable_ticks) {
 }
 
 void Simulator::activate_independent_simulation_func(SimComponent *comp) {
-    if (!sim_has_independent_function(comp->description()->type())) {
+    if (!component_has_function(comp->description()->type(), SIM_FUNCTION_INDEPENDENT)) {
         return;
     }
 

@@ -60,14 +60,9 @@ public:
     void set_nested_instance(std::unique_ptr<CircuitInstance> instance);
     CircuitInstance *nested_instance() const {return m_nested_circuit.get();}
 
-    // simulation
-    void sim_input_changed();
-    void sim_independent();
-
     // extra-data: component specific data structure
     void set_extra_data_size(size_t size) {m_extra_data.resize(size);};
     uint8_t *extra_data() {return m_extra_data.data();}
-
 
 private:
     Simulator *m_sim;
@@ -81,9 +76,6 @@ private:
     uint32_t m_output_start;
     uint32_t m_control_start;
     bool m_read_bad;
-
-    simulation_func_t m_sim_input_changed_func;
-    simulation_func_t m_sim_independent_func;
 
     std::unique_ptr<CircuitInstance>    m_nested_circuit;
 };
@@ -147,6 +139,10 @@ public:
 
     bool node_dirty(node_t node_id) const;
 
+    // simulation functions
+    void register_sim_function(ComponentType comp_type, SimFuncType func_type, simulation_func_t func);
+    bool component_has_function(ComponentType comp_type, SimFuncType func_type);
+
     // simulation
     void init();
     void step();
@@ -164,6 +160,7 @@ private:
     typedef std::vector<SimComponent::uptr_t> component_container_t;
     typedef std::vector<SimComponent *> component_refs_t;
     typedef std::vector<NodeMetadata> node_metadata_container_t;
+    typedef std::vector<sim_component_functions_t> sim_func_container_t;
 
 private:
     timestamp_t    m_time;									// current simulation timestamp
@@ -189,6 +186,9 @@ private:
 
     timestamp_container_t     m_node_write_time;			// timestamp when node was last written to
     timestamp_container_t     m_node_change_time;			// timestamp when node last changed value
+
+    // simulation functions
+    sim_func_container_t        m_sim_functions;
 };
 
 } // namespace lsim

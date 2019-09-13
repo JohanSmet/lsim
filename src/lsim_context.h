@@ -13,7 +13,7 @@ class CircuitDescription;
 class LSimContext {
 public:
     LSimContext() : m_user_library("user") {
-        sim_register_component_functions();
+        sim_register_component_functions(&m_sim);
     };
 
     Simulator *sim() {return &m_sim;}

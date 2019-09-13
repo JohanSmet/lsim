@@ -8,7 +8,7 @@
 
 namespace lsim {
 
-void sim_register_various_functions() {
+void sim_register_various_functions(Simulator *sim) {
     SIM_SETUP_FUNC_BEGIN(CONNECTOR_IN) {
         if (!comp->user_values_enabled()) {
             return;
