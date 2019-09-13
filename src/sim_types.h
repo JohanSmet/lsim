@@ -49,8 +49,9 @@ const ComponentType COMPONENT_XNOR_GATE = 0x0019;
 const ComponentType COMPONENT_VIA = 0x0020;
 const ComponentType COMPONENT_OSCILLATOR = 0x0021;
 const ComponentType COMPONENT_7_SEGMENT_LED = 0x0101;
-const ComponentType COMPONENT_SUB_CIRCUIT = 0x1001;
-const ComponentType COMPONENT_TEXT = 0x2001;
+const ComponentType COMPONENT_SUB_CIRCUIT = 0x0301;
+const ComponentType COMPONENT_TEXT = 0x0401;
+const ComponentType COMPONENT_MAX_TYPE_ID = COMPONENT_TEXT;
 
 // component extra data types
 struct ExtraDataOscillator {
