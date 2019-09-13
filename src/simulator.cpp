@@ -150,9 +150,11 @@ void Simulator::clear_components() {
 }
 
 pin_t Simulator::assign_pin(SimComponent *component, bool used_as_input) {
-    pin_t result = static_cast<pin_t>(m_pin_nodes.size());
-    m_pin_nodes.push_back(assign_node(component, used_as_input));
+    auto result = static_cast<pin_t>(m_pin_nodes.size());
+	auto node_id = assign_node(component, used_as_input);
+	m_pin_nodes.push_back(node_id);
     m_pin_values.push_back(VALUE_UNDEFINED);
+	m_node_metadata[node_id].m_pins.push_back(result);
     return result;
 }
 
@@ -251,6 +253,7 @@ node_t Simulator::assign_node(SimComponent *component, bool used_as_input) {
         m_node_values_write[id] = VALUE_UNDEFINED;
         m_node_metadata[id].m_default = VALUE_UNDEFINED;
         m_node_metadata[id].m_dependents = {};
+		m_node_metadata[id].m_pins.clear();
         m_node_write_time[id] = 0;
         m_node_change_time[id] = 0;
         if (used_as_input) {
@@ -290,10 +293,20 @@ void Simulator::clear_nodes() {
 node_t Simulator::merge_nodes(node_t node_a, node_t node_b) {
     assert(node_a != node_b);
     release_node(node_b);
-    std::replace(std::begin(m_pin_nodes), std::end(m_pin_nodes), node_b, node_a);
-    for (const auto &comp : m_node_metadata[node_b].m_dependents) {
-        m_node_metadata[node_a].m_dependents.insert(comp);
+	
+	auto& meta_a = m_node_metadata[node_a];
+	auto& meta_b = m_node_metadata[node_b];
+	
+	meta_a.m_pins.reserve(meta_a.m_pins.size() + meta_b.m_pins.size());
+	for (const auto& pin : meta_b.m_pins) {
+		meta_a.m_pins.push_back(pin);
+		m_pin_nodes[pin] = node_a;
+	}
+
+    for (const auto &comp : meta_b.m_dependents) {
+        meta_a.m_dependents.insert(comp);
     }
+
     return node_a;
 }
 

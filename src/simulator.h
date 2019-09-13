@@ -92,6 +92,7 @@ struct NodeMetadata {
     // data
     Value               m_default;
     component_set_t     m_dependents;
+	pin_container_t		m_pins;
     pin_set_t           m_active_pins;
 	timestamp_t			m_time_dirty_write;
 };
