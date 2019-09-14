@@ -11,7 +11,7 @@
 namespace {
 
 const char *TEST_CIRCUIT = "examples/test_led.lsim";
-const int CYCLE_COUNT = 10000;
+const int CYCLE_COUNT = 5000000;
 
 using namespace std::chrono;
 static steady_clock::time_point chrono_ref;
