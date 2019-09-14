@@ -164,6 +164,10 @@ target_compile_definitions(${APP_TARGET} PRIVATE ${PLATFORM_DEF})
 target_compile_options(${APP_TARGET} PRIVATE ${APP_COMPILE_FLAGS})
 target_link_libraries(${APP_TARGET} ${LIB_TARGET} ${EXTRA_LIBS} ${APP_LIBS} ${CMAKE_DL_LIBS})
 
+if (APPLE) 
+	target_link_libraries(${APP_TARGET} "-framework CoreFoundation")
+endif (APPLE)
+
 #
 # speedtest
 #
