@@ -29,7 +29,8 @@ The GUI application, `lsim_gui`, wraps the library and provides an user interfac
 
 - [Building](docs/building.md) LSim from source
 - [Todo](docs/todo.md). LSim is a work-in-progress. This lists some major point left to tackle.
-- How to use the [Python bindings](docs/using_python_bindings.md)
+- How to use the [Python bindings](docs/using_python_bindings.md).
+- A bit of documentation on how to use the [LSim GUI](docs/using_lsim_gui.md).
 
 ## License
 
