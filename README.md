@@ -13,7 +13,7 @@ Please note: if you're not into custom-built experimental logic simulators this 
 - Python-bindings to enable easy exhaustive simulation of your circuit
 - the Python-bindings also allow procedural generation of circuits (e.g. roms)
 - can simulate basic digital circuits (e.g. flipflops and counters) and more complex circuits. As an example, LSim includes a simplistic 8-bit computer that can do some basic operations (e.g. compute the Fibonacci sequence).
-- Runs on multiple platforms: Linux, Windows and using WebAssembly in most modern browsers. MacOS X should work in theory, needs somebody with a Mac to verify.
+- Runs on multiple platforms: Linux, Windows, MacOS X and using WebAssembly in most modern browsers. You can try a demo of the WebAssembly version over [here](http://justcode.be/lsim/). 
 
 ## Structure
 
@@ -25,14 +25,11 @@ The library also contains the necessary support to store and load circuit models
 
 The GUI application, `lsim_gui`, wraps the library and provides an user interface to build circuits and visualize the circuit being simulated. 
 
-## Todo
+## More information
 
-- While usable the GUI still needs a lot of TLC to be enjoyable to use. Up until now, the GUI has not been the focus of attention itself just a necessary evil to be able to build circuits. As such a user needs to be familiar, and willing to be put up, with its many quirks and shortcomings.
-- Improve the simulation engine:
-  - Every basic component now always takes exactly 1 simulation step to produce its result. To provide a more realistic simulation gate processing should be different durations, random between the lower and upper bounds as documented in the datasheets of common gate implementations.
-  - The simulation engine spends a lot of time process each fixed simulation step even if it should be able to tell nothings going to change in the next batch of cycles (barring user input). A more event-driven approach might allow us to bring the simulation cycle length down to the micro-, or even the nanosecond in real-time.
-- Improve the Python bindings: full coverage + add parameter definitions
-- A logic analyzer view or export of data for [GTKWave](http://gtkwave.sourceforge.net/) or [sigrok](https://sigrok.org/) would be a great help in debugging more complex circuits.
+- [Building](docs/building.md) LSim from source
+- [Todo](docs/todo.md). LSim is a work-in-progress. This lists some major point left to tackle.
+- How to use the [Python bindings](docs/using_python_bindings.md)
 
 ## License
 
