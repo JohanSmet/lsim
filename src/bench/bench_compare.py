@@ -5,20 +5,17 @@ from bench_utils import *
 
 def main():
     lsim = lsimpy.LSimContext()
+    lsim.add_folder("examples", "../../examples")
     sim = lsim.sim()
 
-    if (not lsim.load_user_library("../../examples/compare.lsim")):
+    if (not lsim.load_user_library("examples/compare.lsim")):
         print("Unable to load circuit\n")
         exit(-1)
 
     circuit_desc = lsim.user_library().circuit_by_name("comp_8bit")
    
-    pin_A = []
-    pin_B = []
-    for i in range(0,8):
-        pin_A.append(circuit_desc.port_by_name("A[{}]".format(i)))
-        pin_B.append(circuit_desc.port_by_name("B[{}]".format(i)))
-
+    pin_A = [circuit_desc.port_by_name(f"A[{i:}]") for i in range(0,8)]
+    pin_B = [circuit_desc.port_by_name(f"B[{i:}]") for i in range(0,8)]
     pin_LT = circuit_desc.port_by_name("LT")
     pin_EQ = circuit_desc.port_by_name("EQ")
     pin_GT = circuit_desc.port_by_name("GT")
