@@ -20,7 +20,6 @@ string(CONCAT PLATFORM_DEF "PLATFORM_" ${PLATFORM_NAME})
 # external dependencies
 #
 
-set (BUILD_SHARED_LIBS OFF)
 add_subdirectory("libs/pugixml")
 set_property(TARGET pugixml PROPERTY POSITION_INDEPENDENT_CODE ON)
 set (PUGIXML_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/pugixml/src)
