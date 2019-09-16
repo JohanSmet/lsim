@@ -264,7 +264,7 @@ void component_register_basic() {
                                     Point(width * 0.5f, (height * 0.5f)), 
                                     COLOR_COMPONENT_BORDER);
                 cursor = Point(0, (height * 0.5f) - 10);
-                ImGuiEx::TextNoClip(cursor, nested->name() + "#" + std::to_string(comp->id()), IM_COL32(0,0,0,255), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                ImGuiEx::TextNoClip(cursor, comp->property_value("caption", "unknown"), IM_COL32(0,0,0,255), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
 
                 ImGuiEx::TransformEnd(to_window);
             });

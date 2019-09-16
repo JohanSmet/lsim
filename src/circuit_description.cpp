@@ -8,7 +8,28 @@
 #include "simulator.h"
 
 #include <cassert>
-#include <algorithm>
+#include "std_helper.h"
+
+namespace { 
+
+std::string unqualified_circuit_name(const std::string &circuit_name) {
+    auto sep = circuit_name.find_first_of('.');
+    if (sep == std::string::npos) {
+        return circuit_name;
+    } else {
+        return circuit_name.substr(sep + 1);
+    }
+}
+
+std::string unique_subcircuit_name(const std::string &circuit_name, uint32_t comp_id) {
+    auto result = unqualified_circuit_name(circuit_name);
+    result += "#";
+    result += std::to_string(comp_id);
+    return result;
+}
+
+
+} // unnamed namespace
 
 namespace lsim {
 
@@ -72,6 +93,7 @@ Component *CircuitDescription::create_component(const char *circuit_name, uint32
     auto result = component.get();
     m_components[result->id()] = std::move(component);
     result->add_property(make_property("flip", false));
+    result->add_property(make_property("caption", unique_subcircuit_name(circuit_name, result->id()).c_str()));
     return result;
 }
 

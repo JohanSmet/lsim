@@ -412,6 +412,10 @@ public:
                 if (!!flip_node) {
                     component->property("flip")->value(flip_node.attribute(XML_ATTR_VALUE).as_bool());
                 }
+                auto caption_node = comp_node.find_child_by_attribute(XML_EL_PROPERTY, XML_ATTR_KEY, "caption");
+                if (!!caption_node) {
+                    component->property("caption")->value(caption_node.attribute(XML_ATTR_VALUE).as_string());
+                }
                 break;
             }
             case COMPONENT_TEXT : {

@@ -9,82 +9,90 @@
 	<reference name="rom_prog_8b" file="examples/cpu_8bit/rom_prog_8b.lsim" />
 	<reference name="lib_memory" file="examples/cpu_8bit/lib_memory.lsim" />
 	<circuit name="8b FlipFlop">
-		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
+		<component id="0" type="ConnectorIn" inputs="0" outputs="8" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="D" />
 			<property key="tri_state" value="false" />
 			<position x="100" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="1" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Clk" />
 			<property key="tri_state" value="false" />
 			<position x="200" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="2" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Res" />
 			<property key="tri_state" value="false" />
 			<position x="230" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="3" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Pre" />
 			<property key="tri_state" value="false" />
 			<position x="260" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="4" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="4" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#4" />
 			<property key="flip" value="false" />
 			<position x="400" y="120" />
 			<orientation angle="0" />
 		</component>
-		<component id="5" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="5" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#5" />
 			<property key="flip" value="false" />
 			<position x="400" y="250" />
 			<orientation angle="0" />
 		</component>
-		<component id="6" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="6" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#6" />
 			<property key="flip" value="false" />
 			<position x="400" y="380" />
 			<orientation angle="0" />
 		</component>
-		<component id="7" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="7" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#7" />
 			<property key="flip" value="false" />
 			<position x="400" y="510" />
 			<orientation angle="0" />
 		</component>
-		<component id="8" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="8" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#8" />
 			<property key="flip" value="false" />
 			<position x="400" y="640" />
 			<orientation angle="0" />
 		</component>
-		<component id="9" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="9" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#9" />
 			<property key="flip" value="false" />
 			<position x="400" y="770" />
 			<orientation angle="0" />
 		</component>
-		<component id="10" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="10" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#10" />
 			<property key="flip" value="false" />
 			<position x="400" y="900" />
 			<orientation angle="0" />
 		</component>
-		<component id="11" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="11" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#11" />
 			<property key="flip" value="false" />
 			<position x="400" y="1030" />
 			<orientation angle="0" />
 		</component>
-		<component id="12" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="12" type="ConnectorOut" inputs="8" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Q" />
 			<property key="tri_state" value="false" />
 			<position x="690" y="150" />
 			<orientation angle="0" />
 		</component>
-		<component id="13" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="13" type="ConnectorOut" inputs="8" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="/Q" />
 			<property key="tri_state" value="false" />
@@ -347,28 +355,28 @@
 		</wire>
 	</circuit>
 	<circuit name="Clock">
-		<component id="0" type="Oscillator" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="0" type="Oscillator" inputs="0" outputs="1" controls="0">
 			<property key="initial_output" value="false" />
 			<property key="low_duration" value="3000" />
 			<property key="high_duration" value="3000" />
 			<position x="60" y="40" />
 			<orientation angle="0" />
 		</component>
-		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="1" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Hlt" />
 			<property key="tri_state" value="false" />
 			<position x="80" y="80" />
 			<orientation angle="0" />
 		</component>
-		<component id="2" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="2" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Clk" />
 			<property key="tri_state" value="false" />
 			<position x="250" y="60" />
 			<orientation angle="0" />
 		</component>
-		<component id="3" type="NorGate" priority="normal" inputs="2" outputs="1" controls="0">
+		<component id="3" type="NorGate" inputs="2" outputs="1" controls="0">
 			<property key="initial_output" value="undefined" />
 			<position x="170" y="60" />
 			<orientation angle="0" />
@@ -390,47 +398,48 @@
 		</wire>
 	</circuit>
 	<circuit name="ProgramCounter">
-		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
+		<component id="0" type="ConnectorIn" inputs="0" outputs="8" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="D" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="170" />
 			<orientation angle="0" />
 		</component>
-		<component id="1" type="SubCircuit" priority="normal" inputs="12" outputs="9" controls="0" nested="lib_counter.BinCounter 8b">
+		<component id="1" type="SubCircuit" inputs="12" outputs="9" controls="0" nested="lib_counter.BinCounter 8b">
+			<property key="caption" value="BinCounter 8b#1" />
 			<property key="flip" value="false" />
 			<position x="190" y="160" />
 			<orientation angle="0" />
 		</component>
-		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="2" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Inc" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="260" />
 			<orientation angle="0" />
 		</component>
-		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="3" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Set" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="80" />
 			<orientation angle="0" />
 		</component>
-		<component id="4" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="4" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Clk" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="40" />
 			<orientation angle="0" />
 		</component>
-		<component id="5" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="5" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Res" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="60" />
 			<orientation angle="0" />
 		</component>
-		<component id="6" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="6" type="ConnectorOut" inputs="8" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="A" />
 			<property key="tri_state" value="false" />
@@ -547,191 +556,200 @@
 		</wire>
 	</circuit>
 	<circuit name="Register">
-		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
+		<component id="0" type="ConnectorIn" inputs="0" outputs="8" controls="0">
 			<property key="descending" value="true" />
 			<property key="name" value="D" />
 			<property key="tri_state" value="true" />
 			<position x="90" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="1" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="WE" />
 			<property key="tri_state" value="false" />
 			<position x="720" y="40" />
 			<orientation angle="0" />
 		</component>
-		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="2" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="OE" />
 			<property key="tri_state" value="false" />
 			<position x="750" y="130" />
 			<orientation angle="90" />
 		</component>
-		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="3" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Clk" />
 			<property key="tri_state" value="false" />
 			<position x="720" y="80" />
 			<orientation angle="0" />
 		</component>
-		<component id="4" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="4" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Res" />
 			<property key="tri_state" value="false" />
 			<position x="280" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="5" type="SubCircuit" priority="normal" inputs="2" outputs="2" controls="0" nested="lib_latches.D FlipFlop">
+		<component id="5" type="SubCircuit" inputs="2" outputs="2" controls="0" nested="lib_latches.D FlipFlop">
+			<property key="caption" value="D FlipFlop#5" />
 			<property key="flip" value="false" />
 			<position x="-240" y="1120" />
 			<orientation angle="0" />
 		</component>
-		<component id="6" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="6" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#6" />
 			<property key="flip" value="false" />
 			<position x="400" y="150" />
 			<orientation angle="0" />
 		</component>
-		<component id="7" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+		<component id="7" type="AndGate" inputs="2" outputs="1" controls="0">
 			<property key="initial_output" value="false" />
 			<position x="780" y="60" />
 			<orientation angle="0" />
 		</component>
-		<component id="8" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="8" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vWeClk" />
 			<position x="840" y="60" />
 			<orientation angle="0" />
 		</component>
-		<component id="9" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="9" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vWeClk" />
 			<position x="240" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="10" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="10" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#10" />
 			<property key="flip" value="false" />
 			<position x="400" y="280" />
 			<orientation angle="0" />
 		</component>
-		<component id="11" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="11" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#11" />
 			<property key="flip" value="false" />
 			<position x="400" y="410" />
 			<orientation angle="0" />
 		</component>
-		<component id="12" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="12" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#12" />
 			<property key="flip" value="false" />
 			<position x="400" y="540" />
 			<orientation angle="0" />
 		</component>
-		<component id="13" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="13" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#13" />
 			<property key="flip" value="false" />
 			<position x="400" y="670" />
 			<orientation angle="0" />
 		</component>
-		<component id="14" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="14" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#14" />
 			<property key="flip" value="false" />
 			<position x="400" y="800" />
 			<orientation angle="0" />
 		</component>
-		<component id="15" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="15" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#15" />
 			<property key="flip" value="false" />
 			<position x="400" y="930" />
 			<orientation angle="0" />
 		</component>
-		<component id="16" type="SubCircuit" priority="normal" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+		<component id="16" type="SubCircuit" inputs="4" outputs="2" controls="0" nested="lib_latches.Async D FlipFlop">
+			<property key="caption" value="Async D FlipFlop#16" />
 			<property key="flip" value="false" />
 			<position x="400" y="1060" />
 			<orientation angle="0" />
 		</component>
-		<component id="17" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="17" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="false" />
 			<position x="300" y="1150" />
 			<orientation angle="270" />
 		</component>
-		<component id="18" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="18" type="ConnectorOut" inputs="8" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="RO" />
 			<property key="tri_state" value="false" />
 			<position x="850" y="410" />
 			<orientation angle="0" />
 		</component>
-		<component id="19" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="19" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vD" />
 			<position x="90" y="1090" />
 			<orientation angle="270" />
 		</component>
-		<component id="20" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="20" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vY" />
 			<position x="600" y="510" />
 			<orientation angle="0" />
 		</component>
-		<component id="21" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="21" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vY" />
 			<position x="660" y="220" />
 			<orientation angle="0" />
 		</component>
-		<component id="22" type="TriStateBuffer" priority="normal" inputs="8" outputs="8" controls="1">
+		<component id="22" type="TriStateBuffer" inputs="8" outputs="8" controls="1">
 			<property key="initial_output" value="undefined" />
 			<position x="750" y="220" />
 			<orientation angle="0" />
 		</component>
-		<component id="23" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="23" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vD" />
 			<position x="850" y="220" />
 			<orientation angle="0" />
 		</component>
-		<component id="24" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="24" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vY" />
 			<position x="660" y="410" />
 			<orientation angle="0" />
 		</component>
-		<component id="25" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="25" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="420" y="60" />
 			<orientation angle="270" />
 		</component>
-		<component id="26" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="26" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="440" y="60" />
 			<orientation angle="270" />
 		</component>
-		<component id="27" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="27" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="480" y="60" />
 			<orientation angle="270" />
 		</component>
-		<component id="28" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="28" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="460" y="60" />
 			<orientation angle="270" />
 		</component>
-		<component id="29" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="29" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="500" y="60" />
 			<orientation angle="270" />
 		</component>
-		<component id="30" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="30" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="520" y="60" />
 			<orientation angle="270" />
 		</component>
-		<component id="31" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="31" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="540" y="60" />
 			<orientation angle="270" />
 		</component>
-		<component id="32" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="32" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="560" y="60" />
 			<orientation angle="270" />
 		</component>
-		<component id="33" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="33" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vD" />
 			<position x="490" y="10" />
@@ -1142,174 +1160,179 @@
 		</wire>
 	</circuit>
 	<circuit name="I/O">
-		<component id="0" type="SubCircuit" priority="normal" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+		<component id="0" type="SubCircuit" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+			<property key="caption" value="8b FlipFlop#0" />
 			<property key="flip" value="false" />
 			<position x="200" y="190" />
 			<orientation angle="0" />
 		</component>
-		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
+		<component id="1" type="ConnectorIn" inputs="0" outputs="8" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="D" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="100" />
 			<orientation angle="0" />
 		</component>
-		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="2" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Clk" />
 			<property key="tri_state" value="false" />
 			<position x="60" y="480" />
 			<orientation angle="0" />
 		</component>
-		<component id="3" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="3" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Res" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="210" />
 			<orientation angle="0" />
 		</component>
-		<component id="4" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="4" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="false" />
 			<position x="90" y="230" />
 			<orientation angle="0" />
 		</component>
-		<component id="5" type="Text" priority="normal" inputs="0" outputs="0" controls="0">
+		<component id="5" type="Text" inputs="0" outputs="0" controls="0">
 			<property key="text" value="The Res(et) input here is not a signal genarated by another circuit." />
 			<position x="250" y="420" />
 			<orientation angle="0" />
 		</component>
-		<component id="6" type="Text" priority="normal" inputs="0" outputs="0" controls="0">
+		<component id="6" type="Text" inputs="0" outputs="0" controls="0">
 			<property key="text" value="It's an end-user input. (LSim lacks a 'button'-component ATM)." />
 			<position x="230" y="440" />
 			<orientation angle="0" />
 		</component>
-		<component id="7" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="7" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="WE" />
 			<property key="tri_state" value="false" />
 			<position x="60" y="520" />
 			<orientation angle="0" />
 		</component>
-		<component id="8" type="AndGate" priority="normal" inputs="2" outputs="1" controls="0">
+		<component id="8" type="AndGate" inputs="2" outputs="1" controls="0">
 			<property key="initial_output" value="undefined" />
 			<position x="130" y="500" />
 			<orientation angle="0" />
 		</component>
-		<component id="9" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="9" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vWEClk" />
 			<position x="200" y="500" />
 			<orientation angle="0" />
 		</component>
-		<component id="10" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="10" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vWEClk" />
 			<position x="50" y="190" />
 			<orientation angle="0" />
 		</component>
-		<component id="11" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="11" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Res" />
 			<property key="tri_state" value="false" />
 			<position x="350" y="390" />
 			<orientation angle="0" />
 		</component>
-		<component id="12" type="SubCircuit" priority="normal" inputs="12" outputs="8" controls="0" nested="rom_decled.rom-decled">
+		<component id="12" type="SubCircuit" inputs="12" outputs="8" controls="0" nested="rom_decled.rom-decled">
+			<property key="caption" value="rom-decled#12" />
 			<property key="flip" value="false" />
 			<position x="670" y="320" />
 			<orientation angle="90" />
 		</component>
-		<component id="13" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="13" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="true" />
 			<position x="790" y="190" />
 			<orientation angle="90" />
 		</component>
-		<component id="14" type="7SegmentLED" priority="deferred" inputs="8" outputs="0" controls="1">
+		<component id="14" type="7SegmentLED" inputs="8" outputs="0" controls="1">
 			<position x="600" y="600" />
 			<orientation angle="0" />
 		</component>
-		<component id="15" type="7SegmentLED" priority="deferred" inputs="8" outputs="0" controls="1">
+		<component id="15" type="7SegmentLED" inputs="8" outputs="0" controls="1">
 			<position x="660" y="600" />
 			<orientation angle="0" />
 		</component>
-		<component id="16" type="7SegmentLED" priority="deferred" inputs="8" outputs="0" controls="1">
+		<component id="16" type="7SegmentLED" inputs="8" outputs="0" controls="1">
 			<position x="780" y="600" />
 			<orientation angle="0" />
 		</component>
-		<component id="17" type="7SegmentLED" priority="deferred" inputs="8" outputs="0" controls="1">
+		<component id="17" type="7SegmentLED" inputs="8" outputs="0" controls="1">
 			<position x="720" y="600" />
 			<orientation angle="0" />
 		</component>
-		<component id="18" type="Via" priority="normal" inputs="4" outputs="0" controls="0">
+		<component id="18" type="Via" inputs="4" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vTop" />
 			<position x="760" y="430" />
 			<orientation angle="90" />
 		</component>
-		<component id="19" type="Via" priority="normal" inputs="4" outputs="0" controls="0">
+		<component id="19" type="Via" inputs="4" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vBottom" />
 			<position x="680" y="430" />
 			<orientation angle="90" />
 		</component>
-		<component id="20" type="Via" priority="normal" inputs="4" outputs="0" controls="0">
+		<component id="20" type="Via" inputs="4" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vTop" />
 			<position x="520" y="510" />
 			<orientation angle="0" />
 		</component>
-		<component id="21" type="Via" priority="normal" inputs="4" outputs="0" controls="0">
+		<component id="21" type="Via" inputs="4" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vBottom" />
 			<position x="520" y="700" />
 			<orientation angle="0" />
 		</component>
-		<component id="22" type="Oscillator" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="22" type="Oscillator" inputs="0" outputs="1" controls="0">
 			<property key="initial_output" value="false" />
 			<property key="low_duration" value="40" />
 			<property key="high_duration" value="40" />
 			<position x="70" y="660" />
 			<orientation angle="90" />
 		</component>
-		<component id="23" type="SubCircuit" priority="normal" inputs="3" outputs="2" controls="0" nested="lib_latches.J-K FlipFlop">
+		<component id="23" type="SubCircuit" inputs="3" outputs="2" controls="0" nested="lib_latches.J-K FlipFlop">
+			<property key="caption" value="J-K FlipFlop#23" />
 			<property key="flip" value="false" />
 			<position x="200" y="770" />
 			<orientation angle="0" />
 		</component>
-		<component id="24" type="SubCircuit" priority="normal" inputs="3" outputs="2" controls="0" nested="lib_latches.J-K FlipFlop">
+		<component id="24" type="SubCircuit" inputs="3" outputs="2" controls="0" nested="lib_latches.J-K FlipFlop">
+			<property key="caption" value="J-K FlipFlop#24" />
 			<property key="flip" value="false" />
 			<position x="200" y="900" />
 			<orientation angle="0" />
 		</component>
-		<component id="25" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="25" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="true" />
 			<position x="90" y="760" />
 			<orientation angle="0" />
 		</component>
-		<component id="26" type="Via" priority="normal" inputs="2" outputs="0" controls="0">
+		<component id="26" type="Via" inputs="2" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vLED" />
 			<position x="320" y="700" />
 			<orientation angle="270" />
 		</component>
-		<component id="27" type="Via" priority="normal" inputs="2" outputs="0" controls="0">
+		<component id="27" type="Via" inputs="2" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vLED" />
 			<position x="580" y="210" />
 			<orientation angle="90" />
 		</component>
-		<component id="28" type="SubCircuit" priority="normal" inputs="3" outputs="4" controls="0" nested="lib_muxers.decode2to4">
+		<component id="28" type="SubCircuit" inputs="3" outputs="4" controls="0" nested="lib_muxers.decode2to4">
+			<property key="caption" value="decode2to4#28" />
 			<property key="flip" value="false" />
 			<position x="490" y="820" />
 			<orientation angle="0" />
 		</component>
-		<component id="29" type="Via" priority="normal" inputs="2" outputs="0" controls="0">
+		<component id="29" type="Via" inputs="2" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vLED" />
 			<position x="380" y="790" />
 			<orientation angle="0" />
 		</component>
-		<component id="30" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="30" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="false" />
 			<position x="380" y="820" />
 			<orientation angle="0" />
@@ -1695,81 +1718,83 @@
 		</wire>
 	</circuit>
 	<circuit name="InstrDecoder">
-		<component id="0" type="ConnectorIn" priority="normal" inputs="0" outputs="8" controls="0">
+		<component id="0" type="ConnectorIn" inputs="0" outputs="8" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="I" />
 			<property key="tri_state" value="false" />
 			<position x="120" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="1" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="IF" />
 			<property key="tri_state" value="false" />
 			<position x="250" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="2" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="DL" />
 			<property key="tri_state" value="false" />
 			<position x="220" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="3" type="SubCircuit" priority="normal" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+		<component id="3" type="SubCircuit" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+			<property key="caption" value="8b FlipFlop#3" />
 			<property key="flip" value="false" />
 			<position x="450" y="250" />
 			<orientation angle="0" />
 		</component>
-		<component id="4" type="ConnectorOut" priority="normal" inputs="5" outputs="0" controls="0">
+		<component id="4" type="ConnectorOut" inputs="5" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="OP" />
 			<property key="tri_state" value="false" />
 			<position x="590" y="130" />
 			<orientation angle="0" />
 		</component>
-		<component id="5" type="ConnectorOut" priority="normal" inputs="3" outputs="0" controls="0">
+		<component id="5" type="ConnectorOut" inputs="3" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="A" />
 			<property key="tri_state" value="false" />
 			<position x="590" y="210" />
 			<orientation angle="0" />
 		</component>
-		<component id="6" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="6" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="false" />
 			<position x="320" y="270" />
 			<orientation angle="0" />
 		</component>
-		<component id="7" type="TriStateBuffer" priority="normal" inputs="8" outputs="8" controls="1">
+		<component id="7" type="TriStateBuffer" inputs="8" outputs="8" controls="1">
 			<property key="initial_output" value="undefined" />
 			<position x="640" y="580" />
 			<orientation angle="0" />
 		</component>
-		<component id="8" type="ConnectorOut" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="8" type="ConnectorOut" inputs="8" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="D" />
 			<property key="tri_state" value="false" />
 			<position x="750" y="580" />
 			<orientation angle="0" />
 		</component>
-		<component id="9" type="SubCircuit" priority="normal" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+		<component id="9" type="SubCircuit" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+			<property key="caption" value="8b FlipFlop#9" />
 			<property key="flip" value="false" />
 			<position x="450" y="670" />
 			<orientation angle="0" />
 		</component>
-		<component id="10" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="10" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Clk" />
 			<property key="tri_state" value="false" />
 			<position x="280" y="40" />
 			<orientation angle="90" />
 		</component>
-		<component id="11" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+		<component id="11" type="NotGate" inputs="1" outputs="1" controls="0">
 			<property key="initial_output" value="undefined" />
 			<position x="280" y="350" />
 			<orientation angle="90" />
 		</component>
-		<component id="12" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="12" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="false" />
 			<position x="320" y="690" />
 			<orientation angle="0" />
@@ -2044,396 +2069,400 @@
 		</wire>
 	</circuit>
 	<circuit name="Ctrl Logic">
-		<component id="0" type="SubCircuit" priority="normal" inputs="12" outputs="16" controls="0" nested="rom_ctrl_8b.rom-ctrl-logic">
+		<component id="0" type="SubCircuit" inputs="12" outputs="16" controls="0" nested="rom_ctrl_8b.rom-ctrl-logic">
+			<property key="caption" value="rom-ctrl-logic#0" />
 			<property key="flip" value="false" />
 			<position x="550" y="200" />
 			<orientation angle="0" />
 		</component>
-		<component id="1" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="1" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Clk" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="280" />
 			<orientation angle="0" />
 		</component>
-		<component id="2" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="2" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Res" />
 			<property key="tri_state" value="false" />
 			<position x="50" y="300" />
 			<orientation angle="0" />
 		</component>
-		<component id="3" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="3" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRS" />
 			<position x="50" y="60" />
 			<orientation angle="0" />
 		</component>
-		<component id="4" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="4" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="true" />
 			<position x="50" y="100" />
 			<orientation angle="0" />
 		</component>
-		<component id="5" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="5" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="true" />
 			<position x="50" y="80" />
 			<orientation angle="0" />
 		</component>
-		<component id="6" type="SubCircuit" priority="normal" inputs="8" outputs="5" controls="0" nested="lib_counter.BinCounter 4b">
+		<component id="6" type="SubCircuit" inputs="8" outputs="5" controls="0" nested="lib_counter.BinCounter 4b">
+			<property key="caption" value="BinCounter 4b#6" />
 			<property key="flip" value="false" />
 			<position x="170" y="120" />
 			<orientation angle="0" />
 		</component>
-		<component id="7" type="ConnectorIn" priority="normal" inputs="0" outputs="5" controls="0">
+		<component id="7" type="ConnectorIn" inputs="0" outputs="5" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Op" />
 			<property key="tri_state" value="false" />
 			<position x="420" y="180" />
 			<orientation angle="0" />
 		</component>
-		<component id="8" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="8" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="ZF" />
 			<property key="tri_state" value="false" />
 			<position x="420" y="240" />
 			<orientation angle="0" />
 		</component>
-		<component id="9" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="9" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="CF" />
 			<property key="tri_state" value="false" />
 			<position x="420" y="260" />
 			<orientation angle="0" />
 		</component>
-		<component id="10" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="10" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vClk" />
 			<position x="110" y="280" />
 			<orientation angle="0" />
 		</component>
-		<component id="11" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="11" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vClk" />
 			<position x="50" y="40" />
 			<orientation angle="0" />
 		</component>
-		<component id="12" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="12" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vRes" />
 			<position x="110" y="300" />
 			<orientation angle="0" />
 		</component>
-		<component id="13" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="13" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRes" />
 			<position x="50" y="180" />
 			<orientation angle="0" />
 		</component>
-		<component id="14" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+		<component id="14" type="NotGate" inputs="1" outputs="1" controls="0">
 			<property key="initial_output" value="false" />
 			<position x="110" y="350" />
 			<orientation angle="0" />
 		</component>
-		<component id="15" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="15" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRes" />
 			<position x="50" y="350" />
 			<orientation angle="0" />
 		</component>
-		<component id="16" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="16" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="/Res" />
 			<position x="180" y="350" />
 			<orientation angle="0" />
 		</component>
-		<component id="17" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="17" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="/Res" />
 			<position x="420" y="60" />
 			<orientation angle="0" />
 		</component>
-		<component id="18" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="18" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="true" />
 			<position x="420" y="40" />
 			<orientation angle="0" />
 		</component>
-		<component id="19" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="19" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="AI" />
 			<property key="tri_state" value="false" />
 			<position x="320" y="480" />
 			<orientation angle="0" />
 		</component>
-		<component id="20" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="20" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="AO" />
 			<property key="tri_state" value="false" />
 			<position x="320" y="500" />
 			<orientation angle="0" />
 		</component>
-		<component id="21" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="21" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="BI" />
 			<property key="tri_state" value="false" />
 			<position x="320" y="520" />
 			<orientation angle="0" />
 		</component>
-		<component id="22" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="22" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="BO" />
 			<property key="tri_state" value="false" />
 			<position x="320" y="540" />
 			<orientation angle="0" />
 		</component>
-		<component id="23" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="23" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="RI" />
 			<property key="tri_state" value="false" />
 			<position x="320" y="560" />
 			<orientation angle="0" />
 		</component>
-		<component id="24" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="24" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="RO" />
 			<property key="tri_state" value="false" />
 			<position x="320" y="580" />
 			<orientation angle="0" />
 		</component>
-		<component id="25" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="25" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="JMP" />
 			<property key="tri_state" value="false" />
 			<position x="320" y="620" />
 			<orientation angle="0" />
 		</component>
-		<component id="26" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="26" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="INC" />
 			<property key="tri_state" value="false" />
 			<position x="320" y="600" />
 			<orientation angle="0" />
 		</component>
-		<component id="27" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="27" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="IF" />
 			<property key="tri_state" value="false" />
 			<position x="690" y="480" />
 			<orientation angle="0" />
 		</component>
-		<component id="28" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="28" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="DL" />
 			<property key="tri_state" value="false" />
 			<position x="690" y="500" />
 			<orientation angle="0" />
 		</component>
-		<component id="29" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="29" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="DO" />
 			<property key="tri_state" value="false" />
 			<position x="690" y="520" />
 			<orientation angle="0" />
 		</component>
-		<component id="30" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="30" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="HLT" />
 			<property key="tri_state" value="false" />
 			<position x="690" y="540" />
 			<orientation angle="0" />
 		</component>
-		<component id="31" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="31" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="CE" />
 			<property key="tri_state" value="false" />
 			<position x="690" y="560" />
 			<orientation angle="0" />
 		</component>
-		<component id="32" type="ConnectorOut" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="32" type="ConnectorOut" inputs="1" outputs="0" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="CO" />
 			<property key="tri_state" value="false" />
 			<position x="690" y="580" />
 			<orientation angle="0" />
 		</component>
-		<component id="33" type="SubCircuit" priority="normal" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+		<component id="33" type="SubCircuit" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+			<property key="caption" value="8b FlipFlop#33" />
 			<property key="flip" value="false" />
 			<position x="190" y="640" />
 			<orientation angle="0" />
 		</component>
-		<component id="34" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="34" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vROMa" />
 			<position x="680" y="110" />
 			<orientation angle="0" />
 		</component>
-		<component id="35" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="35" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vROMb" />
 			<position x="680" y="270" />
 			<orientation angle="0" />
 		</component>
-		<component id="36" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="36" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vClk" />
 			<position x="50" y="400" />
 			<orientation angle="0" />
 		</component>
-		<component id="37" type="NotGate" priority="normal" inputs="1" outputs="1" controls="0">
+		<component id="37" type="NotGate" inputs="1" outputs="1" controls="0">
 			<property key="initial_output" value="false" />
 			<position x="110" y="400" />
 			<orientation angle="0" />
 		</component>
-		<component id="38" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="38" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="/Clk" />
 			<position x="180" y="400" />
 			<orientation angle="0" />
 		</component>
-		<component id="39" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="39" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vROMa" />
 			<position x="50" y="550" />
 			<orientation angle="0" />
 		</component>
-		<component id="40" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="40" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRes" />
 			<position x="50" y="660" />
 			<orientation angle="0" />
 		</component>
-		<component id="41" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="41" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="/Clk" />
 			<position x="50" y="640" />
 			<orientation angle="0" />
 		</component>
-		<component id="42" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="42" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="false" />
 			<position x="50" y="680" />
 			<orientation angle="0" />
 		</component>
-		<component id="43" type="SubCircuit" priority="normal" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+		<component id="43" type="SubCircuit" inputs="11" outputs="16" controls="0" nested="8b FlipFlop">
+			<property key="caption" value="8b FlipFlop#43" />
 			<property key="flip" value="false" />
 			<position x="560" y="640" />
 			<orientation angle="0" />
 		</component>
-		<component id="44" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="44" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vRS" />
 			<position x="690" y="620" />
 			<orientation angle="0" />
 		</component>
-		<component id="45" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="45" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vROMb" />
 			<position x="430" y="550" />
 			<orientation angle="0" />
 		</component>
-		<component id="46" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="46" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRes" />
 			<position x="430" y="660" />
 			<orientation angle="0" />
 		</component>
-		<component id="47" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="47" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="/Clk" />
 			<position x="430" y="640" />
 			<orientation angle="0" />
 		</component>
-		<component id="48" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="48" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="false" />
 			<position x="430" y="680" />
 			<orientation angle="0" />
 		</component>
-		<component id="49" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="49" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vROMa" />
 			<position x="130" y="880" />
 			<orientation angle="90" />
 		</component>
-		<component id="50" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="50" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vROMb" />
 			<position x="290" y="880" />
 			<orientation angle="90" />
 		</component>
-		<component id="51" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="51" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="60" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="52" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="52" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="80" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="53" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="53" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="100" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="54" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="54" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="120" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="55" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="55" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="140" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="56" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="56" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="160" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="57" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="57" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="180" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="58" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="58" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="200" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="59" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="59" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="220" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="60" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="60" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="240" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="61" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="61" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="260" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="62" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="62" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="280" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="63" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="63" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="300" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="64" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="64" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="320" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="65" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="65" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="340" y="940" />
 			<orientation angle="270" />
 		</component>
-		<component id="66" type="PullResistor" priority="deferred" inputs="0" outputs="1" controls="0">
+		<component id="66" type="PullResistor" inputs="0" outputs="1" controls="0">
 			<property key="pull_to" value="false" />
 			<position x="360" y="940" />
 			<orientation angle="270" />
@@ -2941,368 +2970,378 @@
 		</wire>
 	</circuit>
 	<circuit name="main">
-		<component id="0" type="SubCircuit" priority="normal" inputs="11" outputs="1" controls="0" nested="I/O">
+		<component id="0" type="SubCircuit" inputs="11" outputs="1" controls="0" nested="I/O">
+			<property key="caption" value="I/O module" />
 			<property key="flip" value="false" />
 			<position x="990" y="280" />
 			<orientation angle="0" />
 		</component>
-		<component id="1" type="SubCircuit" priority="normal" inputs="12" outputs="8" controls="0" nested="Register">
+		<component id="1" type="SubCircuit" inputs="12" outputs="8" controls="0" nested="Register">
+			<property key="caption" value="Register-A" />
 			<property key="flip" value="false" />
 			<position x="310" y="290" />
 			<orientation angle="0" />
 		</component>
-		<component id="2" type="SubCircuit" priority="normal" inputs="12" outputs="8" controls="0" nested="Register">
+		<component id="2" type="SubCircuit" inputs="12" outputs="8" controls="0" nested="Register">
+			<property key="caption" value="Register-B" />
 			<property key="flip" value="false" />
 			<position x="310" y="590" />
 			<orientation angle="0" />
 		</component>
-		<component id="3" type="SubCircuit" priority="normal" inputs="22" outputs="10" controls="0" nested="alu.alu">
+		<component id="3" type="SubCircuit" inputs="22" outputs="10" controls="0" nested="alu.alu">
+			<property key="caption" value="ALU" />
 			<property key="flip" value="false" />
 			<position x="640" y="390" />
 			<orientation angle="0" />
 		</component>
-		<component id="4" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="4" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vD" />
 			<position x="170" y="240" />
 			<orientation angle="0" />
 		</component>
-		<component id="5" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="5" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vD" />
 			<position x="170" y="540" />
 			<orientation angle="0" />
 		</component>
-		<component id="6" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="6" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vD" />
 			<position x="780" y="240" />
 			<orientation angle="0" />
 		</component>
-		<component id="7" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="7" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vD" />
 			<position x="850" y="240" />
 			<orientation angle="0" />
 		</component>
-		<component id="8" type="SubCircuit" priority="normal" inputs="1" outputs="1" controls="0" nested="Clock">
+		<component id="8" type="SubCircuit" inputs="1" outputs="1" controls="0" nested="Clock">
+			<property key="caption" value="Clock" />
 			<property key="flip" value="false" />
 			<position x="310" y="90" />
 			<orientation angle="0" />
 		</component>
-		<component id="9" type="SubCircuit" priority="normal" inputs="12" outputs="8" controls="0" nested="ProgramCounter">
+		<component id="9" type="SubCircuit" inputs="12" outputs="8" controls="0" nested="ProgramCounter">
+			<property key="caption" value="ProgramCounter" />
 			<property key="flip" value="false" />
 			<position x="310" y="920" />
 			<orientation angle="0" />
 		</component>
-		<component id="10" type="SubCircuit" priority="normal" inputs="11" outputs="16" controls="0" nested="InstrDecoder">
+		<component id="10" type="SubCircuit" inputs="11" outputs="16" controls="0" nested="InstrDecoder">
+			<property key="caption" value="InstrDecoder" />
 			<property key="flip" value="false" />
 			<position x="740" y="920" />
 			<orientation angle="0" />
 		</component>
-		<component id="11" type="SubCircuit" priority="normal" inputs="11" outputs="8" controls="0" nested="rom_prog_8b.rom-program">
+		<component id="11" type="SubCircuit" inputs="11" outputs="8" controls="0" nested="rom_prog_8b.rom-program">
+			<property key="caption" value="Program-ROM" />
 			<property key="flip" value="false" />
 			<position x="520" y="870" />
 			<orientation angle="0" />
 		</component>
-		<component id="12" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="12" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vD" />
 			<position x="170" y="870" />
 			<orientation angle="0" />
 		</component>
-		<component id="13" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="13" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="true" />
 			<position x="380" y="760" />
 			<orientation angle="0" />
 		</component>
-		<component id="14" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="14" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="Res" />
 			<property key="tri_state" value="false" />
 			<position x="850" y="350" />
 			<orientation angle="0" />
 		</component>
-		<component id="15" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="15" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vRes" />
 			<position x="1130" y="170" />
 			<orientation angle="0" />
 		</component>
-		<component id="16" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="16" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRes" />
 			<position x="170" y="390" />
 			<orientation angle="0" />
 		</component>
-		<component id="17" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="17" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vClk" />
 			<position x="170" y="370" />
 			<orientation angle="0" />
 		</component>
-		<component id="18" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="18" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRes" />
 			<position x="170" y="690" />
 			<orientation angle="0" />
 		</component>
-		<component id="19" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="19" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vClk" />
 			<position x="170" y="670" />
 			<orientation angle="0" />
 		</component>
-		<component id="20" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="20" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRes" />
 			<position x="170" y="1020" />
 			<orientation angle="0" />
 		</component>
-		<component id="21" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="21" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vClk" />
 			<position x="170" y="1000" />
 			<orientation angle="0" />
 		</component>
-		<component id="22" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="22" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vClk" />
 			<position x="450" y="80" />
 			<orientation angle="0" />
 		</component>
-		<component id="23" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="23" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vZF" />
 			<position x="760" y="330" />
 			<orientation angle="0" />
 		</component>
-		<component id="24" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="24" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vCF" />
 			<position x="760" y="350" />
 			<orientation angle="0" />
 		</component>
-		<component id="25" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="25" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sHLT" />
 			<position x="170" y="80" />
 			<orientation angle="0" />
 		</component>
-		<component id="26" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="26" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sAI" />
 			<position x="170" y="330" />
 			<orientation angle="0" />
 		</component>
-		<component id="27" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="27" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sAO" />
 			<position x="170" y="350" />
 			<orientation angle="0" />
 		</component>
-		<component id="28" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="28" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sBI" />
 			<position x="170" y="630" />
 			<orientation angle="0" />
 		</component>
-		<component id="29" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="29" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sBO" />
 			<position x="170" y="650" />
 			<orientation angle="0" />
 		</component>
-		<component id="30" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="30" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sINC" />
 			<position x="170" y="960" />
 			<orientation angle="0" />
 		</component>
-		<component id="31" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="31" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sJMP" />
 			<position x="170" y="980" />
 			<orientation angle="0" />
 		</component>
-		<component id="32" type="SubCircuit" priority="normal" inputs="9" outputs="14" controls="0" nested="Ctrl Logic">
+		<component id="32" type="SubCircuit" inputs="9" outputs="14" controls="0" nested="Ctrl Logic">
+			<property key="caption" value="Ctrl Logic" />
 			<property key="flip" value="false" />
 			<position x="1040" y="860" />
 			<orientation angle="0" />
 		</component>
-		<component id="33" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="33" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vZF" />
 			<position x="930" y="860" />
 			<orientation angle="0" />
 		</component>
-		<component id="34" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="34" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vCF" />
 			<position x="930" y="880" />
 			<orientation angle="0" />
 		</component>
-		<component id="35" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="35" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vRes" />
 			<position x="930" y="740" />
 			<orientation angle="0" />
 		</component>
-		<component id="36" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="36" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vClk" />
 			<position x="930" y="720" />
 			<orientation angle="0" />
 		</component>
-		<component id="37" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="37" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vClk" />
 			<position x="850" y="330" />
 			<orientation angle="0" />
 		</component>
-		<component id="38" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="38" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sDO" />
 			<position x="850" y="370" />
 			<orientation angle="0" />
 		</component>
-		<component id="39" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="39" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sAI" />
 			<position x="1170" y="720" />
 			<orientation angle="0" />
 		</component>
-		<component id="40" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="40" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sAO" />
 			<position x="1170" y="740" />
 			<orientation angle="0" />
 		</component>
-		<component id="41" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="41" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sBI" />
 			<position x="1170" y="760" />
 			<orientation angle="0" />
 		</component>
-		<component id="42" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="42" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sBO" />
 			<position x="1170" y="780" />
 			<orientation angle="0" />
 		</component>
-		<component id="43" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="43" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sINC" />
 			<position x="1170" y="860" />
 			<orientation angle="0" />
 		</component>
-		<component id="44" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="44" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sJMP" />
 			<position x="1170" y="840" />
 			<orientation angle="0" />
 		</component>
-		<component id="45" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="45" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sIF" />
 			<position x="640" y="920" />
 			<orientation angle="0" />
 		</component>
-		<component id="46" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="46" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sDL" />
 			<position x="640" y="940" />
 			<orientation angle="0" />
 		</component>
-		<component id="47" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="47" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sIF" />
 			<position x="1170" y="880" />
 			<orientation angle="0" />
 		</component>
-		<component id="48" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="48" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sDL" />
 			<position x="1170" y="900" />
 			<orientation angle="0" />
 		</component>
-		<component id="49" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="49" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sDO" />
 			<position x="1170" y="920" />
 			<orientation angle="0" />
 		</component>
-		<component id="50" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="50" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sHLT" />
 			<position x="1170" y="940" />
 			<orientation angle="0" />
 		</component>
-		<component id="51" type="SubCircuit" priority="normal" inputs="14" outputs="0" controls="0" nested="lib_memory.ram_8byte">
+		<component id="51" type="SubCircuit" inputs="14" outputs="0" controls="0" nested="lib_memory.ram_8byte">
+			<property key="caption" value="RAM (8 bytes)" />
 			<property key="flip" value="false" />
 			<position x="1260" y="410" />
 			<orientation angle="0" />
 		</component>
-		<component id="52" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="52" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vD" />
 			<position x="1140" y="340" />
 			<orientation angle="0" />
 		</component>
-		<component id="53" type="Via" priority="normal" inputs="8" outputs="0" controls="0">
+		<component id="53" type="Via" inputs="8" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vD" />
 			<position x="850" y="990" />
 			<orientation angle="0" />
 		</component>
-		<component id="54" type="Via" priority="normal" inputs="3" outputs="0" controls="0">
+		<component id="54" type="Via" inputs="3" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="vA" />
 			<position x="850" y="880" />
 			<orientation angle="0" />
 		</component>
-		<component id="55" type="Via" priority="normal" inputs="3" outputs="0" controls="0">
+		<component id="55" type="Via" inputs="3" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vA" />
 			<position x="1140" y="450" />
 			<orientation angle="0" />
 		</component>
-		<component id="56" type="Constant" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="56" type="Constant" inputs="0" outputs="1" controls="0">
 			<property key="value" value="true" />
 			<position x="1140" y="490" />
 			<orientation angle="0" />
 		</component>
-		<component id="57" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="57" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sRI" />
 			<position x="1140" y="510" />
 			<orientation angle="0" />
 		</component>
-		<component id="58" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="58" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="sRO" />
 			<position x="1140" y="530" />
 			<orientation angle="0" />
 		</component>
-		<component id="59" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="59" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sRI" />
 			<position x="1170" y="800" />
 			<orientation angle="0" />
 		</component>
-		<component id="60" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="60" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="false" />
 			<property key="name" value="sRO" />
 			<position x="1170" y="820" />
 			<orientation angle="0" />
 		</component>
-		<component id="61" type="Via" priority="normal" inputs="1" outputs="0" controls="0">
+		<component id="61" type="Via" inputs="1" outputs="0" controls="0">
 			<property key="right" value="true" />
 			<property key="name" value="vClk" />
 			<position x="640" y="960" />
 			<orientation angle="0" />
 		</component>
-		<component id="62" type="ConnectorIn" priority="normal" inputs="0" outputs="1" controls="0">
+		<component id="62" type="ConnectorIn" inputs="0" outputs="1" controls="0">
 			<property key="descending" value="false" />
 			<property key="name" value="ProgSel" />
 			<property key="tri_state" value="false" />
