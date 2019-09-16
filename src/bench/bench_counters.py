@@ -15,15 +15,8 @@ def test_bin_counter_4b(lsim):
 
     circuit_desc = lsim.user_library().circuit_by_name('BinCounter 4b')
 
-    pins_D = [circuit_desc.port_by_name("D[0]"),
-              circuit_desc.port_by_name("D[1]"),
-              circuit_desc.port_by_name("D[2]"),
-              circuit_desc.port_by_name("D[3]")]
-
-    pins_Y = [circuit_desc.port_by_name("Y[0]"),
-              circuit_desc.port_by_name("Y[1]"),
-              circuit_desc.port_by_name("Y[2]"),
-              circuit_desc.port_by_name("Y[3]")]
+    pins_D = [circuit_desc.port_by_name(f"D[{i:}]") for i in range(0,4)]
+    pins_Y = [circuit_desc.port_by_name(f"Y[{i:}]") for i in range(0,4)]
 
     circuit = circuit_desc.instantiate(sim)
     sim.init()
@@ -58,23 +51,8 @@ def test_bin_counter_8b(lsim):
 
     circuit_desc = lsim.user_library().circuit_by_name('BinCounter 8b')
 
-    pins_D = [circuit_desc.port_by_name("D[0]"),
-              circuit_desc.port_by_name("D[1]"),
-              circuit_desc.port_by_name("D[2]"),
-              circuit_desc.port_by_name("D[3]"),
-              circuit_desc.port_by_name("D[4]"),
-              circuit_desc.port_by_name("D[5]"),
-              circuit_desc.port_by_name("D[6]"),
-              circuit_desc.port_by_name("D[7]")]
-
-    pins_Y = [circuit_desc.port_by_name("Y[0]"),
-              circuit_desc.port_by_name("Y[1]"),
-              circuit_desc.port_by_name("Y[2]"),
-              circuit_desc.port_by_name("Y[3]"),
-              circuit_desc.port_by_name("Y[4]"),
-              circuit_desc.port_by_name("Y[5]"),
-              circuit_desc.port_by_name("Y[6]"),
-              circuit_desc.port_by_name("Y[7]")]
+    pins_D = [circuit_desc.port_by_name(f"D[{i:}]") for i in range(0,8)]
+    pins_Y = [circuit_desc.port_by_name(f"Y[{i:}]") for i in range(0,8)]
 
     circuit = circuit_desc.instantiate(sim)
     sim.init()

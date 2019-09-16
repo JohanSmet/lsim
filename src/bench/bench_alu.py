@@ -227,38 +227,10 @@ def main():
 
     circuit_desc = lsim.user_library().circuit_by_name("alu")
 
-    pins_A = [circuit_desc.port_by_name("A[0]"),
-              circuit_desc.port_by_name("A[1]"),
-              circuit_desc.port_by_name("A[2]"),
-              circuit_desc.port_by_name("A[3]"),
-              circuit_desc.port_by_name("A[4]"),
-              circuit_desc.port_by_name("A[5]"),
-              circuit_desc.port_by_name("A[6]"),
-              circuit_desc.port_by_name("A[7]")]
-
-    pins_B = [circuit_desc.port_by_name("B[0]"),
-              circuit_desc.port_by_name("B[1]"),
-              circuit_desc.port_by_name("B[2]"),
-              circuit_desc.port_by_name("B[3]"),
-              circuit_desc.port_by_name("B[4]"),
-              circuit_desc.port_by_name("B[5]"),
-              circuit_desc.port_by_name("B[6]"),
-              circuit_desc.port_by_name("B[7]")]
-
-    pins_Y = [circuit_desc.port_by_name("Y[0]"),
-              circuit_desc.port_by_name("Y[1]"),
-              circuit_desc.port_by_name("Y[2]"),
-              circuit_desc.port_by_name("Y[3]"),
-              circuit_desc.port_by_name("Y[4]"),
-              circuit_desc.port_by_name("Y[5]"),
-              circuit_desc.port_by_name("Y[6]"),
-              circuit_desc.port_by_name("Y[7]")]
-
-    pins_Instr = [circuit_desc.port_by_name("Instr[0]"),
-                  circuit_desc.port_by_name("Instr[1]"),
-                  circuit_desc.port_by_name("Instr[2]"),
-                  circuit_desc.port_by_name("Instr[3]")]
-
+    pins_A = [circuit_desc.port_by_name(f"A[{i:}]") for i in range(0,8)]
+    pins_B = [circuit_desc.port_by_name(f"B[{i:}]") for i in range(0,8)]
+    pins_Y = [circuit_desc.port_by_name(f"Y[{i:}]") for i in range(0,8)]
+    pins_Instr = [circuit_desc.port_by_name(f"Instr[{i:}]") for i in range (0,4)]
     pin_CE = circuit_desc.port_by_name("CE")
     pin_OE = circuit_desc.port_by_name("OE")
 

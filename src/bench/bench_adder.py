@@ -14,18 +14,9 @@ def main():
     circuit_desc = lsim.user_library().circuit_by_name("adder_4bit")
 
     pin_Ci = circuit_desc.port_by_name("Ci")
-    pin_A = [ circuit_desc.port_by_name("A0"),
-              circuit_desc.port_by_name("A1"),
-              circuit_desc.port_by_name("A2"),
-              circuit_desc.port_by_name("A3")]
-    pin_B = [ circuit_desc.port_by_name("B0"),
-              circuit_desc.port_by_name("B1"),
-              circuit_desc.port_by_name("B2"),
-              circuit_desc.port_by_name("B3")]
-    pin_Y = [ circuit_desc.port_by_name("Y0"),
-              circuit_desc.port_by_name("Y1"),
-              circuit_desc.port_by_name("Y2"),
-              circuit_desc.port_by_name("Y3")]
+    pin_A = [circuit_desc.port_by_name(f"A{i:}") for i in range(0,4)]
+    pin_B = [circuit_desc.port_by_name(f"B{i:}") for i in range(0,4)]
+    pin_Y = [circuit_desc.port_by_name(f"Y{i:}") for i in range(0,4)]
     pin_Co = circuit_desc.port_by_name("Co")
 
     circuit = circuit_desc.instantiate(sim)

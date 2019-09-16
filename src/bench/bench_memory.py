@@ -12,14 +12,7 @@ def test_mem_cell(lsim):
 
     circuit_desc = lsim.user_library().circuit_by_name('mem_cell')
 
-    pins_D = [circuit_desc.port_by_name("D[0]"),
-              circuit_desc.port_by_name("D[1]"),
-              circuit_desc.port_by_name("D[2]"),
-              circuit_desc.port_by_name("D[3]"),
-              circuit_desc.port_by_name("D[4]"),
-              circuit_desc.port_by_name("D[5]"),
-              circuit_desc.port_by_name("D[6]"),
-              circuit_desc.port_by_name("D[7]")]
+    pins_D = [circuit_desc.port_by_name(f"D[{i:}]") for i in range(0,8)]
 
     circuit = circuit_desc.instantiate(sim)
 
@@ -49,18 +42,8 @@ def test_ram_8byte(lsim):
 
     circuit_desc = lsim.user_library().circuit_by_name('ram_8byte')
 
-    pins_D = [circuit_desc.port_by_name("D[0]"),
-              circuit_desc.port_by_name("D[1]"),
-              circuit_desc.port_by_name("D[2]"),
-              circuit_desc.port_by_name("D[3]"),
-              circuit_desc.port_by_name("D[4]"),
-              circuit_desc.port_by_name("D[5]"),
-              circuit_desc.port_by_name("D[6]"),
-              circuit_desc.port_by_name("D[7]")]
-
-    pins_Addr = [circuit_desc.port_by_name("Addr[0]"),
-                 circuit_desc.port_by_name("Addr[1]"),
-                 circuit_desc.port_by_name("Addr[2]")]
+    pins_D = [circuit_desc.port_by_name(f"D[{i:}]") for i in range(0,8)]
+    pins_Addr = [circuit_desc.port_by_name(f"Addr[{i:}]") for i in range(0,3)]
 
     circuit = circuit_desc.instantiate(sim)
     sim.init()
@@ -96,21 +79,8 @@ def test_ram_64byte(lsim):
 
     circuit_desc = lsim.user_library().circuit_by_name('ram_64byte')
 
-    pins_D = [circuit_desc.port_by_name("D[0]"),
-              circuit_desc.port_by_name("D[1]"),
-              circuit_desc.port_by_name("D[2]"),
-              circuit_desc.port_by_name("D[3]"),
-              circuit_desc.port_by_name("D[4]"),
-              circuit_desc.port_by_name("D[5]"),
-              circuit_desc.port_by_name("D[6]"),
-              circuit_desc.port_by_name("D[7]")]
-
-    pins_Addr = [circuit_desc.port_by_name("Addr[0]"),
-                 circuit_desc.port_by_name("Addr[1]"),
-                 circuit_desc.port_by_name("Addr[2]"),
-                 circuit_desc.port_by_name("Addr[3]"),
-                 circuit_desc.port_by_name("Addr[4]"),
-                 circuit_desc.port_by_name("Addr[5]")]
+    pins_D = [circuit_desc.port_by_name(f"D[{i:}]") for i in range(0,8)]
+    pins_Addr = [circuit_desc.port_by_name(f"Addr[{i:}]") for i in range(0,6)]
 
     circuit = circuit_desc.instantiate(sim)
     sim.init()
