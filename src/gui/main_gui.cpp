@@ -223,7 +223,7 @@ static void ui_component_pallette(LSimContext *context) {
 
 	for (const auto &ref : context->user_library()->references()) {
 		ImGui::Spacing();
-		if (ImGui::TreeNodeEx(ref.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
+		if (ImGui::TreeNodeEx(ref.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
 			auto ref_lib = context->library_by_name(ref.c_str());
 
 			ImGui::BeginGroup();
