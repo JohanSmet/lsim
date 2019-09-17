@@ -35,8 +35,8 @@ public:
     typedef std::unique_ptr<Component> uptr_t;
     typedef std::unordered_map<std::string, Property::uptr_t> property_lut_t;
 public:
-    Component(CircuitDescription *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls);
-    Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs);
+    Component(ModelCircuit *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls);
+    Component(ModelCircuit *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs);
     Component(const Component &) = delete;
 
     uint32_t id() const {return m_id;}
@@ -71,15 +71,15 @@ public:
     void set_angle(int angle);
 
     // nested circuits
-    CircuitDescription *nested_circuit() const {return m_nested_circuit;}
+    ModelCircuit *nested_circuit() const {return m_nested_circuit;}
     bool sync_nested_circuit(class LSimContext *lsim_context);
 
     // copy & paste
     uptr_t copy() const;
-    void integrate_into_circuit(CircuitDescription *circuit, uint32_t id);
+    void integrate_into_circuit(ModelCircuit *circuit, uint32_t id);
 
 private:
-    CircuitDescription *m_circuit;
+    ModelCircuit *m_circuit;
     uint32_t m_id;
     ComponentType m_type;
     uint32_t m_inputs;
@@ -87,7 +87,7 @@ private:
     uint32_t m_controls;
 
     std::string m_nested_name;
-    CircuitDescription *m_nested_circuit;
+    ModelCircuit *m_nested_circuit;
     port_lut_t m_port_lut;
     property_lut_t m_properties;
 

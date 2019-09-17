@@ -23,7 +23,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "lsim_context.h"
 #include "error.h"
 
@@ -92,7 +92,7 @@ private:
     typedef std::unordered_map<std::string, size_t> tunnel_wire_map_t;
 
     struct CircuitConstruction {
-        CircuitDescription *m_circuit;
+        ModelCircuit *m_circuit;
         std::unordered_map<uint64_t, LogisimConnection> m_pin_locs;
         std::map<uint64_t, std::string> m_circuit_ipins[2];     
         std::unordered_map<std::string, Position> m_ipin_offsets;

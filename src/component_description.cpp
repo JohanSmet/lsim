@@ -3,14 +3,14 @@
 // description of a single component
 
 #include "component_description.h"
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "lsim_context.h"
 
 #include <cassert>
 
 namespace lsim {
 
-Component::Component(CircuitDescription *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls) :
+Component::Component(ModelCircuit *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls) :
         m_circuit(parent),
         m_id(id),
         m_type(type),
@@ -23,7 +23,7 @@ Component::Component(CircuitDescription *parent, uint32_t id, ComponentType type
         m_angle(0) {
 }
 
-Component::Component(CircuitDescription *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs) :
+Component::Component(ModelCircuit *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs) :
         m_circuit(parent),
         m_id(id),
         m_type(COMPONENT_SUB_CIRCUIT),
@@ -152,7 +152,7 @@ Component::uptr_t Component::copy() const {
     return std::move(clone);
 }
 
-void Component::integrate_into_circuit(CircuitDescription *circuit, uint32_t id) {
+void Component::integrate_into_circuit(ModelCircuit *circuit, uint32_t id) {
     m_circuit = circuit;
     m_id = id;
 }

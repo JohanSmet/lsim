@@ -1,27 +1,27 @@
-// circuit_description.h - Johan Smet - BSD-3-Clause (see LICENSE)
+// model_circuit.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // describe the composition of a logic circuit
 
-#ifndef LSIM_CIRCUIT_DESCRIPTION_H
-#define LSIM_CIRCUIT_DESCRIPTION_H
+#ifndef LSIM_MODEL_CIRCUIT_H
+#define LSIM_MODEL_CIRCUIT_H
 
 #include <string>
 #include <memory>
 #include <vector>
 #include <unordered_map>
 
-#include "component_description.h"
+#include "model_component.h"
 #include "wire_description.h"
 
 namespace lsim {
 
-class CircuitDescription {
+class ModelCircuit {
 public:
-    typedef std::unique_ptr<CircuitDescription> uptr_t;
+    typedef std::unique_ptr<ModelCircuit> uptr_t;
     typedef std::unordered_map<uint32_t, Wire::uptr_t> wire_lut_t;
 public:
-    CircuitDescription(const char *name, class LSimContext *context, class CircuitLibrary *ref_lib);
-    CircuitDescription(const CircuitDescription &) = delete;
+    ModelCircuit(const char *name, class LSimContext *context, class CircuitLibrary *ref_lib);
+    ModelCircuit(const ModelCircuit &) = delete;
 
     class LSimContext *context() const {return m_context;}
     class CircuitLibrary *lib() const {return m_lib;}
@@ -33,16 +33,16 @@ public:
 
     // components
 protected:
-    Component *create_component(ComponentType type, uint32_t input_pins, uint32_t output_pins = 1, uint32_t control_pins = 0);
-    Component *create_component(const char *circuit_name, uint32_t input_pins, uint32_t output_pins);
+    ModelComponent *create_component(ComponentType type, uint32_t input_pins, uint32_t output_pins = 1, uint32_t control_pins = 0);
+    ModelComponent *create_component(const char *circuit_name, uint32_t input_pins, uint32_t output_pins);
 public:
-    Component *component_by_id(uint32_t id);
+    ModelComponent *component_by_id(uint32_t id);
     std::vector<uint32_t> component_ids() const;
     std::vector<uint32_t> component_ids_of_type(ComponentType type) const;
     void disconnect_component(uint32_t id);
     void remove_component(uint32_t id);
     void sync_sub_circuit_components();
-    Component *paste_component(Component *comp);
+    ModelComponent *paste_component(ModelComponent *comp);
 
     // connections
     Wire *create_wire();
@@ -63,31 +63,31 @@ public:
     uint32_t num_output_ports() const {return static_cast<uint32_t>(m_output_ports.size());}
 
     // specialized component creation functions
-    Component *add_connector_in(const char *name, uint32_t data_bits, bool tri_state = false);
-    Component *add_connector_out(const char *name, uint32_t data_bits, bool tri_state = false);
-    Component *add_constant(Value value);
-    Component *add_pull_resistor(Value pull_to);
-    Component *add_buffer(uint32_t data_bits);
-    Component *add_tristate_buffer(uint32_t data_bits);
-    Component *add_and_gate(uint32_t num_inputs);
-    Component *add_or_gate(uint32_t num_inputs);
-    Component *add_not_gate();
-    Component *add_nand_gate(uint32_t num_inputs);
-    Component *add_nor_gate(uint32_t num_inputs);
-    Component *add_xor_gate();
-    Component *add_xnor_gate();
-    Component *add_via(const char *name, uint32_t data_bits);
-    Component *add_oscillator(uint32_t low_duration, uint32_t high_duration);
-    Component *add_7_segment_led();
-    Component *add_sub_circuit(const char *circuit, uint32_t num_inputs, uint32_t num_outputs);
-    Component *add_sub_circuit(const char *circuit);
-    Component *add_text(const char *text);
+    ModelComponent *add_connector_in(const char *name, uint32_t data_bits, bool tri_state = false);
+    ModelComponent *add_connector_out(const char *name, uint32_t data_bits, bool tri_state = false);
+    ModelComponent *add_constant(Value value);
+    ModelComponent *add_pull_resistor(Value pull_to);
+    ModelComponent *add_buffer(uint32_t data_bits);
+    ModelComponent *add_tristate_buffer(uint32_t data_bits);
+    ModelComponent *add_and_gate(uint32_t num_inputs);
+    ModelComponent *add_or_gate(uint32_t num_inputs);
+    ModelComponent *add_not_gate();
+    ModelComponent *add_nand_gate(uint32_t num_inputs);
+    ModelComponent *add_nor_gate(uint32_t num_inputs);
+    ModelComponent *add_xor_gate();
+    ModelComponent *add_xnor_gate();
+    ModelComponent *add_via(const char *name, uint32_t data_bits);
+    ModelComponent *add_oscillator(uint32_t low_duration, uint32_t high_duration);
+    ModelComponent *add_7_segment_led();
+    ModelComponent *add_sub_circuit(const char *circuit, uint32_t num_inputs, uint32_t num_outputs);
+    ModelComponent *add_sub_circuit(const char *circuit);
+    ModelComponent *add_text(const char *text);
 
     // instantiate into a simulator
     std::unique_ptr<class CircuitInstance> instantiate(class Simulator *sim, bool top_level = true);
 
 private:
-    typedef std::unordered_map<uint32_t, Component::uptr_t> component_lut_t;
+    typedef std::unordered_map<uint32_t, ModelComponent::uptr_t> component_lut_t;
     typedef std::vector<std::string> port_container_t;
 
 private:
@@ -110,4 +110,4 @@ private:
 
 } // namespace lsim
 
-#endif // LSIM_CIRCUIT_DESCRIPTION_H
+#endif // LSIM_MODEL_CIRCUIT_H

@@ -13,23 +13,23 @@ CircuitLibrary::CircuitLibrary(const char *name, const char *path) :
         m_path(path) {
 }
 
-CircuitDescription *CircuitLibrary::create_circuit(const char *name, LSimContext *context) {
+ModelCircuit *CircuitLibrary::create_circuit(const char *name, LSimContext *context) {
     assert(name);
 
-    m_circuits.push_back(std::make_unique<CircuitDescription>(name, context, this));
+    m_circuits.push_back(std::make_unique<ModelCircuit>(name, context, this));
     auto circuit = m_circuits.back().get();
     m_circuit_lut[name] = circuit;
 
     return circuit;
 }
 
-void CircuitLibrary::delete_circuit(CircuitDescription *circuit) {
+void CircuitLibrary::delete_circuit(ModelCircuit *circuit) {
     assert (std::find_if(m_circuits.begin(), m_circuits.end(), [=](auto &o) {return o.get() == circuit;}) != m_circuits.end());
 	remove_value(m_circuit_lut, circuit);
 	remove_owner(m_circuits, circuit);
 }
 
-void CircuitLibrary::rename_circuit(CircuitDescription *circuit, const char *name) {
+void CircuitLibrary::rename_circuit(ModelCircuit *circuit, const char *name) {
     assert(circuit);
     assert(name);
 
@@ -47,12 +47,12 @@ void CircuitLibrary::swap_circuits(size_t idx_a, size_t idx_b) {
     std::swap(m_circuits[idx_a], m_circuits[idx_b]);
 }
 
-CircuitDescription *CircuitLibrary::circuit_by_idx(size_t idx) const {
+ModelCircuit *CircuitLibrary::circuit_by_idx(size_t idx) const {
     assert(idx < num_circuits());
     return m_circuits[idx].get();
 }
 
-CircuitDescription *CircuitLibrary::circuit_by_name(const char *name) const {
+ModelCircuit *CircuitLibrary::circuit_by_name(const char *name) const {
     assert(name);
 
     auto res = m_circuit_lut.find(name);
@@ -63,7 +63,7 @@ CircuitDescription *CircuitLibrary::circuit_by_name(const char *name) const {
     }
 }
 
-uint32_t CircuitLibrary::circuit_idx(CircuitDescription *circuit) const {
+uint32_t CircuitLibrary::circuit_idx(ModelCircuit *circuit) const {
     for (auto i = 0u; i < m_circuits.size(); ++i) {
         if (m_circuits[i].get() == circuit) {
             return i;

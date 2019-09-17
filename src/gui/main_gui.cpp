@@ -26,7 +26,7 @@ static std::string ui_filename = "";
 static int selected_circuit_idx = 0;
 static const char *value_labels[] = {"False", "True", "Undefined", "Error"};
 
-static void change_active_circuit(LSimContext *context, CircuitDescription *active_circuit) {
+static void change_active_circuit(LSimContext *context, ModelCircuit *active_circuit) {
 	if (ui_circuit != nullptr && ui_circuit->circuit_desc() == active_circuit) {
 		return;
 	}
@@ -162,7 +162,7 @@ static void ui_circuit_management(LSimContext *context) {
 
 static void ui_component_pallette(LSimContext *context) {
 
-	auto add_component_button = [](uint32_t component, const char *caption, std::function<Component *(CircuitDescription *)> create_func) {
+	auto add_component_button = [](uint32_t component, const char *caption, std::function<Component *(ModelCircuit *)> create_func) {
 		Point pos = ImGui::GetCursorScreenPos();
 		auto draw_list = ImGui::GetWindowDrawList();
 
@@ -187,15 +187,15 @@ static void ui_component_pallette(LSimContext *context) {
 	if (ImGui::TreeNodeEx("Gates", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
 		ImGui::BeginGroup();
 		ImGui::Indent();
-		add_component_button(COMPONENT_AND_GATE, "AND", [](CircuitDescription *circuit) {return circuit->add_and_gate(2);});
-		add_component_button(COMPONENT_OR_GATE, "OR", [](CircuitDescription *circuit) {return circuit->add_or_gate(2);});
-		add_component_button(COMPONENT_NOT_GATE, "NOT", [](CircuitDescription *circuit) {return circuit->add_not_gate();});
-		add_component_button(COMPONENT_NAND_GATE, "NAND", [](CircuitDescription *circuit) {return circuit->add_nand_gate(2);});
-		add_component_button(COMPONENT_NOR_GATE, "NOR", [](CircuitDescription *circuit) {return circuit->add_nor_gate(2);});
-		add_component_button(COMPONENT_XOR_GATE, "XOR", [](CircuitDescription *circuit) {return circuit->add_xor_gate();});
-		add_component_button(COMPONENT_XNOR_GATE, "XNOR", [](CircuitDescription *circuit) {return circuit->add_xnor_gate();});
-		add_component_button(COMPONENT_BUFFER, "Buffer", [](CircuitDescription *circuit) {return circuit->add_buffer(1);});
-		add_component_button(COMPONENT_TRISTATE_BUFFER, "TriState Buffer", [](CircuitDescription *circuit) {return circuit->add_tristate_buffer(1);});
+		add_component_button(COMPONENT_AND_GATE, "AND", [](ModelCircuit *circuit) {return circuit->add_and_gate(2);});
+		add_component_button(COMPONENT_OR_GATE, "OR", [](ModelCircuit *circuit) {return circuit->add_or_gate(2);});
+		add_component_button(COMPONENT_NOT_GATE, "NOT", [](ModelCircuit *circuit) {return circuit->add_not_gate();});
+		add_component_button(COMPONENT_NAND_GATE, "NAND", [](ModelCircuit *circuit) {return circuit->add_nand_gate(2);});
+		add_component_button(COMPONENT_NOR_GATE, "NOR", [](ModelCircuit *circuit) {return circuit->add_nor_gate(2);});
+		add_component_button(COMPONENT_XOR_GATE, "XOR", [](ModelCircuit *circuit) {return circuit->add_xor_gate();});
+		add_component_button(COMPONENT_XNOR_GATE, "XNOR", [](ModelCircuit *circuit) {return circuit->add_xnor_gate();});
+		add_component_button(COMPONENT_BUFFER, "Buffer", [](ModelCircuit *circuit) {return circuit->add_buffer(1);});
+		add_component_button(COMPONENT_TRISTATE_BUFFER, "TriState Buffer", [](ModelCircuit *circuit) {return circuit->add_tristate_buffer(1);});
 		ImGui::EndGroup();
 	}
 
@@ -203,13 +203,13 @@ static void ui_component_pallette(LSimContext *context) {
 	if (ImGui::TreeNodeEx("Various", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
 		ImGui::BeginGroup();
 		ImGui::Indent();
-		add_component_button(COMPONENT_CONNECTOR_IN, "Input", [](CircuitDescription *circuit) {return circuit->add_connector_in("in", 1);});
-		add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](CircuitDescription *circuit) {return circuit->add_connector_out("out", 1);});
-		add_component_button(COMPONENT_CONSTANT, "Constant", [](CircuitDescription *circuit) {return circuit->add_constant(VALUE_TRUE);});
-		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](CircuitDescription *circuit) {return circuit->add_pull_resistor(VALUE_TRUE);});
-		add_component_button(COMPONENT_VIA, "Via", [](CircuitDescription *circuit) {return circuit->add_via("via", 1);});
-		add_component_button(COMPONENT_OSCILLATOR, "Oscillator", [](CircuitDescription *circuit) {return circuit->add_oscillator(5, 5);});
-		add_component_button(COMPONENT_TEXT, "Text", [](CircuitDescription *circuit) {return circuit->add_text("text");});
+		add_component_button(COMPONENT_CONNECTOR_IN, "Input", [](ModelCircuit *circuit) {return circuit->add_connector_in("in", 1);});
+		add_component_button(COMPONENT_CONNECTOR_OUT, "Output", [](ModelCircuit *circuit) {return circuit->add_connector_out("out", 1);});
+		add_component_button(COMPONENT_CONSTANT, "Constant", [](ModelCircuit *circuit) {return circuit->add_constant(VALUE_TRUE);});
+		add_component_button(COMPONENT_PULL_RESISTOR, "PullResistor", [](ModelCircuit *circuit) {return circuit->add_pull_resistor(VALUE_TRUE);});
+		add_component_button(COMPONENT_VIA, "Via", [](ModelCircuit *circuit) {return circuit->add_via("via", 1);});
+		add_component_button(COMPONENT_OSCILLATOR, "Oscillator", [](ModelCircuit *circuit) {return circuit->add_oscillator(5, 5);});
+		add_component_button(COMPONENT_TEXT, "Text", [](ModelCircuit *circuit) {return circuit->add_text("text");});
 		ImGui::EndGroup();
 	}
 
@@ -217,7 +217,7 @@ static void ui_component_pallette(LSimContext *context) {
 	if (ImGui::TreeNodeEx("I/O", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
 		ImGui::BeginGroup();
 		ImGui::Indent();
-		add_component_button(COMPONENT_7_SEGMENT_LED, "7-segment LED", [](CircuitDescription *circuit) {return circuit->add_7_segment_led();});
+		add_component_button(COMPONENT_7_SEGMENT_LED, "7-segment LED", [](ModelCircuit *circuit) {return circuit->add_7_segment_led();});
 		ImGui::EndGroup();
 	}
 
@@ -231,7 +231,7 @@ static void ui_component_pallette(LSimContext *context) {
 			for (size_t idx = 0; idx < ref_lib->num_circuits(); ++idx) {
 				auto sub_name = ref_lib->circuit_by_idx(idx)->name();
 				add_component_button(COMPONENT_SUB_CIRCUIT, sub_name.c_str(),
-					[ref, sub_name](CircuitDescription *circuit) {
+					[ref, sub_name](ModelCircuit *circuit) {
 						return circuit->add_sub_circuit((ref + "." + sub_name).c_str());
 					});
 			}

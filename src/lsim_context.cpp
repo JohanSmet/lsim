@@ -25,12 +25,12 @@ void LSimContext::clear_reference_libraries() {
     m_reference_libraries.clear();
 }
 
-CircuitDescription *LSimContext::find_circuit(const char *name, CircuitLibrary *fallback_lib) {
+ModelCircuit *LSimContext::find_circuit(const char *name, CircuitLibrary *fallback_lib) {
     std::string qualified = name;
     auto separator = qualified.find_first_of('.');
 
     if (separator == std::string::npos) {
-        CircuitDescription *result = nullptr;
+        ModelCircuit *result = nullptr;
         if (fallback_lib) {
             result = fallback_lib->circuit_by_name(name);
         }

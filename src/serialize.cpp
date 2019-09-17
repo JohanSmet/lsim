@@ -5,7 +5,7 @@
 #include "serialize.h"
 #include "lsim_context.h"
 #include "circuit_library.h"
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "error.h"
 
 #include <cassert>
@@ -206,7 +206,7 @@ private:
         }
     }
 
-    void serialize_circuit(CircuitDescription *circuit) {
+    void serialize_circuit(ModelCircuit *circuit) {
         auto circuit_node = m_root.append_child(XML_EL_CIRCUIT);
         circuit_node.append_attribute(XML_ATTR_NAME).set_value(circuit->name().c_str());
 
@@ -256,7 +256,7 @@ public:
         return true;
     }
 
-    bool parse_component(pugi::xml_node &comp_node, CircuitDescription *circuit) {
+    bool parse_component(pugi::xml_node &comp_node, ModelCircuit *circuit) {
         REQUIRED_ATTR(id_attr, comp_node, XML_ATTR_ID);
 
         // determine type of component
@@ -454,7 +454,7 @@ public:
         return true;
     }
 
-    bool parse_wire(pugi::xml_node wire_node, CircuitDescription *circuit) {
+    bool parse_wire(pugi::xml_node wire_node, ModelCircuit *circuit) {
         Wire *wire = circuit->create_wire();
 
         for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {

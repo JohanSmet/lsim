@@ -32,7 +32,6 @@ if (NOT EMSCRIPTEN)
 	find_package(OpenGL REQUIRED)
 endif()
 	
-
 #
 # simulator library
 #
@@ -41,13 +40,13 @@ set (LIB_TARGET lsim)
 
 set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/algebra.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_description.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_instance.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/component_description.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/model_circuit.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"
@@ -59,13 +58,13 @@ set (LIB_SOURCES
 
 set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/algebra.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_description.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_instance.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_library.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/component_description.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/model_circuit.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"

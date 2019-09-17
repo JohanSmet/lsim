@@ -5,15 +5,15 @@
 #ifndef LSIM_CIRCUIT_INSTANCE_H
 #define LSIM_CIRCUIT_INSTANCE_H
 
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "simulator.h"
 
 namespace lsim {
 
 class CircuitInstance {
 public:
-    CircuitInstance(Simulator *sim, CircuitDescription *circuit_desc);
-    CircuitDescription *description() const {return m_circuit_desc;}
+    CircuitInstance(Simulator *sim, ModelCircuit *circuit_desc);
+    ModelCircuit *description() const {return m_circuit_desc;}
 
     // instantiation
     SimComponent *add_component(Component *comp);
@@ -57,7 +57,7 @@ private:
     typedef std::unordered_map<uint32_t, SimComponent *> sim_component_lut_t;
 
 private:
-    CircuitDescription *    m_circuit_desc;
+    ModelCircuit *    m_circuit_desc;
     Simulator *             m_sim;
     sim_component_lut_t     m_components;
     std::string             m_name;

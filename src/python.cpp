@@ -5,7 +5,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "lsim_context.h"
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "circuit_instance.h"
 #include "serialize.h"
 
@@ -53,30 +53,30 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("pin", &Wire::pin)
         ;
 
-    py::class_<CircuitDescription>(m, "CircuitDescription")
-        .def("name", &CircuitDescription::name)
-        .def("change_name", &CircuitDescription::change_name)
-        .def("disconnect_component", &CircuitDescription::disconnect_component)
-        .def("remove_component", &CircuitDescription::remove_component)
-        .def("add_connector_in", &CircuitDescription::add_connector_in, py::return_value_policy::reference)
-        .def("add_connector_out", &CircuitDescription::add_connector_out, py::return_value_policy::reference)
-        .def("add_constant", &CircuitDescription::add_constant, py::return_value_policy::reference)
-        .def("add_pull_resistor", &CircuitDescription::add_pull_resistor, py::return_value_policy::reference)
-        .def("add_buffer", &CircuitDescription::add_buffer, py::return_value_policy::reference)
-        .def("add_tristate_buffer", &CircuitDescription::add_tristate_buffer, py::return_value_policy::reference)
-        .def("add_and_gate", &CircuitDescription::add_and_gate, py::return_value_policy::reference)
-        .def("add_or_gate", &CircuitDescription::add_or_gate, py::return_value_policy::reference)
-        .def("add_not_gate", &CircuitDescription::add_not_gate, py::return_value_policy::reference)
-        .def("add_nand_gate", &CircuitDescription::add_nand_gate, py::return_value_policy::reference)
-        .def("add_nor_gate", &CircuitDescription::add_nor_gate, py::return_value_policy::reference)
-        .def("add_xor_gate", &CircuitDescription::add_xor_gate, py::return_value_policy::reference)
-        .def("add_xnor_gate", &CircuitDescription::add_xnor_gate, py::return_value_policy::reference)
-        .def("add_sub_circuit", (Component *(CircuitDescription::*)(const char *))&CircuitDescription::add_sub_circuit, py::return_value_policy::reference)
-        .def("create_wire", &CircuitDescription::create_wire, py::return_value_policy::reference)
-        .def("connect", &CircuitDescription::connect, py::return_value_policy::reference)
-        .def("remove_wire", &CircuitDescription::remove_wire)
-        .def("port_by_name", &CircuitDescription::port_by_name)
-        .def("instantiate", &CircuitDescription::instantiate, py::arg("sim"), py::arg("top_level") = true)
+    py::class_<ModelCircuit>(m, "ModelCircuit")
+        .def("name", &ModelCircuit::name)
+        .def("change_name", &ModelCircuit::change_name)
+        .def("disconnect_component", &ModelCircuit::disconnect_component)
+        .def("remove_component", &ModelCircuit::remove_component)
+        .def("add_connector_in", &ModelCircuit::add_connector_in, py::return_value_policy::reference)
+        .def("add_connector_out", &ModelCircuit::add_connector_out, py::return_value_policy::reference)
+        .def("add_constant", &ModelCircuit::add_constant, py::return_value_policy::reference)
+        .def("add_pull_resistor", &ModelCircuit::add_pull_resistor, py::return_value_policy::reference)
+        .def("add_buffer", &ModelCircuit::add_buffer, py::return_value_policy::reference)
+        .def("add_tristate_buffer", &ModelCircuit::add_tristate_buffer, py::return_value_policy::reference)
+        .def("add_and_gate", &ModelCircuit::add_and_gate, py::return_value_policy::reference)
+        .def("add_or_gate", &ModelCircuit::add_or_gate, py::return_value_policy::reference)
+        .def("add_not_gate", &ModelCircuit::add_not_gate, py::return_value_policy::reference)
+        .def("add_nand_gate", &ModelCircuit::add_nand_gate, py::return_value_policy::reference)
+        .def("add_nor_gate", &ModelCircuit::add_nor_gate, py::return_value_policy::reference)
+        .def("add_xor_gate", &ModelCircuit::add_xor_gate, py::return_value_policy::reference)
+        .def("add_xnor_gate", &ModelCircuit::add_xnor_gate, py::return_value_policy::reference)
+        .def("add_sub_circuit", (Component *(ModelCircuit::*)(const char *))&ModelCircuit::add_sub_circuit, py::return_value_policy::reference)
+        .def("create_wire", &ModelCircuit::create_wire, py::return_value_policy::reference)
+        .def("connect", &ModelCircuit::connect, py::return_value_policy::reference)
+        .def("remove_wire", &ModelCircuit::remove_wire)
+        .def("port_by_name", &ModelCircuit::port_by_name)
+        .def("instantiate", &ModelCircuit::instantiate, py::arg("sim"), py::arg("top_level") = true)
     ;
 
     py::class_<Simulator>(m, "Simulator")

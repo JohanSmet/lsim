@@ -4,7 +4,7 @@
 
 #include "sim_functions.h"
 #include "simulator.h"
-#include "circuit_description.h"
+#include "model_circuit.h"
 
 namespace lsim {
 

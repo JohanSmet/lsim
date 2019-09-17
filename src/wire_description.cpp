@@ -3,7 +3,7 @@
 // describe the wires that connect components
 
 #include "wire_description.h"
-#include "circuit_description.h"
+#include "model_circuit.h"
 
 #include <cassert>
 #include "std_helper.h"

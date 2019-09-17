@@ -8,7 +8,7 @@
 
 namespace lsim {
 
-CircuitInstance::CircuitInstance(Simulator *sim, CircuitDescription *circuit_desc) :
+CircuitInstance::CircuitInstance(Simulator *sim, ModelCircuit *circuit_desc) :
         m_sim(sim),
         m_circuit_desc(circuit_desc),
         m_name("<unnamed>") {

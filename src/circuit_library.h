@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <string>
 
-#include "circuit_description.h"
+#include "model_circuit.h"
 
 namespace lsim {
 
@@ -28,18 +28,18 @@ public:
     const char *path() const {return m_path.c_str();}
 
     const char *main_circuit_name() const {return m_main_circuit.c_str();}
-    CircuitDescription *main_circuit() const {return circuit_by_name(m_main_circuit.c_str());}
+    ModelCircuit *main_circuit() const {return circuit_by_name(m_main_circuit.c_str());}
     void change_main_circuit(const char *main) {m_main_circuit = main;}
 
     // circuit management
-    CircuitDescription *create_circuit(const char *name, LSimContext *context);
-    void delete_circuit(CircuitDescription *circuit);
-    void rename_circuit(CircuitDescription *circuit, const char *name);
+    ModelCircuit *create_circuit(const char *name, LSimContext *context);
+    void delete_circuit(ModelCircuit *circuit);
+    void rename_circuit(ModelCircuit *circuit, const char *name);
     void swap_circuits(size_t idx_a, size_t idx_b);
     size_t num_circuits() const {return m_circuits.size();}
-    CircuitDescription *circuit_by_idx(size_t idx) const;
-    CircuitDescription *circuit_by_name(const char *name) const;
-    uint32_t circuit_idx(CircuitDescription *circuit) const;
+    ModelCircuit *circuit_by_idx(size_t idx) const;
+    ModelCircuit *circuit_by_name(const char *name) const;
+    uint32_t circuit_idx(ModelCircuit *circuit) const;
     void clear_circuits();
 
     // references
@@ -49,8 +49,8 @@ public:
     const reference_container_t &references() const {return m_references;}
 
 private:
-    typedef std::vector<CircuitDescription::uptr_t>     circuit_container_t;
-    typedef std::unordered_map<std::string, CircuitDescription *>  circuit_map_t;
+    typedef std::vector<ModelCircuit::uptr_t>     circuit_container_t;
+    typedef std::unordered_map<std::string, ModelCircuit *>  circuit_map_t;
 
 private:
     std::string             m_name;

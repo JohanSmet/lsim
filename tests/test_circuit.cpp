@@ -64,7 +64,7 @@ TEST_CASE("Test nested circuits", "[circuit]") {
 }
 
 struct AdderIO {
-    CircuitDescription *circuit;
+    ModelCircuit *circuit;
     Component *pin_Ci;
     Component *pin_A;
     Component *pin_B;

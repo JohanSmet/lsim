@@ -11,7 +11,7 @@
 
 #include "colors.h"
 #include "simulator.h"
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "circuit_instance.h"
 #include "circuit_library.h"
 #include "lsim_context.h"
@@ -155,7 +155,7 @@ void UIComponent::dematerialize() {
 // UICircuit
 //
 
-UICircuit::UICircuit(CircuitDescription *circuit_desc) : 
+UICircuit::UICircuit(ModelCircuit *circuit_desc) : 
 			m_circuit_desc(circuit_desc),
 			m_circuit_inst(nullptr),
 			m_name(circuit_desc->name()),
@@ -915,7 +915,7 @@ void UICircuitBuilder::register_materialize_func(ComponentType type, materialize
 	m_materialize_funcs[type] = func;
 }
 
-UICircuit::uptr_t UICircuitBuilder::create_circuit(CircuitDescription *circuit) {
+UICircuit::uptr_t UICircuitBuilder::create_circuit(ModelCircuit *circuit) {
 	auto ui_circuit = std::make_unique<UICircuit>(circuit);
 
 	auto comp_ids = circuit->component_ids();

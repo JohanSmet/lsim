@@ -2,7 +2,7 @@
 
 #include "simulator.h"
 #include "sim_functions.h"
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "circuit_instance.h"
 
 #include <cassert>

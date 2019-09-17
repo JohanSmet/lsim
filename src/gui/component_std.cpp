@@ -10,7 +10,7 @@
 
 #include <algorithm>
 
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "circuit_instance.h"
 
 namespace lsim {

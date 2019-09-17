@@ -3,7 +3,7 @@
 #ifndef LSIM_GUI_COMPONENT_UI_H
 #define LSIM_GUI_COMPONENT_UI_H
 
-#include "circuit_description.h"
+#include "model_circuit.h"
 #include "algebra.h"
 
 #include <unordered_map>
@@ -93,7 +93,7 @@ public:
     typedef std::unique_ptr<UICircuit>  uptr_t;
 
 public:
-    UICircuit(CircuitDescription *circuit_desc);
+    UICircuit(ModelCircuit *circuit_desc);
 
     UIComponent *create_component(Component *component);
     void remove_component(UIComponent *ui_comp);
@@ -108,7 +108,7 @@ public:
     void embed_circuit(const char *name);
     void create_wire();
 
-    CircuitDescription *circuit_desc() const {return m_circuit_desc;}
+    ModelCircuit *circuit_desc() const {return m_circuit_desc;}
     CircuitInstance *circuit_inst() const {return m_circuit_inst;}
 
     // selection
@@ -168,7 +168,7 @@ private:
     typedef std::vector<SelectedItem>   selection_container_t;
 
 private:
-    CircuitDescription *      m_circuit_desc;
+    ModelCircuit *      m_circuit_desc;
     std::string               m_name;
  
     ui_component_container_t  m_ui_components;
@@ -208,7 +208,7 @@ public:
     typedef std::function<void(Component *, UIComponent *)> materialize_func_t;
 public:
     static void register_materialize_func(ComponentType type, materialize_func_t func);
-    static UICircuit::uptr_t create_circuit(CircuitDescription *circuit);
+    static UICircuit::uptr_t create_circuit(ModelCircuit *circuit);
     static void materialize_component(UIComponent *ui_component);
     static void rematerialize_component(UICircuit *circuit, UIComponent *ui_component);
 
