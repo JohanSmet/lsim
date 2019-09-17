@@ -171,14 +171,14 @@ ModelComponent *ModelCircuit::paste_component(ModelComponent *comp) {
     return result;
 }
 
-Wire *ModelCircuit::create_wire() {
-    auto wire = std::make_unique<Wire>(m_wire_id++);
+ModelWire *ModelCircuit::create_wire() {
+    auto wire = std::make_unique<ModelWire>(m_wire_id++);
     auto result = wire.get();
     m_wires[result->id()] = std::move(wire);
     return result;
 }
 
-Wire *ModelCircuit::connect(pin_id_t pin_a, pin_id_t pin_b) {
+ModelWire *ModelCircuit::connect(pin_id_t pin_a, pin_id_t pin_b) {
     auto wire = create_wire();
     wire->add_pin(pin_a);
     wire->add_pin(pin_b);
@@ -212,7 +212,7 @@ std::vector<uint32_t> ModelCircuit::wire_ids() const {
     return std::move(result);
 }
 
-Wire *ModelCircuit::wire_by_id(uint32_t id) const {
+ModelWire *ModelCircuit::wire_by_id(uint32_t id) const {
     auto found = m_wires.find(id);
     if (found != m_wires.end()) {
         return found->second.get();

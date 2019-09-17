@@ -573,7 +573,7 @@ void UICircuit::move_selected_components() {
 
 void UICircuit::delete_selected_components() {
 
-	std::set<Wire *>	touched_wires;
+	std::set<ModelWire *>	touched_wires;
 
 	for (auto &item : m_selection) {
 		if (item.m_component) {
@@ -591,11 +591,11 @@ void UICircuit::delete_selected_components() {
 		wire->clear_pins();
 
 		if (!wire->in_one_piece()) {
-			std::vector<Wire *> new_wires;
+			std::vector<ModelWire *> new_wires;
 
 			while (wire->num_segments() > 0) {
 				auto reachable_segments = wire->reachable_segments(wire->segment_by_index(0));
-				Wire *new_wire = m_circuit_desc->create_wire();
+				ModelWire *new_wire = m_circuit_desc->create_wire();
 
 				for (auto segment : reachable_segments) {
 					new_wire->add_segment(segment->junction(0)->position(), segment->junction(1)->position());
@@ -650,7 +650,7 @@ void UICircuit::create_wire() {
 		wire->add_pin(m_wire_end.m_pin);
 	} else if (m_wire_end.m_pin == PIN_ID_INVALID && m_wire_end.m_wire == nullptr) {
 		// wire without an explicit endpoint
-		Wire *wire = m_wire_start.m_wire;
+		ModelWire *wire = m_wire_start.m_wire;
 		if (!wire) {
 			wire = m_circuit_desc->create_wire();
 			wire->add_pin(m_wire_start.m_pin);
@@ -698,7 +698,7 @@ void UICircuit::deselect_component(UIComponent *component) {
 	remove_if(m_selection, [component](const auto &s) {return s.m_component == component;});
 }
 
-void UICircuit::select_wire_segment(WireSegment *segment) {
+void UICircuit::select_wire_segment(ModelWireSegment *segment) {
 	if (is_selected(segment)) {
 		return;
 	}
@@ -706,7 +706,7 @@ void UICircuit::select_wire_segment(WireSegment *segment) {
 	m_selection.push_back({nullptr, segment});
 }
 
-void UICircuit::deselect_wire_segment(WireSegment *segment) {
+void UICircuit::deselect_wire_segment(ModelWireSegment *segment) {
 	remove_if(m_selection, [segment](const auto &s) {return s.m_segment == segment;});
 }
 
@@ -737,7 +737,7 @@ void UICircuit::toggle_selection(UIComponent *component) {
 	}
 }
 
-void UICircuit::toggle_selection(WireSegment *segment) {
+void UICircuit::toggle_selection(ModelWireSegment *segment) {
 	if (is_selected(segment)) {
 		deselect_wire_segment(segment);
 	} else {
@@ -750,7 +750,7 @@ bool UICircuit::is_selected(UIComponent *component) {
 						[component](const auto &s) {return s.m_component == component;});
 }
 
-bool UICircuit::is_selected(WireSegment *segment) {
+bool UICircuit::is_selected(ModelWireSegment *segment) {
 	return std::any_of(m_selection.begin(), m_selection.end(),
 						[segment](const auto &s) {return s.m_segment == segment;});
 }
@@ -837,7 +837,7 @@ void UICircuit::paste_components() {
 	}
 }
 
-void UICircuit::wire_make_connections(Wire *wire) {
+void UICircuit::wire_make_connections(ModelWire *wire) {
 	for (size_t j = 0; j < wire->num_junctions(); ++j) {
 		auto junction = wire->junction_position(j);	
 		auto found = m_point_pin_lut.find(junction);

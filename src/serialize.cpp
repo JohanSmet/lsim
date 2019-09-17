@@ -182,7 +182,7 @@ private:
         orient_node.append_attribute(XML_ATTR_ANGLE).set_value(component->angle());
     }
 
-    void serialize_wire(Wire *wire, pugi::xml_node *circuit_node) {
+    void serialize_wire(ModelWire *wire, pugi::xml_node *circuit_node) {
         auto wire_node = circuit_node->append_child(XML_EL_WIRE);
 
         wire_node.append_attribute(XML_ATTR_ID).set_value(wire->id());
@@ -455,7 +455,7 @@ public:
     }
 
     bool parse_wire(pugi::xml_node wire_node, ModelCircuit *circuit) {
-        Wire *wire = circuit->create_wire();
+        ModelWire *wire = circuit->create_wire();
 
         for (auto segment_node : wire_node.children(XML_EL_SEGMENT)) {
             REQUIRED_ATTR(x1_attr, segment_node, XML_ATTR_X1);

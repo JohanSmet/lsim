@@ -40,7 +40,7 @@ SimComponent *CircuitInstance::add_component(ModelComponent *comp) {
     return sim_comp;
 }
 
-node_t CircuitInstance::add_wire(Wire *wire) {
+node_t CircuitInstance::add_wire(ModelWire *wire) {
     assert(wire);
 
     if (wire->num_pins() < 2) {

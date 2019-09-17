@@ -1,8 +1,8 @@
-// wire_description.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
+// model_wire.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // describe the wires that connect components
 
-#include "wire_description.h"
+#include "model_wire.h"
 #include "model_circuit.h"
 
 #include <cassert>
@@ -12,118 +12,118 @@ namespace lsim {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// WireJunction
+// ModelWireJunction
 //
 
-WireJunction::WireJunction(const Point &p, WireSegment *segment) :
+ModelWireJunction::ModelWireJunction(const Point &p, ModelWireSegment *segment) :
         m_position(p) {
     m_segments.push_back(segment);
 }
 
-void WireJunction::add_segment(WireSegment *segment) {
+void ModelWireJunction::add_segment(ModelWireSegment *segment) {
     m_segments.push_back(segment);
 }
 
-void WireJunction::remove_segment(WireSegment *segment) {
+void ModelWireJunction::remove_segment(ModelWireSegment *segment) {
 	remove(m_segments, segment);
 }
 
-WireSegment *WireJunction::segment(size_t idx) const {
+ModelWireSegment *ModelWireJunction::segment(size_t idx) const {
     assert(idx < m_segments.size());
     return m_segments[idx];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// WireSegment
+// ModelWireSegment
 //
 
-WireSegment::WireSegment(Wire *wire) : 
+ModelWireSegment::ModelWireSegment(ModelWire *wire) : 
         m_wire(wire),
         m_ends({nullptr, nullptr}) {
 }
 
-void WireSegment::set_junction(size_t idx, WireJunction *junction) {
+void ModelWireSegment::set_junction(size_t idx, ModelWireJunction *junction) {
     assert(idx < 2);
     m_ends[idx] = junction;
 }
 
-WireJunction *WireSegment::junction(size_t idx) const {
+ModelWireJunction *ModelWireSegment::junction(size_t idx) const {
     assert(idx < 2);
     return m_ends[idx];
 }
 
-bool WireSegment::point_on_segment(const Point &p) {
+bool ModelWireSegment::point_on_segment(const Point &p) {
     return point_on_line_segment(m_ends[0]->position(), m_ends[1]->position(), p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Wire
+// ModelWire
 //
 
-Wire::Wire(uint32_t id) : m_id(id) {
+ModelWire::ModelWire(uint32_t id) : m_id(id) {
 
 }
 
-void Wire::add_pin(pin_id_t pin) {
+void ModelWire::add_pin(pin_id_t pin) {
     m_pins.push_back(pin);
 }
 
-pin_id_t Wire::pin(size_t index) const {
+pin_id_t ModelWire::pin(size_t index) const {
     assert(index < m_pins.size());
     return m_pins[index];
 }
 
-void Wire::remove_component_pins(uint32_t component_id) {
+void ModelWire::remove_component_pins(uint32_t component_id) {
     remove_if(m_pins, [component_id](const auto &pin_id) {
 							return component_id_from_pin_id(pin_id) == component_id;
 					  }
 			 );
 }
 
-void Wire::remove_pin(pin_id_t pin) {
+void ModelWire::remove_pin(pin_id_t pin) {
 	remove(m_pins, pin);
 }
 
-void Wire::clear_pins() {
+void ModelWire::clear_pins() {
     m_pins.clear();
 }
 
-const Point &Wire::segment_point(size_t segment_idx, size_t point_idx) const {
+const Point &ModelWire::segment_point(size_t segment_idx, size_t point_idx) const {
     assert(segment_idx < m_segments.size());
     assert(point_idx < 2);
     return m_segments[segment_idx]->junction(point_idx)->position();
 }
 
-WireSegment *Wire::segment_by_index(size_t segment_idx) {
+ModelWireSegment *ModelWire::segment_by_index(size_t segment_idx) {
     assert(segment_idx < m_segments.size());
     return m_segments[segment_idx].get();
 }
 
-size_t Wire::junction_segment_count(size_t idx) const {
+size_t ModelWire::junction_segment_count(size_t idx) const {
     assert(idx < m_junctions.size());
     return m_junctions[idx]->num_segments();
 }
 
-const Point &Wire::junction_position(size_t idx) const {
+const Point &ModelWire::junction_position(size_t idx) const {
     assert(idx < m_junctions.size());
     return m_junctions[idx]->position();
 }
 
-WireJunction *Wire::add_junction(const Point &p, WireSegment *segment) {
+ModelWireJunction *ModelWire::add_junction(const Point &p, ModelWireSegment *segment) {
     auto found = std::find_if(m_junctions.begin(), m_junctions.end(), [=](auto &j) {return j->position() == p;});
     if (found != m_junctions.end()) {
         (*found)->add_segment(segment);
         return found->get();
     }
 
-    m_junctions.push_back(std::make_unique<WireJunction>(p, segment));
+    m_junctions.push_back(std::make_unique<ModelWireJunction>(p, segment));
     return m_junctions.back().get();
 }
 
-WireSegment *Wire::add_segment(const Point &p0, const Point &p1) {
-    m_segments.push_back(std::make_unique<WireSegment>(this));
+ModelWireSegment *ModelWire::add_segment(const Point &p0, const Point &p1) {
+    m_segments.push_back(std::make_unique<ModelWireSegment>(this));
     auto segment = m_segments.back().get();
 
     segment->set_junction(0, add_junction(p0, segment));
@@ -131,7 +131,7 @@ WireSegment *Wire::add_segment(const Point &p0, const Point &p1) {
     return segment;
 }
 
-void Wire::add_segments(Point *anchors, size_t num_anchors) {
+void ModelWire::add_segments(Point *anchors, size_t num_anchors) {
     for(size_t a = 1;a < num_anchors; ++a) {
         if (anchors[a - 1] != anchors[a]) {
             add_segment(anchors[a - 1], anchors[a]);
@@ -139,7 +139,7 @@ void Wire::add_segments(Point *anchors, size_t num_anchors) {
     }
 }
 
-void Wire::merge(Wire *other) {
+void ModelWire::merge(ModelWire *other) {
     for (const auto &segment : other->m_segments) {
         add_segment(segment->junction(0)->position(), segment->junction(1)->position());
     } 
@@ -147,7 +147,7 @@ void Wire::merge(Wire *other) {
     std::copy(other->m_pins.begin(), other->m_pins.end(), m_pins.end());
 }
 
-void Wire::split_at_new_junction(const Point &p) {
+void ModelWire::split_at_new_junction(const Point &p) {
     // nothing to do if there is already a junction at the specified point
     if (point_is_junction(p)) {
         return;
@@ -166,11 +166,11 @@ void Wire::split_at_new_junction(const Point &p) {
     remove_redundant_segment(segment);
 }
 
-void Wire::simplify() {
+void ModelWire::simplify() {
     // checking for duplicate junctions isn't necessary until junctions can be moved by the user
 
     // junctions with just two segments should be removed when the segments are colinear
-    std::vector<WireJunction *> to_check;
+    std::vector<ModelWireJunction *> to_check;
 
     for (auto &junction : m_junctions) {
         if (junction->num_segments() == 2) {
@@ -182,7 +182,7 @@ void Wire::simplify() {
         auto junction = to_check.back();
         to_check.pop_back();
 
-        WireSegment *segments[2] = {junction->segment(0), junction->segment(1)};
+        ModelWireSegment *segments[2] = {junction->segment(0), junction->segment(1)};
 
         Point points[3] = {junction->position()};
         points[1] = segments[0]->junction(segments[0]->junction(0) == junction ? 1 : 0)->position();
@@ -196,17 +196,17 @@ void Wire::simplify() {
     }
 }
 
-bool Wire::point_is_junction(const Point &p) const {
+bool ModelWire::point_is_junction(const Point &p) const {
     return std::any_of(m_junctions.begin(), m_junctions.end(),
                          [p](const auto &j) {return j->position() == p;});
 }
 
-bool Wire::point_on_wire(const Point &p) const {
+bool ModelWire::point_on_wire(const Point &p) const {
     return std::any_of(m_segments.begin(), m_segments.end(),
                          [p](const auto &s) {return s->point_on_segment(p);});
 }
 
-WireSegment *Wire::segment_at_point(const Point &p) const {
+ModelWireSegment *ModelWire::segment_at_point(const Point &p) const {
     for (const auto &segment : m_segments) {
         if (segment->point_on_segment(p)) {
             return segment.get();
@@ -216,13 +216,13 @@ WireSegment *Wire::segment_at_point(const Point &p) const {
     return nullptr;
 }
 
-void Wire::remove_segment(WireSegment *segment) {
+void ModelWire::remove_segment(ModelWireSegment *segment) {
     remove_redundant_segment(segment);
 }
 
-Wire::segment_set_t Wire::reachable_segments(WireSegment *from_segment) const {
-    std::set<WireSegment *> reachable;
-    std::vector<WireSegment *> to_check({from_segment});
+ModelWire::segment_set_t ModelWire::reachable_segments(ModelWireSegment *from_segment) const {
+    std::set<ModelWireSegment *> reachable;
+    std::vector<ModelWireSegment *> to_check({from_segment});
 
     while (!to_check.empty()) {
         auto segment = to_check.back();
@@ -243,7 +243,7 @@ Wire::segment_set_t Wire::reachable_segments(WireSegment *from_segment) const {
     return reachable;
 }
 
-bool Wire::in_one_piece() const {
+bool ModelWire::in_one_piece() const {
 // check if the wire isn't split into multiple pieces
     if (!m_segments.empty()) {
        return reachable_segments(m_segments.front().get()).size() == m_segments.size();
@@ -252,12 +252,12 @@ bool Wire::in_one_piece() const {
     }
 }
 
-void Wire::remove_junction(WireJunction *junction) {
+void ModelWire::remove_junction(ModelWireJunction *junction) {
     assert(junction);
 	remove_owner(m_junctions, junction);
 }
 
-void Wire::remove_segment_from_junction(WireJunction *junction, WireSegment *segment) {
+void ModelWire::remove_segment_from_junction(ModelWireJunction *junction, ModelWireSegment *segment) {
     assert(junction);
     assert(segment);
     junction->remove_segment(segment);
@@ -266,7 +266,7 @@ void Wire::remove_segment_from_junction(WireJunction *junction, WireSegment *seg
     }
 }
 
-void Wire::remove_redundant_segment(WireSegment *segment) {
+void ModelWire::remove_redundant_segment(ModelWireSegment *segment) {
     assert(segment);
     remove_segment_from_junction(segment->junction(0), segment);
     remove_segment_from_junction(segment->junction(1), segment);

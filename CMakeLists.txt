@@ -47,13 +47,13 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/model_circuit.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/model_component.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/model_wire.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_gates.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_various.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/wire_description.cpp"
 )
 
 set (LIB_HEADERS
@@ -65,11 +65,11 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/model_circuit.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/model_component.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/model_wire.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/wire_description.h"
 )
 
 add_library(${LIB_TARGET} STATIC ${LIB_SOURCES} ${LIB_HEADERS})

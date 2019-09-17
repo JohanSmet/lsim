@@ -46,11 +46,11 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("set_angle", &ModelComponent::set_angle)
         ;
 
-    py::class_<Wire>(m, "Wire")
-        .def("id", &Wire::id)
-        .def("add_pin", &Wire::add_pin)
-        .def("num_pins", &Wire::num_pins)
-        .def("pin", &Wire::pin)
+    py::class_<ModelWire>(m, "ModelWire")
+        .def("id", &ModelWire::id)
+        .def("add_pin", &ModelWire::add_pin)
+        .def("num_pins", &ModelWire::num_pins)
+        .def("pin", &ModelWire::pin)
         ;
 
     py::class_<ModelCircuit>(m, "ModelCircuit")

@@ -11,14 +11,14 @@
 #include <unordered_map>
 
 #include "model_component.h"
-#include "wire_description.h"
+#include "model_wire.h"
 
 namespace lsim {
 
 class ModelCircuit {
 public:
     typedef std::unique_ptr<ModelCircuit> uptr_t;
-    typedef std::unordered_map<uint32_t, Wire::uptr_t> wire_lut_t;
+    typedef std::unordered_map<uint32_t, ModelWire::uptr_t> wire_lut_t;
 public:
     ModelCircuit(const char *name, class LSimContext *context, class CircuitLibrary *ref_lib);
     ModelCircuit(const ModelCircuit &) = delete;
@@ -45,11 +45,11 @@ public:
     ModelComponent *paste_component(ModelComponent *comp);
 
     // connections
-    Wire *create_wire();
-    Wire *connect(pin_id_t pin_a, pin_id_t pin_b);
+    ModelWire *create_wire();
+    ModelWire *connect(pin_id_t pin_a, pin_id_t pin_b);
     void disconnect_pin(pin_id_t pin);
     std::vector<uint32_t> wire_ids() const;
-    Wire *wire_by_id(uint32_t id) const;
+    ModelWire *wire_by_id(uint32_t id) const;
     const wire_lut_t &wires() const {return m_wires;}
     void remove_wire(uint32_t id);
 

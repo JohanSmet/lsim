@@ -116,13 +116,13 @@ public:
     void clear_selection();
     void select_component(UIComponent *component);
     void deselect_component(UIComponent *component);
-    void select_wire_segment(WireSegment *segment);
-    void deselect_wire_segment(WireSegment *segment);
+    void select_wire_segment(ModelWireSegment *segment);
+    void deselect_wire_segment(ModelWireSegment *segment);
     void select_by_area(Point p0, Point p1);
     void toggle_selection(UIComponent *component);
-    void toggle_selection(WireSegment *segment);
+    void toggle_selection(ModelWireSegment *segment);
     bool is_selected(UIComponent *component);
-    bool is_selected(WireSegment *segment);
+    bool is_selected(ModelWireSegment *segment);
     UIComponent *selected_component() const;
 
     // simulation
@@ -138,7 +138,7 @@ public:
     void paste_components();
 
 private:
-    void wire_make_connections(Wire *wire);
+    void wire_make_connections(ModelWire *wire);
     void draw_grid(ImDrawList *draw_list);
     void ui_popup_embed_circuit();
     void ui_popup_embed_circuit_open();
@@ -158,12 +158,12 @@ private:
     struct WireEndPoint {
         Point    m_position;
         pin_id_t m_pin;
-        Wire *   m_wire;
+        ModelWire *   m_wire;
     };
 
     struct SelectedItem {
         UIComponent *m_component;
-        WireSegment *m_segment;
+        ModelWireSegment *m_segment;
     };
     typedef std::vector<SelectedItem>   selection_container_t;
 
@@ -184,7 +184,7 @@ private:
 
     UIComponent *       m_hovered_component;
     pin_id_t            m_hovered_pin;
-    Wire *              m_hovered_wire;
+    ModelWire *              m_hovered_wire;
 
     Point               m_mouse_grid_point;
     Point               m_drag_last;
