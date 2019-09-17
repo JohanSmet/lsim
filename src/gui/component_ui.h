@@ -40,9 +40,9 @@ public:
     typedef std::unique_ptr<UIComponent> uptr_t;
 
 public:
-    UIComponent(Component *comp);
+    UIComponent(ModelComponent *comp);
 
-    Component *component() const {return m_component;}
+    ModelComponent *component() const {return m_component;}
     bool has_border() const {return m_border;}
     bool has_tooltip() const {return !m_tooltip.empty();}
     const char *tooltip() const {return m_tooltip.c_str();}
@@ -74,7 +74,7 @@ private:
     void recompute_aabb();
 
 private:
-    Component *         m_component;
+    ModelComponent *         m_component;
     bool                m_border;
     std::string         m_tooltip;
     Transform           m_to_circuit;
@@ -95,7 +95,7 @@ public:
 public:
     UICircuit(ModelCircuit *circuit_desc);
 
-    UIComponent *create_component(Component *component);
+    UIComponent *create_component(ModelComponent *component);
     void remove_component(UIComponent *ui_comp);
 
     void draw();
@@ -104,7 +104,7 @@ public:
     void move_selected_components();
     void delete_selected_components();
     void move_component_abs(UIComponent *comp, Point pos);
-    void ui_create_component(Component *component);
+    void ui_create_component(ModelComponent *component);
     void embed_circuit(const char *name);
     void create_wire();
 
@@ -150,7 +150,7 @@ private:
         size_t operator() (const Point &p) const;
     };
 
-    typedef std::vector<Component::uptr_t>      component_container_t;
+    typedef std::vector<ModelComponent::uptr_t>      component_container_t;
     typedef std::vector<UIComponent::uptr_t>    ui_component_container_t;
     typedef std::vector<Point>                  point_container_t;
     typedef std::unordered_map<Point, pin_id_t, PointHash>  point_pin_lut_t;
@@ -205,7 +205,7 @@ private:
 
 class UICircuitBuilder {
 public:
-    typedef std::function<void(Component *, UIComponent *)> materialize_func_t;
+    typedef std::function<void(ModelComponent *, UIComponent *)> materialize_func_t;
 public:
     static void register_materialize_func(ComponentType type, materialize_func_t func);
     static UICircuit::uptr_t create_circuit(ModelCircuit *circuit);

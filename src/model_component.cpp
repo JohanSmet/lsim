@@ -1,8 +1,8 @@
-// component_description.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
+// model_component.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // description of a single component
 
-#include "component_description.h"
+#include "model_component.h"
 #include "model_circuit.h"
 #include "lsim_context.h"
 
@@ -10,7 +10,7 @@
 
 namespace lsim {
 
-Component::Component(ModelCircuit *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls) :
+ModelComponent::ModelComponent(ModelCircuit *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls) :
         m_circuit(parent),
         m_id(id),
         m_type(type),
@@ -23,7 +23,7 @@ Component::Component(ModelCircuit *parent, uint32_t id, ComponentType type, uint
         m_angle(0) {
 }
 
-Component::Component(ModelCircuit *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs) :
+ModelComponent::ModelComponent(ModelCircuit *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs) :
         m_circuit(parent),
         m_id(id),
         m_type(COMPONENT_SUB_CIRCUIT),
@@ -36,35 +36,35 @@ Component::Component(ModelCircuit *parent, uint32_t id, const char *circuit_name
         m_angle(0) {
 }
 
-pin_id_t Component::pin_id(uint32_t index) const {
+pin_id_t ModelComponent::pin_id(uint32_t index) const {
     assert(index < m_inputs + m_outputs + m_controls);
     return (static_cast<pin_id_t>(m_id) << 32) | (index & 0xffffffff);
 }
 
-pin_id_t Component::input_pin_id(uint32_t index) const {
+pin_id_t ModelComponent::input_pin_id(uint32_t index) const {
     assert(index < m_inputs);
     return pin_id(index);
 }
 
-pin_id_t Component::output_pin_id(uint32_t index) const {
+pin_id_t ModelComponent::output_pin_id(uint32_t index) const {
     assert(index < m_outputs);
     return pin_id(m_inputs + index);
 }
 
-pin_id_t Component::control_pin_id(uint32_t index) const {
+pin_id_t ModelComponent::control_pin_id(uint32_t index) const {
     assert(index < m_controls);
     return pin_id(m_inputs + m_outputs + index);
 }
 
-void Component::change_input_pins(uint32_t new_count) {
+void ModelComponent::change_input_pins(uint32_t new_count) {
     m_inputs = new_count;
 }
 
-void Component::change_output_pins(uint32_t new_count) {
+void ModelComponent::change_output_pins(uint32_t new_count) {
     m_outputs = new_count;
 }
 
-pin_id_t Component::port_by_name(const char *name) const {
+pin_id_t ModelComponent::port_by_name(const char *name) const {
     assert(m_nested_circuit != nullptr);
     auto found = m_port_lut.find(name);
     if (found != m_port_lut.end()) {
@@ -74,11 +74,11 @@ pin_id_t Component::port_by_name(const char *name) const {
     }
 }
 
-void Component::add_property(Property::uptr_t &&prop) {
+void ModelComponent::add_property(Property::uptr_t &&prop) {
     m_properties[prop->key()] = std::move(prop);
 }
 
-Property *Component::property(const char *key) {
+Property *ModelComponent::property(const char *key) {
     auto result = m_properties.find(key);
     if (result != m_properties.end()) {
         return result->second.get();
@@ -87,35 +87,35 @@ Property *Component::property(const char *key) {
     }
 }
 
-std::string Component::property_value(const char *key, const char *def_value) {
+std::string ModelComponent::property_value(const char *key, const char *def_value) {
     auto result = property(key);
     return (result != nullptr) ? result->value_as_string() : def_value;
 }
 
-int64_t Component::property_value(const char *key, int64_t def_value) {
+int64_t ModelComponent::property_value(const char *key, int64_t def_value) {
     auto result = property(key);
     return (result != nullptr) ? result->value_as_integer() : def_value;
 }
 
-bool Component::property_value(const char *key, bool def_value) {
+bool ModelComponent::property_value(const char *key, bool def_value) {
     auto result = property(key);
     return (result != nullptr) ? result->value_as_boolean() : def_value;
 }
 
-Value Component::property_value(const char *key, Value def_value) {
+Value ModelComponent::property_value(const char *key, Value def_value) {
     auto result = property(key);
     return (result != nullptr) ? result->value_as_lsim_value() : def_value;
 }
 
-void Component::set_position(const Point &pos) {
+void ModelComponent::set_position(const Point &pos) {
     m_position = pos;
 }
 
-void Component::set_angle(int angle) {
+void ModelComponent::set_angle(int angle) {
     m_angle = angle;
 }
 
-bool Component::sync_nested_circuit(LSimContext *lsim_context) {
+bool ModelComponent::sync_nested_circuit(LSimContext *lsim_context) {
 
     m_nested_circuit = lsim_context->find_circuit(m_nested_name.c_str(), m_circuit->lib());
     if (!m_nested_circuit) {
@@ -138,8 +138,8 @@ bool Component::sync_nested_circuit(LSimContext *lsim_context) {
     return true;
 }
 
-Component::uptr_t Component::copy() const {
-    auto clone = std::make_unique<Component>(nullptr, -1, m_type, m_inputs, m_outputs, m_controls);
+ModelComponent::uptr_t ModelComponent::copy() const {
+    auto clone = std::make_unique<ModelComponent>(nullptr, -1, m_type, m_inputs, m_outputs, m_controls);
     clone->m_nested_name = m_nested_name;
     clone->m_nested_circuit = m_nested_circuit;
     clone->m_port_lut = m_port_lut;
@@ -152,7 +152,7 @@ Component::uptr_t Component::copy() const {
     return std::move(clone);
 }
 
-void Component::integrate_into_circuit(ModelCircuit *circuit, uint32_t id) {
+void ModelComponent::integrate_into_circuit(ModelCircuit *circuit, uint32_t id) {
     m_circuit = circuit;
     m_id = id;
 }

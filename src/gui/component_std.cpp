@@ -63,7 +63,7 @@ void component_register_basic() {
     // connector input
     auto icon_connector_in = ComponentIcon::cache(COMPONENT_CONNECTOR_IN, SHAPE_CONNECTOR_IN, sizeof(SHAPE_CONNECTOR_IN));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_CONNECTOR_IN, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_CONNECTOR_IN, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Input");
 
             const float width = 20;
@@ -131,7 +131,7 @@ void component_register_basic() {
     // connector output
     auto icon_connector_out = ComponentIcon::cache(COMPONENT_CONNECTOR_OUT, SHAPE_CONNECTOR_OUT, sizeof(SHAPE_CONNECTOR_OUT));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_CONNECTOR_OUT, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_CONNECTOR_OUT, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Output");
 
             const float width = 20;
@@ -189,7 +189,7 @@ void component_register_basic() {
     // constant
     auto icon_constant = ComponentIcon::cache(COMPONENT_CONSTANT, SHAPE_CONSTANT, sizeof(SHAPE_CONSTANT));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_CONSTANT, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_CONSTANT, [=](ModelComponent *comp, UIComponent *ui_comp) {
             const float width = 20;
             const float height = 20;
             ui_comp->change_size(width, height);
@@ -209,7 +209,7 @@ void component_register_basic() {
 
     // sub circuit
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_SUB_CIRCUIT, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_SUB_CIRCUIT, [=](ModelComponent *comp, UIComponent *ui_comp) {
             auto nested = ui_comp->component()->nested_circuit();
 
             // materialize the sub-circuit
@@ -277,7 +277,7 @@ void component_register_extra() {
     // Pull Resistor
     auto icon_pull_resistor = ComponentIcon::cache(COMPONENT_PULL_RESISTOR, SHAPE_PULL_RESISTOR, sizeof(SHAPE_PULL_RESISTOR));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_PULL_RESISTOR, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_PULL_RESISTOR, [=](ModelComponent *comp, UIComponent *ui_comp) {
             const float width = 40;
             const float height = 20;
             ui_comp->change_size(width, height);
@@ -302,7 +302,7 @@ void component_register_extra() {
     // Via
     auto icon_via = ComponentIcon::cache(COMPONENT_VIA, SHAPE_VIA, sizeof(SHAPE_VIA));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_VIA, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_VIA, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Via");
             ui_comp->change_icon(icon_via);
 
@@ -361,7 +361,7 @@ void component_register_extra() {
     // oscillator
     auto icon_oscillator = ComponentIcon::cache(COMPONENT_OSCILLATOR, SHAPE_OSCILLATOR, sizeof(SHAPE_OSCILLATOR));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_OSCILLATOR, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_OSCILLATOR, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Oscillator");
             ui_comp->change_icon(icon_oscillator);
             materialize_gate(ui_comp);
@@ -372,7 +372,7 @@ void component_register_extra() {
     // Text
     auto icon_text = ComponentIcon::cache(COMPONENT_TEXT, SHAPE_TEXT, sizeof(SHAPE_TEXT));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_TEXT, [icon_text] (Component *comp, UIComponent *ui_comp) {
+        COMPONENT_TEXT, [icon_text] (ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->show_border(false);
             ui_comp->change_icon(icon_text);
             ui_comp->change_size(0, 0);
@@ -399,7 +399,7 @@ void component_register_gates() {
     // buffer
     auto icon_buffer = ComponentIcon::cache(COMPONENT_BUFFER, SHAPE_BUFFER, sizeof(SHAPE_BUFFER));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_BUFFER, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_BUFFER, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Buffer");
             ui_comp->change_icon(icon_buffer);
             materialize_gate(ui_comp, 60, 40);
@@ -409,7 +409,7 @@ void component_register_gates() {
     // tristate buffer
 	auto icon_tristate_buffer = ComponentIcon::cache(COMPONENT_TRISTATE_BUFFER, SHAPE_TRISTATE_BUFFER, sizeof(SHAPE_TRISTATE_BUFFER));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_TRISTATE_BUFFER, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_TRISTATE_BUFFER, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Tri-state Buffer");
             ui_comp->change_icon(icon_tristate_buffer);
             materialize_gate(ui_comp);
@@ -419,7 +419,7 @@ void component_register_gates() {
     // AND gate
 	auto icon_and = ComponentIcon::cache(COMPONENT_AND_GATE, SHAPE_AND_GATE, sizeof(SHAPE_AND_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_AND_GATE, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_AND_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("AND");
             ui_comp->change_icon(icon_and);
             materialize_gate(ui_comp);
@@ -429,7 +429,7 @@ void component_register_gates() {
     // OR gate
 	auto icon_or = ComponentIcon::cache(COMPONENT_OR_GATE, SHAPE_OR_GATE, sizeof(SHAPE_OR_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_OR_GATE, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_OR_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("OR");
             ui_comp->change_icon(icon_or);
             materialize_gate(ui_comp);
@@ -439,7 +439,7 @@ void component_register_gates() {
     // NOT gate
 	auto icon_not = ComponentIcon::cache(COMPONENT_NOT_GATE, SHAPE_NOT_GATE, sizeof(SHAPE_NOT_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_NOT_GATE, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_NOT_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("NOT");
             ui_comp->change_icon(icon_not);
             materialize_gate(ui_comp, 60, 40);
@@ -449,7 +449,7 @@ void component_register_gates() {
     // NAND gate
 	auto icon_nand = ComponentIcon::cache(COMPONENT_NAND_GATE, SHAPE_NAND_GATE, sizeof(SHAPE_NAND_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_NAND_GATE, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_NAND_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("NAND");
             ui_comp->change_icon(icon_nand);
             materialize_gate(ui_comp);
@@ -459,7 +459,7 @@ void component_register_gates() {
     // NOR gate
 	auto icon_nor = ComponentIcon::cache(COMPONENT_NOR_GATE, SHAPE_NOR_GATE, sizeof(SHAPE_NOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_NOR_GATE, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_NOR_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("NOR");
             ui_comp->change_icon(icon_nor);
             materialize_gate(ui_comp);
@@ -469,7 +469,7 @@ void component_register_gates() {
     // XOR gate
 	auto icon_xor = ComponentIcon::cache(COMPONENT_XOR_GATE, SHAPE_XOR_GATE, sizeof(SHAPE_XOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_XOR_GATE, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_XOR_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("XOR");
             ui_comp->change_icon(icon_xor);
             materialize_gate(ui_comp);
@@ -479,7 +479,7 @@ void component_register_gates() {
     // XNOR gate
 	auto icon_xnor = ComponentIcon::cache(COMPONENT_XNOR_GATE, SHAPE_XNOR_GATE, sizeof(SHAPE_XNOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_XNOR_GATE, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_XNOR_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("XNOR");
             ui_comp->change_icon(icon_xnor);
             materialize_gate(ui_comp);
@@ -491,7 +491,7 @@ void component_register_input_output() {
 
     auto icon_7_segment_led = ComponentIcon::cache(COMPONENT_7_SEGMENT_LED, SHAPE_7_SEGMENT_LED, sizeof(SHAPE_7_SEGMENT_LED));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_7_SEGMENT_LED, [=](Component *comp, UIComponent *ui_comp) {
+        COMPONENT_7_SEGMENT_LED, [=](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("7-segment LED");
 
             const float width = 60;

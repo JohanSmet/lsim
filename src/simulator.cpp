@@ -15,7 +15,7 @@ namespace lsim {
 // SimComponent
 //
 
-SimComponent::SimComponent(Simulator *sim, Component *comp, uint32_t id) :
+SimComponent::SimComponent(Simulator *sim, ModelComponent *comp, uint32_t id) :
         m_sim(sim),
         m_comp_desc(comp),
 		m_id(id),
@@ -123,7 +123,7 @@ Simulator::Simulator() :
     m_time(0) {
 }
 
-SimComponent *Simulator::create_component(Component *desc) {
+SimComponent *Simulator::create_component(ModelComponent *desc) {
     auto sim_comp = std::make_unique<SimComponent>(this, desc, static_cast<uint32_t> (m_components.size()));
     auto result = sim_comp.get();
 

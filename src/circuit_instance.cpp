@@ -16,7 +16,7 @@ CircuitInstance::CircuitInstance(Simulator *sim, ModelCircuit *circuit_desc) :
     assert(circuit_desc);
 }
 
-SimComponent *CircuitInstance::add_component(Component *comp) {
+SimComponent *CircuitInstance::add_component(ModelComponent *comp) {
     assert(comp);
     auto sim_comp = m_sim->create_component(comp);
     m_components[comp->id()] = sim_comp;

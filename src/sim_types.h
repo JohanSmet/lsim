@@ -65,7 +65,7 @@ struct ExtraData7SegmentLED {
 };
 
 // forward declarations
-class Component;
+class ModelComponent;
 class ModelCircuit;
 
 class SimComponent;

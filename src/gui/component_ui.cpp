@@ -43,7 +43,7 @@ size_t UICircuit::PointHash::operator() (const Point &p) const {
 // UIComponent
 //
 
-UIComponent::UIComponent(Component *component) :
+UIComponent::UIComponent(ModelComponent *component) :
 		m_component(component),
 		m_border(true),
 		m_tooltip(""),
@@ -165,7 +165,7 @@ UICircuit::UICircuit(ModelCircuit *circuit_desc) :
 			m_popup_component(nullptr) {
 }
 
-UIComponent *UICircuit::create_component(Component *component) {
+UIComponent *UICircuit::create_component(ModelComponent *component) {
 	m_ui_components.push_back(std::make_unique<UIComponent>(component));
 	auto comp = m_ui_components.back().get();
 	UICircuitBuilder::materialize_component(comp);
@@ -622,7 +622,7 @@ void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
 }
 
 
-void UICircuit::ui_create_component(Component *comp) {
+void UICircuit::ui_create_component(ModelComponent *comp) {
 	m_state = CS_CREATE_COMPONENT;
 	clear_selection();
 	select_component(create_component(comp));

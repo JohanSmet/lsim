@@ -141,7 +141,7 @@ public:
     }
 
 private:
-    void serialize_component(Component *component, pugi::xml_node *circuit_node) {
+    void serialize_component(ModelComponent *component, pugi::xml_node *circuit_node) {
         auto comp_node = circuit_node->append_child(XML_EL_COMPONENT);
 
         // id
@@ -277,7 +277,7 @@ public:
         uint32_t num_outputs = outputs_attr.as_int();
         uint32_t num_controls = controls_attr.as_int();
 
-        Component *component = nullptr;
+        ModelComponent *component = nullptr;
 
         switch (type) {
             case COMPONENT_CONNECTOR_IN : {

@@ -162,7 +162,7 @@ static void ui_circuit_management(LSimContext *context) {
 
 static void ui_component_pallette(LSimContext *context) {
 
-	auto add_component_button = [](uint32_t component, const char *caption, std::function<Component *(ModelCircuit *)> create_func) {
+	auto add_component_button = [](uint32_t component, const char *caption, std::function<ModelComponent *(ModelCircuit *)> create_func) {
 		Point pos = ImGui::GetCursorScreenPos();
 		auto draw_list = ImGui::GetWindowDrawList();
 
@@ -585,7 +585,7 @@ void main_gui(LSimContext *lsim_context)
 	}
 }
 
-void main_gui_drill_down_sub_circuit(CircuitInstance *parent_inst, Component *comp) {
+void main_gui_drill_down_sub_circuit(CircuitInstance *parent_inst, ModelComponent *comp) {
 	auto nested_desc = comp->nested_circuit();
 	auto nested_inst = parent_inst->component_by_id(comp->id())->nested_instance();
 

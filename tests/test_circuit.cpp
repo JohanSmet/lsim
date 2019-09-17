@@ -65,11 +65,11 @@ TEST_CASE("Test nested circuits", "[circuit]") {
 
 struct AdderIO {
     ModelCircuit *circuit;
-    Component *pin_Ci;
-    Component *pin_A;
-    Component *pin_B;
-    Component *pin_O;
-    Component *pin_Co;
+    ModelComponent *pin_Ci;
+    ModelComponent *pin_A;
+    ModelComponent *pin_B;
+    ModelComponent *pin_O;
+    ModelComponent *pin_Co;
 };
 
 AdderIO create_1bit_adder(LSimContext *lsim_context) {

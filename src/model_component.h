@@ -1,9 +1,9 @@
-// component_description.h - Johan Smet - BSD-3-Clause (see LICENSE)
+// model_component.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // description of a single component
 
-#ifndef LSIM_COMPONENT_DESCRIPTION_H
-#define LSIM_COMPONENT_DESCRIPTION_H
+#ifndef LSIM_MODEL_COMPONENT_H
+#define LSIM_MODEL_COMPONENT_H
 
 #include <memory>
 #include <unordered_map>
@@ -30,14 +30,14 @@ inline pin_id_t pin_id_assemble(uint32_t component_id, uint32_t pin_index) {
 
 constexpr const auto PIN_ID_INVALID = static_cast<pin_id_t>(-1);
 
-class Component {
+class ModelComponent {
 public:
-    typedef std::unique_ptr<Component> uptr_t;
+    typedef std::unique_ptr<ModelComponent> uptr_t;
     typedef std::unordered_map<std::string, Property::uptr_t> property_lut_t;
 public:
-    Component(ModelCircuit *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls);
-    Component(ModelCircuit *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs);
-    Component(const Component &) = delete;
+    ModelComponent(ModelCircuit *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls);
+    ModelComponent(ModelCircuit *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs);
+    ModelComponent(const ModelComponent &) = delete;
 
     uint32_t id() const {return m_id;}
     ComponentType type() const {return m_type;}
@@ -97,4 +97,4 @@ private:
 
 } // namespace lsim
 
-#endif // LSIM_COMPONENT_DESCRIPTION_H
+#endif // LSIM_MODEL_COMPONENT_H

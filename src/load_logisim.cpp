@@ -109,11 +109,11 @@ private:
 
     bool connect_components();
 
-    Component *handle_sub_circuit(const std::string &name, ComponentProperties &props);
-    bool handle_gate(Component *component, ComponentProperties &props);
-    bool handle_not_gate(Component *component, ComponentProperties &props);
-    void handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left);
-    bool handle_pin(Component *connector, ComponentProperties &props);
+    ModelComponent *handle_sub_circuit(const std::string &name, ComponentProperties &props);
+    bool handle_gate(ModelComponent *component, ComponentProperties &props);
+    bool handle_not_gate(ModelComponent *component, ComponentProperties &props);
+    void handle_buffer(ModelComponent *component, ComponentProperties &props, bool tri_state, bool left);
+    bool handle_pin(ModelComponent *connector, ComponentProperties &props);
     bool handle_splitter(ComponentProperties &props);
     bool handle_tunnel(ComponentProperties &props);
     void compute_ipin_offsets();
@@ -252,7 +252,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         }
     }
 
-    Component *component = nullptr;
+    ModelComponent *component = nullptr;
     bool ok = true;
 
     if (comp_type == "Buffer") {
@@ -407,7 +407,7 @@ bool LogisimParser::connect_components() {
     return true;
 }
 
-Component *LogisimParser::handle_sub_circuit(const std::string &name, ComponentProperties &props) {
+ModelComponent *LogisimParser::handle_sub_circuit(const std::string &name, ComponentProperties &props) {
 
     // find the required circuit
     auto result = m_circuits.find(name);
@@ -430,7 +430,7 @@ Component *LogisimParser::handle_sub_circuit(const std::string &name, ComponentP
     return component;
 }
 
-bool LogisimParser::handle_gate(Component *component, ComponentProperties &props) {
+bool LogisimParser::handle_gate(ModelComponent *component, ComponentProperties &props) {
 
     if (props.m_width != 1) {
         ERROR_MSG("%d-bit gates are not supported", props.m_width);
@@ -454,7 +454,7 @@ bool LogisimParser::handle_gate(Component *component, ComponentProperties &props
     return true;
 }
 
-bool LogisimParser::handle_not_gate(Component *component, ComponentProperties &props) {
+bool LogisimParser::handle_not_gate(ModelComponent *component, ComponentProperties &props) {
 
     if (props.m_width != 1) {
         ERROR_MSG("%d-bit gates are not supported", props.m_width);
@@ -476,7 +476,7 @@ bool LogisimParser::handle_not_gate(Component *component, ComponentProperties &p
     return true;
 }
 
-void LogisimParser::handle_buffer(Component *component, ComponentProperties &props, bool tri_state, bool left) {
+void LogisimParser::handle_buffer(ModelComponent *component, ComponentProperties &props, bool tri_state, bool left) {
 
     // buffers have a fixed size
     props.m_inputs = 1;
@@ -497,7 +497,7 @@ void LogisimParser::handle_buffer(Component *component, ComponentProperties &pro
     add_pin_location(props.m_location, component->output_pin_id(0), component->num_outputs());
 }
 
-bool LogisimParser::handle_pin(Component *connector, ComponentProperties &props) {
+bool LogisimParser::handle_pin(ModelComponent *connector, ComponentProperties &props) {
     add_pin_location(props.m_location, connector->pin_id(0), connector->num_inputs() + connector->num_outputs());
     m_context.m_circuit_ipins[props.m_pin_output ? 1 : 0][props.m_location.m_full] = props.m_label;
 
@@ -521,7 +521,7 @@ bool LogisimParser::handle_pin(Component *connector, ComponentProperties &props)
 bool LogisimParser::handle_splitter(ComponentProperties &props) {
 /* XXX
     // input
-    Component::pin_container_t input_pins;
+    ModelComponent::pin_container_t input_pins;
 
     for (int i = 0; i < props.m_splitter_incoming; ++i) {
         input_pins.push_back(m_context.m_circuit->create_pin(nullptr));
@@ -579,7 +579,7 @@ bool LogisimParser::handle_splitter(ComponentProperties &props) {
     int input_idx = 0;
 
     for (int i = 0; i < props.m_splitter_fanout; ++i) {
-        Component::pin_container_t pins;
+        ModelComponent::pin_container_t pins;
 
         for (int j = 0; j < fanout_pins[i]; ++j) {
             pins.push_back(m_context.m_circuit->create_pin(nullptr, input_pins[input_idx++]));

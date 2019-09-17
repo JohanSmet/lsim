@@ -20,8 +20,8 @@ class SimComponent {
 public:
     typedef std::unique_ptr<SimComponent>   uptr_t;
 public:
-    SimComponent(Simulator *sim, Component *comp, uint32_t id);
-    Component *description() const {return m_comp_desc;}
+    SimComponent(Simulator *sim, ModelComponent *comp, uint32_t id);
+    ModelComponent *description() const {return m_comp_desc;}
 	uint32_t id() const {return m_id;}
 
     void apply_initial_values();
@@ -66,7 +66,7 @@ public:
 
 private:
     Simulator *m_sim;
-    Component *m_comp_desc;
+    ModelComponent *m_comp_desc;
 	uint32_t m_id;
 
     pin_container_t m_pins;
@@ -103,7 +103,7 @@ public:
     Simulator(const Simulator &) = delete;
 
     // components
-    SimComponent *create_component(Component *desc);
+    SimComponent *create_component(ModelComponent *desc);
     void clear_components();
 
     // pins
