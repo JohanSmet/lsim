@@ -4,7 +4,7 @@
 #define LSIM_SIM_COMPONENT_H
 
 #include "sim_types.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 #include <memory>
 
 namespace lsim {
@@ -52,8 +52,8 @@ public:
 	bool user_values_enabled() const { return !m_user_values.empty(); }
 
 	// nested circuits
-	void set_nested_instance(std::unique_ptr<CircuitInstance> instance);
-	CircuitInstance* nested_instance() const { return m_nested_circuit.get(); }
+	void set_nested_instance(std::unique_ptr<SimCircuit> instance);
+	SimCircuit* nested_instance() const { return m_nested_circuit.get(); }
 
 	// extra-data: component specific data structure
 	void set_extra_data_size(size_t size) { m_extra_data.resize(size); };
@@ -72,7 +72,7 @@ private:
 	uint32_t m_control_start;
 	bool m_read_bad;
 
-	std::unique_ptr<CircuitInstance>    m_nested_circuit;
+	std::unique_ptr<SimCircuit>    m_nested_circuit;
 };
 
 } // namespace lsim

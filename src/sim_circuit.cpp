@@ -1,8 +1,8 @@
-// circuit_instance.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
+// sim_circuit.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // instantiation of a circuit description
 
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 #include "simulator.h"
 #include "sim_component.h"
 
@@ -10,7 +10,7 @@
 
 namespace lsim {
 
-CircuitInstance::CircuitInstance(Simulator *sim, ModelCircuit *circuit_desc) :
+SimCircuit::SimCircuit(Simulator *sim, ModelCircuit *circuit_desc) :
         m_sim(sim),
         m_circuit_desc(circuit_desc),
         m_name("<unnamed>") {
@@ -18,7 +18,7 @@ CircuitInstance::CircuitInstance(Simulator *sim, ModelCircuit *circuit_desc) :
     assert(circuit_desc);
 }
 
-SimComponent *CircuitInstance::add_component(ModelComponent *comp) {
+SimComponent *SimCircuit::add_component(ModelComponent *comp) {
     assert(comp);
     auto sim_comp = m_sim->create_component(comp);
     m_components[comp->id()] = sim_comp;
@@ -42,7 +42,7 @@ SimComponent *CircuitInstance::add_component(ModelComponent *comp) {
     return sim_comp;
 }
 
-node_t CircuitInstance::add_wire(ModelWire *wire) {
+node_t SimCircuit::add_wire(ModelWire *wire) {
     assert(wire);
 
     if (wire->num_pins() < 2) {
@@ -58,7 +58,7 @@ node_t CircuitInstance::add_wire(ModelWire *wire) {
     return node;
 }
 
-void CircuitInstance::connect_pins(pin_id_t pin_a, pin_id_t pin_b) {
+void SimCircuit::connect_pins(pin_id_t pin_a, pin_id_t pin_b) {
     auto a = pin_from_pin_id(pin_a);
     auto b = pin_from_pin_id(pin_b);
 
@@ -67,16 +67,16 @@ void CircuitInstance::connect_pins(pin_id_t pin_a, pin_id_t pin_b) {
     }
 }
 
-void CircuitInstance::build_name(uint32_t comp_id) {
+void SimCircuit::build_name(uint32_t comp_id) {
     m_name = m_circuit_desc->name();
     m_name += "#" + std::to_string(comp_id);
 }
 
-Value CircuitInstance::read_pin(pin_id_t pin_id) {
+Value SimCircuit::read_pin(pin_id_t pin_id) {
     return m_sim->read_pin(pin_from_pin_id(pin_id));
 }
 
-uint8_t CircuitInstance::read_nibble(uint32_t comp_id) {
+uint8_t SimCircuit::read_nibble(uint32_t comp_id) {
     auto comp = component_by_id(comp_id);
     assert(comp);
 
@@ -90,7 +90,7 @@ uint8_t CircuitInstance::read_nibble(uint32_t comp_id) {
     return result;
 }
 
-uint8_t CircuitInstance::read_nibble(const pin_id_container_t &pins) {
+uint8_t SimCircuit::read_nibble(const pin_id_container_t &pins) {
     assert(pins.size() == 4);
     uint8_t result = 0;
 
@@ -101,7 +101,7 @@ uint8_t CircuitInstance::read_nibble(const pin_id_container_t &pins) {
     return result;
 }
 
-uint8_t CircuitInstance::read_byte(uint32_t comp_id) {
+uint8_t SimCircuit::read_byte(uint32_t comp_id) {
     auto comp = component_by_id(comp_id);
     assert(comp);
 
@@ -115,7 +115,7 @@ uint8_t CircuitInstance::read_byte(uint32_t comp_id) {
     return result;
 }
 
-uint8_t CircuitInstance::read_byte(const pin_id_container_t &pins) {
+uint8_t SimCircuit::read_byte(const pin_id_container_t &pins) {
     assert(pins.size() == 8);
     uint8_t result = 0;
 
@@ -126,7 +126,7 @@ uint8_t CircuitInstance::read_byte(const pin_id_container_t &pins) {
     return result;
 }
 
-uint64_t CircuitInstance::read_pins(const pin_id_container_t &pins) {
+uint64_t SimCircuit::read_pins(const pin_id_container_t &pins) {
     assert(pins.size() <= 64);
     uint64_t result = 0;
 
@@ -137,14 +137,14 @@ uint64_t CircuitInstance::read_pins(const pin_id_container_t &pins) {
     return result;
 }
 
-void CircuitInstance::write_pin(pin_id_t pin_id, Value value) {
+void SimCircuit::write_pin(pin_id_t pin_id, Value value) {
     auto comp = component_by_id(component_id_from_pin_id(pin_id));
     assert(comp);
 
     comp->set_user_value(pin_index_from_pin_id(pin_id), value);
 }
 
-void CircuitInstance::write_output_pins(uint32_t comp_id, value_container_t values) {
+void SimCircuit::write_output_pins(uint32_t comp_id, value_container_t values) {
     auto comp = component_by_id(comp_id);
     assert(comp);
 
@@ -155,7 +155,7 @@ void CircuitInstance::write_output_pins(uint32_t comp_id, value_container_t valu
     }
 }
 
-void CircuitInstance::write_output_pins(uint32_t comp_id, uint64_t data) {
+void SimCircuit::write_output_pins(uint32_t comp_id, uint64_t data) {
     auto comp = component_by_id(comp_id);
     assert(comp);
 
@@ -164,14 +164,14 @@ void CircuitInstance::write_output_pins(uint32_t comp_id, uint64_t data) {
     }
 }
 
-void CircuitInstance::write_output_pins(uint32_t comp_id, Value value) {
+void SimCircuit::write_output_pins(uint32_t comp_id, Value value) {
     auto comp = component_by_id(comp_id);
     assert(comp);
 
     comp->set_user_value(comp->output_pin_index(0), value);
 }
 
-void CircuitInstance::write_nibble(const pin_id_container_t &pins, uint8_t data) {
+void SimCircuit::write_nibble(const pin_id_container_t &pins, uint8_t data) {
     assert(pins.size() == 4);
 
     for (size_t idx = 0; idx < pins.size(); ++idx) {
@@ -183,7 +183,7 @@ void CircuitInstance::write_nibble(const pin_id_container_t &pins, uint8_t data)
     }
 }
 
-void CircuitInstance::write_byte(const pin_id_container_t &pins, uint8_t data) {
+void SimCircuit::write_byte(const pin_id_container_t &pins, uint8_t data) {
     assert(pins.size() == 8);
 
     for (size_t idx = 0; idx < pins.size(); ++idx) {
@@ -195,7 +195,7 @@ void CircuitInstance::write_byte(const pin_id_container_t &pins, uint8_t data) {
     }
 }
 
-void CircuitInstance::write_pins(const pin_id_container_t &pins, const value_container_t &values) {
+void SimCircuit::write_pins(const pin_id_container_t &pins, const value_container_t &values) {
     assert(pins.size() == values.size());
 
     for (size_t idx = 0; idx < pins.size(); ++idx) {
@@ -205,7 +205,7 @@ void CircuitInstance::write_pins(const pin_id_container_t &pins, const value_con
     }
 }
 
-void CircuitInstance::write_pins(const pin_id_container_t &pins, uint64_t data) {
+void SimCircuit::write_pins(const pin_id_container_t &pins, uint64_t data) {
     for (size_t idx = 0; idx < pins.size(); ++idx) {
         auto comp = component_by_id(component_id_from_pin_id(pins[idx]));
         assert(comp);
@@ -213,25 +213,25 @@ void CircuitInstance::write_pins(const pin_id_container_t &pins, uint64_t data) 
     }
 }
 
-node_t CircuitInstance::pin_node(pin_id_t pin_id) {
+node_t SimCircuit::pin_node(pin_id_t pin_id) {
     return m_sim->pin_node(pin_from_pin_id(pin_id));
 }
 
-bool CircuitInstance::node_dirty(node_t node_id) {
+bool SimCircuit::node_dirty(node_t node_id) {
     return m_sim->node_dirty(node_id);
 }
 
-Value CircuitInstance::pin_output(pin_id_t pin_id) {
+Value SimCircuit::pin_output(pin_id_t pin_id) {
     return m_sim->pin_output_value(pin_from_pin_id(pin_id));
 }
 
-Value CircuitInstance::user_value(pin_id_t pin_id) {
+Value SimCircuit::user_value(pin_id_t pin_id) {
     auto comp = component_by_id(component_id_from_pin_id(pin_id));
     assert(comp);
     return comp->user_value(pin_index_from_pin_id(pin_id));
 }
 
-SimComponent *CircuitInstance::component_by_id(uint32_t comp_id) {
+SimComponent *SimCircuit::component_by_id(uint32_t comp_id) {
 
     auto found = m_components.find(comp_id);
     if (found == m_components.end()) {
@@ -241,7 +241,7 @@ SimComponent *CircuitInstance::component_by_id(uint32_t comp_id) {
     return found->second;
 }
 
-pin_t CircuitInstance::pin_from_pin_id(pin_id_t pin_id) {
+pin_t SimCircuit::pin_from_pin_id(pin_id_t pin_id) {
 
     auto found = m_components.find(component_id_from_pin_id(pin_id));
     if (found == m_components.end()) {

@@ -5,7 +5,7 @@
 #include "component_std.h"
 
 #include "lsim_context.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 #include "load_logisim.h"
 #include "colors.h"
 #include "serialize.h"
@@ -19,7 +19,7 @@ using namespace lsim;
 using namespace lsim::gui;
 
 static UICircuit::uptr_t ui_circuit = nullptr;
-static std::unique_ptr<CircuitInstance> circuit_instance = nullptr;
+static std::unique_ptr<SimCircuit> circuit_instance = nullptr;
 static std::list<UICircuit::uptr_t> sub_circuit_drill_downs;
 
 static std::string ui_filename = "";
@@ -585,7 +585,7 @@ void main_gui(LSimContext *lsim_context)
 	}
 }
 
-void main_gui_drill_down_sub_circuit(CircuitInstance *parent_inst, ModelComponent *comp) {
+void main_gui_drill_down_sub_circuit(SimCircuit *parent_inst, ModelComponent *comp) {
 	auto nested_desc = comp->nested_circuit();
 	auto nested_inst = parent_inst->component_by_id(comp->id())->nested_instance();
 

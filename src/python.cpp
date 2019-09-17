@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 #include "lsim_context.h"
 #include "model_circuit.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 #include "serialize.h"
 
 namespace py = pybind11;
@@ -113,27 +113,27 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("add_folder", &LSimContext::add_folder)
         ;
 
-    py::class_<CircuitInstance>(m, "CircuitInstance")
-        .def("read_pin", &CircuitInstance::read_pin)
-        .def("read_nibble", (uint8_t (CircuitInstance::*)(uint32_t)) &CircuitInstance::read_nibble)
-        .def("read_nibble", (uint8_t (CircuitInstance::*)(const pin_id_container_t &)) &CircuitInstance::read_nibble)
-        .def("read_byte", (uint8_t (CircuitInstance::*)(uint32_t)) &CircuitInstance::read_byte)
-        .def("read_byte", (uint8_t (CircuitInstance::*)(const pin_id_container_t &)) &CircuitInstance::read_byte)
-        .def("read_pins", &CircuitInstance::read_pins)
-        .def("write_pin", &CircuitInstance::write_pin)
-        .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, value_container_t)) &CircuitInstance::write_output_pins)
-        .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, uint64_t)) &CircuitInstance::write_output_pins)
-        .def("write_output_pins", (void (CircuitInstance::*)(uint32_t, Value)) &CircuitInstance::write_output_pins)
-        .def("write_nibble", &CircuitInstance::write_nibble)
-        .def("write_byte", &CircuitInstance::write_byte)
-        .def("write_pins", (void (CircuitInstance::*)(const pin_id_container_t &, const value_container_t&))&CircuitInstance::write_pins)
-        .def("write_pins", (void (CircuitInstance::*)(const pin_id_container_t &, uint64_t))&CircuitInstance::write_pins)
+    py::class_<SimCircuit>(m, "SimCircuit")
+        .def("read_pin", &SimCircuit::read_pin)
+        .def("read_nibble", (uint8_t (SimCircuit::*)(uint32_t)) &SimCircuit::read_nibble)
+        .def("read_nibble", (uint8_t (SimCircuit::*)(const pin_id_container_t &)) &SimCircuit::read_nibble)
+        .def("read_byte", (uint8_t (SimCircuit::*)(uint32_t)) &SimCircuit::read_byte)
+        .def("read_byte", (uint8_t (SimCircuit::*)(const pin_id_container_t &)) &SimCircuit::read_byte)
+        .def("read_pins", &SimCircuit::read_pins)
+        .def("write_pin", &SimCircuit::write_pin)
+        .def("write_output_pins", (void (SimCircuit::*)(uint32_t, value_container_t)) &SimCircuit::write_output_pins)
+        .def("write_output_pins", (void (SimCircuit::*)(uint32_t, uint64_t)) &SimCircuit::write_output_pins)
+        .def("write_output_pins", (void (SimCircuit::*)(uint32_t, Value)) &SimCircuit::write_output_pins)
+        .def("write_nibble", &SimCircuit::write_nibble)
+        .def("write_byte", &SimCircuit::write_byte)
+        .def("write_pins", (void (SimCircuit::*)(const pin_id_container_t &, const value_container_t&))&SimCircuit::write_pins)
+        .def("write_pins", (void (SimCircuit::*)(const pin_id_container_t &, uint64_t))&SimCircuit::write_pins)
         .def("write_port",
-                [](CircuitInstance *circuit, const char *port, Value value) {
+                [](SimCircuit *circuit, const char *port, Value value) {
                     circuit->write_pin(circuit->description()->port_by_name(port), value);
                 })
         .def("read_port",
-                [](CircuitInstance *circuit, const char *port) -> Value {
+                [](SimCircuit *circuit, const char *port) -> Value {
                     return circuit->read_pin(circuit->description()->port_by_name(port));
                 })
         

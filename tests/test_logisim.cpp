@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include "load_logisim.h"
 #include "lsim_context.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 
 #include <cstring>
 

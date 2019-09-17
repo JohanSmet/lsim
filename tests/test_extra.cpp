@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "lsim_context.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 
 using namespace lsim;
 

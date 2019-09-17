@@ -1,7 +1,7 @@
 // sim_component.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 
 #include "sim_component.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 #include "simulator.h"
 #include <cassert>
 
@@ -103,7 +103,7 @@ void SimComponent::set_user_value(uint32_t index, Value value) {
 	m_sim->activate_independent_simulation_func(this);
 }
 
-void SimComponent::set_nested_instance(std::unique_ptr<class CircuitInstance> instance) {
+void SimComponent::set_nested_instance(std::unique_ptr<class SimCircuit> instance) {
 	m_nested_circuit = std::move(instance);
 }
 

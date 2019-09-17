@@ -15,7 +15,7 @@ struct ImDrawList;
 
 namespace lsim {
 
-class CircuitInstance;
+class SimCircuit;
 
 namespace gui {
 
@@ -109,7 +109,7 @@ public:
     void create_wire();
 
     ModelCircuit *circuit_desc() const {return m_circuit_desc;}
-    CircuitInstance *circuit_inst() const {return m_circuit_inst;}
+    SimCircuit *circuit_inst() const {return m_circuit_inst;}
 
     // selection
     size_t num_selected_items() const {return m_selection.size();}
@@ -126,7 +126,7 @@ public:
     UIComponent *selected_component() const;
 
     // simulation
-    void set_simulation_instance(CircuitInstance *circuit_inst, bool view_only = false);
+    void set_simulation_instance(SimCircuit *circuit_inst, bool view_only = false);
     bool is_simulating() const;
     bool is_view_only_simulation() const {return m_view_only;};
 
@@ -194,7 +194,7 @@ private:
     Point               m_segment_start;
     point_container_t   m_line_anchors;
 
-    CircuitInstance *   m_circuit_inst;
+    SimCircuit *   m_circuit_inst;
     bool                m_view_only;
     UIComponent *       m_popup_component;
 

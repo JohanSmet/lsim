@@ -3,7 +3,7 @@
 // describe the composition of a logic circuit
 
 #include "model_circuit.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 #include "lsim_context.h"
 #include "simulator.h"
 
@@ -400,8 +400,8 @@ ModelComponent *ModelCircuit::add_text(const char *text) {
     return comp;
 }
 
-std::unique_ptr<CircuitInstance> ModelCircuit::instantiate(Simulator *sim, bool top_level) {
-    auto instance = std::make_unique<CircuitInstance>(sim, this);
+std::unique_ptr<SimCircuit> ModelCircuit::instantiate(Simulator *sim, bool top_level) {
+    auto instance = std::make_unique<SimCircuit>(sim, this);
     std::unordered_map<std::string, ModelComponent *> via_lut;
 
     // helper function to connect all pins of two vias

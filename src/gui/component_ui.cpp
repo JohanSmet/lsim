@@ -10,7 +10,7 @@
 #include <set>
 
 #include "colors.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 #include "lsim_context.h"
 #include "model_circuit_library.h"
 #include "model_circuit.h"
@@ -763,7 +763,7 @@ UIComponent *UICircuit::selected_component() const {
 	}
 }
 
-void UICircuit::set_simulation_instance(CircuitInstance *circuit_inst, bool view_only) {
+void UICircuit::set_simulation_instance(SimCircuit *circuit_inst, bool view_only) {
 
 	if (circuit_inst && m_circuit_inst == nullptr) {
 		m_state = CS_SIMULATING;

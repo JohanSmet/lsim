@@ -1,9 +1,9 @@
-// circuit_instance.h - Johan Smet - BSD-3-Clause (see LICENSE)
+// sim_circuit.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // instantiation of a circuit description
 
-#ifndef LSIM_CIRCUIT_INSTANCE_H
-#define LSIM_CIRCUIT_INSTANCE_H
+#ifndef LSIM_SIM_CIRCUIT_H
+#define LSIM_SIM_CIRCUIT_H
 
 #include "model_circuit.h"
 
@@ -11,9 +11,9 @@ namespace lsim {
 
 class SimComponent;
 
-class CircuitInstance {
+class SimCircuit {
 public:
-    CircuitInstance(Simulator *sim, ModelCircuit *circuit_desc);
+    SimCircuit(Simulator *sim, ModelCircuit *circuit_desc);
     ModelCircuit *description() const {return m_circuit_desc;}
 
     // instantiation
@@ -68,4 +68,4 @@ private:
 }
 
 
-#endif // LSIM_CIRCUIT_INSTANCE_H
+#endif // LSIM_SIM_CIRCUIT_H

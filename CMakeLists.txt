@@ -40,7 +40,6 @@ set (LIB_TARGET lsim)
 
 set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/algebra.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_instance.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.cpp"
@@ -52,6 +51,7 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_component.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_circuit.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_gates.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_various.cpp"
@@ -59,7 +59,6 @@ set (LIB_SOURCES
 
 set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/algebra.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/circuit_instance.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/error.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/load_logisim.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/lsim_context.h"
@@ -71,6 +70,7 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_component.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_circuit.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_types.h"
 )

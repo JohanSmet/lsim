@@ -3,7 +3,7 @@
 #include "simulator.h"
 #include "sim_functions.h"
 #include "model_circuit.h"
-#include "circuit_instance.h"
+#include "sim_circuit.h"
 
 #include <cassert>
 #include "std_helper.h"
