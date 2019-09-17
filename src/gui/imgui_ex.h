@@ -31,7 +31,7 @@ inline void TextNoClip(ImVec2 at, const std::string &text, ImU32 col, TextAlignH
 void RectFilled(ImVec2 p1, ImVec2 p2, ImU32 col);
 
 void TransformStart();
-void TransformEnd(Transform transform);
+void TransformEnd(lsim::Transform transform);
 
 
 } // namespace ImGuiEx

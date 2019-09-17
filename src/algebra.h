@@ -8,6 +8,8 @@
 #include <array>
 #include <cmath>
 
+namespace lsim {
+
 class Point {
 public:
     // constructors
@@ -41,10 +43,12 @@ inline bool operator!=(const Point &p1, const Point &p2) {
 }
 
 inline bool points_colinear(const Point &p0, const Point &p1, const Point &p2) {
+// return true if all three points are on the same line
     return fabs(((p1.x - p0.x) * (p2.y - p0.y)) - ((p2.x - p0.x)  * (p1.y - p0.y))) < 0.001f;
 }
 
 inline bool between(float a, float b, float v) {
+// return true if v is between a and b
     if (a < b) {
         return (v >= a) && (v <= b);
     } else {
@@ -53,6 +57,7 @@ inline bool between(float a, float b, float v) {
 }
 
 inline bool point_on_line_segment(const Point &s0, const Point &s1, const Point &p) {
+// return true if p is on the line-segment formed by s0 and s1
     return points_colinear(s0, s1, p) &&
            between(s0.x, s1.x, p.x) &&
            between(s0.y, s1.y, p.y);
@@ -73,5 +78,7 @@ public:
 private:
     float m_el[3][2];       // 3 columns, 2 rows
 };
+
+} // namespace lsim
 
 #endif // LSIM_GUI_ALGEBRA_H

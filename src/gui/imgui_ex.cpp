@@ -85,7 +85,7 @@ void TransformStart() {
     transform_start_index = ImGui::GetWindowDrawList()->VtxBuffer.Size;
 }
 
-void TransformEnd(Transform transform) {
+void TransformEnd(lsim::Transform transform) {
     auto &vtx_buf = ImGui::GetWindowDrawList()->VtxBuffer;
 
     for (auto i = transform_start_index; i < vtx_buf.Size; ++i) {

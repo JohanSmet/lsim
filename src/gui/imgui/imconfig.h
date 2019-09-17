@@ -54,8 +54,8 @@
 #include "algebra.h"
 
 #define IM_VEC2_CLASS_EXTRA                                                 \
-    ImVec2(const Point &p) { x = p.x; y = p.y;}                             \
-    operator Point() const { return Point(x, y);}
+    ImVec2(const lsim::Point &p) { x = p.x; y = p.y;}                             \
+    operator lsim::Point() const { return lsim::Point(x, y);}
 
 /*
 #define IM_VEC2_CLASS_EXTRA                                                 \
