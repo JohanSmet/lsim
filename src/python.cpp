@@ -86,14 +86,14 @@ PYBIND11_MODULE(lsimpy, m) {
         .def("run_until_stable", &Simulator::run_until_stable)
         ;
 
-    py::class_<CircuitLibrary>(m, "CircuitLibrary")
+    py::class_<ModelCircuitLibrary>(m, "ModelCircuitLibrary")
         .def(py::init<const char *>())
-        .def("main_circuit", &CircuitLibrary::main_circuit, py::return_value_policy::reference)
-        .def("change_main_circuit", &CircuitLibrary::change_main_circuit)
-        .def("circuit_by_name", &CircuitLibrary::circuit_by_name, py::return_value_policy::reference)
-        .def("rename_circuit", &CircuitLibrary::rename_circuit)
-        .def("clear_circuits", &CircuitLibrary::clear_circuits)
-        .def("add_reference", &CircuitLibrary::add_reference)
+        .def("main_circuit", &ModelCircuitLibrary::main_circuit, py::return_value_policy::reference)
+        .def("change_main_circuit", &ModelCircuitLibrary::change_main_circuit)
+        .def("circuit_by_name", &ModelCircuitLibrary::circuit_by_name, py::return_value_policy::reference)
+        .def("rename_circuit", &ModelCircuitLibrary::rename_circuit)
+        .def("clear_circuits", &ModelCircuitLibrary::clear_circuits)
+        .def("add_reference", &ModelCircuitLibrary::add_reference)
         ;
 
     py::class_<LSimContext>(m, "LSimContext")

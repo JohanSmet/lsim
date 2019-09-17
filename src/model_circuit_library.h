@@ -1,9 +1,9 @@
-// circuit_library.h - Johan Smet - BSD-3-Clause (see LICENSE)
+// model_circuit_library.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // a collection of circuits
 
-#ifndef LSIM_CIRCUIT_LIBRARY_H
-#define LSIM_CIRCUIT_LIBRARY_H
+#ifndef LSIM_MODEL_CIRCUIT_LIBRARY_H
+#define LSIM_MODEL_CIRCUIT_LIBRARY_H
 
 #include <vector>
 #include <unordered_map>
@@ -15,14 +15,14 @@ namespace lsim {
 
 class LSimContext;
 
-class CircuitLibrary {
+class ModelCircuitLibrary {
 public:
-    typedef std::unique_ptr<CircuitLibrary> uptr_t;
+    typedef std::unique_ptr<ModelCircuitLibrary> uptr_t;
     typedef std::vector<std::string> reference_container_t;
 
 public:
-    CircuitLibrary(const char *name, const char *path= "");
-    CircuitLibrary(const CircuitLibrary &other) = delete;
+    ModelCircuitLibrary(const char *name, const char *path= "");
+    ModelCircuitLibrary(const ModelCircuitLibrary &other) = delete;
 
     const char *name() const {return m_name.c_str();}
     const char *path() const {return m_path.c_str();}
@@ -65,4 +65,4 @@ private:
 
 } // namespace lsim
 
-#endif // LSIM_CIRCUIT_LIBRARY_H
+#endif // LSIM_MODEL_CIRCUIT_LIBRARY_H

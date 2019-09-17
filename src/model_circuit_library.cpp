@@ -1,19 +1,19 @@
-// circuit_library.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
+// model_circuit_library.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // a collection of circuits
 
-#include "circuit_library.h"
+#include "model_circuit_library.h"
 #include "std_helper.h"
 #include <cassert>
 
 namespace lsim {
 
-CircuitLibrary::CircuitLibrary(const char *name, const char *path) :
+ModelCircuitLibrary::ModelCircuitLibrary(const char *name, const char *path) :
         m_name(name),
         m_path(path) {
 }
 
-ModelCircuit *CircuitLibrary::create_circuit(const char *name, LSimContext *context) {
+ModelCircuit *ModelCircuitLibrary::create_circuit(const char *name, LSimContext *context) {
     assert(name);
 
     m_circuits.push_back(std::make_unique<ModelCircuit>(name, context, this));
@@ -23,13 +23,13 @@ ModelCircuit *CircuitLibrary::create_circuit(const char *name, LSimContext *cont
     return circuit;
 }
 
-void CircuitLibrary::delete_circuit(ModelCircuit *circuit) {
+void ModelCircuitLibrary::delete_circuit(ModelCircuit *circuit) {
     assert (std::find_if(m_circuits.begin(), m_circuits.end(), [=](auto &o) {return o.get() == circuit;}) != m_circuits.end());
 	remove_value(m_circuit_lut, circuit);
 	remove_owner(m_circuits, circuit);
 }
 
-void CircuitLibrary::rename_circuit(ModelCircuit *circuit, const char *name) {
+void ModelCircuitLibrary::rename_circuit(ModelCircuit *circuit, const char *name) {
     assert(circuit);
     assert(name);
 
@@ -40,19 +40,19 @@ void CircuitLibrary::rename_circuit(ModelCircuit *circuit, const char *name) {
     circuit->change_name(name);
 }
 
-void CircuitLibrary::swap_circuits(size_t idx_a, size_t idx_b) {
+void ModelCircuitLibrary::swap_circuits(size_t idx_a, size_t idx_b) {
     assert(idx_a < m_circuits.size());
     assert(idx_b < m_circuits.size());
 
     std::swap(m_circuits[idx_a], m_circuits[idx_b]);
 }
 
-ModelCircuit *CircuitLibrary::circuit_by_idx(size_t idx) const {
+ModelCircuit *ModelCircuitLibrary::circuit_by_idx(size_t idx) const {
     assert(idx < num_circuits());
     return m_circuits[idx].get();
 }
 
-ModelCircuit *CircuitLibrary::circuit_by_name(const char *name) const {
+ModelCircuit *ModelCircuitLibrary::circuit_by_name(const char *name) const {
     assert(name);
 
     auto res = m_circuit_lut.find(name);
@@ -63,7 +63,7 @@ ModelCircuit *CircuitLibrary::circuit_by_name(const char *name) const {
     }
 }
 
-uint32_t CircuitLibrary::circuit_idx(ModelCircuit *circuit) const {
+uint32_t ModelCircuitLibrary::circuit_idx(ModelCircuit *circuit) const {
     for (auto i = 0u; i < m_circuits.size(); ++i) {
         if (m_circuits[i].get() == circuit) {
             return i;
@@ -73,12 +73,12 @@ uint32_t CircuitLibrary::circuit_idx(ModelCircuit *circuit) const {
     return m_circuits.size();
 }
 
-void CircuitLibrary::clear_circuits() {
+void ModelCircuitLibrary::clear_circuits() {
     m_circuits.clear();
     m_circuit_lut.clear();
 }
 
-void CircuitLibrary::add_reference(const char *name) {
+void ModelCircuitLibrary::add_reference(const char *name) {
     if (std::find(m_references.begin(), m_references.end(), name) != m_references.end()) {
         return;
     }
@@ -86,11 +86,11 @@ void CircuitLibrary::add_reference(const char *name) {
     m_references.push_back(name);
 }
 
-void CircuitLibrary::remove_reference(const char *name) {
+void ModelCircuitLibrary::remove_reference(const char *name) {
 	remove(m_references, string(name));
 }
 
-void CircuitLibrary::clear_references() {
+void ModelCircuitLibrary::clear_references() {
     m_references.clear();
 }
 

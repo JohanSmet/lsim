@@ -4,7 +4,7 @@
 
 #include "serialize.h"
 #include "lsim_context.h"
-#include "circuit_library.h"
+#include "model_circuit_library.h"
 #include "model_circuit.h"
 #include "error.h"
 
@@ -107,7 +107,7 @@ public:
         m_root.append_attribute(XML_ATTR_VERSION).set_value(LSIM_XML_VERSION);
     }
 
-    void serialize_library(CircuitLibrary *library) {
+    void serialize_library(ModelCircuitLibrary *library) {
 
         // references
         for (const auto &ref : library->references()) {
@@ -513,7 +513,7 @@ public:
         return true;
     }
 
-    bool parse_library(CircuitLibrary *lib) {
+    bool parse_library(ModelCircuitLibrary *lib) {
         m_lib = lib;
 
         auto lsim_node = m_xml.child(XML_EL_LSIM);
@@ -552,7 +552,7 @@ public:
 private: 
     pugi::xml_document  m_xml;
     LSimContext *       m_context;
-    CircuitLibrary *    m_lib;
+    ModelCircuitLibrary *    m_lib;
 
     std::unordered_map<uint32_t, uint32_t>   m_component_id_map;
 };
@@ -561,7 +561,7 @@ private:
 
 namespace lsim {
 
-bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename) {
+bool serialize_library(LSimContext *context, ModelCircuitLibrary *lib, const char *filename) {
     assert(context);
     assert(lib);
     assert(filename);
@@ -573,7 +573,7 @@ bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *fi
     return true;
 }
 
-bool deserialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename) {
+bool deserialize_library(LSimContext *context, ModelCircuitLibrary *lib, const char *filename) {
     assert(context);
     assert(lib);
     assert(filename);

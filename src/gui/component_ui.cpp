@@ -10,12 +10,12 @@
 #include <set>
 
 #include "colors.h"
-#include "simulator.h"
-#include "model_circuit.h"
 #include "circuit_instance.h"
-#include "circuit_library.h"
 #include "lsim_context.h"
+#include "model_circuit_library.h"
+#include "model_circuit.h"
 #include "main_gui.h"
+#include "simulator.h"
 
 namespace {
 

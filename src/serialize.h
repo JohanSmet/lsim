@@ -10,10 +10,10 @@
 namespace lsim {
 
 class LSimContext;
-class CircuitLibrary;
+class ModelCircuitLibrary;
 
-bool serialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename);
-bool deserialize_library(LSimContext *context, CircuitLibrary *lib, const char *filename);
+bool serialize_library(LSimContext *context, ModelCircuitLibrary *lib, const char *filename);
+bool deserialize_library(LSimContext *context, ModelCircuitLibrary *lib, const char *filename);
 
 } // namespace lsim
 

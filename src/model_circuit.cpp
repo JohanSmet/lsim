@@ -33,7 +33,7 @@ std::string unique_subcircuit_name(const std::string &circuit_name, uint32_t com
 
 namespace lsim {
 
-ModelCircuit::ModelCircuit(const char *name, LSimContext *context, CircuitLibrary *ref_lib) :
+ModelCircuit::ModelCircuit(const char *name, LSimContext *context, ModelCircuitLibrary *ref_lib) :
         m_context(context),
         m_lib(ref_lib),
         m_name(name),

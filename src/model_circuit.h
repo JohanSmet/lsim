@@ -20,11 +20,11 @@ public:
     typedef std::unique_ptr<ModelCircuit> uptr_t;
     typedef std::unordered_map<uint32_t, ModelWire::uptr_t> wire_lut_t;
 public:
-    ModelCircuit(const char *name, class LSimContext *context, class CircuitLibrary *ref_lib);
+    ModelCircuit(const char *name, class LSimContext *context, class ModelCircuitLibrary *ref_lib);
     ModelCircuit(const ModelCircuit &) = delete;
 
     class LSimContext *context() const {return m_context;}
-    class CircuitLibrary *lib() const {return m_lib;}
+    class ModelCircuitLibrary *lib() const {return m_lib;}
 
     // name
     const std::string &name() const {return m_name;}
@@ -92,7 +92,7 @@ private:
 
 private:
     class LSimContext *m_context;
-    class CircuitLibrary *m_lib;
+    class ModelCircuitLibrary *m_lib;
 
     std::string     m_name;
 

@@ -12,7 +12,7 @@ void LSimContext::load_reference_library(const char *name, const char *filename)
         return;
     }
 
-    auto lib = std::make_unique<CircuitLibrary>(name, filename);
+    auto lib = std::make_unique<ModelCircuitLibrary>(name, filename);
     if (!deserialize_library(this, lib.get(), full_file_path(filename).c_str())) {
         lib = nullptr;
         return;
@@ -25,7 +25,7 @@ void LSimContext::clear_reference_libraries() {
     m_reference_libraries.clear();
 }
 
-ModelCircuit *LSimContext::find_circuit(const char *name, CircuitLibrary *fallback_lib) {
+ModelCircuit *LSimContext::find_circuit(const char *name, ModelCircuitLibrary *fallback_lib) {
     std::string qualified = name;
     auto separator = qualified.find_first_of('.');
 
@@ -51,7 +51,7 @@ ModelCircuit *LSimContext::find_circuit(const char *name, CircuitLibrary *fallba
     return nullptr;
 }
 
-CircuitLibrary *LSimContext::library_by_name(const char *name) {
+ModelCircuitLibrary *LSimContext::library_by_name(const char *name) {
     std::string sname = name;
     if (sname == "user") {
         return &m_user_library;
