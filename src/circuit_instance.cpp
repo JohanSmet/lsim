@@ -3,6 +3,8 @@
 // instantiation of a circuit description
 
 #include "circuit_instance.h"
+#include "simulator.h"
+#include "sim_component.h"
 
 #include <cassert>
 

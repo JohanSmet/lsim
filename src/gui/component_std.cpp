@@ -12,6 +12,7 @@
 
 #include "model_circuit.h"
 #include "circuit_instance.h"
+#include "sim_component.h"
 
 namespace lsim {
 

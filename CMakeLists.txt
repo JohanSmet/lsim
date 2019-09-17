@@ -51,6 +51,7 @@ set (LIB_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_component.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_gates.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_various.cpp"
@@ -69,7 +70,9 @@ set (LIB_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/property.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/serialize.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/simulator.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_component.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_functions.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/sim_types.h"
 )
 
 add_library(${LIB_TARGET} STATIC ${LIB_SOURCES} ${LIB_HEADERS})

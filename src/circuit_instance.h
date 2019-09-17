@@ -6,9 +6,10 @@
 #define LSIM_CIRCUIT_INSTANCE_H
 
 #include "model_circuit.h"
-#include "simulator.h"
 
 namespace lsim {
+
+class SimComponent;
 
 class CircuitInstance {
 public:
