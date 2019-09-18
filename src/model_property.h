@@ -1,9 +1,9 @@
-// property.h - Johan Smet - BSD-3-Clause (see LICENSE)
+// model_property.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // Key/value pair to store extra information about specific components
 
-#ifndef LSIM_PROPERTY_H
-#define LSIM_PROPERTY_H
+#ifndef LSIM_MODEL_PROPERTY_H
+#define LSIM_MODEL_PROPERTY_H
 
 #include <string>
 #include <memory>
@@ -138,4 +138,4 @@ inline Property::uptr_t make_property(const char *key, Value value) {
 
 } // namespace lsim
 
-#endif // LSIM_PROPERTY_H
+#endif // LSIM_MODEL_PROPERTY_H

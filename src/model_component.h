@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 #include "sim_types.h"
-#include "property.h"
+#include "model_property.h"
 #include "algebra.h"
 
 namespace lsim {

@@ -1,8 +1,8 @@
-// property.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
+// model_property.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // Key/value pair to store extra information about specific components
 
-#include "property.h"
+#include "model_property.h"
 
 #include <algorithm>
 
