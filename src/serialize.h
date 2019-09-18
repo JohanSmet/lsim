@@ -5,8 +5,6 @@
 #ifndef LSIM_SERIALISE_H
 #define LSIM_SERIALISE_H
 
-#include <string>
-
 namespace lsim {
 
 class LSimContext;
@@ -17,4 +15,4 @@ bool deserialize_library(LSimContext *context, ModelCircuitLibrary *lib, const c
 
 } // namespace lsim
 
-#endif // LSIM_SERIALISE_H
+#endif // LSIM_SERIALIZE_H

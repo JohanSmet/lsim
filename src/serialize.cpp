@@ -75,16 +75,13 @@ static const std::unordered_map<ComponentType, std::string> component_type_to_na
     {COMPONENT_TEXT, "Text"}
 };
 
-static std::unordered_map<std::string, ComponentType> build_component_type_lut() {
+static const auto name_to_component_type = []() {
     std::unordered_map<std::string, ComponentType> result;
     for (auto entry : component_type_to_name) {
         result[entry.second] = entry.first;
     }
     return result;
-}
-
-static const auto name_to_component_type = build_component_type_lut();
-
+}();
 
 class XmlStringWriter: public pugi::xml_writer
 {
@@ -119,7 +116,7 @@ public:
             }
         }
 
-        // circuit
+        // circuits
         for (size_t idx = 0; idx < library->num_circuits(); ++idx) {
             serialize_circuit(library->circuit_by_idx(idx));
         }
@@ -197,12 +194,16 @@ private:
             segment_node.append_attribute(XML_ATTR_Y2).set_value(p1.y);
         }
 
+		auto format_wire_pin = [](auto pin_id) -> std::string {
+			auto result = std::to_string(component_id_from_pin_id(pin_id));
+			result += "#";
+			result += std::to_string(pin_index_from_pin_id(pin_id));
+			return result;
+		};
+
         for (size_t idx = 0; idx < wire->num_pins(); ++idx) {
             auto pin_node = wire_node.append_child(XML_EL_PIN);
-            auto comp_id = component_id_from_pin_id(wire->pin(idx));
-            auto pin_idx = pin_index_from_pin_id(wire->pin(idx));
-            pin_node.append_attribute(XML_ATTR_VALUE).set_value(
-                (std::to_string(comp_id) + "#" + std::to_string(pin_idx)).c_str());
+			pin_node.append_attribute(XML_ATTR_VALUE).set_value(format_wire_pin(wire->pin(idx)).c_str());
         }
     }
 
@@ -244,7 +245,8 @@ private:
 
 class Deserializer {
 public:
-    Deserializer(LSimContext *context) : m_context(context) {
+    Deserializer(LSimContext *context) : m_context(context), 
+										 m_lib(nullptr) {
     }
 
     bool load_from_file(const char *filename) {
