@@ -3,7 +3,7 @@
 ## Requirements
 
 - a C++14 compatible compiler
-- CMake (version 3.1 or newer)
+- CMake (version 3.13 or newer)
 - (optional) Emscripten to build the browser front-end
 - SDL2 development libraries have to be available on your system
 
