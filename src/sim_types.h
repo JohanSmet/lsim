@@ -6,6 +6,7 @@
 #define LSIM_SIM_TYPES_H
 
 #include <vector>
+#include <cstdint>
 
 namespace lsim {
 
