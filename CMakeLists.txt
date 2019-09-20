@@ -13,6 +13,16 @@ string(TOUPPER ${CMAKE_SYSTEM_NAME} PLATFORM_NAME)
 string(CONCAT PLATFORM_DEF "PLATFORM_" ${PLATFORM_NAME})
 
 #
+# helper functions
+#
+
+function (lsim_source_group p_target p_dir)
+	get_target_property(SOURCES_LIST ${p_target} SOURCES)
+	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/${p_dir} FILES ${SOURCES_LIST})
+endfunction()
+
+
+#
 # external dependencies
 #
 
@@ -81,6 +91,8 @@ target_include_directories(${LIB_TARGET} PRIVATE ${PUGIXML_INCLUDE})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
 target_link_libraries(${LIB_TARGET} PUBLIC pugixml)
 set_property(TARGET ${LIB_TARGET} PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+lsim_source_group(${LIB_TARGET} src)
 
 #
 # python bindings
@@ -166,6 +178,9 @@ else()
 		"--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/examples@/examples --exclude-file *.circ"
 	)
 endif()
+
+lsim_source_group(${APP_TARGET} src/gui)
+
 
 #
 # speedtest
