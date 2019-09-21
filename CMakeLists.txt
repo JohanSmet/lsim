@@ -128,8 +128,8 @@ target_sources(${APP_TARGET}
 		src/gui/imgui/stb_rect_pack.h
 		src/gui/imgui/stb_textedit.h
 		src/gui/imgui/stb_truetype.h
-		src/gui/component_std.cpp
-		src/gui/component_std.h
+		src/gui/component_draw.cpp
+		src/gui/component_draw.h
 		src/gui/component_ui.cpp
 		src/gui/component_ui.h
 		src/gui/file_selector.cpp

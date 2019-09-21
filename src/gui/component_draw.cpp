@@ -1,8 +1,8 @@
-// component_std.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
+// component_draw.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 //
-// registration of standard components
+// functions to materialize components and define custom draw functions
 
-#include "component_std.h"
+#include "component_draw.h"
 #include "component_ui.h"
 #include "imgui_ex.h"
 #include "shapes.h"
@@ -14,97 +14,113 @@
 #include "sim_circuit.h"
 #include "sim_component.h"
 
+namespace {
+
+using namespace lsim;
+using namespace lsim::gui;
+
+void materialize_gate(UIComponent *ui_comp, float min_width = 60, float min_height = 60) {
+
+	auto model = ui_comp->component();
+
+	// size of component box depends on pin count
+	const float width = std::max(min_width, 10.0f * std::ceil((model->num_controls() + 1) / 2.0f));
+	const float height = std::max(min_height, 20.0f * (std::ceil((std::max(model->num_inputs(), model->num_outputs()) + 1) / 2.0f)));
+	const float h_width = width / 2.0f;
+	const float h_height = height / 2.0f;
+
+	ui_comp->change_size(width, height);
+
+	// pins
+	if (model->num_inputs() > 0) {
+		ui_comp->add_pin_line(model->input_pin_id(0), model->num_inputs(),
+			height, { -h_width, 0 }, { 0, 1 });
+	}
+	if (model->num_outputs() > 0) {
+		ui_comp->add_pin_line(model->output_pin_id(0), model->num_outputs(),
+			height, { h_width, 0 }, { 0, 1 });
+	}
+	if (model->num_controls() > 0) {
+		ui_comp->add_pin_line(model->control_pin_id(0), model->num_controls(),
+			width, { 0, -h_height }, { 1, 0 });
+	}
+}
+
+const char *value_label(Value value) {
+	switch (value) {
+	case VALUE_FALSE:
+		return "0";
+	case VALUE_TRUE:
+		return "1";
+	case VALUE_UNDEFINED:
+		return "?";
+	default:
+		return "E";
+	}
+}
+
+} // unnamed namespace
+
 namespace lsim {
 
 namespace gui {
 
-void materialize_gate(UIComponent *ui_comp,
-                      float min_width = 60, float min_height = 60) {
-
-    auto comp = ui_comp->component();
-
-    // size of component box depends on pin count
-    const float width = std::max(min_width, 10.0f * std::ceil((comp->num_controls() + 1)/2.0f));
-    const float height = std::max(min_height, 20.0f * (std::ceil((std::max(comp->num_inputs(), comp->num_outputs())+1)/2.0f)));
-    const float h_width = width / 2.0f;
-    const float h_height = height / 2.0f;
-
-    ui_comp->change_size(width, height);
-
-    // pins
-    if (comp->num_inputs() > 0) {
-        ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
-                            height, {-h_width, 0}, {0, 1});
-    }
-    if (comp->num_outputs() > 0) {
-        ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
-                            height, {h_width, 0}, {0, 1});
-    }
-    if (comp->num_controls() > 0) {
-        ui_comp->add_pin_line(comp->control_pin_id(0), comp->num_controls(),
-                            width, {0, -h_height}, {1, 0});
-    }
-}
-
-const char *connector_data_label(Value value) {
-    switch (value) {
-        case VALUE_FALSE:
-            return "0";
-        case VALUE_TRUE:
-            return "1";
-        case VALUE_UNDEFINED:
-            return "?";
-        default:
-            return "E";
-    }
-}
+///////////////////////////////////////////////////////////////////////////////
+//
+// basic components: connectors, constant, sub-curcuits
+//
 
 void component_register_basic() {
 
     // connector input
     auto icon_connector_in = ComponentIcon::cache(COMPONENT_CONNECTOR_IN, SHAPE_CONNECTOR_IN, sizeof(SHAPE_CONNECTOR_IN));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_CONNECTOR_IN, [=](ModelComponent *comp, UIComponent *ui_comp) {
+        COMPONENT_CONNECTOR_IN, [](ModelComponent *comp, UIComponent *ui_comp) {
             ui_comp->change_tooltip("Input");
 
             const float width = 20;
-            const float height = 20;
-            const float full_height = comp->num_outputs() * height;
+            const float pin_spacing = 20;
+            const float height = comp->num_outputs() * pin_spacing;
             const bool desc = comp->property_value("descending", false);
-            ui_comp->change_size(width, full_height);
+            ui_comp->change_size(width, height);
             ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
-                                  {0.5f * width, ((-full_height * 0.5f) + (height * 0.5f)) * (desc ? -1.0f : 1.0f)},
-                                  {0, height * (desc ? -1.0f : 1.0f)});
+                                  {0.5f * width, ((-height * 0.5f) + (pin_spacing * 0.5f)) * (desc ? -1.0f : 1.0f)},
+                                  {0, pin_spacing * (desc ? -1.0f : 1.0f)});
 
             // custom draw function
             ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
 
-                auto comp = ui_comp->component();
-                bool is_tristate = comp->property_value("tri_state", false);
-                auto origin = Point(-width * 0.5f, -full_height * 0.5f);
-                auto orient = comp->angle();
+                auto model = ui_comp->component();
+
+                bool is_tristate = model->property_value("tri_state", false);
+                auto origin = Point(-width * 0.5f, -height * 0.5f);
+                auto orient = model->angle();
+				const Point button_half_size = {8,8};
+				const Point button_size = {16,16};
 
                 ImGui::BeginGroup();
-                ImGui::PushID(comp);
-                for (auto i = 0u; i < comp->num_outputs(); ++ i)
+                ImGui::PushID(model);
+
+				// connector 'buttons'
+                for (auto i = 0u; i < model->num_outputs(); ++ i)
                 {
                     auto cur_val = VALUE_FALSE;
                     if (ui_circuit->is_simulating()) {
-                        cur_val = ui_circuit->circuit_inst()->user_value(comp->output_pin_id(i));
+                        cur_val = ui_circuit->circuit_inst()->user_value(model->output_pin_id(i));
                     }
-                    auto center_pos = to_window.apply(Point(0, ((-full_height * 0.5f) + ((i + 0.5f) * height)) * (desc ? -1.0f : 1.0f)));
-                    ImGui::SetCursorScreenPos(center_pos - Point(8,8));
+                    auto center_pos = to_window.apply(Point(0, ((-height * 0.5f) + ((i + 0.5f) * pin_spacing)) * (desc ? -1.0f : 1.0f)));
+                    ImGui::SetCursorScreenPos(center_pos - button_half_size);
 
                     ImGui::PushID(i);
                     if (ui_circuit->is_simulating() && !ui_circuit->is_view_only_simulation() &&
-                        ImGui::InvisibleButton(connector_data_label(cur_val), {16,16})) {
+                        ImGui::InvisibleButton(value_label(cur_val), button_size)) {
                         cur_val = static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2));
-                        ui_circuit->circuit_inst()->write_pin(comp->output_pin_id(i), cur_val);
+                        ui_circuit->circuit_inst()->write_pin(model->output_pin_id(i), cur_val);
                     }
 
-                    ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);
+                    ImGuiEx::RectFilled(center_pos - button_half_size, center_pos + button_half_size, COLOR_CONNECTION[cur_val]);
                     if (ui_circuit->is_simulating()) {
-                        ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                        ImGuiEx::Text(center_pos, value_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     } else {
                         ImGuiEx::Text(center_pos, std::to_string(i), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     }
@@ -113,7 +129,7 @@ void component_register_basic() {
                 ImGui::PopID();
 
                 // label for connector
-                Point anchor = to_window.apply(Point(origin.x - 5, origin.y + (full_height / 2.0f)));
+                Point anchor = to_window.apply(Point(origin.x - 5, origin.y + (height / 2.0f)));
 
                 static const std::pair<ImGuiEx::TextAlignHor, ImGuiEx::TextAlignVer> label_align[] = {
                     {ImGuiEx::TAH_RIGHT,    ImGuiEx::TAV_CENTER},   // East
@@ -122,7 +138,7 @@ void component_register_basic() {
                     {ImGuiEx::TAH_CENTER,   ImGuiEx::TAV_TOP}       // North
                 };
 
-                ImGuiEx::Text(anchor, comp->property_value("name","").c_str(), label_align[orient / 90].first, label_align[orient / 90].second);
+                ImGuiEx::Text(anchor, model->property_value("name","").c_str(), label_align[orient / 90].first, label_align[orient / 90].second);
 
                 ImGui::EndGroup();
             });
@@ -136,19 +152,20 @@ void component_register_basic() {
             ui_comp->change_tooltip("Output");
 
             const float width = 20;
-            const float height = 20;
-            const float full_height = comp->num_inputs() * height;
+            const float pin_spacing = 20;
+            const float height = comp->num_inputs() * pin_spacing;
             const bool desc = comp->property_value("descending", false);
-            ui_comp->change_size(width, full_height);
+            ui_comp->change_size(width, height);
             ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
-                                  {-0.5f * width, (-full_height * 0.5f + (height * 0.5f)) * (desc ? -1.0f : 1.0f)},
-                                  {0, desc ? -height : height});
+                                  {-0.5f * width, (-height * 0.5f + (pin_spacing * 0.5f)) * (desc ? -1.0f : 1.0f)},
+                                  {0, desc ? -pin_spacing : pin_spacing});
 
             // custom draw function
             ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
 
-                auto origin = Point(-width * 0.5f, -full_height * 0.5f);
+                auto origin = Point(-width * 0.5f, -height * 0.5f);
                 auto orient = ui_comp->component()->angle();
+				const Point button_half_size = {8,8};
 
                 ImGui::BeginGroup();
                 ImGui::PushID(comp);
@@ -157,12 +174,12 @@ void component_register_basic() {
                     if (ui_circuit->is_simulating()) {
                         cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
                     }
-                    auto center_pos = to_window.apply(Point(0, ((-full_height * 0.5f) + ((i + 0.5f) * height)) * (desc ? -1.0f : 1.0f)));
+                    auto center_pos = to_window.apply(Point(0, ((-height * 0.5f) + ((i + 0.5f) * pin_spacing)) * (desc ? -1.0f : 1.0f)));
 
                     ImGui::PushID(i);
-                    ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[cur_val]);
+                    ImGuiEx::RectFilled(center_pos - button_half_size, center_pos + button_half_size, COLOR_CONNECTION[cur_val]);
                     if (ui_circuit->is_simulating()) {
-                        ImGuiEx::Text(center_pos, connector_data_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                        ImGuiEx::Text(center_pos, value_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     } else {
                         ImGuiEx::Text(center_pos, std::to_string(i), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     }
@@ -171,7 +188,7 @@ void component_register_basic() {
                 ImGui::PopID();
 
                 // label for connector
-                Point anchor = to_window.apply(origin + Point(width + 5, (full_height / 2.0f)));
+                Point anchor = to_window.apply(origin + Point(width + 5, (height / 2.0f)));
 
                 static const std::pair<ImGuiEx::TextAlignHor, ImGuiEx::TextAlignVer> label_align[] = {
                     {ImGuiEx::TAH_LEFT,     ImGuiEx::TAV_CENTER},   // East
@@ -203,7 +220,7 @@ void component_register_basic() {
                 auto val = comp->property_value("value", VALUE_FALSE);
                 auto center_pos = to_window.apply(Point(0.0f, 0.0f));
                 ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[val]);
-                ImGuiEx::Text(center_pos, connector_data_label(val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                ImGuiEx::Text(center_pos, value_label(val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
             });
         }
     );
@@ -245,7 +262,6 @@ void component_register_basic() {
                     return !flipped ? ImGuiEx::TAH_LEFT : ImGuiEx::TAH_RIGHT;
                 };
 
-
                 // input pins - labels
                 auto cursor = pos(flip);
                 for (auto idx = 0u; idx < nested->num_input_ports(); ++idx) {
@@ -273,6 +289,11 @@ void component_register_basic() {
     ); 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// extra components: pull-resistor, via, oscillator, text
+//
+
 void component_register_extra() {
 
     // Pull Resistor
@@ -295,7 +316,7 @@ void component_register_extra() {
                 auto val = comp->property_value("pull_to", VALUE_FALSE);
                 auto label_pos = to_window.apply(Point(-width * 0.25f, 0.0f));
                 ImGuiEx::RectFilled(label_pos - Point(8,8), label_pos + Point(8,8), COLOR_CONNECTION[val]);
-                ImGuiEx::Text(label_pos, connector_data_label(val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+                ImGuiEx::Text(label_pos, value_label(val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
             });
         }
     );
@@ -309,27 +330,29 @@ void component_register_extra() {
 
             const bool right_pin = comp->property_value("right", false);
             const float width = 20;
-            const float height = 20;
-            const float full_height = comp->num_inputs() * height;
-            ui_comp->change_size(width, full_height);
+            const float pin_spacing = 20;
+            const float height = comp->num_inputs() * pin_spacing;
+            ui_comp->change_size(width, height);
             ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
-                                  {(right_pin ? 0.5f : -0.5f) * width, -full_height * 0.5f + (height * 0.5f)},
-                                  {0, height});
+                                  {(right_pin ? 0.5f : -0.5f) * width, -height * 0.5f + (pin_spacing * 0.5f)},
+                                  {0, pin_spacing});
 
             // custom draw function
             ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
 
-                auto origin = Point(-width * 0.5f, -full_height * 0.5f);
+                auto origin = Point(-width * 0.5f, -height * 0.5f);
                 auto orient = ui_comp->component()->angle();
 
                 ImGui::BeginGroup();
+
+				// connection points
                 ImGui::PushID(comp);
                 for (auto i = 0u; i < comp->num_inputs(); ++ i) {
                     auto cur_val = VALUE_FALSE;
                     if (ui_circuit->is_simulating()) {
                         cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
                     }
-                    auto center_pos = to_window.apply(Point(origin.x + (width * 0.5f), origin.y + (i * 20.0f) + (height * 0.5f)));
+                    auto center_pos = to_window.apply(Point(origin.x + (width * 0.5f), origin.y + (i * pin_spacing) + (pin_spacing * 0.5f)));
 
                     ImGui::PushID(i);
                     ImGui::GetWindowDrawList()->AddCircleFilled(center_pos, 8, COLOR_CONNECTION[cur_val]);
@@ -338,7 +361,7 @@ void component_register_extra() {
                 ImGui::PopID();
 
                 // label 
-                Point anchor = to_window.apply(origin + Point(right_pin ? -5 : (width + 5), (full_height / 2.0f)));
+                Point anchor = to_window.apply(origin + Point(right_pin ? -5 : (width + 5), (height / 2.0f)));
 
                 static const std::pair<ImGuiEx::TextAlignHor, ImGuiEx::TextAlignVer> label_align[] = {
                     {ImGuiEx::TAH_LEFT,     ImGuiEx::TAV_CENTER},   // East - left pin
@@ -394,6 +417,11 @@ void component_register_extra() {
         }
     );
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// logic gates
+//
 
 void component_register_gates() {
 
@@ -488,6 +516,11 @@ void component_register_gates() {
     );
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// I/O components
+//
+
 void component_register_input_output() {
 
     auto icon_7_segment_led = ComponentIcon::cache(COMPONENT_7_SEGMENT_LED, SHAPE_7_SEGMENT_LED, sizeof(SHAPE_7_SEGMENT_LED));
@@ -516,7 +549,7 @@ void component_register_input_output() {
                 const auto width = 4;
 
                 auto sim_comp = ui_circuit->is_simulating() ? ui_circuit->circuit_inst()->component_by_id(comp->id()) : nullptr;
-                auto enabled  = ui_circuit->is_simulating() ? sim_comp->read_pin(sim_comp->control_pin_index(0)) == VALUE_TRUE : false;
+                auto enabled  = sim_comp ? sim_comp->read_pin(sim_comp->control_pin_index(0)) == VALUE_TRUE : false;
 
                 ImU32 led_colors[8] = {color_off, color_off, color_off, color_off,color_off, color_off, color_off, color_off};
 
@@ -549,7 +582,6 @@ void component_register_input_output() {
                 draw_list->AddLine({-25, 30}, {10, 30}, led_colors[3], width);                               // D
                 draw_list->AddCircleFilled({20, 30}, 3, led_colors[7]);                                      // DP
                 ImGuiEx::TransformEnd(to_window);
-
             });
         }
     );

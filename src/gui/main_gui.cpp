@@ -2,7 +2,7 @@
 #include "imgui_ex.h"
 
 #include "component_ui.h"
-#include "component_std.h"
+#include "component_draw.h"
 
 #include "lsim_context.h"
 #include "sim_circuit.h"
