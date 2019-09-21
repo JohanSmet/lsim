@@ -833,6 +833,6 @@ void UICircuitBuilder::rematerialize_component(UICircuit *circuit, ComponentWidg
 	materialize_component(ui_component);
 }
 
-} // namespace lsim
+} // namespace lsim::gui
 
-} // namespace gui
+} // namespace lsim

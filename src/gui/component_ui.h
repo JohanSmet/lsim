@@ -165,7 +165,7 @@ private:
     
 };
 
-} // namespace gui
+} // namespace lsim::gui
 
 } // namespace lsim
 

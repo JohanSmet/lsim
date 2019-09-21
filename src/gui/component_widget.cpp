@@ -115,6 +115,6 @@ void ComponentWidget::dematerialize() {
 	m_endpoints.clear();
 }
 
-} // namespace lsim
+} // namespace lsim::gui
 
-} // namespace gui
+} // namespace lsim

@@ -69,6 +69,6 @@ ComponentIcon* ComponentIcon::cached(uint32_t id) {
 	}
 }
 
-} // namespace lsim
+} // namespace lsim::gui
 
-} // namespace gui
+} // namespace lsim

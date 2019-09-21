@@ -19,7 +19,7 @@ typedef std::function<void(const std::string &)> on_select_func_t;
 void ui_file_selector_open(LSimContext *context, on_select_func_t on_select);
 void ui_file_selector_define();
 
-} // namespace gui
+} // namespace lsim::gui
 
 } // namespace lsim
 

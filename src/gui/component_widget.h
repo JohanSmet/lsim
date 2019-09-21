@@ -73,8 +73,8 @@ private:
 	endpoint_map_t      m_endpoints;
 };
 
-} // namespace lsim
+} // namespace lsim::gui
 
-} // namespace gui
+} // namespace lsim
 
 #endif // LSIM_GUI_COMPONENT_WIDGET_H

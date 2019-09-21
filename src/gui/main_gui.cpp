@@ -596,6 +596,6 @@ void main_gui_drill_down_sub_circuit(SimCircuit *parent_inst, ModelComponent *co
 	sub_circuit_drill_downs.push_front(std::move(sub_circuit));
 }
 
-} // namespace lsim
+} // namespace lsim::gui
 
-} // namespace gui
+} // namespace lsim

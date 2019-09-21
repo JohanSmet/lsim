@@ -9,8 +9,9 @@ namespace gui {
 
 constexpr float GRID_SIZE = 10.0f;
 
+} // namespace gui
+
 } // namespace lsim
 
-} // namespace gui
 
 #endif // LSIM_GUI_CONFIGURATION_H

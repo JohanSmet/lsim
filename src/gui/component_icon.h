@@ -31,7 +31,7 @@ private:
 	static icon_lut_t   m_icon_cache;
 };
 
-} // namespace gui
+} // namespace lsim::gui
 
 } // namespace lsim
 

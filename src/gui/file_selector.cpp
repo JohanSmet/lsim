@@ -100,6 +100,6 @@ void ui_file_selector_define() {
     }
 }
 
-} // namespace gui
+} // namespace lsim::gui
 
 } // namespace lsim
