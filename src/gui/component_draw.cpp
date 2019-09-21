@@ -19,9 +19,9 @@ namespace {
 using namespace lsim;
 using namespace lsim::gui;
 
-void materialize_gate(UIComponent *ui_comp, float min_width = 60, float min_height = 60) {
+void materialize_gate(ComponentWidget *widget, float min_width = 60, float min_height = 60) {
 
-	auto model = ui_comp->component();
+	auto model = widget->component_model();
 
 	// size of component box depends on pin count
 	const float width = std::max(min_width, 10.0f * std::ceil((model->num_controls() + 1) / 2.0f));
@@ -29,19 +29,19 @@ void materialize_gate(UIComponent *ui_comp, float min_width = 60, float min_heig
 	const float h_width = width / 2.0f;
 	const float h_height = height / 2.0f;
 
-	ui_comp->change_size(width, height);
+	widget->change_size(width, height);
 
 	// pins
 	if (model->num_inputs() > 0) {
-		ui_comp->add_pin_line(model->input_pin_id(0), model->num_inputs(),
+		widget->add_pin_line(model->input_pin_id(0), model->num_inputs(),
 			height, { -h_width, 0 }, { 0, 1 });
 	}
 	if (model->num_outputs() > 0) {
-		ui_comp->add_pin_line(model->output_pin_id(0), model->num_outputs(),
+		widget->add_pin_line(model->output_pin_id(0), model->num_outputs(),
 			height, { h_width, 0 }, { 0, 1 });
 	}
 	if (model->num_controls() > 0) {
-		ui_comp->add_pin_line(model->control_pin_id(0), model->num_controls(),
+		widget->add_pin_line(model->control_pin_id(0), model->num_controls(),
 			width, { 0, -h_height }, { 1, 0 });
 	}
 }
@@ -75,22 +75,22 @@ void component_register_basic() {
     // connector input
     auto icon_connector_in = ComponentIcon::cache(COMPONENT_CONNECTOR_IN, SHAPE_CONNECTOR_IN, sizeof(SHAPE_CONNECTOR_IN));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_CONNECTOR_IN, [](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("Input");
+        COMPONENT_CONNECTOR_IN, [](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("Input");
 
             const float width = 20;
             const float pin_spacing = 20;
             const float height = comp->num_outputs() * pin_spacing;
             const bool desc = comp->property_value("descending", false);
-            ui_comp->change_size(width, height);
-            ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
+            widget->change_size(width, height);
+            widget->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
                                   {0.5f * width, ((-height * 0.5f) + (pin_spacing * 0.5f)) * (desc ? -1.0f : 1.0f)},
                                   {0, pin_spacing * (desc ? -1.0f : 1.0f)});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
 
-                auto model = ui_comp->component();
+                auto model = widget->component_model();
 
                 bool is_tristate = model->property_value("tri_state", false);
                 auto origin = Point(-width * 0.5f, -height * 0.5f);
@@ -148,23 +148,23 @@ void component_register_basic() {
     // connector output
     auto icon_connector_out = ComponentIcon::cache(COMPONENT_CONNECTOR_OUT, SHAPE_CONNECTOR_OUT, sizeof(SHAPE_CONNECTOR_OUT));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_CONNECTOR_OUT, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("Output");
+        COMPONENT_CONNECTOR_OUT, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("Output");
 
             const float width = 20;
             const float pin_spacing = 20;
             const float height = comp->num_inputs() * pin_spacing;
             const bool desc = comp->property_value("descending", false);
-            ui_comp->change_size(width, height);
-            ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
+            widget->change_size(width, height);
+            widget->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
                                   {-0.5f * width, (-height * 0.5f + (pin_spacing * 0.5f)) * (desc ? -1.0f : 1.0f)},
                                   {0, desc ? -pin_spacing : pin_spacing});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
 
                 auto origin = Point(-width * 0.5f, -height * 0.5f);
-                auto orient = ui_comp->component()->angle();
+                auto orient = widget->component_model()->angle();
 				const Point button_half_size = {8,8};
 
                 ImGui::BeginGroup();
@@ -207,16 +207,16 @@ void component_register_basic() {
     // constant
     auto icon_constant = ComponentIcon::cache(COMPONENT_CONSTANT, SHAPE_CONSTANT, sizeof(SHAPE_CONSTANT));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_CONSTANT, [=](ModelComponent *comp, UIComponent *ui_comp) {
+        COMPONENT_CONSTANT, [=](ModelComponent *comp, ComponentWidget *widget) {
             const float width = 20;
             const float height = 20;
-            ui_comp->change_size(width, height);
-            ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(), 
+            widget->change_size(width, height);
+            widget->add_pin_line(comp->output_pin_id(0), comp->num_outputs(), 
                                   {0.5f * width, (-height * 0.5f) + (height * 0.5f)}, 
                                   {0, height});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
                 auto val = comp->property_value("value", VALUE_FALSE);
                 auto center_pos = to_window.apply(Point(0.0f, 0.0f));
                 ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[val]);
@@ -227,26 +227,26 @@ void component_register_basic() {
 
     // sub circuit
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_SUB_CIRCUIT, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            auto nested = ui_comp->component()->nested_circuit();
+        COMPONENT_SUB_CIRCUIT, [=](ModelComponent *comp, ComponentWidget *widget) {
+            auto nested = widget->component_model()->nested_circuit();
 
             // materialize the sub-circuit
             bool flip = comp->property_value("flip", false);
             float width = 160;
             float height = (std::max(nested->num_input_ports(), nested->num_output_ports()) + 1) * 20.0f + 20.0f;
 
-            ui_comp->change_size(width, height);
+            widget->change_size(width, height);
             if (comp->num_inputs() > 0) {
-                ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
+                widget->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
                                     {(flip ? 1.0f : -1.0f) * width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
             }
             if (comp->num_outputs() > 0) {
-                ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
+                widget->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
                                     {(flip ? -1.0f : 1.0f) * width/2.0f, -height/2.0f + 20}, {0.0f, 20.0f});
             }
 
             // custom draw function for pin labels
-            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
 
                 ImGuiEx::TransformStart();
 
@@ -299,15 +299,15 @@ void component_register_extra() {
     // Pull Resistor
     auto icon_pull_resistor = ComponentIcon::cache(COMPONENT_PULL_RESISTOR, SHAPE_PULL_RESISTOR, sizeof(SHAPE_PULL_RESISTOR));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_PULL_RESISTOR, [=](ModelComponent *comp, UIComponent *ui_comp) {
+        COMPONENT_PULL_RESISTOR, [=](ModelComponent *comp, ComponentWidget *widget) {
             const float width = 40;
             const float height = 20;
-            ui_comp->change_size(width, height);
-            ui_comp->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
+            widget->change_size(width, height);
+            widget->add_pin_line(comp->output_pin_id(0), comp->num_outputs(),
                                   {0.5f * width, 0}, {0, 20});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
                 // icon in right half
                 auto icon_pos = to_window.apply(Point(width * 0.25f, 0.0f));
                 icon_pull_resistor->draw(icon_pos, Point(16,16), ImGui::GetWindowDrawList(), 1, COLOR_COMPONENT_BORDER);
@@ -324,24 +324,24 @@ void component_register_extra() {
     // Via
     auto icon_via = ComponentIcon::cache(COMPONENT_VIA, SHAPE_VIA, sizeof(SHAPE_VIA));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_VIA, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("Via");
-            ui_comp->change_icon(icon_via);
+        COMPONENT_VIA, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("Via");
+            widget->change_icon(icon_via);
 
             const bool right_pin = comp->property_value("right", false);
             const float width = 20;
             const float pin_spacing = 20;
             const float height = comp->num_inputs() * pin_spacing;
-            ui_comp->change_size(width, height);
-            ui_comp->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
+            widget->change_size(width, height);
+            widget->add_pin_line(comp->input_pin_id(0), comp->num_inputs(),
                                   {(right_pin ? 0.5f : -0.5f) * width, -height * 0.5f + (pin_spacing * 0.5f)},
                                   {0, pin_spacing});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([=](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
 
                 auto origin = Point(-width * 0.5f, -height * 0.5f);
-                auto orient = ui_comp->component()->angle();
+                auto orient = widget->component_model()->angle();
 
                 ImGui::BeginGroup();
 
@@ -385,10 +385,10 @@ void component_register_extra() {
     // oscillator
     auto icon_oscillator = ComponentIcon::cache(COMPONENT_OSCILLATOR, SHAPE_OSCILLATOR, sizeof(SHAPE_OSCILLATOR));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_OSCILLATOR, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("Oscillator");
-            ui_comp->change_icon(icon_oscillator);
-            materialize_gate(ui_comp);
+        COMPONENT_OSCILLATOR, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("Oscillator");
+            widget->change_icon(icon_oscillator);
+            materialize_gate(widget);
         }
     );
 
@@ -396,18 +396,18 @@ void component_register_extra() {
     // Text
     auto icon_text = ComponentIcon::cache(COMPONENT_TEXT, SHAPE_TEXT, sizeof(SHAPE_TEXT));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_TEXT, [icon_text] (ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->show_border(false);
-            ui_comp->change_icon(icon_text);
-            ui_comp->change_size(0, 0);
+        COMPONENT_TEXT, [icon_text] (ModelComponent *comp, ComponentWidget *widget) {
+            widget->show_border(false);
+            widget->change_icon(icon_text);
+            widget->change_size(0, 0);
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
-                auto text = ui_comp->component()->property_value("text", "-");
+            widget->set_draw_callback([](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+                auto text = widget->component_model()->property_value("text", "-");
 
-                if (ui_comp->aabb_size().x == 0) {
+                if (widget->aabb_size().x == 0) {
                     auto size = ImGui::CalcTextSize(text.c_str());
-                    const_cast<UIComponent *>(ui_comp)->change_size(size.x, size.y);
+                    const_cast<ComponentWidget *>(widget)->change_size(size.x, size.y);
                 }
 
                 ImGuiEx::TransformStart();  
@@ -428,90 +428,90 @@ void component_register_gates() {
     // buffer
     auto icon_buffer = ComponentIcon::cache(COMPONENT_BUFFER, SHAPE_BUFFER, sizeof(SHAPE_BUFFER));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_BUFFER, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("Buffer");
-            ui_comp->change_icon(icon_buffer);
-            materialize_gate(ui_comp, 60, 40);
+        COMPONENT_BUFFER, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("Buffer");
+            widget->change_icon(icon_buffer);
+            materialize_gate(widget, 60, 40);
         }
     );
 
     // tristate buffer
 	auto icon_tristate_buffer = ComponentIcon::cache(COMPONENT_TRISTATE_BUFFER, SHAPE_TRISTATE_BUFFER, sizeof(SHAPE_TRISTATE_BUFFER));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_TRISTATE_BUFFER, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("Tri-state Buffer");
-            ui_comp->change_icon(icon_tristate_buffer);
-            materialize_gate(ui_comp);
+        COMPONENT_TRISTATE_BUFFER, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("Tri-state Buffer");
+            widget->change_icon(icon_tristate_buffer);
+            materialize_gate(widget);
         }
     );
 
     // AND gate
 	auto icon_and = ComponentIcon::cache(COMPONENT_AND_GATE, SHAPE_AND_GATE, sizeof(SHAPE_AND_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_AND_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("AND");
-            ui_comp->change_icon(icon_and);
-            materialize_gate(ui_comp);
+        COMPONENT_AND_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("AND");
+            widget->change_icon(icon_and);
+            materialize_gate(widget);
         }
     );
 
     // OR gate
 	auto icon_or = ComponentIcon::cache(COMPONENT_OR_GATE, SHAPE_OR_GATE, sizeof(SHAPE_OR_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_OR_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("OR");
-            ui_comp->change_icon(icon_or);
-            materialize_gate(ui_comp);
+        COMPONENT_OR_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("OR");
+            widget->change_icon(icon_or);
+            materialize_gate(widget);
         }
     );
 
     // NOT gate
 	auto icon_not = ComponentIcon::cache(COMPONENT_NOT_GATE, SHAPE_NOT_GATE, sizeof(SHAPE_NOT_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_NOT_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("NOT");
-            ui_comp->change_icon(icon_not);
-            materialize_gate(ui_comp, 60, 40);
+        COMPONENT_NOT_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("NOT");
+            widget->change_icon(icon_not);
+            materialize_gate(widget, 60, 40);
         }
     );
 
     // NAND gate
 	auto icon_nand = ComponentIcon::cache(COMPONENT_NAND_GATE, SHAPE_NAND_GATE, sizeof(SHAPE_NAND_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_NAND_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("NAND");
-            ui_comp->change_icon(icon_nand);
-            materialize_gate(ui_comp);
+        COMPONENT_NAND_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("NAND");
+            widget->change_icon(icon_nand);
+            materialize_gate(widget);
         }
     );
 
     // NOR gate
 	auto icon_nor = ComponentIcon::cache(COMPONENT_NOR_GATE, SHAPE_NOR_GATE, sizeof(SHAPE_NOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_NOR_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("NOR");
-            ui_comp->change_icon(icon_nor);
-            materialize_gate(ui_comp);
+        COMPONENT_NOR_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("NOR");
+            widget->change_icon(icon_nor);
+            materialize_gate(widget);
         }
     );
 
     // XOR gate
 	auto icon_xor = ComponentIcon::cache(COMPONENT_XOR_GATE, SHAPE_XOR_GATE, sizeof(SHAPE_XOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_XOR_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("XOR");
-            ui_comp->change_icon(icon_xor);
-            materialize_gate(ui_comp);
+        COMPONENT_XOR_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("XOR");
+            widget->change_icon(icon_xor);
+            materialize_gate(widget);
         }
     );
 
     // XNOR gate
 	auto icon_xnor = ComponentIcon::cache(COMPONENT_XNOR_GATE, SHAPE_XNOR_GATE, sizeof(SHAPE_XNOR_GATE));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_XNOR_GATE, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("XNOR");
-            ui_comp->change_icon(icon_xnor);
-            materialize_gate(ui_comp);
+        COMPONENT_XNOR_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("XNOR");
+            widget->change_icon(icon_xnor);
+            materialize_gate(widget);
         }
     );
 }
@@ -525,24 +525,24 @@ void component_register_input_output() {
 
     auto icon_7_segment_led = ComponentIcon::cache(COMPONENT_7_SEGMENT_LED, SHAPE_7_SEGMENT_LED, sizeof(SHAPE_7_SEGMENT_LED));
     UICircuitBuilder::register_materialize_func(
-        COMPONENT_7_SEGMENT_LED, [=](ModelComponent *comp, UIComponent *ui_comp) {
-            ui_comp->change_tooltip("7-segment LED");
+        COMPONENT_7_SEGMENT_LED, [=](ModelComponent *comp, ComponentWidget *widget) {
+            widget->change_tooltip("7-segment LED");
 
             const float width = 60;
             const float height = 80;
-            ui_comp->change_size(width, height);
-            ui_comp->add_pin_line(comp->input_pin_id(0), 4,
+            widget->change_size(width, height);
+            widget->add_pin_line(comp->input_pin_id(0), 4,
                                   width, {0, -height * 0.5f}, {1, 0});
-            ui_comp->add_pin_line(comp->input_pin_id(0) + 4, 4,
+            widget->add_pin_line(comp->input_pin_id(0) + 4, 4,
                                   width, {0, height * 0.5f}, {1, 0});
 
-            ui_comp->add_pin_line(comp->control_pin_id(0), comp->num_controls(),
+            widget->add_pin_line(comp->control_pin_id(0), comp->num_controls(),
                                   width, {0, height * 0.5f}, {1, 0});
 
             // custom draw function
-            ui_comp->set_custom_ui_callback([](UICircuit *ui_circuit, const UIComponent *ui_comp, Transform to_window) {
+            widget->set_draw_callback([](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
                 auto draw_list = ImGui::GetWindowDrawList();
-                auto comp = ui_comp->component();
+                auto comp = widget->component_model();
                 const auto slope = 5.0f / 30.f;
                 const auto color_off = IM_COL32(100, 0, 0, 255);
                 const auto color_on = IM_COL32(255, 0, 0, 255);

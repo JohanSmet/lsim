@@ -132,6 +132,9 @@ target_sources(${APP_TARGET}
 		src/gui/component_draw.h
 		src/gui/component_ui.cpp
 		src/gui/component_ui.h
+		src/gui/component_widget.cpp
+		src/gui/component_widget.h
+		src/gui/configuration.h
 		src/gui/file_selector.cpp
 		src/gui/file_selector.h
 		src/gui/imgui_ex.cpp

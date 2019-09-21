@@ -3,6 +3,7 @@
 #ifndef LSIM_GUI_COMPONENT_UI_H
 #define LSIM_GUI_COMPONENT_UI_H
 
+#include "component_widget.h"
 #include "model_circuit.h"
 #include "algebra.h"
 
@@ -20,10 +21,8 @@ class SimCircuit;
 namespace gui {
 
 class ComponentIcon;
-class UIComponent;
 class UICircuit;
 
-typedef std::function<void (UICircuit *, const UIComponent *, Transform)> ui_component_func_t;
 
 enum UICircuitState {
     CS_IDLE = 0,
@@ -34,59 +33,6 @@ enum UICircuitState {
     CS_SIMULATING
 };
 
-class UIComponent {
-public:
-    typedef std::unordered_map<pin_id_t, Point> endpoint_map_t;
-    typedef std::unique_ptr<UIComponent> uptr_t;
-
-public:
-    UIComponent(ModelComponent *comp);
-
-    ModelComponent *component() const {return m_component;}
-    bool has_border() const {return m_border;}
-    bool has_tooltip() const {return !m_tooltip.empty();}
-    const char *tooltip() const {return m_tooltip.c_str();}
-    const ComponentIcon *icon() const {return m_icon;}
-    const Transform &to_circuit() const {return m_to_circuit;}
-    const Point &aabb_min() const {return m_aabb_min;}
-    const Point &aabb_max() const {return m_aabb_max;}
-    Point aabb_size() const {return m_aabb_max - m_aabb_min;}
-
-    void show_border(bool show) {m_border = show;}
-    void change_tooltip(const char *tooltip);
-    void change_icon(const ComponentIcon *icon);
-    void change_size(float width, float height);
-    void build_transform();
-
-    void set_custom_ui_callback(ui_component_func_t func);
-    bool has_custom_ui_callback() const {return m_custom_ui_callback != nullptr;}
-    void call_custom_ui_callback(UICircuit *circuit, Transform transform);
-
-    void add_endpoint(pin_id_t pin, Point location); 
-    void add_pin_line(pin_id_t pin_start, size_t pin_count, float size, Point origin, Point inc); 
-    void add_pin_line(pin_id_t pin_start, size_t pin_count, Point origin, Point delta);
-
-    const endpoint_map_t &endpoints() const {return m_endpoints;}
-
-    void dematerialize();
-
-private:
-    void recompute_aabb();
-
-private:
-    ModelComponent *         m_component;
-    bool                m_border;
-    std::string         m_tooltip;
-    Transform           m_to_circuit;
-    Point               m_half_size;
-    Point               m_aabb_min;
-    Point               m_aabb_max;
-    const ComponentIcon *m_icon;
-    ui_component_func_t m_custom_ui_callback;
-
-    endpoint_map_t      m_endpoints;
-};
-
 
 class UICircuit {
 public:
@@ -95,16 +41,16 @@ public:
 public:
     UICircuit(ModelCircuit *circuit_desc);
 
-    UIComponent *create_component(ModelComponent *component);
-    void remove_component(UIComponent *ui_comp);
+    ComponentWidget *create_component(ModelComponent *component_model);
+    void remove_component(ComponentWidget *ui_comp);
 
     void draw();
     Point circuit_dimensions() const;
 
     void move_selected_components();
     void delete_selected_components();
-    void move_component_abs(UIComponent *comp, Point pos);
-    void ui_create_component(ModelComponent *component);
+    void move_component_abs(ComponentWidget *comp, Point pos);
+    void ui_create_component(ModelComponent *component_model);
     void embed_circuit(const char *name);
     void create_wire();
 
@@ -114,16 +60,16 @@ public:
     // selection
     size_t num_selected_items() const {return m_selection.size();}
     void clear_selection();
-    void select_component(UIComponent *component);
-    void deselect_component(UIComponent *component);
+    void select_component(ComponentWidget *widget);
+    void deselect_component(ComponentWidget *widget);
     void select_wire_segment(ModelWireSegment *segment);
     void deselect_wire_segment(ModelWireSegment *segment);
     void select_by_area(Point p0, Point p1);
-    void toggle_selection(UIComponent *component);
+    void toggle_selection(ComponentWidget *widget);
     void toggle_selection(ModelWireSegment *segment);
-    bool is_selected(UIComponent *component);
+    bool is_selected(ComponentWidget *widget);
     bool is_selected(ModelWireSegment *segment);
-    UIComponent *selected_component() const;
+    ComponentWidget *selected_component() const;
 
     // simulation
     void set_simulation_instance(SimCircuit *circuit_inst, bool view_only = false);
@@ -131,7 +77,7 @@ public:
     bool is_view_only_simulation() const {return m_view_only;};
 
     // connections
-    void fix_component_connections(UIComponent *ui_comp);
+    void fix_component_connections(ComponentWidget *ui_comp);
 
     // copy & paste
     void copy_selected_components();
@@ -151,7 +97,7 @@ private:
     };
 
     typedef std::vector<ModelComponent::uptr_t>      component_container_t;
-    typedef std::vector<UIComponent::uptr_t>    ui_component_container_t;
+    typedef std::vector<ComponentWidget::uptr_t>    ui_component_container_t;
     typedef std::vector<Point>                  point_container_t;
     typedef std::unordered_map<Point, pin_id_t, PointHash>  point_pin_lut_t;
 
@@ -162,7 +108,7 @@ private:
     };
 
     struct SelectedItem {
-        UIComponent *m_component;
+        ComponentWidget *m_component;
         ModelWireSegment *m_segment;
     };
     typedef std::vector<SelectedItem>   selection_container_t;
@@ -182,7 +128,7 @@ private:
 
     UICircuitState      m_state;
 
-    UIComponent *       m_hovered_component;
+    ComponentWidget *       m_hovered_component;
     pin_id_t            m_hovered_pin;
     ModelWire *              m_hovered_wire;
 
@@ -196,7 +142,7 @@ private:
 
     SimCircuit *   m_circuit_inst;
     bool                m_view_only;
-    UIComponent *       m_popup_component;
+    ComponentWidget *       m_popup_component;
 
     Point   m_scroll_delta;
     bool    m_show_grid;
@@ -205,12 +151,12 @@ private:
 
 class UICircuitBuilder {
 public:
-    typedef std::function<void(ModelComponent *, UIComponent *)> materialize_func_t;
+    typedef std::function<void(ModelComponent *, ComponentWidget *)> materialize_func_t;
 public:
     static void register_materialize_func(ComponentType type, materialize_func_t func);
     static UICircuit::uptr_t create_circuit(ModelCircuit *circuit);
-    static void materialize_component(UIComponent *ui_component);
-    static void rematerialize_component(UICircuit *circuit, UIComponent *ui_component);
+    static void materialize_component(ComponentWidget *ui_component);
+    static void rematerialize_component(UICircuit *circuit, ComponentWidget *ui_component);
 
 private:
     typedef std::unordered_map<ComponentType, materialize_func_t> materialize_func_map_t;

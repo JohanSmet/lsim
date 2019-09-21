@@ -1,6 +1,7 @@
 // component_ui.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 
 #include "component_ui.h"
+#include "configuration.h"
 #include "imgui_ex.h"
 
 #define NANOSVG_IMPLEMENTATION
@@ -18,8 +19,6 @@
 #include "simulator.h"
 
 namespace {
-
-static const float GRID_SIZE = 10.0f;
 
 static const char *POPUP_EMBED_CIRCUIT = "embed_circuit";
 static const char *POPUP_SUB_CIRCUIT = "sub_circuit";
@@ -40,114 +39,8 @@ size_t UICircuit::PointHash::operator() (const Point &p) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// UIComponent
+// ComponentWidget
 //
-
-UIComponent::UIComponent(ModelComponent *component) :
-		m_component(component),
-		m_border(true),
-		m_tooltip(""),
-		m_half_size(0.0f, 0.0f),
-		m_icon(nullptr),
-		m_custom_ui_callback(nullptr) {
-	build_transform();
-}
-
-void UIComponent::change_tooltip(const char *tooltip) {
-	m_tooltip = tooltip;
-}
-
-void UIComponent::change_icon(const ComponentIcon *icon) {
-	m_icon = icon;
-}
-
-void UIComponent::build_transform() {
-	m_to_circuit.reset();
-	m_to_circuit.rotate(static_cast<float>(m_component->angle()));
-	m_to_circuit.translate(m_component->position());
-	recompute_aabb();
-}
-
-void UIComponent::change_size(float width, float height) {
-	m_half_size = {width / 2.0f, height / 2.0f};
-	recompute_aabb();
-}
-
-void UIComponent::recompute_aabb() {
-	m_aabb_min = m_to_circuit.apply({-m_half_size.x, -m_half_size.y});
-	m_aabb_max = m_to_circuit.apply({m_half_size.x, m_half_size.y});
-	if (m_aabb_max.x < m_aabb_min.x) {
-        std::swap(m_aabb_min.x, m_aabb_max.x);
-	}
-
-	if (m_aabb_max.y < m_aabb_min.y) {
-        std::swap(m_aabb_min.y, m_aabb_max.y);
-	}
-}
-
-void UIComponent::set_custom_ui_callback(ui_component_func_t func) {
-	m_custom_ui_callback = func;
-}
-
-void UIComponent::call_custom_ui_callback(UICircuit *circuit, Transform transform) {
-	if (m_custom_ui_callback) {
-		m_custom_ui_callback(circuit, this, transform);
-	}
-}
-
-void UIComponent::add_endpoint(pin_id_t pin, Point location) {
-	m_endpoints[pin] = location;
-}
-
-void UIComponent::add_pin_line(pin_id_t pin_start, size_t pin_count, float size, Point origin, Point inc) {
-	if (pin_count == 0) {
-		return;
-	}
-
-	auto odd  = pin_count % 2;
-	float half = (pin_count - odd) * 0.5f;
-	float segment_len = size / (2.0f * (half + 1));
-	segment_len = roundf(segment_len / GRID_SIZE) * GRID_SIZE;
-	auto segment_delta = inc * segment_len;
-	auto pin = pin_start;
-
-	// top half
-	Point pos = origin - (segment_delta * half);
-
-	for (size_t idx = 0; idx < half; ++idx) {
-		add_endpoint(pin++, pos);
-		pos = pos + segment_delta;
-	}
-
-	// center
-	if (odd > 0) {
-		add_endpoint(pin++, origin);
-	}
-
-	// bottom half
-	pos = origin + segment_delta;
-
-	for (size_t idx = 0; idx < half; ++idx) {
-		add_endpoint(pin++, pos);
-		pos = pos + segment_delta;
-	}
-}
-
-void UIComponent::add_pin_line(pin_id_t pin_start, size_t pin_count, Point origin, Point delta) {
-	if (pin_count == 0) {
-		return;
-	}
-
-	auto pos = origin;
-    for (size_t i = 0; i < pin_count; ++i) {
-        add_endpoint(pin_start+i, pos);
-		pos = pos + delta;
-	}
-}
-
-void UIComponent::dematerialize() {
-	m_endpoints.clear();
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,14 +58,14 @@ UICircuit::UICircuit(ModelCircuit *circuit_desc) :
 			m_popup_component(nullptr) {
 }
 
-UIComponent *UICircuit::create_component(ModelComponent *component) {
-	m_ui_components.push_back(std::make_unique<UIComponent>(component));
+ComponentWidget *UICircuit::create_component(ModelComponent *component_model) {
+	m_ui_components.push_back(std::make_unique<ComponentWidget>(component_model));
 	auto comp = m_ui_components.back().get();
 	UICircuitBuilder::materialize_component(comp);
 	return comp;
 }
 
-void UICircuit::remove_component(UIComponent *ui_comp) {
+void UICircuit::remove_component(ComponentWidget *ui_comp) {
 	remove_owner(m_ui_components, ui_comp);
 }
 
@@ -230,10 +123,10 @@ void UICircuit::draw() {
 		Transform to_screen = comp->to_circuit();
 		to_screen.translate(offset);
 
-		if (comp->has_custom_ui_callback()) {
+		if (comp->has_draw_callback()) {
 			ImGui::SetCursorScreenPos(comp->aabb_min() + offset);
 			draw_list->ChannelsSetCurrent(1);
-			comp->call_custom_ui_callback(this, to_screen);
+			comp->run_draw_callback(this, to_screen);
 		}
 
 		draw_list->ChannelsSetCurrent(0);         // background
@@ -452,7 +345,7 @@ void UICircuit::draw() {
 
 	// -> simulation-mode: right mouse button released
 	if (is_simulating() && mouse_in_window && ImGui::IsMouseReleased(1)) {
-		if (m_hovered_component && m_hovered_component->component()->type() == COMPONENT_SUB_CIRCUIT) {
+		if (m_hovered_component && m_hovered_component->component_model()->type() == COMPONENT_SUB_CIRCUIT) {
 			ui_popup_sub_circuit_open();
 		}
 	}
@@ -558,7 +451,7 @@ void UICircuit::move_selected_components() {
 
 	for (auto &item : m_selection) {
 		if (item.m_component) {
-			auto comp = item.m_component->component();
+			auto comp = item.m_component->component_model();
 			comp->set_position(comp->position() + delta);
 			item.m_component->build_transform();
 		}
@@ -577,7 +470,7 @@ void UICircuit::delete_selected_components() {
 
 	for (auto &item : m_selection) {
 		if (item.m_component) {
-			auto comp = item.m_component->component();
+			auto comp = item.m_component->component_model();
 			m_circuit_desc->remove_component(comp->id());
 			remove_component(item.m_component);
 		} else if (item.m_segment) {
@@ -616,8 +509,8 @@ void UICircuit::delete_selected_components() {
 	clear_selection();
 }
 
-void UICircuit::move_component_abs(UIComponent *ui_comp, Point new_pos) {
-	ui_comp->component()->set_position({new_pos.x, new_pos.y});
+void UICircuit::move_component_abs(ComponentWidget *ui_comp, Point new_pos) {
+	ui_comp->component_model()->set_position({new_pos.x, new_pos.y});
 	ui_comp->build_transform();
 }
 
@@ -686,16 +579,16 @@ void UICircuit::clear_selection() {
 	m_selection.clear();
 }
 
-void UICircuit::select_component(UIComponent *component) {
-	if (is_selected(component)) {
+void UICircuit::select_component(ComponentWidget *widget) {
+	if (is_selected(widget)) {
 		return;
 	}
 
-	m_selection.push_back({component, nullptr});
+	m_selection.push_back({widget, nullptr});
 }
 
-void UICircuit::deselect_component(UIComponent *component) {
-	remove_if(m_selection, [component](const auto &s) {return s.m_component == component;});
+void UICircuit::deselect_component(ComponentWidget *widget) {
+	remove_if(m_selection, [widget](const auto &s) {return s.m_component == widget;});
 }
 
 void UICircuit::select_wire_segment(ModelWireSegment *segment) {
@@ -729,11 +622,11 @@ void UICircuit::select_by_area(Point p0, Point p1) {
 	}
 }
 
-void UICircuit::toggle_selection(UIComponent *component) {
-	if (is_selected(component)) {
-		deselect_component(component);
+void UICircuit::toggle_selection(ComponentWidget *widget) {
+	if (is_selected(widget)) {
+		deselect_component(widget);
 	} else {
-		select_component(component);
+		select_component(widget);
 	}
 }
 
@@ -745,9 +638,9 @@ void UICircuit::toggle_selection(ModelWireSegment *segment) {
 	}
 }
 
-bool UICircuit::is_selected(UIComponent *component) {
+bool UICircuit::is_selected(ComponentWidget *widget) {
 	return std::any_of(m_selection.begin(), m_selection.end(),
-						[component](const auto &s) {return s.m_component == component;});
+						[widget](const auto &s) {return s.m_component == widget;});
 }
 
 bool UICircuit::is_selected(ModelWireSegment *segment) {
@@ -755,7 +648,7 @@ bool UICircuit::is_selected(ModelWireSegment *segment) {
 						[segment](const auto &s) {return s.m_segment == segment;});
 }
 
-UIComponent *UICircuit::selected_component() const {
+ComponentWidget *UICircuit::selected_component() const {
 	if (m_selection.size() == 1) {
 		return m_selection.front().m_component;
 	} else {
@@ -783,9 +676,9 @@ bool UICircuit::is_simulating() const {
 	return m_state == CS_SIMULATING;
 }
 
-void UICircuit::fix_component_connections(UIComponent *ui_comp) {
+void UICircuit::fix_component_connections(ComponentWidget *ui_comp) {
 	assert(ui_comp);
-	auto comp = ui_comp->component();
+	auto comp = ui_comp->component_model();
 
 	// disconnect the component
 	m_circuit_desc->disconnect_component(comp->id());
@@ -811,7 +704,7 @@ void UICircuit::copy_selected_components() {
 
 	for (auto &item : m_selection) {
 		if (item.m_component) {
-			auto comp = item.m_component->component();
+			auto comp = item.m_component->component_model();
 			m_copy_components.push_back(comp->copy());
 			m_copy_center = m_copy_center + comp->position();
 		}
@@ -893,7 +786,7 @@ void UICircuit::ui_popup_embed_circuit_open() {
 void UICircuit::ui_popup_sub_circuit() {
 	if (ImGui::BeginPopup(POPUP_SUB_CIRCUIT)) {
 		if (ImGui::Selectable("Drill down ...")) {
-			main_gui_drill_down_sub_circuit(m_circuit_inst, m_popup_component->component());
+			main_gui_drill_down_sub_circuit(m_circuit_inst, m_popup_component->component_model());
 		}
 		ImGui::EndPopup();
 	} 
@@ -927,14 +820,14 @@ UICircuit::uptr_t UICircuitBuilder::create_circuit(ModelCircuit *circuit) {
     return std::move(ui_circuit);
 }
 
-void UICircuitBuilder::materialize_component(UIComponent *ui_component) {
-	auto mat_func = m_materialize_funcs.find(ui_component->component()->type());
+void UICircuitBuilder::materialize_component(ComponentWidget *ui_component) {
+	auto mat_func = m_materialize_funcs.find(ui_component->component_model()->type());
 	if (mat_func != m_materialize_funcs.end()) {
-		mat_func->second(ui_component->component(), ui_component);
+		mat_func->second(ui_component->component_model(), ui_component);
 	}
 }
 
-void UICircuitBuilder::rematerialize_component(UICircuit *circuit, UIComponent *ui_component) {
+void UICircuitBuilder::rematerialize_component(UICircuit *circuit, ComponentWidget *ui_component) {
 	assert(circuit);
 	assert(ui_component);
 

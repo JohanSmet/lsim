@@ -244,7 +244,7 @@ static void ui_property_panel(LSimContext *context) {
 
 	if (ui_circuit != nullptr && ui_circuit->selected_component()) {
 		auto ui_comp = ui_circuit->selected_component();
-		auto component = ui_comp->component();
+		auto component = ui_comp->component_model();
 
 		// helper functions
 		auto text_property = [](const char *caption, Property *property) -> bool {
