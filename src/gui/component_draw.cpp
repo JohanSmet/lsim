@@ -3,6 +3,7 @@
 // functions to materialize components and define custom draw functions
 
 #include "component_draw.h"
+#include "component_icon.h"
 #include "component_ui.h"
 #include "imgui_ex.h"
 #include "shapes.h"

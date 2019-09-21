@@ -130,6 +130,8 @@ target_sources(${APP_TARGET}
 		src/gui/imgui/stb_truetype.h
 		src/gui/component_draw.cpp
 		src/gui/component_draw.h
+		src/gui/component_icon.cpp
+		src/gui/component_icon.h
 		src/gui/component_ui.cpp
 		src/gui/component_ui.h
 		src/gui/component_widget.cpp
