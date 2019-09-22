@@ -86,6 +86,7 @@ target_sources(${LIB_TARGET}
 		src/sim_gates.cpp
 		src/sim_various.cpp
 		src/sim_types.h
+		src/std_helper.h
 )
 target_include_directories(${LIB_TARGET} PRIVATE ${PUGIXML_INCLUDE})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})

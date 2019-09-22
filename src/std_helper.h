@@ -6,6 +6,7 @@
 #define LSIM_STD_HELPER_H
 
 #include <algorithm>
+#include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -18,6 +19,7 @@ using std::begin;
 using std::end;
 using std::move;
 using std::string;
+using std::unique_ptr;
 
 // functions to streamline removing elements from a container
 template<typename T>
@@ -26,7 +28,7 @@ void remove(std::vector<T>& container, const T& value) {
 }
 
 template<typename T>
-void remove_owner(std::vector<std::unique_ptr<T>>& container, const T* value) {
+void remove_owner(std::vector<unique_ptr<T>>& container, const T* value) {
 	container.erase(std::remove_if(begin(container), end(container), [value](const auto& el) {return el.get() == value; }),
 					end(container));
 }
