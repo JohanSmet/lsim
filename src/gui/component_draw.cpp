@@ -4,7 +4,8 @@
 
 #include "component_draw.h"
 #include "component_icon.h"
-#include "component_ui.h"
+#include "component_widget.h"
+#include "circuit_editor.h"
 #include "imgui_ex.h"
 #include "shapes.h"
 #include "colors.h"
@@ -75,7 +76,7 @@ void component_register_basic() {
 
     // connector input
     auto icon_connector_in = ComponentIcon::cache(COMPONENT_CONNECTOR_IN, SHAPE_CONNECTOR_IN, sizeof(SHAPE_CONNECTOR_IN));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_CONNECTOR_IN, [](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("Input");
 
@@ -89,7 +90,7 @@ void component_register_basic() {
                                   {0, pin_spacing * (desc ? -1.0f : 1.0f)});
 
             // custom draw function
-            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+            widget->set_draw_callback([=](CircuitEditor *circuit_editor, const ComponentWidget *widget, Transform to_window) {
 
                 auto model = widget->component_model();
 
@@ -106,21 +107,21 @@ void component_register_basic() {
                 for (auto i = 0u; i < model->num_outputs(); ++ i)
                 {
                     auto cur_val = VALUE_FALSE;
-                    if (ui_circuit->is_simulating()) {
-                        cur_val = ui_circuit->circuit_inst()->user_value(model->output_pin_id(i));
+                    if (circuit_editor->is_simulating()) {
+                        cur_val = circuit_editor->sim_circuit()->user_value(model->output_pin_id(i));
                     }
                     auto center_pos = to_window.apply(Point(0, ((-height * 0.5f) + ((i + 0.5f) * pin_spacing)) * (desc ? -1.0f : 1.0f)));
                     ImGui::SetCursorScreenPos(center_pos - button_half_size);
 
                     ImGui::PushID(i);
-                    if (ui_circuit->is_simulating() && !ui_circuit->is_view_only_simulation() &&
+                    if (circuit_editor->is_simulating() && !circuit_editor->is_view_only_simulation() &&
                         ImGui::InvisibleButton(value_label(cur_val), button_size)) {
                         cur_val = static_cast<Value>((cur_val + 1) % (is_tristate ? 3 : 2));
-                        ui_circuit->circuit_inst()->write_pin(model->output_pin_id(i), cur_val);
+                        circuit_editor->sim_circuit()->write_pin(model->output_pin_id(i), cur_val);
                     }
 
                     ImGuiEx::RectFilled(center_pos - button_half_size, center_pos + button_half_size, COLOR_CONNECTION[cur_val]);
-                    if (ui_circuit->is_simulating()) {
+                    if (circuit_editor->is_simulating()) {
                         ImGuiEx::Text(center_pos, value_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     } else {
                         ImGuiEx::Text(center_pos, std::to_string(i), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
@@ -148,7 +149,7 @@ void component_register_basic() {
 
     // connector output
     auto icon_connector_out = ComponentIcon::cache(COMPONENT_CONNECTOR_OUT, SHAPE_CONNECTOR_OUT, sizeof(SHAPE_CONNECTOR_OUT));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_CONNECTOR_OUT, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("Output");
 
@@ -162,7 +163,7 @@ void component_register_basic() {
                                   {0, desc ? -pin_spacing : pin_spacing});
 
             // custom draw function
-            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+            widget->set_draw_callback([=](CircuitEditor *circuit_editor, const ComponentWidget *widget, Transform to_window) {
 
                 auto origin = Point(-width * 0.5f, -height * 0.5f);
                 auto orient = widget->component_model()->angle();
@@ -172,14 +173,14 @@ void component_register_basic() {
                 ImGui::PushID(comp);
                 for (auto i = 0u; i < comp->num_inputs(); ++ i) {
                     auto cur_val = VALUE_FALSE;
-                    if (ui_circuit->is_simulating()) {
-                        cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
+                    if (circuit_editor->is_simulating()) {
+                        cur_val = circuit_editor->sim_circuit()->read_pin(comp->input_pin_id(i));
                     }
                     auto center_pos = to_window.apply(Point(0, ((-height * 0.5f) + ((i + 0.5f) * pin_spacing)) * (desc ? -1.0f : 1.0f)));
 
                     ImGui::PushID(i);
                     ImGuiEx::RectFilled(center_pos - button_half_size, center_pos + button_half_size, COLOR_CONNECTION[cur_val]);
-                    if (ui_circuit->is_simulating()) {
+                    if (circuit_editor->is_simulating()) {
                         ImGuiEx::Text(center_pos, value_label(cur_val), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
                     } else {
                         ImGuiEx::Text(center_pos, std::to_string(i), ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
@@ -207,7 +208,7 @@ void component_register_basic() {
 
     // constant
     auto icon_constant = ComponentIcon::cache(COMPONENT_CONSTANT, SHAPE_CONSTANT, sizeof(SHAPE_CONSTANT));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_CONSTANT, [=](ModelComponent *comp, ComponentWidget *widget) {
             const float width = 20;
             const float height = 20;
@@ -217,7 +218,7 @@ void component_register_basic() {
                                   {0, height});
 
             // custom draw function
-            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+            widget->set_draw_callback([=](CircuitEditor *circuit_editor, const ComponentWidget *widget, Transform to_window) {
                 auto val = comp->property_value("value", VALUE_FALSE);
                 auto center_pos = to_window.apply(Point(0.0f, 0.0f));
                 ImGuiEx::RectFilled(center_pos - Point(8,8), center_pos + Point(8,8), COLOR_CONNECTION[val]);
@@ -227,7 +228,7 @@ void component_register_basic() {
     );
 
     // sub circuit
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_SUB_CIRCUIT, [=](ModelComponent *comp, ComponentWidget *widget) {
             auto nested = widget->component_model()->nested_circuit();
 
@@ -247,7 +248,7 @@ void component_register_basic() {
             }
 
             // custom draw function for pin labels
-            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+            widget->set_draw_callback([=](CircuitEditor *circuit_editor, const ComponentWidget *widget, Transform to_window) {
 
                 ImGuiEx::TransformStart();
 
@@ -299,7 +300,7 @@ void component_register_extra() {
 
     // Pull Resistor
     auto icon_pull_resistor = ComponentIcon::cache(COMPONENT_PULL_RESISTOR, SHAPE_PULL_RESISTOR, sizeof(SHAPE_PULL_RESISTOR));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_PULL_RESISTOR, [=](ModelComponent *comp, ComponentWidget *widget) {
             const float width = 40;
             const float height = 20;
@@ -308,7 +309,7 @@ void component_register_extra() {
                                   {0.5f * width, 0}, {0, 20});
 
             // custom draw function
-            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+            widget->set_draw_callback([=](CircuitEditor *circuit_editor, const ComponentWidget *widget, Transform to_window) {
                 // icon in right half
                 auto icon_pos = to_window.apply(Point(width * 0.25f, 0.0f));
                 icon_pull_resistor->draw(icon_pos, Point(16,16), ImGui::GetWindowDrawList(), 1, COLOR_COMPONENT_BORDER);
@@ -324,7 +325,7 @@ void component_register_extra() {
 
     // Via
     auto icon_via = ComponentIcon::cache(COMPONENT_VIA, SHAPE_VIA, sizeof(SHAPE_VIA));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_VIA, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("Via");
             widget->change_icon(icon_via);
@@ -339,7 +340,7 @@ void component_register_extra() {
                                   {0, pin_spacing});
 
             // custom draw function
-            widget->set_draw_callback([=](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+            widget->set_draw_callback([=](CircuitEditor *circuit_editor, const ComponentWidget *widget, Transform to_window) {
 
                 auto origin = Point(-width * 0.5f, -height * 0.5f);
                 auto orient = widget->component_model()->angle();
@@ -350,8 +351,8 @@ void component_register_extra() {
                 ImGui::PushID(comp);
                 for (auto i = 0u; i < comp->num_inputs(); ++ i) {
                     auto cur_val = VALUE_FALSE;
-                    if (ui_circuit->is_simulating()) {
-                        cur_val = ui_circuit->circuit_inst()->read_pin(comp->input_pin_id(i));
+                    if (circuit_editor->is_simulating()) {
+                        cur_val = circuit_editor->sim_circuit()->read_pin(comp->input_pin_id(i));
                     }
                     auto center_pos = to_window.apply(Point(origin.x + (width * 0.5f), origin.y + (i * pin_spacing) + (pin_spacing * 0.5f)));
 
@@ -385,7 +386,7 @@ void component_register_extra() {
 
     // oscillator
     auto icon_oscillator = ComponentIcon::cache(COMPONENT_OSCILLATOR, SHAPE_OSCILLATOR, sizeof(SHAPE_OSCILLATOR));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_OSCILLATOR, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("Oscillator");
             widget->change_icon(icon_oscillator);
@@ -396,14 +397,14 @@ void component_register_extra() {
 
     // Text
     auto icon_text = ComponentIcon::cache(COMPONENT_TEXT, SHAPE_TEXT, sizeof(SHAPE_TEXT));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_TEXT, [icon_text] (ModelComponent *comp, ComponentWidget *widget) {
             widget->show_border(false);
             widget->change_icon(icon_text);
             widget->change_size(0, 0);
 
             // custom draw function
-            widget->set_draw_callback([](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+            widget->set_draw_callback([](CircuitEditor *circuit_editor, const ComponentWidget *widget, Transform to_window) {
                 auto text = widget->component_model()->property_value("text", "-");
 
                 if (widget->aabb_size().x == 0) {
@@ -428,7 +429,7 @@ void component_register_gates() {
 
     // buffer
     auto icon_buffer = ComponentIcon::cache(COMPONENT_BUFFER, SHAPE_BUFFER, sizeof(SHAPE_BUFFER));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_BUFFER, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("Buffer");
             widget->change_icon(icon_buffer);
@@ -438,7 +439,7 @@ void component_register_gates() {
 
     // tristate buffer
 	auto icon_tristate_buffer = ComponentIcon::cache(COMPONENT_TRISTATE_BUFFER, SHAPE_TRISTATE_BUFFER, sizeof(SHAPE_TRISTATE_BUFFER));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_TRISTATE_BUFFER, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("Tri-state Buffer");
             widget->change_icon(icon_tristate_buffer);
@@ -448,7 +449,7 @@ void component_register_gates() {
 
     // AND gate
 	auto icon_and = ComponentIcon::cache(COMPONENT_AND_GATE, SHAPE_AND_GATE, sizeof(SHAPE_AND_GATE));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_AND_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("AND");
             widget->change_icon(icon_and);
@@ -458,7 +459,7 @@ void component_register_gates() {
 
     // OR gate
 	auto icon_or = ComponentIcon::cache(COMPONENT_OR_GATE, SHAPE_OR_GATE, sizeof(SHAPE_OR_GATE));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_OR_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("OR");
             widget->change_icon(icon_or);
@@ -468,7 +469,7 @@ void component_register_gates() {
 
     // NOT gate
 	auto icon_not = ComponentIcon::cache(COMPONENT_NOT_GATE, SHAPE_NOT_GATE, sizeof(SHAPE_NOT_GATE));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_NOT_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("NOT");
             widget->change_icon(icon_not);
@@ -478,7 +479,7 @@ void component_register_gates() {
 
     // NAND gate
 	auto icon_nand = ComponentIcon::cache(COMPONENT_NAND_GATE, SHAPE_NAND_GATE, sizeof(SHAPE_NAND_GATE));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_NAND_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("NAND");
             widget->change_icon(icon_nand);
@@ -488,7 +489,7 @@ void component_register_gates() {
 
     // NOR gate
 	auto icon_nor = ComponentIcon::cache(COMPONENT_NOR_GATE, SHAPE_NOR_GATE, sizeof(SHAPE_NOR_GATE));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_NOR_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("NOR");
             widget->change_icon(icon_nor);
@@ -498,7 +499,7 @@ void component_register_gates() {
 
     // XOR gate
 	auto icon_xor = ComponentIcon::cache(COMPONENT_XOR_GATE, SHAPE_XOR_GATE, sizeof(SHAPE_XOR_GATE));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_XOR_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("XOR");
             widget->change_icon(icon_xor);
@@ -508,7 +509,7 @@ void component_register_gates() {
 
     // XNOR gate
 	auto icon_xnor = ComponentIcon::cache(COMPONENT_XNOR_GATE, SHAPE_XNOR_GATE, sizeof(SHAPE_XNOR_GATE));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_XNOR_GATE, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("XNOR");
             widget->change_icon(icon_xnor);
@@ -525,7 +526,7 @@ void component_register_gates() {
 void component_register_input_output() {
 
     auto icon_7_segment_led = ComponentIcon::cache(COMPONENT_7_SEGMENT_LED, SHAPE_7_SEGMENT_LED, sizeof(SHAPE_7_SEGMENT_LED));
-    UICircuitBuilder::register_materialize_func(
+    CircuitEditorFactory::register_materialize_func(
         COMPONENT_7_SEGMENT_LED, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("7-segment LED");
 
@@ -541,7 +542,7 @@ void component_register_input_output() {
                                   width, {0, height * 0.5f}, {1, 0});
 
             // custom draw function
-            widget->set_draw_callback([](UICircuit *ui_circuit, const ComponentWidget *widget, Transform to_window) {
+            widget->set_draw_callback([](CircuitEditor *circuit_editor, const ComponentWidget *widget, Transform to_window) {
                 auto draw_list = ImGui::GetWindowDrawList();
                 auto comp = widget->component_model();
                 const auto slope = 5.0f / 30.f;
@@ -549,7 +550,7 @@ void component_register_input_output() {
                 const auto color_on = IM_COL32(255, 0, 0, 255);
                 const auto width = 4;
 
-                auto sim_comp = ui_circuit->is_simulating() ? ui_circuit->circuit_inst()->component_by_id(comp->id()) : nullptr;
+                auto sim_comp = circuit_editor->is_simulating() ? circuit_editor->sim_circuit()->component_by_id(comp->id()) : nullptr;
                 auto enabled  = sim_comp ? sim_comp->read_pin(sim_comp->control_pin_index(0)) == VALUE_TRUE : false;
 
                 ImU32 led_colors[8] = {color_off, color_off, color_off, color_off,color_off, color_off, color_off, color_off};

@@ -14,13 +14,13 @@ namespace lsim {
 namespace gui {
 
 class ComponentIcon;
-class UICircuit;
+class CircuitEditor;
 
 class ComponentWidget {
 public:
 	typedef std::unordered_map<pin_id_t, Point> endpoint_map_t;
 	typedef std::unique_ptr<ComponentWidget> uptr_t;
-	using draw_func_t = std::function<void(UICircuit *, const ComponentWidget *, Transform)>;
+	using draw_func_t = std::function<void(CircuitEditor *, const ComponentWidget *, Transform)>;
 
 public:
 	ComponentWidget(ModelComponent* comp);
@@ -46,7 +46,7 @@ public:
 	// custom draw function
 	void set_draw_callback(draw_func_t func);
 	bool has_draw_callback() const { return m_draw_callback != nullptr; }
-	void run_draw_callback(UICircuit* circuit, Transform transform);
+	void run_draw_callback(CircuitEditor* circuit, Transform transform);
 
 	// endpoints
 	void add_endpoint(pin_id_t pin, Point location);

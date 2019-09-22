@@ -55,7 +55,7 @@ void ComponentWidget::set_draw_callback(ComponentWidget::draw_func_t func) {
 	m_draw_callback = func;
 }
 
-void ComponentWidget::run_draw_callback(UICircuit* circuit, Transform transform) {
+void ComponentWidget::run_draw_callback(CircuitEditor* circuit, Transform transform) {
 	if (m_draw_callback) {
 		m_draw_callback(circuit, this, transform);
 	}

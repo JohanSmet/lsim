@@ -129,12 +129,12 @@ target_sources(${APP_TARGET}
 		src/gui/imgui/stb_rect_pack.h
 		src/gui/imgui/stb_textedit.h
 		src/gui/imgui/stb_truetype.h
+		src/gui/circuit_editor.cpp
+		src/gui/circuit_editor.h
 		src/gui/component_draw.cpp
 		src/gui/component_draw.h
 		src/gui/component_icon.cpp
 		src/gui/component_icon.h
-		src/gui/component_ui.cpp
-		src/gui/component_ui.h
 		src/gui/component_widget.cpp
 		src/gui/component_widget.h
 		src/gui/configuration.h

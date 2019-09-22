@@ -1,9 +1,10 @@
 #include "main_gui.h"
 #include "imgui_ex.h"
 
-#include "component_ui.h"
-#include "component_icon.h"
 #include "component_draw.h"
+#include "component_icon.h"
+#include "component_widget.h"
+#include "circuit_editor.h"
 
 #include "lsim_context.h"
 #include "sim_circuit.h"
@@ -19,36 +20,36 @@ namespace {
 using namespace lsim;
 using namespace lsim::gui;
 
-static UICircuit::uptr_t ui_circuit = nullptr;
+static CircuitEditor::uptr_t circuit_editor = nullptr;
 static std::unique_ptr<SimCircuit> circuit_instance = nullptr;
-static std::list<UICircuit::uptr_t> sub_circuit_drill_downs;
+static std::list<CircuitEditor::uptr_t> sub_circuit_drill_downs;
 
 static std::string ui_filename = "";
 static int selected_circuit_idx = 0;
 static const char *value_labels[] = {"False", "True", "Undefined", "Error"};
 
 static void change_active_circuit(LSimContext *context, ModelCircuit *active_circuit) {
-	if (ui_circuit != nullptr && ui_circuit->circuit_desc() == active_circuit) {
+	if (circuit_editor != nullptr && circuit_editor->model_circuit() == active_circuit) {
 		return;
 	}
 
 	if (active_circuit) {
 		active_circuit->sync_sub_circuit_components();
-		ui_circuit = UICircuitBuilder::create_circuit(active_circuit);
+		circuit_editor = CircuitEditorFactory::create_circuit(active_circuit);
 		selected_circuit_idx = context->user_library()->circuit_idx(active_circuit);
 	}
 }
 
 static void stop_simulation(LSimContext *context) {
 	circuit_instance = nullptr;
-	ui_circuit->set_simulation_instance(nullptr);
+	circuit_editor->set_simulation_instance(nullptr);
 	sub_circuit_drill_downs.clear();
 	context->sim()->clear_components();
 }
 
 static void close_circuit_library(LSimContext *lsim_context) {
 	stop_simulation(lsim_context);
-	ui_circuit = nullptr;
+	circuit_editor = nullptr;
 	lsim_context->user_library()->clear_circuits();
 	lsim_context->user_library()->clear_references();
 	lsim_context->clear_reference_libraries();
@@ -56,7 +57,7 @@ static void close_circuit_library(LSimContext *lsim_context) {
 
 static void load_circuit_library(LSimContext *lsim_context, const std::string &filename) {
 
-	if (ui_circuit != nullptr) {
+	if (circuit_editor != nullptr) {
 		close_circuit_library(lsim_context);
 	}
 
@@ -169,10 +170,10 @@ static void ui_component_pallette(LSimContext *context) {
 
 		ImGui::PushID((std::string("lsim_") + caption).c_str());
 		if (ImGui::Button("", {40, 40})) {
-			if (!ui_circuit->is_simulating()) {
-				auto component = create_func(ui_circuit->circuit_desc());
+			if (!circuit_editor->is_simulating()) {
+				auto component = create_func(circuit_editor->model_circuit());
 				component->set_position({-200, -200});
-				ui_circuit->ui_create_component(component);
+				circuit_editor->ui_create_component(component);
 			}
 		}
 		auto icon = ComponentIcon::cached(component);
@@ -243,8 +244,8 @@ static void ui_component_pallette(LSimContext *context) {
 
 static void ui_property_panel(LSimContext *context) {
 
-	if (ui_circuit != nullptr && ui_circuit->selected_component()) {
-		auto ui_comp = ui_circuit->selected_component();
+	if (circuit_editor != nullptr && circuit_editor->selected_widget()) {
+		auto ui_comp = circuit_editor->selected_widget();
 		auto component = ui_comp->component_model();
 
 		// helper functions
@@ -300,19 +301,19 @@ static void ui_property_panel(LSimContext *context) {
 		// component specific fields
 		if (component->type() == COMPONENT_CONNECTOR_IN || component->type() == COMPONENT_CONNECTOR_OUT || component->type() == COMPONENT_VIA) {
 			if (text_property("Name", component->property("name"))) {
-				ui_circuit->circuit_desc()->rebuild_port_list();
+				circuit_editor->model_circuit()->rebuild_port_list();
 			}
 			if (component->type() != COMPONENT_VIA) {
 				boolean_property("TriState", component->property("tri_state"));
 
 				if (boolean_property("Descending", component->property("descending"))) {
-					UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
-					ui_circuit->fix_component_connections(ui_comp);
+					CircuitEditorFactory::rematerialize_component(circuit_editor.get(), ui_comp);
+					circuit_editor->ui_fix_widget_connections(ui_comp);
 				}
 			} else {
 				if (boolean_property("Right pin", component->property("right"))) {
-					UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
-					ui_circuit->fix_component_connections(ui_comp);
+					CircuitEditorFactory::rematerialize_component(circuit_editor.get(), ui_comp);
+					circuit_editor->ui_fix_widget_connections(ui_comp);
 				}
 			}
 
@@ -322,15 +323,15 @@ static void ui_property_panel(LSimContext *context) {
 				if (data_bits <= 0) {
 					data_bits = 1;
 				}
-				ui_circuit->circuit_desc()->change_port_pin_count(component->id(), data_bits);
+				circuit_editor->model_circuit()->change_port_pin_count(component->id(), data_bits);
 
 				// update the position of the connector so the endpoints do not move
 				auto dir = (component->angle() == 0 || component->angle() == 180) ? Point(0,10) : Point(10,0);
 				component->set_position(component->position() + (dir * (data_bits - org_bits)));
 				ui_comp->build_transform();
 
-				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
-				ui_circuit->fix_component_connections(ui_comp);
+				CircuitEditorFactory::rematerialize_component(circuit_editor.get(), ui_comp);
+				circuit_editor->ui_fix_widget_connections(ui_comp);
 			}
 		}
 
@@ -351,7 +352,7 @@ static void ui_property_panel(LSimContext *context) {
 				}
 				component->change_input_pins(data_bits);
 				component->change_output_pins(data_bits);
-				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
+				CircuitEditorFactory::rematerialize_component(circuit_editor.get(), ui_comp);
 			}
 		}
 
@@ -362,7 +363,7 @@ static void ui_property_panel(LSimContext *context) {
 			int num_inputs = component->num_inputs();
 			if (ImGui::SliderInt("Inputs", &num_inputs, 2, 8)) {
 				component->change_input_pins(num_inputs);
-				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
+				CircuitEditorFactory::rematerialize_component(circuit_editor.get(), ui_comp);
 			}
 		}
 
@@ -386,14 +387,14 @@ static void ui_property_panel(LSimContext *context) {
 			text_property("Caption", component->property("caption"));
 
 			if (boolean_property("Flip", component->property("flip"))) {
-				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
-				ui_circuit->fix_component_connections(ui_comp);
+				CircuitEditorFactory::rematerialize_component(circuit_editor.get(), ui_comp);
+				circuit_editor->ui_fix_widget_connections(ui_comp);
 			}
 		}
 
 		if (component->type() == COMPONENT_TEXT) {
 			if (text_property("Value", component->property("text"))) {
-				UICircuitBuilder::rematerialize_component(ui_circuit.get(), ui_comp);
+				CircuitEditorFactory::rematerialize_component(circuit_editor.get(), ui_comp);
 			}
 		}
 
@@ -403,21 +404,21 @@ static void ui_property_panel(LSimContext *context) {
 		}
 
 
-	} else if (ui_circuit != nullptr) {
+	} else if (circuit_editor != nullptr) {
 		// no component selected - edit circuit properties
-		std::vector<char> name(ui_circuit->circuit_desc()->name().begin(), ui_circuit->circuit_desc()->name().end());
+		std::vector<char> name(circuit_editor->model_circuit()->name().begin(), circuit_editor->model_circuit()->name().end());
 		name.resize(256);
 
 		if (ImGui::InputText("Name", name.data(), name.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-			context->user_library()->rename_circuit(ui_circuit->circuit_desc(), name.data());
+			context->user_library()->rename_circuit(circuit_editor->model_circuit(), name.data());
 		}
 
-		bool main_circuit = context->user_library()->main_circuit() == ui_circuit->circuit_desc();
+		bool main_circuit = context->user_library()->main_circuit() == circuit_editor->model_circuit();
 		if (main_circuit) {
 			ImGui::Text("This is the main circuit");
 		} else {
 			if (ImGui::Button("Set as main circuit")) {
-				context->user_library()->change_main_circuit(ui_circuit->circuit_desc()->name().c_str());
+				context->user_library()->change_main_circuit(circuit_editor->model_circuit()->name().c_str());
 			}
 		}
 	}
@@ -522,18 +523,18 @@ void main_gui(LSimContext *lsim_context)
 	ImGui::SetNextWindowSize({ImGui::GetIO().DisplaySize.x-268, ImGui::GetIO().DisplaySize.y}, ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Circuit", nullptr, ImGuiWindowFlags_NoScrollWithMouse);
 
-		if (ImGui::RadioButton("Editor", !ui_circuit->is_simulating())) {
+		if (ImGui::RadioButton("Editor", !circuit_editor->is_simulating())) {
 			stop_simulation(lsim_context);
 		}
 		ImGui::SameLine();
 
-		if (ImGui::RadioButton("Simulation", ui_circuit->is_simulating())) {
-			circuit_instance = ui_circuit->circuit_desc()->instantiate(lsim_context->sim());
-			ui_circuit->set_simulation_instance(circuit_instance.get());
+		if (ImGui::RadioButton("Simulation", circuit_editor->is_simulating())) {
+			circuit_instance = circuit_editor->model_circuit()->instantiate(lsim_context->sim());
+			circuit_editor->set_simulation_instance(circuit_instance.get());
 			sim->init();
 		}
 
-		if (ui_circuit->is_simulating()) {
+		if (circuit_editor->is_simulating()) {
 			ImGui::SameLine();
 			ImGui::Checkbox("Run simulation", &sim_running);
 			ImGui::SameLine();
@@ -560,8 +561,8 @@ void main_gui(LSimContext *lsim_context)
 			}
 		}
 
-		if (ui_circuit) {
-			ui_circuit->draw();
+		if (circuit_editor) {
+			circuit_editor->refresh();
 		}
 
 	ImGui::End();
@@ -574,8 +575,8 @@ void main_gui(LSimContext *lsim_context)
 		bool keep_open = true;
 
 		ImGui::SetNextWindowSize(drill_down->circuit_dimensions() + Point(50,50), ImGuiCond_Appearing);
-		ImGui::Begin(drill_down->circuit_inst()->name(), &keep_open, ImGuiWindowFlags_NoScrollWithMouse);
-			drill_down->draw();
+		ImGui::Begin(drill_down->sim_circuit()->name(), &keep_open, ImGuiWindowFlags_NoScrollWithMouse);
+			drill_down->refresh();
 		ImGui::End();
 
 		if (!keep_open) {
@@ -590,7 +591,7 @@ void main_gui_drill_down_sub_circuit(SimCircuit *parent_inst, ModelComponent *co
 	auto nested_desc = comp->nested_circuit();
 	auto nested_inst = parent_inst->component_by_id(comp->id())->nested_instance();
 
-	auto sub_circuit = UICircuitBuilder::create_circuit(nested_desc);
+	auto sub_circuit = CircuitEditorFactory::create_circuit(nested_desc);
 	sub_circuit->set_simulation_instance(nested_inst, true);
 
 	sub_circuit_drill_downs.push_front(std::move(sub_circuit));
