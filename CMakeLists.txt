@@ -138,12 +138,19 @@ target_sources(${APP_TARGET}
 		src/gui/component_widget.cpp
 		src/gui/component_widget.h
 		src/gui/configuration.h
-		src/gui/file_selector.cpp
-		src/gui/file_selector.h
 		src/gui/imgui_ex.cpp
 		src/gui/imgui_ex.h
-		src/gui/main_gui.cpp
 		src/gui/shapes.h
+		src/gui/ui_context.cpp
+		src/gui/ui_context.h
+		src/gui/ui_panel_component.cpp
+		src/gui/ui_panel_circuit.cpp
+		src/gui/ui_panel_property.cpp
+		src/gui/ui_panel_library.cpp
+		src/gui/ui_popup_files.cpp
+		src/gui/ui_popup_files.h
+		src/gui/ui_window_main.cpp
+		src/gui/ui_window_main.h
 )
 
 target_link_libraries(${APP_TARGET} PRIVATE ${LIB_TARGET} ${CUTE_TARGET} ${CMAKE_DL_LIBS})

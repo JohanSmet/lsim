@@ -1,8 +1,8 @@
-// file_selector.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
+// ui_popup_files.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 //
-// file selection GUI
+// file related popups
 
-#include "file_selector.h"
+#include "ui_popup_files.h"
 #include "imgui/imgui.h"
 #include "lsim_context.h"
 
@@ -13,9 +13,13 @@
 
 namespace {
 
+constexpr char* POPUP_FILE_SELECTOR = "Select file";
+constexpr char* POPUP_FILENAME_ENTRY = "Filename entry";
+
 // famous last words: there should only ever by one file selection popup open at a time, so why bother.
 std::vector<std::string>  file_list;
 lsim::gui::on_select_func_t on_select_callback = nullptr;
+lsim::gui::on_select_func_t on_close_callback = nullptr;
 
 void r_scan_dir(const char *dir_path) {
     std::vector<cf_file_t>  entries;
@@ -72,13 +76,13 @@ void ui_file_selector_open(LSimContext *context, on_select_func_t on_select) {
 
     on_select_callback = on_select;
 
-    ImGui::OpenPopup("Select file");
+	ImGui::OpenPopup(POPUP_FILE_SELECTOR);
 }
 
 void ui_file_selector_define() {
 
     ImGui::SetNextWindowPos(ImGui::GetMousePos(), ImGuiCond_Appearing);
-    if (ImGui::BeginPopupModal("Select file")) {
+    if (ImGui::BeginPopupModal(POPUP_FILE_SELECTOR)) {
         ImGui::Text("Click to select library");
         ImGui::Separator();
 
@@ -98,6 +102,38 @@ void ui_file_selector_define() {
 
         ImGui::EndPopup();
     }
+}
+
+void ui_filename_entry_open(LSimContext* context, on_select_func_t on_close) {
+	on_close_callback = on_close;
+	ImGui::OpenPopup(POPUP_FILENAME_ENTRY);
+}
+
+void ui_filename_entry_define() {
+	static char buffer[512] = "";
+	
+	ImGui::SetNextWindowContentWidth(300);
+	if (ImGui::BeginPopupModal(POPUP_FILENAME_ENTRY)) {
+		ImGui::InputText("Filename", buffer, sizeof(buffer) / sizeof(buffer[0]));
+
+		auto close_popup = []() {
+			buffer[0] = '\0';
+			ImGui::CloseCurrentPopup();
+		};
+
+		if (ImGui::Button("Ok")) {
+			if (on_close_callback) {
+				on_close_callback(buffer);
+			}
+			close_popup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel")) {
+			close_popup();
+		}
+		ImGui::EndPopup();
+	}
+
 }
 
 } // namespace lsim::gui

@@ -21,6 +21,7 @@ class SimCircuit;
 namespace gui {
 
 class ComponentWidget;
+class UIContext;
 
 enum CircuitEditorState {
     CS_IDLE = 0,
@@ -39,10 +40,10 @@ public:
     CircuitEditor(ModelCircuit *model_circuit);
 	
 	// display frame and interaction
-	void refresh();
+	void refresh(UIContext *ui_context);
 private:
 	void init_ui_refresh();
-    void draw_ui();
+    void draw_ui(UIContext *ui_context);
 	void user_interaction();
 
 public:	
@@ -94,7 +95,7 @@ private:
     void draw_grid(ImDrawList *draw_list);
     void ui_popup_embed_circuit();
     void ui_popup_embed_circuit_open();
-    void ui_popup_sub_circuit();
+    void ui_popup_sub_circuit(UIContext *ui_context);
     void ui_popup_sub_circuit_open();
 
 private:

@@ -11,7 +11,7 @@
 
 #include "colors.h"
 #include "lsim_context.h"
-#include "main_gui.h"
+#include "ui_context.h"
 
 namespace {
 
@@ -92,7 +92,7 @@ void CircuitEditor::init_ui_refresh() {
 	m_hovered_widget = nullptr;
 }
 
-void CircuitEditor::draw_ui() {
+void CircuitEditor::draw_ui(UIContext *ui_context) {
 
 	auto draw_list = ImGui::GetWindowDrawList();
 	
@@ -107,7 +107,7 @@ void CircuitEditor::draw_ui() {
 
 	// potential popup windows
 	ui_popup_embed_circuit();
-	ui_popup_sub_circuit();
+	ui_popup_sub_circuit(ui_context);
 	
 	// create two layers to draw the background and the widgets
 	draw_list->ChannelsSplit(2);
@@ -810,10 +810,10 @@ void CircuitEditor::ui_popup_embed_circuit_open() {
 	ImGui::OpenPopup(POPUP_EMBED_CIRCUIT);
 }
 
-void CircuitEditor::ui_popup_sub_circuit() {
+void CircuitEditor::ui_popup_sub_circuit(UIContext *ui_context) {
 	if (ImGui::BeginPopup(POPUP_SUB_CIRCUIT)) {
 		if (ImGui::Selectable("Drill down ...")) {
-			main_gui_drill_down_sub_circuit(m_sim_circuit, m_popup_component->component_model());
+			ui_context->create_sub_circuit_view(m_sim_circuit, m_popup_component->component_model());
 		}
 		ImGui::EndPopup();
 	} 

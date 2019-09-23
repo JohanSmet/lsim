@@ -3,15 +3,13 @@
 
 namespace lsim {
 
-class LSimContext;
 class SimCircuit;
 class ModelComponent;
 
 namespace gui {
 
-void main_gui_setup(LSimContext *sim, const char *circuit_file);
-void main_gui(LSimContext *sim);
-void main_gui_drill_down_sub_circuit(SimCircuit *parent_inst, ModelComponent *comp);
+void main_window_setup(const char *circuit_file);
+void main_window_update();
 
 } // namespace gui
 

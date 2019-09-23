@@ -14,14 +14,12 @@
 #include <SDL.h>
 #include <SDL_opengles2.h>
 
-#include "main_gui.h"
-#include "lsim_context.h"
+#include "ui_window_main.h"
 
 // Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
 // Having a single function that acts as a loop prevents us to store state in the stack of said function. So we need some location for this.
 SDL_Window*     g_Window = NULL;
 SDL_GLContext   g_GLContext = NULL;
-lsim::LSimContext lsim_context;
 
 // For clarity, our main loop code is declared at the end.
 void main_loop(void*);
@@ -96,7 +94,7 @@ int main(int, char**)
     //IM_ASSERT(font != NULL);
     
     // create the LSim context here, it should last the lifetime of the application
-    lsim::gui::main_gui_setup(&lsim_context, "examples/compare.lsim");
+    lsim::gui::main_window_setup("examples/compare.lsim");
 
     // This function call won't return, and will engage in an infinite loop, processing events from the browser, and dispatching them.
     emscripten_set_main_loop_arg(main_loop, NULL, 0, true);
@@ -130,7 +128,7 @@ void main_loop(void* arg)
     ImGui::NewFrame();
 	
     // GUI
-    lsim::gui::main_gui(&lsim_context);
+    lsim::gui::main_window_update();
 
     // Rendering
     ImGui::Render();

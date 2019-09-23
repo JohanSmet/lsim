@@ -22,8 +22,7 @@
 #include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #endif
 
-#include "main_gui.h"
-#include "lsim_context.h"
+#include "ui_window_main.h"
 
 const char *WINDOW_TITLE = "LSim";
 
@@ -117,10 +116,8 @@ int main(int argc, char**argv)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    // create the LSim context here, it should last the lifetime of the application
-    lsim::LSimContext lsim_context;
 
-    lsim::gui::main_gui_setup(&lsim_context, arg_circuit);
+    lsim::gui::main_window_setup(arg_circuit);
 
     // Main loop
     bool done = false;
@@ -147,7 +144,7 @@ int main(int argc, char**argv)
         ImGui::NewFrame();
 
 		// Gui
-        lsim::gui::main_gui(&lsim_context);
+		lsim::gui::main_window_update();
 
         // Rendering
         ImGui::Render();
