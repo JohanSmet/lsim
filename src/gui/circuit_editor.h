@@ -58,6 +58,7 @@ public:
     void reposition_widget(ComponentWidget *comp, Point pos);
 
 	// circuit modification
+	void prepare_move_selected_items();
     void move_selected_items();
 	void reconnect_selected_items();
     void delete_selected_items();
@@ -66,6 +67,9 @@ public:
     void ui_create_component(ModelComponent *component_model);
     void ui_embed_circuit(const char *name);
     void ui_fix_widget_connections(ComponentWidget *widget);
+	void ui_fix_wire(ModelWire * wire);
+	ModelWire* ui_try_merge_wire_segment(ModelWireSegment* segment);
+
 
     // selection
     size_t num_selected_items() const {return m_selection.size();}

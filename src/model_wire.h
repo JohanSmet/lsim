@@ -26,9 +26,11 @@ public:
     void add_segment(ModelWireSegment *segment);
     void remove_segment(ModelWireSegment *segment);
 
+	void move(const Point& delta);
+
 private:
-    Point                               m_position;
-    std::vector<class ModelWireSegment *>    m_segments;
+    Point									m_position;
+    std::vector<class ModelWireSegment *>   m_segments;
 };
 
 class ModelWireSegment {
@@ -42,6 +44,8 @@ public:
     ModelWire *wire() const {return m_wire;}
 
     bool point_on_segment(const Point &p);
+
+	void move(const Point& delta);
 
 private:
     class ModelWire *m_wire;
@@ -82,6 +86,7 @@ public:
     void add_segments(Point *anchors, size_t num_anchors);
     void merge(ModelWire *other);
     void split_at_new_junction(const Point &p);
+	void move(const Point& delta);
 
     void simplify();
 

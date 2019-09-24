@@ -33,6 +33,10 @@ ModelWireSegment *ModelWireJunction::segment(size_t idx) const {
     return m_segments[idx];
 }
 
+void ModelWireJunction::move(const Point& delta) {
+	m_position = m_position + delta;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // ModelWireSegment
@@ -55,6 +59,11 @@ ModelWireJunction *ModelWireSegment::junction(size_t idx) const {
 
 bool ModelWireSegment::point_on_segment(const Point &p) {
     return point_on_line_segment(m_ends[0]->position(), m_ends[1]->position(), p);
+}
+
+void ModelWireSegment::move(const Point& delta) {
+	m_ends[0]->move(delta);
+	m_ends[1]->move(delta);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -144,7 +153,7 @@ void ModelWire::merge(ModelWire *other) {
         add_segment(segment->junction(0)->position(), segment->junction(1)->position());
     } 
 
-    std::copy(other->m_pins.begin(), other->m_pins.end(), m_pins.end());
+	std::copy(other->m_pins.begin(), other->m_pins.end(), std::back_inserter(m_pins));
 }
 
 void ModelWire::split_at_new_junction(const Point &p) {
@@ -166,8 +175,14 @@ void ModelWire::split_at_new_junction(const Point &p) {
     remove_redundant_segment(segment);
 }
 
+void ModelWire::move(const Point& delta) {
+	for (auto& junction : m_junctions) {
+		junction->move(delta);
+	}
+}
+
 void ModelWire::simplify() {
-    // checking for duplicate junctions isn't necessary until junctions can be moved by the user
+    // duplicate junctions shouldn't happen because of the way wires are merged. Check not implemented.
 
     // junctions with just two segments should be removed when the segments are colinear
     std::vector<ModelWireJunction *> to_check;

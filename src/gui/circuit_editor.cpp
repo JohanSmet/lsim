@@ -273,15 +273,13 @@ void CircuitEditor::user_interaction() {
 			m_wire_start = { m_mouse_grid_point, m_hovered_pin, nullptr };
 			m_line_anchors = { m_mouse_grid_point, m_mouse_grid_point };
 			m_segment_start = m_mouse_grid_point;
-		}
-		else if (m_state == CS_IDLE && m_hovered_wire != nullptr) {
+		} /*else if (m_state == CS_IDLE && m_hovered_wire != nullptr) {
 			// clicking on a wire activates CREATE_WIRE state
 			m_state = CS_CREATE_WIRE;
 			m_wire_start = { m_mouse_grid_point, PIN_ID_INVALID, m_hovered_wire };
 			m_line_anchors = { m_mouse_grid_point, m_mouse_grid_point };
 			m_segment_start = m_mouse_grid_point;
-		}
-		else if (m_state == CS_IDLE &&
+		}*/ else if (m_state == CS_IDLE &&
 			m_hovered_pin == PIN_ID_INVALID &&
 			m_hovered_wire == nullptr &&
 			m_hovered_widget == nullptr) {
@@ -318,9 +316,8 @@ void CircuitEditor::user_interaction() {
 	}
 
 	// -> edit-mode: left mouse button up
-	if (!is_simulating() && mouse_in_window && ImGui::IsMouseReleased(0)) {
-		if (m_state == CS_CREATE_WIRE && m_hovered_wire != nullptr &&
-			m_hovered_wire == m_wire_start.m_wire) {
+	if (!is_simulating() && mouse_in_window && ImGui::IsMouseReleased(0) && !ImGui::GetIO().MouseDownWasDoubleClick[0]) {
+		if (m_state == CS_IDLE && m_hovered_wire != nullptr) {
 			// wire selection
 			m_state = CS_IDLE;
 			auto segment = m_hovered_wire->segment_at_point(m_mouse_grid_point);
@@ -418,7 +415,7 @@ void CircuitEditor::user_interaction() {
 	// start dragging
 	if (mouse_in_window && m_state == CS_IDLE && ImGui::IsMouseDragging(0)) {
 		m_state = CS_DRAGGING;
-		m_dragging_last_point = m_mouse_grid_point;
+		prepare_move_selected_items();
 	}
 
 	// move selected items while dragging
@@ -470,6 +467,31 @@ void CircuitEditor::reposition_widget(ComponentWidget *ui_comp, Point new_pos) {
 	ui_comp->build_transform();
 }
 
+void CircuitEditor::prepare_move_selected_items() {
+
+	m_dragging_last_point = m_mouse_grid_point;
+
+	// move selected line-segments to separate wires so they can be moved freely
+	std::set<ModelWire *>	touched_wires;
+
+	for (auto& item : m_selection) {
+		if (item.m_segment) {
+			auto new_wire = m_model_circuit->create_wire();
+			auto old_wire = item.m_segment->wire();
+			new_wire->add_segment(item.m_segment->junction(0)->position(), item.m_segment->junction(1)->position());
+
+			old_wire->remove_segment(item.m_segment);
+			item.m_segment = new_wire->segment_by_index(0);
+
+			touched_wires.insert(old_wire);
+		}
+	}
+
+	for (auto wire : touched_wires) {
+		ui_fix_wire(wire);
+	}
+}
+
 void CircuitEditor::move_selected_items() {
 
 	if (m_dragging_last_point == m_mouse_grid_point) {
@@ -485,16 +507,24 @@ void CircuitEditor::move_selected_items() {
 			auto model = item.m_widget->component_model();
 			model->set_position(model->position() + delta);
 			item.m_widget->build_transform();
+		} else if (item.m_segment) {
+			item.m_segment->move(delta);
 		}
 	}
 }
 
 void CircuitEditor::reconnect_selected_items() {
+
 	for (auto &item : m_selection) {
 		if (item.m_widget) {
 			ui_fix_widget_connections(item.m_widget);
+		} else if (item.m_segment) {
+			auto wire = ui_try_merge_wire_segment(item.m_segment);
+			ui_fix_wire(wire);
 		}
 	}
+
+	clear_selection();
 }
 
 void CircuitEditor::delete_selected_items() {
@@ -516,27 +546,7 @@ void CircuitEditor::delete_selected_items() {
 	
 	// phase 2: split broken wires / remove broken connections / make newly-formed connections
 	for (auto wire : touched_wires) {
-		wire->clear_pins();
-
-		if (!wire->in_one_piece()) {
-			while (wire->num_segments() > 0) {
-				auto reachable_segments = wire->reachable_segments(wire->segment_by_index(0));
-				ModelWire *new_wire = m_model_circuit->create_wire();
-
-				for (auto segment : reachable_segments) {
-					new_wire->add_segment(segment->junction(0)->position(), segment->junction(1)->position());
-					wire->remove_segment(segment);
-				}
-				
-				new_wire->simplify();
-				wire_make_connections(new_wire);
-			}
-
-			m_model_circuit->remove_wire(wire->id());
-		} else {
-			wire->simplify();
-			wire_make_connections(wire);
-		}
+		ui_fix_wire(wire);
 	}
 
 	clear_selection();
@@ -624,6 +634,68 @@ void CircuitEditor::ui_fix_widget_connections(ComponentWidget* widget) {
 	}
 }
 
+void CircuitEditor::ui_fix_wire(ModelWire* wire) {
+	wire->clear_pins();
+
+	if (!wire->in_one_piece()) {
+		while (wire->num_segments() > 0) {
+			auto reachable_segments = wire->reachable_segments(wire->segment_by_index(0));
+			ModelWire* new_wire = m_model_circuit->create_wire();
+
+			for (auto segment : reachable_segments) {
+				new_wire->add_segment(segment->junction(0)->position(), segment->junction(1)->position());
+				wire->remove_segment(segment);
+			}
+
+			new_wire->simplify();
+			wire_make_connections(new_wire);
+		}
+
+		m_model_circuit->remove_wire(wire->id());
+	} else {
+		wire->simplify();
+		wire_make_connections(wire);
+	}
+}
+
+ModelWire* CircuitEditor::ui_try_merge_wire_segment(ModelWireSegment* segment) {
+
+	ModelWire* target_wires[2] = { nullptr, nullptr };
+	Point end_points[2] = { segment->junction(0)->position(), segment->junction(1)->position() };
+
+	for (auto& iter : m_model_circuit->wires()) {
+		auto wire = iter.second.get();
+		if (wire->id() >= segment->wire()->id()) {
+			continue;
+		}
+			
+		if (target_wires[0] == nullptr && wire->point_on_wire(end_points[0])) {
+			wire->split_at_new_junction(end_points[0]);
+			target_wires[0] = wire;
+		} else if (target_wires[1] == nullptr && wire->point_on_wire(end_points[1])) {
+			wire->split_at_new_junction(end_points[1]);
+			target_wires[1] = wire;
+		}
+
+		if (target_wires[0] != nullptr && target_wires[1] != nullptr) {
+			break;
+		}
+	}
+
+	auto wire_to_merge = segment->wire();
+	bool merged = false;
+	for (int w = 1; w >= 0; --w) {
+		if (target_wires[w] != nullptr) {
+			target_wires[w]->merge(wire_to_merge);
+			m_model_circuit->remove_wire(wire_to_merge->id());
+			wire_to_merge = target_wires[w];
+			merged = true;
+		}
+	}
+
+	return (merged) ? wire_to_merge : segment->wire();
+}
+
 void CircuitEditor::clear_selection() {
 	m_selection.clear();
 }
@@ -663,10 +735,31 @@ void CircuitEditor::select_by_area(Point p0, Point p1) {
 	}
 
 	clear_selection();
-	for (const auto &ui_comp : m_widgets) {
-		if (ui_comp->aabb_min().x >= area_min.x && ui_comp->aabb_max().x <= area_max.x &&
-		    ui_comp->aabb_min().y >= area_min.y && ui_comp->aabb_max().y <= area_max.y) {
-			select_widget(ui_comp.get());
+	for (const auto &widget : m_widgets) {
+		if (widget->aabb_min().x >= area_min.x && widget->aabb_max().x <= area_max.x &&
+		    widget->aabb_min().y >= area_min.y && widget->aabb_max().y <= area_max.y) {
+			select_widget(widget.get());
+		}
+	}
+
+	for (const auto &iter : m_model_circuit->wires()) {
+		auto wire = iter.second.get();
+
+		for (int s = 0; s < wire->num_segments(); ++s) {
+			bool inside = true;
+
+			for (int j = 0; j < 2; ++j) {
+				auto p = wire->segment_point(s, j);
+				if (p.x < area_min.x || p.x > area_max.x ||
+					p.y < area_min.y || p.y > area_max.y) {
+					inside = false;
+					break;
+				}
+			}
+
+			if (inside) {
+				select_wire_segment(wire->segment_by_index(s));
+			}
 		}
 	}
 }
