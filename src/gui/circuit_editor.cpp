@@ -74,11 +74,9 @@ void CircuitEditor::init_ui_refresh() {
 		auto abs_delta = Point(fabs(delta.x), fabs(delta.y));
 		if (abs_delta.x > 0 && abs_delta.y > 0 && abs(abs_delta.y - abs_delta.x) < 10) {
 			m_mouse_grid_point = m_segment_start + Point(delta.x, abs_delta.x * ((delta.y < 0) ? -1.0f : 1.0f));
-		}
-		else if (abs_delta.y > abs_delta.x) {
+		} else if (abs_delta.y > abs_delta.x) {
 			m_mouse_grid_point.x = m_segment_start.x;
-		}
-		else {
+		} else {
 			m_mouse_grid_point.y = m_segment_start.y;
 		}
 	}
@@ -266,8 +264,7 @@ void CircuitEditor::user_interaction() {
 		if (m_state == CS_CREATE_COMPONENT) {
 			// ends CREATE_COMPONENT state
 			m_state = CS_IDLE;
-		}
-		else if (m_state == CS_IDLE && m_hovered_pin != PIN_ID_INVALID) {
+		} else if (m_state == CS_IDLE && m_hovered_pin != PIN_ID_INVALID) {
 			// clicking on an endpoint activates CREATE_WIRE state
 			m_state = CS_CREATE_WIRE;
 			m_wire_start = { m_mouse_grid_point, m_hovered_pin, nullptr };
@@ -289,16 +286,14 @@ void CircuitEditor::user_interaction() {
 			// ... and starts area select mode
 			m_state = CS_AREA_SELECT;
 			m_area_sel_a = m_mouse_grid_point;
-		}
-		else if (m_state == CS_CREATE_WIRE && m_mouse_grid_point != m_wire_start.m_position) {
+		} else if (m_state == CS_CREATE_WIRE && m_mouse_grid_point != m_wire_start.m_position) {
 			// clicking while in CREATE_WIRE mode
 			bool sw_create = false;
 
 			if (m_hovered_pin != PIN_ID_INVALID) {
 				m_wire_end = { m_mouse_grid_point, m_hovered_pin, nullptr };
 				sw_create = true;
-			}
-			else if (m_hovered_wire != nullptr) {
+			} else if (m_hovered_wire != nullptr) {
 				m_wire_end = { m_mouse_grid_point, PIN_ID_INVALID, m_hovered_wire };
 				sw_create = true;
 			}
@@ -306,8 +301,7 @@ void CircuitEditor::user_interaction() {
 			if (sw_create) {
 				add_wire();
 				m_state = CS_IDLE;
-			}
-			else {
+			} else {
 				// add anchor when clicking in the empty circuit
 				m_segment_start = m_line_anchors.back();
 				m_line_anchors.push_back(m_segment_start);
@@ -325,22 +319,18 @@ void CircuitEditor::user_interaction() {
 			if (!ImGui::GetIO().KeyShift) {
 				clear_selection();
 				select_wire_segment(segment);
-			}
-			else {
+			} else {
 				toggle_selection(segment);
 			}
-		}
-		else if (m_state == CS_IDLE && m_hovered_widget != nullptr) {
+		} else if (m_state == CS_IDLE && m_hovered_widget != nullptr) {
 			// component selection
 			if (!ImGui::GetIO().KeyShift) {
 				clear_selection();
 				select_widget(m_hovered_widget);
-			}
-			else {
+			} else {
 				toggle_selection(m_hovered_widget);
 			}
-		}
-		else if (m_state == CS_AREA_SELECT) {
+		} else if (m_state == CS_AREA_SELECT) {
 			select_by_area(m_area_sel_a, m_mouse_grid_point);
 			m_state = CS_IDLE;
 		}
@@ -351,8 +341,7 @@ void CircuitEditor::user_interaction() {
 		if (m_state == CS_IDLE && !m_hovered_widget) {
 			// popup menu to insert a sub circuit
 			ui_popup_embed_circuit_open();
-		}
-		else if (m_state == CS_CREATE_WIRE) {
+		} else if (m_state == CS_CREATE_WIRE) {
 			// end CREATE_WIRE state
 			m_state = CS_IDLE;
 		}
@@ -372,8 +361,7 @@ void CircuitEditor::user_interaction() {
 			m_wire_end = { m_mouse_grid_point, PIN_ID_INVALID, nullptr };
 			add_wire();
 			m_state = CS_IDLE;
-		}
-		else if (m_hovered_wire) {
+		} else if (m_hovered_wire) {
 			// select the entire wire
 			for (size_t idx = 0; idx < m_hovered_wire->num_segments(); ++idx) {
 				auto segment = m_hovered_wire->segment_by_index(idx);
