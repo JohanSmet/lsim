@@ -5,6 +5,7 @@
 
 #include "algebra.h"
 #include "sim_types.h"
+#include "component_widget.h"
 
 #include "std_helper.h"
 #include <functional>
@@ -20,7 +21,6 @@ class SimCircuit;
 
 namespace gui {
 
-class ComponentWidget;
 class UIContext;
 
 enum CircuitEditorState {

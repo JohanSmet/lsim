@@ -13,8 +13,8 @@
 
 namespace {
 
-constexpr char* POPUP_FILE_SELECTOR = "Select file";
-constexpr char* POPUP_FILENAME_ENTRY = "Filename entry";
+constexpr const char* POPUP_FILE_SELECTOR = "Select file";
+constexpr const char* POPUP_FILENAME_ENTRY = "Filename entry";
 
 // famous last words: there should only ever by one file selection popup open at a time, so why bother.
 std::vector<std::string>  file_list;

@@ -5,7 +5,6 @@
 #include "lsim_context.h"
 #include "model_circuit.h"
 #include "component_widget.h"
-#include "circuit_editor.h"
 
 #include "serialize.h"
 

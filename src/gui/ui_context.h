@@ -4,6 +4,7 @@
 #define LSIM_GUI_UI_CONTEXT_H
 
 #include "std_helper.h"
+#include "circuit_editor.h"
 #include <functional>
 #include <list>
 
@@ -15,8 +16,6 @@ class ModelComponent;
 class SimCircuit;
 
 namespace gui {
-
-class CircuitEditor;
 
 class UIContext {
 public:

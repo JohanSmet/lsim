@@ -4,8 +4,7 @@
 #define LSIM_GUI_COMPONENT_ICON_H
 
 #include "algebra.h"
-#include <unordered_map>
-#include <vector>
+#include "std_helper.h"
 
 struct ImDrawList;
 
@@ -23,7 +22,7 @@ public:
 private:
 	typedef std::array<Point, 4> bezier_t;
 	typedef std::vector<bezier_t> bezier_container_t;
-	typedef std::unordered_map<uint32_t, std::unique_ptr<ComponentIcon> > icon_lut_t;
+	typedef std::unordered_map<uint32_t, unique_ptr<ComponentIcon> > icon_lut_t;
 private:
 	bezier_container_t  m_curves;
 	Point               m_size;
