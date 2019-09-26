@@ -401,7 +401,8 @@ void CircuitEditor::user_interaction() {
 	}
 
 	// start dragging
-	if (mouse_in_window && m_state == CS_IDLE && ImGui::IsMouseDragging(0)) {
+	if (mouse_in_window && m_state == CS_IDLE && ImGui::IsMouseDragging(0) &&
+	    (m_hovered_widget != nullptr || m_hovered_wire != nullptr)) {
 		m_state = CS_DRAGGING;
 		prepare_move_selected_items();
 	}
