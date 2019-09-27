@@ -17,6 +17,7 @@ namespace {
 
 static const char *POPUP_EMBED_CIRCUIT = "embed_circuit";
 static const char *POPUP_SUB_CIRCUIT = "sub_circuit";
+static const char* POPUP_EDIT_SEGMENT = "edit_segment";
 
 } // unnamed namespace
 
@@ -106,6 +107,7 @@ void CircuitEditor::draw_ui(UIContext *ui_context) {
 	// potential popup windows
 	ui_popup_embed_circuit();
 	ui_popup_sub_circuit(ui_context);
+	ui_popup_edit_segment();
 	
 	// create two layers to draw the background and the widgets
 	draw_list->ChannelsSplit(2);
@@ -270,13 +272,7 @@ void CircuitEditor::user_interaction() {
 			m_wire_start = { m_mouse_grid_point, m_hovered_pin, nullptr };
 			m_line_anchors = { m_mouse_grid_point, m_mouse_grid_point };
 			m_segment_start = m_mouse_grid_point;
-		} /*else if (m_state == CS_IDLE && m_hovered_wire != nullptr) {
-			// clicking on a wire activates CREATE_WIRE state
-			m_state = CS_CREATE_WIRE;
-			m_wire_start = { m_mouse_grid_point, PIN_ID_INVALID, m_hovered_wire };
-			m_line_anchors = { m_mouse_grid_point, m_mouse_grid_point };
-			m_segment_start = m_mouse_grid_point;
-		}*/ else if (m_state == CS_IDLE &&
+		} else if (m_state == CS_IDLE &&
 			m_hovered_pin == PIN_ID_INVALID &&
 			m_hovered_wire == nullptr &&
 			m_hovered_widget == nullptr) {
@@ -338,7 +334,11 @@ void CircuitEditor::user_interaction() {
 
 	// -> edit-mode: right mouse button released
 	if (!is_simulating() && mouse_in_window && ImGui::IsMouseReleased(1)) {
-		if (m_state == CS_IDLE && !m_hovered_widget) {
+		if (m_state == CS_IDLE && m_hovered_wire) {
+			// popup menu to edit the wire segment
+			m_wire_start = { m_mouse_grid_point, PIN_ID_INVALID, m_hovered_wire };
+			ui_popup_edit_segment_open();
+		} else if (m_state == CS_IDLE && !m_hovered_widget && !m_hovered_wire) {
 			// popup menu to insert a sub circuit
 			ui_popup_embed_circuit_open();
 		} else if (m_state == CS_CREATE_WIRE) {
@@ -904,6 +904,21 @@ void CircuitEditor::ui_popup_sub_circuit(UIContext *ui_context) {
 void CircuitEditor::ui_popup_sub_circuit_open() {
 	m_popup_component = m_hovered_widget;
 	ImGui::OpenPopup(POPUP_SUB_CIRCUIT);
+}
+
+void CircuitEditor::ui_popup_edit_segment() {
+	if (ImGui::BeginPopup(POPUP_EDIT_SEGMENT)) {
+		if (ImGui::Selectable("Attach wire")) {
+			m_state = CS_CREATE_WIRE;
+			m_line_anchors = { m_wire_start.m_position, m_wire_start.m_position };
+			m_segment_start = m_wire_start.m_position;
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void CircuitEditor::ui_popup_edit_segment_open() {
+	ImGui::OpenPopup(POPUP_EDIT_SEGMENT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -101,6 +101,8 @@ private:
     void ui_popup_embed_circuit_open();
     void ui_popup_sub_circuit(UIContext *ui_context);
     void ui_popup_sub_circuit_open();
+	void ui_popup_edit_segment();
+	void ui_popup_edit_segment_open();
 
 private:
     struct PointHash {
@@ -140,7 +142,7 @@ private:
     Point						m_copy_center;
 
 	// editor state
-    CircuitEditorState				m_state;				// current state of the editor state machine
+    CircuitEditorState			m_state;				// current state of the editor state machine
     ComponentWidget *			m_hovered_widget;		// currently hovered widget
     pin_id_t					m_hovered_pin;			// currently hovered pin
     ModelWire *					m_hovered_wire;			// currently hovered wire
