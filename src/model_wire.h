@@ -83,6 +83,7 @@ public:
 
     ModelWireJunction *add_junction(const Point &p, ModelWireSegment *segment);
     ModelWireSegment *add_segment(const Point &p0, const Point &p1);
+	ModelWireJunction *create_new_junction(const Point &p, ModelWireSegment *segment);
     void add_segments(Point *anchors, size_t num_anchors);
     void merge(ModelWire *other);
     void split_at_new_junction(const Point &p);

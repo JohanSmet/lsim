@@ -127,8 +127,7 @@ ModelWireJunction *ModelWire::add_junction(const Point &p, ModelWireSegment *seg
         return found->get();
     }
 
-    m_junctions.push_back(std::make_unique<ModelWireJunction>(p, segment));
-    return m_junctions.back().get();
+	return create_new_junction(p, segment);
 }
 
 ModelWireSegment *ModelWire::add_segment(const Point &p0, const Point &p1) {
@@ -138,6 +137,11 @@ ModelWireSegment *ModelWire::add_segment(const Point &p0, const Point &p1) {
     segment->set_junction(0, add_junction(p0, segment));
     segment->set_junction(1, add_junction(p1, segment));
     return segment;
+}
+
+ModelWireJunction *ModelWire::create_new_junction(const Point& p, ModelWireSegment* segment) {
+    m_junctions.push_back(std::make_unique<ModelWireJunction>(p, segment));
+    return m_junctions.back().get();
 }
 
 void ModelWire::add_segments(Point *anchors, size_t num_anchors) {
@@ -169,10 +173,11 @@ void ModelWire::split_at_new_junction(const Point &p) {
         return;
     }
     auto segment = found->get();
-
-    add_segment(segment->junction(0)->position(), p);
-    add_segment(p, segment->junction(1)->position());
-    remove_redundant_segment(segment);
+	
+	auto p_end = segment->junction(1)->position();
+	segment->junction(1)->remove_segment(segment);
+	segment->set_junction(1, create_new_junction(p, segment));
+	add_segment(p, p_end);
 }
 
 void ModelWire::move(const Point& delta) {
