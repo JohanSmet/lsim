@@ -10,6 +10,10 @@
 
 namespace lsim {
 
+inline bool float_equal(float a, float b, float epsilon = FLT_EPSILON) {
+	return fabs(a - b) <= fmaxf(fabs(a), fabs(b))* epsilon;
+}
+
 class Point {
 public:
     // constructors
@@ -35,11 +39,11 @@ public:
 float distance_squared(const Point &p1, const Point &p2);
 
 inline bool operator==(const Point &p1, const Point &p2) {
-    return p1.x == p2.x && p1.y == p2.y;
+    return float_equal(p1.x, p2.x) && float_equal(p1.y, p2.y);
 }
 
 inline bool operator!=(const Point &p1, const Point &p2) {
-    return p1.x != p2.x || p1.y != p2.y;
+    return !float_equal(p1.x, p2.x) || !float_equal(p1.y, p2.y);
 }
 
 inline bool points_colinear(const Point &p0, const Point &p1, const Point &p2) {
