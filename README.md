@@ -1,7 +1,7 @@
 # LSim
 LSim (or Logicial SIMulator) is a tool to simulate digital logic circuits. It's a hobby/toy project I started to help me learn about digital logic design.
 
-Please note: if you're not into custom-built experimental logic simulators this might not be the place for you. For a motivation (or more accurately: a justification) why I build LSim please read this [document](docs/motivation.md).
+Please note: if you're not into custom-built experimental logic simulators this might not be the place for you. For a motivation (or more accurately: a justification) why I build LSim please read this [post](http://justcode.be/projects/lsim/).
 
 ![lsim_small](docs/lsim_small.png)
 
