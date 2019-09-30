@@ -143,8 +143,10 @@ node_t Simulator::assign_node(SimComponent *component, bool used_as_input) {
         m_node_values_read[id] = VALUE_UNDEFINED;
         m_node_values_write[id] = VALUE_UNDEFINED;
         m_node_metadata[id].m_default = VALUE_UNDEFINED;
-        m_node_metadata[id].m_dependents = {};
+		m_node_metadata[id].m_dependents.clear();
 		m_node_metadata[id].m_pins.clear();
+		m_node_metadata[id].m_active_pins.clear();
+		m_node_metadata[id].m_time_dirty_write = 0;
         m_node_write_time[id] = 0;
         m_node_change_time[id] = 0;
         if (used_as_input) {
@@ -284,9 +286,12 @@ void Simulator::init() {
     std::fill(std::begin(m_node_values_write), std::end(m_node_values_write), VALUE_FALSE);
     std::fill(std::begin(m_node_write_time), std::end(m_node_write_time), 0);
     std::fill(std::begin(m_node_change_time), std::end(m_node_change_time), 0);
+	std::fill(std::begin(m_input_changed), std::end(m_input_changed), 0);
 
     for (auto &meta : m_node_metadata) {
         meta.m_default = VALUE_UNDEFINED;
+		meta.m_active_pins.clear();
+		meta.m_time_dirty_write = 0;
     }
 
     // apply initial values
