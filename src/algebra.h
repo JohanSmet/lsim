@@ -7,6 +7,7 @@
 
 #include <array>
 #include <cmath>
+#include <cfloat>
 
 namespace lsim {
 
