@@ -87,9 +87,9 @@ private:
         bool                m_pin_tristate;
     };
 
-    typedef std::vector<uint64_t>       wire_node_t;
-    typedef std::vector<wire_node_t>    wire_container_t;
-    typedef std::unordered_map<std::string, size_t> tunnel_wire_map_t;
+    using wire_node_t = std::vector<uint64_t>;
+    using wire_container_t = std::vector<wire_node_t>;
+    using tunnel_wire_map_t = std::unordered_map<std::string, size_t>;
 
     struct CircuitConstruction {
         ModelCircuit *m_circuit;
@@ -100,7 +100,7 @@ private:
         tunnel_wire_map_t m_tunnels;
     };
 
-    typedef std::unordered_map<std::string, CircuitConstruction> circuit_map_t;
+    using circuit_map_t = std::unordered_map<std::string, CircuitConstruction>;
 
 private:
     bool parse_circuit(pugi::xml_node &circuit_node);

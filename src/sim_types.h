@@ -10,9 +10,9 @@
 
 namespace lsim {
 
-typedef uint32_t node_t;
-typedef uint32_t pin_t;
-typedef uint64_t timestamp_t;
+using node_t = uint32_t;
+using pin_t = uint32_t;
+using timestamp_t = uint64_t;
 
 enum Value {
     VALUE_FALSE         = 0,
@@ -21,19 +21,19 @@ enum Value {
     VALUE_ERROR         = 3,
 };
 
-typedef std::vector<node_t> node_container_t;
-typedef std::vector<pin_t> pin_container_t;
-typedef std::vector<Value> value_container_t;
+using node_container_t = std::vector<node_t>;
+using pin_container_t = std::vector<pin_t>;
+using value_container_t = std::vector<Value>;
 
 const pin_t PIN_UNDEFINED = static_cast<pin_t>(-1);
 const node_t NODE_INVALID = static_cast<node_t>(-1);
 
 // pin-ids are used in the circuit description
-typedef uint64_t pin_id_t;
-typedef std::vector<pin_id_t>   pin_id_container_t;
+using pin_id_t = uint64_t;
+using pin_id_container_t = std::vector<pin_id_t>;
 
 // component types - seems okay for now for these to be all listed here, not really expecting much extra types
-typedef uint32_t ComponentType;
+using ComponentType = uint32_t;
 const ComponentType COMPONENT_CONNECTOR_IN = 0x0001;
 const ComponentType COMPONENT_CONNECTOR_OUT = 0x0002;
 const ComponentType COMPONENT_CONSTANT = 0x0003;

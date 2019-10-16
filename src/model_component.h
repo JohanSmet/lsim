@@ -14,7 +14,7 @@
 
 namespace lsim {
 
-typedef std::unordered_map<std::string, pin_id_t> port_lut_t;
+using port_lut_t = std::unordered_map<std::string, pin_id_t>;
 
 inline uint32_t component_id_from_pin_id(pin_id_t pin_id) {
     return pin_id >> 32;
@@ -32,8 +32,8 @@ constexpr const auto PIN_ID_INVALID = static_cast<pin_id_t>(-1);
 
 class ModelComponent {
 public:
-    typedef std::unique_ptr<ModelComponent> uptr_t;
-    typedef std::unordered_map<std::string, Property::uptr_t> property_lut_t;
+    using uptr_t = std::unique_ptr<ModelComponent>;
+    using property_lut_t = std::unordered_map<std::string, Property::uptr_t>;
 public:
     ModelComponent(ModelCircuit *parent, uint32_t id, ComponentType type, uint32_t inputs, uint32_t outputs, uint32_t controls);
     ModelComponent(ModelCircuit *parent, uint32_t id, const char *circuit_name, uint32_t inputs, uint32_t outputs);

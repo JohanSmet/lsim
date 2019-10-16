@@ -17,8 +17,8 @@ class LSimContext;
 
 class ModelCircuitLibrary {
 public:
-    typedef std::unique_ptr<ModelCircuitLibrary> uptr_t;
-    typedef std::vector<std::string> reference_container_t;
+    using uptr_t = std::unique_ptr<ModelCircuitLibrary>;
+    using reference_container_t = std::vector<std::string>;
 
 public:
     ModelCircuitLibrary(const char *name, const char *path= "");
@@ -49,8 +49,8 @@ public:
     const reference_container_t &references() const {return m_references;}
 
 private:
-    typedef std::vector<ModelCircuit::uptr_t>     circuit_container_t;
-    typedef std::unordered_map<std::string, ModelCircuit *>  circuit_map_t;
+    using circuit_container_t = std::vector<ModelCircuit::uptr_t>;
+    using circuit_map_t = std::unordered_map<std::string, ModelCircuit *>;
 
 private:
     std::string             m_name;

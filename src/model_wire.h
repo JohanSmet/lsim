@@ -15,7 +15,7 @@ namespace lsim {
 
 class ModelWireJunction {
 public:
-    typedef std::unique_ptr<ModelWireJunction> uptr_t;
+    using uptr_t = std::unique_ptr<ModelWireJunction>;
 public:
     ModelWireJunction(const Point &p, class ModelWireSegment *segment);
 
@@ -35,7 +35,7 @@ private:
 
 class ModelWireSegment {
 public:
-    typedef std::unique_ptr<ModelWireSegment> uptr_t;
+    using uptr_t = std::unique_ptr<ModelWireSegment>;
 public:
     ModelWireSegment(class ModelWire *wire);
 
@@ -54,10 +54,10 @@ private:
 
 class ModelWire {
 public:
-    typedef std::unique_ptr<ModelWire>   uptr_t;
-    typedef std::vector<ModelWireJunction::uptr_t> junction_container_t;
-    typedef std::vector<ModelWireSegment::uptr_t>  segment_container_t;
-    typedef std::set<ModelWireSegment *> segment_set_t;
+    using uptr_t = std::unique_ptr<ModelWire>;
+    using junction_container_t = std::vector<ModelWireJunction::uptr_t>;
+    using segment_container_t = std::vector<ModelWireSegment::uptr_t>;
+    using segment_set_t = std::set<ModelWireSegment *>;
 
 public:
     ModelWire(uint32_t id);

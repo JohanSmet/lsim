@@ -55,7 +55,7 @@ private:
     pin_t pin_from_pin_id(pin_id_t pin_id);
 
 private:
-    typedef std::unordered_map<uint32_t, SimComponent *> sim_component_lut_t;
+    using sim_component_lut_t = std::unordered_map<uint32_t, SimComponent *>; 
 
 private:
     ModelCircuit *    m_circuit_desc;

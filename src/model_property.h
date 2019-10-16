@@ -13,7 +13,7 @@ namespace lsim {
 
 class Property {
 public:
-    typedef std::unique_ptr<Property> uptr_t;
+    using uptr_t = std::unique_ptr<Property>;
 public:
     Property(const char *key) : m_key(key) {}
     virtual ~Property() = default;

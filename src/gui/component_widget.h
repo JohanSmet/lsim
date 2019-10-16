@@ -18,8 +18,8 @@ class CircuitEditor;
 
 class ComponentWidget {
 public:
-	typedef std::unordered_map<pin_id_t, Point> endpoint_map_t;
-	typedef std::unique_ptr<ComponentWidget> uptr_t;
+	using endpoint_map_t = std::unordered_map<pin_id_t, Point>;
+	using uptr_t = std::unique_ptr<ComponentWidget>;
 	using draw_func_t = std::function<void(CircuitEditor *, const ComponentWidget *, Transform)>;
 
 public:

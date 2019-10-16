@@ -34,7 +34,7 @@ enum CircuitEditorState {
 
 class CircuitEditor {
 public:
-    typedef unique_ptr<CircuitEditor>  uptr_t;
+    using uptr_t = unique_ptr<CircuitEditor>;
 
 public:
     CircuitEditor(ModelCircuit *model_circuit);
@@ -109,10 +109,10 @@ private:
         size_t operator() (const Point &p) const;
     };
 
-    typedef std::vector<unique_ptr<ModelComponent>>		component_container_t;
-    typedef std::vector<unique_ptr<ComponentWidget>>    widget_container_t;
-    typedef std::vector<Point>							point_container_t;
-    typedef std::unordered_map<Point, pin_id_t, PointHash>  point_pin_lut_t;
+    using component_container_t = std::vector<unique_ptr<ModelComponent> >;
+    using widget_container_t = std::vector<unique_ptr<ComponentWidget> >;
+    using point_container_t = std::vector<Point>;
+    using point_pin_lut_t = std::unordered_map<Point, pin_id_t, PointHash>;
 
     struct WireEndPoint {
         Point    m_position;
@@ -124,7 +124,7 @@ private:
         ComponentWidget *m_widget;
         ModelWireSegment *m_segment;
     };
-    typedef std::vector<SelectedItem>   selection_container_t;
+    using selection_container_t = std::vector<SelectedItem>;
 
 private:
     ModelCircuit *				m_model_circuit;		// the circuit being shown/edited
@@ -170,7 +170,7 @@ private:
 
 class CircuitEditorFactory {
 public:
-    typedef std::function<void(ModelComponent *, ComponentWidget *)> materialize_func_t;
+    using materialize_func_t = std::function<void (ModelComponent *, ComponentWidget *)>;
 public:
     static void register_materialize_func(ComponentType type, materialize_func_t func);
     static CircuitEditor::uptr_t create_circuit(ModelCircuit *circuit);
@@ -178,7 +178,7 @@ public:
     static void rematerialize_component(CircuitEditor *circuit, ComponentWidget *ui_component);
 
 private:
-    typedef std::unordered_map<ComponentType, materialize_func_t> materialize_func_map_t;
+    using materialize_func_map_t = std::unordered_map<ComponentType, materialize_func_t>;
 
 private:
     static materialize_func_map_t m_materialize_funcs;

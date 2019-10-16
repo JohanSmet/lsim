@@ -13,7 +13,7 @@ class Simulator;
 
 class SimComponent {
 public:
-	typedef std::unique_ptr<SimComponent>   uptr_t;
+	using uptr_t = std::unique_ptr<SimComponent>;
 public:
 	SimComponent(Simulator* sim, ModelComponent* comp, uint32_t id);
 	ModelComponent* description() const { return m_comp_desc; }

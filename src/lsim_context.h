@@ -39,8 +39,8 @@ public:
     std::string relative_file_path(const std::string &file);
 
 private:
-    typedef std::unordered_map<std::string, ModelCircuitLibrary::uptr_t> library_lut_t;
-    typedef std::unordered_map<std::string, std::string> folder_lut_t;
+    using library_lut_t = std::unordered_map<std::string, ModelCircuitLibrary::uptr_t>;
+    using folder_lut_t = std::unordered_map<std::string, std::string>;
 
 private:
     Simulator m_sim;

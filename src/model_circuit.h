@@ -17,8 +17,8 @@ namespace lsim {
 
 class ModelCircuit {
 public:
-    typedef std::unique_ptr<ModelCircuit> uptr_t;
-    typedef std::unordered_map<uint32_t, ModelWire::uptr_t> wire_lut_t;
+    using uptr_t = std::unique_ptr<ModelCircuit>;
+    using wire_lut_t = std::unordered_map<uint32_t, ModelWire::uptr_t>;
 public:
     ModelCircuit(const char *name, class LSimContext *context, class ModelCircuitLibrary *ref_lib);
     ModelCircuit(const ModelCircuit &) = delete;
@@ -87,8 +87,8 @@ public:
     std::unique_ptr<class SimCircuit> instantiate(class Simulator *sim, bool top_level = true);
 
 private:
-    typedef std::unordered_map<uint32_t, ModelComponent::uptr_t> component_lut_t;
-    typedef std::vector<std::string> port_container_t;
+    using component_lut_t = std::unordered_map<uint32_t, ModelComponent::uptr_t>;
+    using port_container_t = std::vector<std::string>;
 
 private:
     class LSimContext *m_context;

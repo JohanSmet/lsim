@@ -14,8 +14,8 @@
 namespace lsim {
 
 struct NodeMetadata {
-    typedef std::set<SimComponent *> component_set_t;
-    typedef std::set<pin_t> pin_set_t;
+    using component_set_t = std::set<SimComponent *>;
+    using pin_set_t = std::set<pin_t>;
 
     // construction
     NodeMetadata() : m_default(VALUE_UNDEFINED),
@@ -90,11 +90,11 @@ private:
     void postprocess_dirty_nodes();
 
 private:
-    typedef std::vector<timestamp_t> timestamp_container_t;
-    typedef std::vector<std::unique_ptr<SimComponent>> component_container_t;
-    typedef std::vector<SimComponent *> component_refs_t;
-    typedef std::vector<NodeMetadata> node_metadata_container_t;
-    typedef std::vector<sim_component_functions_t> sim_func_container_t;
+    using timestamp_container_t = std::vector<timestamp_t>;
+    using component_container_t = std::vector<std::unique_ptr<SimComponent> >;
+    using component_refs_t = std::vector<SimComponent *>;
+    using node_metadata_container_t = std::vector<NodeMetadata>;
+    using sim_func_container_t = std::vector<sim_component_functions_t>;
 
 private:
     timestamp_t    m_time;									// current simulation timestamp
