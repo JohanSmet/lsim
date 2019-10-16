@@ -114,11 +114,11 @@ void ui_panel_property(UIContext* ui_context) {
 		}
 
 		if (component->type() == COMPONENT_CONSTANT) {
-			auto new_value = value_property("Value", component->property("value"));
+			value_property("Value", component->property("value"));
 		}
 
 		if (component->type() == COMPONENT_PULL_RESISTOR) {
-			auto new_value = value_property("Value", component->property("pull_to"));
+			value_property("Value", component->property("pull_to"));
 		}
 
 		if (component->type() == COMPONENT_BUFFER || component->type() == COMPONENT_TRISTATE_BUFFER) {

@@ -73,7 +73,7 @@ void CircuitEditor::init_ui_refresh() {
 		// snap to diagonal (45 degree) / vertical / horizontal when creating wires
 		auto delta = m_mouse_grid_point - m_segment_start;
 		auto abs_delta = Point(fabs(delta.x), fabs(delta.y));
-		if (abs_delta.x > 0 && abs_delta.y > 0 && abs(abs_delta.y - abs_delta.x) < 10) {
+		if (abs_delta.x > 0 && abs_delta.y > 0 && fabs(abs_delta.y - abs_delta.x) < 10) {
 			m_mouse_grid_point = m_segment_start + Point(delta.x, abs_delta.x * ((delta.y < 0) ? -1.0f : 1.0f));
 		} else if (abs_delta.y > abs_delta.x) {
 			m_mouse_grid_point.x = m_segment_start.x;
@@ -581,10 +581,12 @@ void CircuitEditor::add_wire() {
 		auto wire = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_wire : m_wire_end.m_wire;
 		auto junction = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_position : m_wire_end.m_position;
 
-		wire->split_at_new_junction(junction);
-		wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
-		wire->simplify();
-		wire->add_pin(pin);
+		if (wire) {
+			wire->split_at_new_junction(junction);
+			wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
+			wire->simplify();
+			wire->add_pin(pin);
+		}
 	}
 }
 

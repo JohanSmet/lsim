@@ -75,7 +75,7 @@ namespace gui {
 void component_register_basic() {
 
     // connector input
-    auto icon_connector_in = ComponentIcon::cache(COMPONENT_CONNECTOR_IN, SHAPE_CONNECTOR_IN, sizeof(SHAPE_CONNECTOR_IN));
+    ComponentIcon::cache(COMPONENT_CONNECTOR_IN, SHAPE_CONNECTOR_IN, sizeof(SHAPE_CONNECTOR_IN));
     CircuitEditorFactory::register_materialize_func(
         COMPONENT_CONNECTOR_IN, [](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("Input");
@@ -148,7 +148,7 @@ void component_register_basic() {
     );
 
     // connector output
-    auto icon_connector_out = ComponentIcon::cache(COMPONENT_CONNECTOR_OUT, SHAPE_CONNECTOR_OUT, sizeof(SHAPE_CONNECTOR_OUT));
+    ComponentIcon::cache(COMPONENT_CONNECTOR_OUT, SHAPE_CONNECTOR_OUT, sizeof(SHAPE_CONNECTOR_OUT));
     CircuitEditorFactory::register_materialize_func(
         COMPONENT_CONNECTOR_OUT, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("Output");
@@ -207,7 +207,7 @@ void component_register_basic() {
 
 
     // constant
-    auto icon_constant = ComponentIcon::cache(COMPONENT_CONSTANT, SHAPE_CONSTANT, sizeof(SHAPE_CONSTANT));
+    ComponentIcon::cache(COMPONENT_CONSTANT, SHAPE_CONSTANT, sizeof(SHAPE_CONSTANT));
     CircuitEditorFactory::register_materialize_func(
         COMPONENT_CONSTANT, [=](ModelComponent *comp, ComponentWidget *widget) {
             const float width = 20;
@@ -525,7 +525,7 @@ void component_register_gates() {
 
 void component_register_input_output() {
 
-    auto icon_7_segment_led = ComponentIcon::cache(COMPONENT_7_SEGMENT_LED, SHAPE_7_SEGMENT_LED, sizeof(SHAPE_7_SEGMENT_LED));
+    ComponentIcon::cache(COMPONENT_7_SEGMENT_LED, SHAPE_7_SEGMENT_LED, sizeof(SHAPE_7_SEGMENT_LED));
     CircuitEditorFactory::register_materialize_func(
         COMPONENT_7_SEGMENT_LED, [=](ModelComponent *comp, ComponentWidget *widget) {
             widget->change_tooltip("7-segment LED");

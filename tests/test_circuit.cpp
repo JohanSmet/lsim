@@ -7,7 +7,6 @@ using namespace lsim;
 TEST_CASE("Components are created correctly", "[circuit]") {
 
     LSimContext lsim_context;
-    auto sim = lsim_context.sim();
 
     auto circuit_desc = lsim_context.create_user_circuit("main");
     REQUIRE(circuit_desc);

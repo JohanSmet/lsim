@@ -29,12 +29,12 @@ SimComponent *SimCircuit::add_component(ModelComponent *comp) {
 
         for (auto idx = 0u; idx < sim_comp->num_inputs(); ++idx) {
             auto nested_pin = nested_instance->pin_from_pin_id(comp->nested_circuit()->port_by_index(true, idx));
-            auto node = m_sim->connect_pins(nested_pin, sim_comp->pin_by_index(sim_comp->input_pin_index(idx)));
+            m_sim->connect_pins(nested_pin, sim_comp->pin_by_index(sim_comp->input_pin_index(idx)));
         }        
 
         for (auto idx = 0u; idx < sim_comp->num_outputs(); ++idx) {
             auto nested_pin = nested_instance->pin_from_pin_id(comp->nested_circuit()->port_by_index(false, idx));
-            auto node = m_sim->connect_pins(nested_pin, sim_comp->pin_by_index(sim_comp->output_pin_index(idx)));
+            m_sim->connect_pins(nested_pin, sim_comp->pin_by_index(sim_comp->output_pin_index(idx)));
         }        
 
         sim_comp->set_nested_instance(std::move(nested_instance));
