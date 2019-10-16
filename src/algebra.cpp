@@ -23,13 +23,7 @@ namespace lsim {
 // Point
 //
 
-Point::Point() : x(0.0f), y(0.0f) {
-}
-
 Point::Point(float x, float y) : x(x), y(y) {
-}
-
-Point::Point(const Point& other) : x(other.x), y(other.y) {
 }
 
 Point::Point(const std::array<float, 2> a) : x(a[0]), y(a[1]) {

@@ -18,9 +18,9 @@ inline bool float_equal(float a, float b, float epsilon = FLT_EPSILON) {
 class Point {
 public:
     // constructors
-    Point();
+    Point() = default;
     Point(float x, float y);
-    Point(const Point &other);
+    Point(const Point &other) = default;
     Point(const std::array<float, 2> a);
 
     // operators
@@ -33,8 +33,8 @@ public:
     Point operator/(const Point &p) const;
 
 public:
-    float x;
-    float y;
+    float x = 0.0f;
+    float y = 0.0f;
 };
 
 float distance_squared(const Point &p1, const Point &p2);
