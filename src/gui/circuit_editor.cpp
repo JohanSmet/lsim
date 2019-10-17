@@ -27,8 +27,8 @@ namespace gui {
 
 size_t CircuitEditor::PointHash::operator() (const Point &p) const {
 		// abuse the fact that positions will always be aligned to the grid
-		int32_t x = (int32_t) p.x;
-		int32_t y = (int32_t) p.y;
+		auto x = (int32_t) p.x;
+		auto y = (int32_t) p.y;
 		return ((int64_t) y) << 32 | (size_t) x;
 }
 

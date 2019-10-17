@@ -49,13 +49,13 @@ public:
 
 private:
     union Position {
-        Position() : m_x(0), m_y(0) {}
+        Position() = default;
         Position(int32_t x, int32_t y) : m_x(x), m_y(y) { }
         struct {
             int32_t m_y;
             int32_t m_x;
         };
-        uint64_t m_full;
+        uint64_t m_full = 0;
     };
 
     struct LogisimConnection {
@@ -393,8 +393,8 @@ bool LogisimParser::connect_components() {
             auto pin_pair = m_context.m_pin_locs.find(point);
             if (pin_pair != std::end(m_context.m_pin_locs)) {
                 auto &c = pin_pair->second;
-                for (size_t i = 0; i < c.m_pins.size(); ++i) {
-                    wire->add_pin(c.m_pins[i]);
+                for (auto pin : c.m_pins) {
+                    wire->add_pin(pin);
                 }
             }
         }

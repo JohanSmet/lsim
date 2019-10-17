@@ -72,7 +72,7 @@ struct AdderIO {
 };
 
 AdderIO create_1bit_adder(LSimContext *lsim_context) {
-    AdderIO result = {0};
+    AdderIO result = {};
 
     result.circuit = lsim_context->create_user_circuit("adder_1bit");
 
@@ -143,7 +143,7 @@ TEST_CASE("1bit Adder", "[circuit]") {
 }
 
 AdderIO create_4bit_adder(LSimContext *lsim_context) {
-    AdderIO result = {0};
+    AdderIO result = {};
 
     // create 1bit adder circuit
     auto adder_1bit = create_1bit_adder(lsim_context);

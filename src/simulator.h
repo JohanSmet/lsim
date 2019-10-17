@@ -17,22 +17,19 @@ struct NodeMetadata {
     using component_set_t = std::set<SimComponent *>;
     using pin_set_t = std::set<pin_t>;
 
-    // construction
-    NodeMetadata() : m_default(VALUE_UNDEFINED),
-					 m_time_dirty_write(0) {
-    }
+    NodeMetadata() = default;
 
     // data
-    Value               m_default;
+    Value               m_default = VALUE_UNDEFINED;
     component_set_t     m_dependents;
 	pin_container_t		m_pins;
     pin_set_t           m_active_pins;
-	timestamp_t			m_time_dirty_write;
+	timestamp_t			m_time_dirty_write = 0;
 };
 
 class Simulator {
 public:
-    Simulator();
+    Simulator() = default;
     Simulator(const Simulator &) = delete;
 
     // components
@@ -97,7 +94,7 @@ private:
     using sim_func_container_t = std::vector<sim_component_functions_t>;
 
 private:
-    timestamp_t    m_time;									// current simulation timestamp
+    timestamp_t    m_time = 0;								// current simulation timestamp
 
 	// components
     component_container_t		m_components;				// all simulator components

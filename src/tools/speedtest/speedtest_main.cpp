@@ -28,7 +28,7 @@ inline double chrono_report() {
 
 } // unnamed namespace
 
-int main(void) {
+int main() {
     lsim::LSimContext lsim_context;
 
     std::printf("--- setting up LSim\n");

@@ -66,7 +66,7 @@ ModelCircuitLibrary *LSimContext::library_by_name(const char *name) {
 }
 
 void LSimContext::add_folder(const char *name, const char *path) {
-    m_folders.push_back(name);
+    m_folders.emplace_back(name);
     m_folder_lut[name] = path;
 }
 
