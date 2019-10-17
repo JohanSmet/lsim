@@ -631,7 +631,7 @@ bool LogisimParser::parse_location(const std::string &loc_string, Position &pos)
     }
 
     auto comma = loc_string.find_first_of(',');
-    if (comma == loc_string.npos) {
+    if (comma == std::string::npos) {
         ERROR_MSG("Unparseable location \"%s\"; should contain a comma", loc_string.c_str());
         return false;
     }
@@ -746,20 +746,22 @@ LogisimParser::Position LogisimParser::input_pin_location(
         dy = skipStart * (props.m_inputs - 1) + skipDist * index;
     } else {
         dy = skipStart * props.m_inputs + skipDist * index;
-        if (index >= props.m_inputs / 2)
+        if (index >= props.m_inputs / 2) {
             dy += skipLowerEven;
+        }
     }
 
 	int dx = axis_length + (props.m_negate_input ? 10 : 0);
 
-	if (props.m_facing == LS_NORTH) {
-        return {base.m_x + dy, base.m_y + dx};
-    } else if (props.m_facing == LS_SOUTH) {
-        return {base.m_x + dy, base.m_y - dx};
-    } else if (props.m_facing == LS_WEST) {
-        return {base.m_x + dx, base.m_y + dy};
-    } else {
-        return {base.m_x - dx, base.m_y + dy};
+    switch (props.m_facing) {
+	    case LS_NORTH:
+            return {base.m_x + dy, base.m_y + dx};
+        case LS_SOUTH:
+            return {base.m_x + dy, base.m_y - dx};
+        case LS_WEST:
+            return {base.m_x + dx, base.m_y + dy};
+        default:
+            return {base.m_x - dx, base.m_y + dy};
     }
 }
 

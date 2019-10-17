@@ -16,45 +16,45 @@ namespace {
 
 using namespace lsim;
 
-static const char *LSIM_XML_VERSION="2";
+constexpr const char *LSIM_XML_VERSION="2";
 
-static const char *XML_EL_LSIM = "lsim";
-static const char *XML_EL_CIRCUIT = "circuit";
-static const char *XML_EL_COMPONENT = "component";
-static const char *XML_EL_PIN = "pin";
-static const char *XML_EL_PROPERTY = "property";
-static const char *XML_EL_POSITION = "position";
-static const char *XML_EL_ORIENTATION = "orientation";
-static const char *XML_EL_MAIN = "main";
-static const char *XML_EL_WIRE = "wire";
-static const char *XML_EL_SEGMENT = "segment";
-static const char *XML_EL_REFERENCE = "reference";
+constexpr const char *XML_EL_LSIM = "lsim";
+constexpr const char *XML_EL_CIRCUIT = "circuit";
+constexpr const char *XML_EL_COMPONENT = "component";
+constexpr const char *XML_EL_PIN = "pin";
+constexpr const char *XML_EL_PROPERTY = "property";
+constexpr const char *XML_EL_POSITION = "position";
+constexpr const char *XML_EL_ORIENTATION = "orientation";
+constexpr const char *XML_EL_MAIN = "main";
+constexpr const char *XML_EL_WIRE = "wire";
+constexpr const char *XML_EL_SEGMENT = "segment";
+constexpr const char *XML_EL_REFERENCE = "reference";
 
-static const char *XML_ATTR_VERSION = "version";
-static const char *XML_ATTR_NAME = "name";
-static const char *XML_ATTR_ID = "id";
-static const char *XML_ATTR_TYPE = "type";
-static const char *XML_ATTR_INPUTS = "inputs";
-static const char *XML_ATTR_OUTPUTS = "outputs";
-static const char *XML_ATTR_CONTROLS = "controls";
-static const char *XML_ATTR_NESTED = "nested";
-static const char *XML_ATTR_INDEX = "index";
-static const char *XML_ATTR_NODE = "node";
-static const char *XML_ATTR_KEY = "key";
-static const char *XML_ATTR_VALUE = "value";
-static const char *XML_ATTR_X = "x";
-static const char *XML_ATTR_Y = "y";
-static const char *XML_ATTR_X1 = "x1";
-static const char *XML_ATTR_Y1 = "y1";
-static const char *XML_ATTR_X2 = "x2";
-static const char *XML_ATTR_Y2 = "y2";
-static const char *XML_ATTR_ANGLE = "angle";
-static const char *XML_ATTR_INSTANCE = "instance";
-static const char *XML_ATTR_FILE = "file";
-static const char *XML_ATTR_LOW_DURATION = "low_duration";
-static const char *XML_ATTR_HIGH_DURATION = "high_duration";
+constexpr const char *XML_ATTR_VERSION = "version";
+constexpr const char *XML_ATTR_NAME = "name";
+constexpr const char *XML_ATTR_ID = "id";
+constexpr const char *XML_ATTR_TYPE = "type";
+constexpr const char *XML_ATTR_INPUTS = "inputs";
+constexpr const char *XML_ATTR_OUTPUTS = "outputs";
+constexpr const char *XML_ATTR_CONTROLS = "controls";
+constexpr const char *XML_ATTR_NESTED = "nested";
+constexpr const char *XML_ATTR_INDEX = "index";
+constexpr const char *XML_ATTR_NODE = "node";
+constexpr const char *XML_ATTR_KEY = "key";
+constexpr const char *XML_ATTR_VALUE = "value";
+constexpr const char *XML_ATTR_X = "x";
+constexpr const char *XML_ATTR_Y = "y";
+constexpr const char *XML_ATTR_X1 = "x1";
+constexpr const char *XML_ATTR_Y1 = "y1";
+constexpr const char *XML_ATTR_X2 = "x2";
+constexpr const char *XML_ATTR_Y2 = "y2";
+constexpr const char *XML_ATTR_ANGLE = "angle";
+constexpr const char *XML_ATTR_INSTANCE = "instance";
+constexpr const char *XML_ATTR_FILE = "file";
+constexpr const char *XML_ATTR_LOW_DURATION = "low_duration";
+constexpr const char *XML_ATTR_HIGH_DURATION = "high_duration";
 
-static const std::unordered_map<ComponentType, std::string> component_type_to_name = {
+const std::unordered_map<ComponentType, std::string> component_type_to_name = {
     {COMPONENT_CONNECTOR_IN, "ConnectorIn"},
     {COMPONENT_CONNECTOR_OUT, "ConnectorOut"},
     {COMPONENT_CONSTANT, "Constant"},
@@ -75,7 +75,7 @@ static const std::unordered_map<ComponentType, std::string> component_type_to_na
     {COMPONENT_TEXT, "Text"}
 };
 
-static const auto name_to_component_type = []() {
+const auto name_to_component_type = []() {
     std::unordered_map<std::string, ComponentType> result;
     for (const auto &entry : component_type_to_name) {
         result[entry.second] = entry.first;
@@ -250,12 +250,7 @@ public:
     }
 
     bool load_from_file(const char *filename) {
-        auto result = m_xml.load_file(filename);
-        if (!result) {
-            return false;
-        }
-
-        return true;
+        return m_xml.load_file(filename);
     }
 
     bool parse_component(pugi::xml_node &comp_node, ModelCircuit *circuit) {
@@ -474,7 +469,7 @@ public:
             std::string pin_string = value_attr.as_string();
 
             auto hash = pin_string.find_first_of('#');
-            if (hash == pin_string.npos) {
+            if (hash == std::string::npos) {
                 ERROR_MSG("Unparseable location \"%s\"; should contain a comma", pin_string.c_str());
                 return false;
             }

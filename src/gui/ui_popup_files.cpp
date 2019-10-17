@@ -29,11 +29,13 @@ void r_scan_dir(const char *dir_path) {
         cf_file_t file;
         cf_read_file(&dir, &file);
 
-        if (file.is_dir != 0 && file.name[0] == '.')
+        if (file.is_dir != 0 && file.name[0] == '.') {
             continue;
+        }
 
-        if (file.is_reg != 0 && cf_match_ext(&file, ".lsim") == 0)
+        if (file.is_reg != 0 && cf_match_ext(&file, ".lsim") == 0) {
             continue;
+        }
 
         entries.push_back(file);
     }
@@ -41,11 +43,13 @@ void r_scan_dir(const char *dir_path) {
     std::sort(entries.begin(), entries.end(), [](const auto &a, const auto &b) {
         if (a.is_dir && !b.is_dir) {
             return true;
-        } else if (!a.is_dir && b.is_dir) {
+        } 
+
+        if (!a.is_dir && b.is_dir) {
             return false;
-        } else {
-            return strcmp(a.name, b.name) < 0;
         }
+
+        return strcmp(a.name, b.name) < 0;
     });
 
     for (const auto &entry : entries) {

@@ -58,9 +58,9 @@ ModelCircuit *ModelCircuitLibrary::circuit_by_name(const char *name) const {
     auto res = m_circuit_lut.find(name);
     if (res != m_circuit_lut.end()) {
         return res->second;
-    } else {
-        return nullptr;
     }
+
+    return nullptr;
 }
 
 uint32_t ModelCircuitLibrary::circuit_idx(ModelCircuit *circuit) const {

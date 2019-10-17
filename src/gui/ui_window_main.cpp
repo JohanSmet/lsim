@@ -13,8 +13,8 @@
 
 namespace {
 
-static lsim::LSimContext lsim_context;
-static lsim::gui::UIContext ui_context(&lsim_context);
+lsim::LSimContext lsim_context;
+lsim::gui::UIContext ui_context(&lsim_context);
 
 } // unnamed namespace
 

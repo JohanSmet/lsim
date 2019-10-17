@@ -79,9 +79,9 @@ void UIContext::simulation_stop() {
 	m_lsim_context->sim()->clear_components();
 }
 
-void UIContext::create_sub_circuit_view(SimCircuit* parent_sim, ModelComponent *model_comp) {
+void UIContext::create_sub_circuit_view(SimCircuit* sim_circuit, ModelComponent *model_comp) {
 	auto nested_model = model_comp->nested_circuit();
-	auto nested_sim = parent_sim->component_by_id(model_comp->id())->nested_instance();
+	auto nested_sim = sim_circuit->component_by_id(model_comp->id())->nested_instance();
 
 	auto sub_circuit = CircuitEditorFactory::create_circuit(nested_model);
 	sub_circuit->set_simulation_instance(nested_sim, true);

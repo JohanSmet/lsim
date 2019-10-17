@@ -61,12 +61,10 @@ ComponentIcon* ComponentIcon::cache(uint32_t id, const char* data, size_t len) {
 
 ComponentIcon* ComponentIcon::cached(uint32_t id) {
 	auto result = m_icon_cache.find(id);
-	if (result == m_icon_cache.end()) {
-		return nullptr;
-	}
-	else {
+	if (result != m_icon_cache.end()) {
 		return result->second.get();
 	}
+	return nullptr;
 }
 
 } // namespace lsim::gui

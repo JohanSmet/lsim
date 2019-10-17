@@ -69,9 +69,8 @@ pin_id_t ModelComponent::port_by_name(const char *name) const {
     auto found = m_port_lut.find(name);
     if (found != m_port_lut.end()) {
         return found->second;
-    } else {
-        return PIN_ID_INVALID;
     }
+    return PIN_ID_INVALID;
 }
 
 void ModelComponent::add_property(Property::uptr_t &&prop) {
@@ -82,9 +81,8 @@ Property *ModelComponent::property(const char *key) {
     auto result = m_properties.find(key);
     if (result != m_properties.end()) {
         return result->second.get();
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 std::string ModelComponent::property_value(const char *key, const char *def_value) {

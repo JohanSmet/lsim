@@ -15,9 +15,9 @@
 
 namespace {
 
-static const char *POPUP_EMBED_CIRCUIT = "embed_circuit";
-static const char *POPUP_SUB_CIRCUIT = "sub_circuit";
-static const char* POPUP_EDIT_SEGMENT = "edit_segment";
+constexpr const char *POPUP_EMBED_CIRCUIT = "embed_circuit";
+constexpr const char *POPUP_SUB_CIRCUIT = "sub_circuit";
+constexpr const char* POPUP_EDIT_SEGMENT = "edit_segment";
 
 } // unnamed namespace
 
@@ -784,9 +784,8 @@ bool CircuitEditor::is_selected(ModelWireSegment *segment) {
 ComponentWidget *CircuitEditor::selected_widget() const {
 	if (m_selection.size() == 1) {
 		return m_selection.front().m_widget;
-	} else {
-		return nullptr;
 	}
+	return nullptr;
 }
 
 void CircuitEditor::set_simulation_instance(SimCircuit *sim_circuit, bool view_only) {

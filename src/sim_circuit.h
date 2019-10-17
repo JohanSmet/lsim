@@ -23,7 +23,7 @@ public:
     SimComponent *component_by_id(uint32_t comp_id);
 
     // name
-    void build_name(uint32_t component_id);
+    void build_name(uint32_t comp_id);
     const char *name() const {return m_name.c_str();}
 
     // read/write
@@ -39,8 +39,8 @@ public:
     void write_output_pins(uint32_t comp_id, uint64_t data);
     void write_output_pins(uint32_t comp_id, Value value);
 
-    void write_nibble(const pin_id_container_t &pins, uint8_t nibble);
-    void write_byte(const pin_id_container_t &pins, uint8_t byte);
+    void write_nibble(const pin_id_container_t &pins, uint8_t data);
+    void write_byte(const pin_id_container_t &pins, uint8_t data);
     void write_pins(const pin_id_container_t &pins, const value_container_t &values);
     void write_pins(const pin_id_container_t &pins, uint64_t data);
 

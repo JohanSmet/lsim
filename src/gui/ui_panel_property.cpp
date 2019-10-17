@@ -30,9 +30,8 @@ void ui_panel_property(UIContext* ui_context) {
 				property->value(buffer.data());
 				return true;
 			}
-			else {
-				return false;
-			}
+
+			return false;
 		};
 
 		auto boolean_property = [](const char* caption, Property* property) {
@@ -41,9 +40,8 @@ void ui_panel_property(UIContext* ui_context) {
 				property->value(value);
 				return true;
 			}
-			else {
-				return false;
-			}
+
+			return false;
 		};
 
 		auto integer_property = [](const char* caption, Property* property) {
@@ -52,9 +50,7 @@ void ui_panel_property(UIContext* ui_context) {
 				property->value(static_cast<int64_t>(value));
 				return true;
 			}
-			else {
-				return false;
-			}
+			return false;
 		};
 
 		auto value_property = [](const char* caption, Property* property) -> Value {

@@ -38,14 +38,14 @@ ModelCircuit *LSimContext::find_circuit(const char *name, ModelCircuitLibrary *f
             result = m_user_library.circuit_by_name(name);
         }
         return result;
-    } else {
-        auto lib_name = qualified.substr(0, separator);
-        auto circuit_name = qualified.substr(separator+1);
+    }
 
-        auto found = m_reference_libraries.find(lib_name);
-        if (found != m_reference_libraries.end()) {
-            return found->second->circuit_by_name(circuit_name.c_str());
-        }
+    auto lib_name = qualified.substr(0, separator);
+    auto circuit_name = qualified.substr(separator+1);
+
+    auto found = m_reference_libraries.find(lib_name);
+    if (found != m_reference_libraries.end()) {
+        return found->second->circuit_by_name(circuit_name.c_str());
     }
 
     return nullptr;
@@ -60,9 +60,9 @@ ModelCircuitLibrary *LSimContext::library_by_name(const char *name) {
     auto found = m_reference_libraries.find(name);
     if (found != m_reference_libraries.end()) {
         return found->second.get();
-    } else {
-        return nullptr;
     }
+
+    return nullptr;
 }
 
 void LSimContext::add_folder(const char *name, const char *path) {
@@ -80,9 +80,8 @@ std::string LSimContext::folder_path(size_t folder_idx) {
     auto found = m_folder_lut.find(folder_name(folder_idx));
     if (found != m_folder_lut.end()) {
         return found->second;
-    } else {
-        return "";
-    }
+    } 
+    return "";
 }
 
 std::string LSimContext::full_file_path(const std::string &file) {

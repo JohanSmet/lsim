@@ -8,7 +8,7 @@
 
 namespace {
 
-static inline bool string_to_bool(const std::string &val) {
+inline bool string_to_bool(const std::string &val) {
     // tolower should be ok for our use-case. Including ICU in the project for this seems overly complicated.
     auto lower = val;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
@@ -16,14 +16,14 @@ static inline bool string_to_bool(const std::string &val) {
     return lower == "true" || lower == "yes";   
 }
 
-static const char *VALUE_STRINGS[] = {
+const char *VALUE_STRINGS[] = {
     "false",
     "true",
     "undefined",
     "error"
 };
 
-static inline lsim::Value string_to_value(const std::string &val) {
+inline lsim::Value string_to_value(const std::string &val) {
     // tolower should be ok for our use-case. Including ICU in the project for this seems overly complicated.
     auto lower = val;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
@@ -37,12 +37,11 @@ static inline lsim::Value string_to_value(const std::string &val) {
     return lsim::VALUE_ERROR;
 }
 
-static inline lsim::Value int_to_value(int64_t val) {
+inline lsim::Value int_to_value(int64_t val) {
     if (val >= 0 && val <= 3) {
         return static_cast<lsim::Value>(val);
-    } else {
-        return lsim::VALUE_ERROR;
     }
+    return lsim::VALUE_ERROR;
 }
 
 } // unnamed namespace

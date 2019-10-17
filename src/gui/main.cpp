@@ -132,10 +132,12 @@ int main(int argc, char**argv)
         SDL_Event event;
 		while (SDL_PollEvent(&event) != 0) {
 			ImGui_ImplSDL2_ProcessEvent(&event);
-			if (event.type == SDL_QUIT)
+			if (event.type == SDL_QUIT) {
 				done = true;
-			if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
+            }
+			if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window)) {
 				done = true;
+            }
 
 			if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F11) {
 				if (!is_full_screen) {

@@ -253,11 +253,7 @@ void component_register_basic() {
                 ImGuiEx::TransformStart();
 
                 auto pos = [=](bool flipped) {
-                    if (!flipped) {
-                        return Point((-width * 0.5f) + 10, (-height * 0.5f) + 20);
-                    } else {
-                        return Point((width * 0.5f) - 10, (-height * 0.5f) + 20);
-                    }
+                    return Point(-(width * 0.5f) + 10 + (static_cast<float>(flipped) * (width - 20)), (-height * 0.5f) + 20);
                 };
 
                 auto align = [](bool flipped) {

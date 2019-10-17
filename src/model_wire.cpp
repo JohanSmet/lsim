@@ -267,9 +267,8 @@ bool ModelWire::in_one_piece() const {
 // check if the wire isn't split into multiple pieces
     if (!m_segments.empty()) {
        return reachable_segments(m_segments.front().get()).size() == m_segments.size();
-    } else {
-        return false;
-    }
+    } 
+    return false;
 }
 
 void ModelWire::remove_junction(ModelWireJunction *junction) {

@@ -92,9 +92,7 @@ Value SimComponent::user_value(uint32_t index) const {
 	if (index < m_user_values.size()) {
 		return m_user_values[index];
 	}
-	else {
-		return VALUE_UNDEFINED;
-	}
+	return VALUE_UNDEFINED;
 }
 
 void SimComponent::set_user_value(uint32_t index, Value value) {

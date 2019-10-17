@@ -16,9 +16,9 @@ std::string unqualified_circuit_name(const std::string &circuit_name) {
     auto sep = circuit_name.find_first_of('.');
     if (sep == std::string::npos) {
         return circuit_name;
-    } else {
-        return circuit_name.substr(sep + 1);
-    }
+    } 
+
+    return circuit_name.substr(sep + 1);
 }
 
 std::string unique_subcircuit_name(const std::string &circuit_name, uint32_t comp_id) {
@@ -27,7 +27,6 @@ std::string unique_subcircuit_name(const std::string &circuit_name, uint32_t com
     result += std::to_string(comp_id);
     return result;
 }
-
 
 } // unnamed namespace
 
@@ -101,9 +100,8 @@ ModelComponent *ModelCircuit::component_by_id(uint32_t id) {
     auto found = m_components.find(id);
     if (found != m_components.end()) {
         return found->second.get();
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 std::vector<uint32_t> ModelCircuit::component_ids() const {
@@ -216,9 +214,8 @@ ModelWire *ModelCircuit::wire_by_id(uint32_t id) const {
     auto found = m_wires.find(id);
     if (found != m_wires.end()) {
         return found->second.get();
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 void ModelCircuit::remove_wire(uint32_t id) {
