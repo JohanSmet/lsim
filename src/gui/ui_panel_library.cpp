@@ -32,7 +32,7 @@ void ui_panel_library(UIContext* ui_context) {
 		if (!ui_context->library_filename().empty()) {
 			ui_context->circuit_library_save(ui_context->library_filename());
 		} else {
-			ui_filename_entry_open(ui_context->lsim_context(), [ui_context](const auto& filename) {
+			ui_filename_entry_open([ui_context](const auto& filename) {
 				ui_context->circuit_library_save(filename);
 			});
 		}

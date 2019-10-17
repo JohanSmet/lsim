@@ -108,7 +108,7 @@ void ui_file_selector_define() {
     }
 }
 
-void ui_filename_entry_open(LSimContext* context, on_select_func_t on_close) {
+void ui_filename_entry_open(on_select_func_t on_close) {
 	on_close_callback = move(on_close);
 	ImGui::OpenPopup(POPUP_FILENAME_ENTRY);
 }

@@ -19,7 +19,7 @@ using on_select_func_t = std::function<void (const std::string &)>;
 void ui_file_selector_open(LSimContext *context, on_select_func_t on_select);
 void ui_file_selector_define();
 
-void ui_filename_entry_open(LSimContext* context, on_select_func_t on_close);
+void ui_filename_entry_open(on_select_func_t on_close);
 void ui_filename_entry_define();
 
 } // namespace lsim::gui
