@@ -68,14 +68,6 @@ float distance_squared(const Point& p1, const Point& p2) {
 // Transform
 //
 
-Transform::Transform() {
-	reset();
-}
-
-Transform::Transform(const Transform& other) {
-	std::memcpy(m_el, other.m_el, sizeof(float) * 3 * 2);
-}
-
 void Transform::reset() {
 	m_el[0][0] = 1.0f;  m_el[1][0] = 0.0f; m_el[2][0] = 0.0f;
 	m_el[0][1] = 0.0f;  m_el[1][1] = 1.0f; m_el[2][1] = 0.0f;

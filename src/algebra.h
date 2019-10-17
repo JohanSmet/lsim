@@ -70,8 +70,9 @@ inline bool point_on_line_segment(const Point &s0, const Point &s1, const Point 
 
 class Transform {
 public:
-    Transform();
-    Transform(const Transform &other);
+    Transform() = default;
+    Transform(const Transform &other) = default;
+
     float el(int c, int r) const {return m_el[c][r];}
 
     void reset();
@@ -82,7 +83,7 @@ public:
     Point apply_to_vector(const Point &v) const;
 
 private:
-    float m_el[3][2];       // 3 columns, 2 rows
+    float m_el[3][2] = {{1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};       // 3 columns, 2 rows
 };
 
 } // namespace lsim
