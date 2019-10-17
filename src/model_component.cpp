@@ -118,7 +118,7 @@ void ModelComponent::set_angle(int angle) {
 bool ModelComponent::sync_nested_circuit(LSimContext *lsim_context) {
 
     m_nested_circuit = lsim_context->find_circuit(m_nested_name.c_str(), m_circuit->lib());
-    if (!m_nested_circuit) {
+    if (m_nested_circuit == nullptr) {
         return false;
     }
 

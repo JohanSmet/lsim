@@ -25,14 +25,14 @@ void r_scan_dir(const char *dir_path) {
     std::vector<cf_file_t>  entries;
     cf_dir_t dir;
 
-    for (cf_dir_open(&dir, dir_path); dir.has_next; cf_dir_next(&dir)) {
+    for (cf_dir_open(&dir, dir_path); dir.has_next != 0; cf_dir_next(&dir)) {
         cf_file_t file;
         cf_read_file(&dir, &file);
 
-        if (file.is_dir && file.name[0] == '.')
+        if (file.is_dir != 0 && file.name[0] == '.')
             continue;
 
-        if (file.is_reg && !cf_match_ext(&file, ".lsim"))
+        if (file.is_reg != 0 && cf_match_ext(&file, ".lsim") == 0)
             continue;
 
         entries.push_back(file);
@@ -52,7 +52,7 @@ void r_scan_dir(const char *dir_path) {
         std::string name = entry.path;
         //name += '/' + entry.name;
 
-        if (entry.is_dir) {
+        if (entry.is_dir != 0) {
             r_scan_dir(name.c_str());
         } else {
            file_list.push_back(name);

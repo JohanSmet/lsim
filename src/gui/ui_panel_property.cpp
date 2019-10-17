@@ -16,7 +16,7 @@ void ui_panel_property(UIContext* ui_context) {
 	auto circuit_editor = ui_context->circuit_editor();
 	auto context = ui_context->lsim_context();
 
-	if (circuit_editor != nullptr && circuit_editor->selected_widget()) {
+	if (circuit_editor != nullptr && circuit_editor->selected_widget() != nullptr) {
 		auto ui_comp = circuit_editor->selected_widget();
 		auto component = ui_comp->component_model();
 
@@ -177,7 +177,7 @@ void ui_panel_property(UIContext* ui_context) {
 		}
 
 		// initial output state
-		if (component->property("initial_output")) {
+		if (component->property("initial_output") != nullptr) {
 			value_property("Initial Output", component->property("initial_output"));
 		}
 

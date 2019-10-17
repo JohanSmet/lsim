@@ -79,7 +79,7 @@ bool SimComponent::read_pin_checked(uint32_t index) {
 }
 
 void SimComponent::write_pin_checked(uint32_t index, bool value) {
-	auto output = m_read_bad ? VALUE_ERROR : value;
+	auto output = m_read_bad ? VALUE_ERROR : static_cast<int>(value);
 	write_pin(index, static_cast<Value>(output));
 }
 

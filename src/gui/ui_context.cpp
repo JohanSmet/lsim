@@ -54,7 +54,7 @@ void UIContext::change_active_circuit(ModelCircuit* circuit) {
 		return;
 	}
 
-	if (circuit) {
+	if (circuit != nullptr) {
 		circuit->sync_sub_circuit_components();
 		m_circuit_editor = CircuitEditorFactory::create_circuit(circuit);
 		m_selected_circuit_idx = m_lsim_context->user_library()->circuit_idx(circuit);

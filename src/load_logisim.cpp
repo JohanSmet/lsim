@@ -317,7 +317,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         // ignore
     } else {
         component = handle_sub_circuit(comp_type, comp_props); 
-        if (!component) {
+        if (component == nullptr) {
             ERROR_MSG("Unsupport component (%s) - loading failed", comp_type.c_str());
             ok = false;
         }
@@ -332,7 +332,7 @@ bool LogisimParser::parse_component(pugi::xml_node &comp_node) {
         }
     };
 
-    if (ok && component) {
+    if (ok && component != nullptr) {
         component->set_position({2.0f * comp_props.m_location.m_x, 2.0f * comp_props.m_location.m_y});
         component->set_angle(convert_facing(comp_props.m_facing));
     }
@@ -354,13 +354,13 @@ bool LogisimParser::parse_wire(pugi::xml_node &wire_node) {
     auto node_1 = point_on_wire(w1);
     auto node_2 = point_on_wire(w2);
 
-    if (!node_1 && !node_2) {
+    if (node_1 == nullptr && node_2 == nullptr) {
         wire_node_t new_node = {w1.m_full, w2.m_full};
         m_context.m_wires.push_back(new_node);
         return true;
     }
 
-    if (node_1 && node_2) {
+    if (node_1 != nullptr && node_2 != nullptr) {
         // wire connects two existing nodes (merge node_2 into node_1)
         for (auto &w : *node_2) {
             node_1->push_back(w);
@@ -370,12 +370,12 @@ bool LogisimParser::parse_wire(pugi::xml_node &wire_node) {
         return true;
     }
 
-    if (node_1 && !node_2) {
+    if (node_1 != nullptr && node_2 == nullptr) {
         node_1->push_back(w2.m_full);
         return true;
     }
 
-    if (!node_1 && node_2) {
+    if (node_1 == nullptr && node_2 != nullptr) {
         node_2->push_back(w1.m_full);
         return true;
     }

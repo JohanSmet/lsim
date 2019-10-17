@@ -551,11 +551,11 @@ void component_register_input_output() {
                 const auto width = 4;
 
                 auto sim_comp = circuit_editor->is_simulating() ? circuit_editor->sim_circuit()->component_by_id(comp->id()) : nullptr;
-                auto enabled  = sim_comp ? sim_comp->read_pin(sim_comp->control_pin_index(0)) == VALUE_TRUE : false;
+                auto enabled  = sim_comp != nullptr ? sim_comp->read_pin(sim_comp->control_pin_index(0)) == VALUE_TRUE : false;
 
                 ImU32 led_colors[8] = {color_off, color_off, color_off, color_off,color_off, color_off, color_off, color_off};
 
-                if (sim_comp) {
+                if (sim_comp != nullptr) {
                     auto *extra = reinterpret_cast<ExtraData7SegmentLED *>(sim_comp->extra_data());
 
                     if (extra->m_num_samples > 0) {

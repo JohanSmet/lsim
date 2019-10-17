@@ -109,7 +109,7 @@ public:
         // references
         for (const auto &ref : library->references()) {
             auto lib = m_context->library_by_name(ref.c_str());
-            if (lib) {
+            if (lib != nullptr) {
                 auto ref_node = m_root.append_child(XML_EL_REFERENCE);
                 ref_node.append_attribute(XML_ATTR_NAME).set_value(ref.c_str());
                 ref_node.append_attribute(XML_ATTR_FILE).set_value(lib->path());
@@ -122,7 +122,7 @@ public:
         }
 
         // main circuit
-        if (library->main_circuit()) {
+        if (library->main_circuit() != nullptr) {
             auto main_node = m_root.append_child(XML_EL_MAIN);
             main_node.append_attribute(XML_ATTR_NAME).set_value(library->main_circuit_name());
         }
@@ -158,7 +158,7 @@ private:
         comp_node.append_attribute(XML_ATTR_CONTROLS).set_value(component->num_controls());
 
         // nested circuit
-        if (component->nested_circuit()) {
+        if (component->nested_circuit() != nullptr) {
             comp_node.append_attribute(XML_ATTR_NESTED).set_value(component->nested_circuit()->qualified_name().c_str());
         }
 
@@ -449,7 +449,7 @@ public:
             component->set_angle(angle_attr.as_int());
         }
 
-        if (component) {
+        if (component != nullptr) {
             m_component_id_map[id_attr.as_int()] = component->id();
         }
 
@@ -495,12 +495,12 @@ public:
 
     bool parse_circuit(pugi::xml_node &circuit_node) {
         const char *name = circuit_node.attribute(XML_ATTR_NAME).as_string();
-        if (!name) {
+        if (name == nullptr) {
             return false;
         }
 
         auto *circuit = m_lib->create_circuit(name, m_context);
-        if (!circuit) {
+        if (circuit == nullptr) {
             return false;
         }
 

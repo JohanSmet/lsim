@@ -79,7 +79,7 @@ void sim_register_gate_functions(Simulator *sim) {
         comp->reset_bad_read_check();
 
         auto output = comp->read_pin_checked(0);
-        output ^= comp->read_pin_checked(1);
+        output ^= static_cast<int>(comp->read_pin_checked(1));
         comp->write_pin_checked(2, output);
     } SIM_FUNC_END
 
@@ -87,7 +87,7 @@ void sim_register_gate_functions(Simulator *sim) {
         comp->reset_bad_read_check();
 
         auto output = comp->read_pin_checked(0);
-        output ^= comp->read_pin_checked(1);
+        output ^= static_cast<int>(comp->read_pin_checked(1));
         comp->write_pin_checked(2, !output);
     } SIM_FUNC_END
 }

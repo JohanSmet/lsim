@@ -31,10 +31,10 @@ ModelCircuit *LSimContext::find_circuit(const char *name, ModelCircuitLibrary *f
 
     if (separator == std::string::npos) {
         ModelCircuit *result = nullptr;
-        if (fallback_lib) {
+        if (fallback_lib != nullptr) {
             result = fallback_lib->circuit_by_name(name);
         }
-        if (!result) {
+        if (result == nullptr) {
             result = m_user_library.circuit_by_name(name);
         }
         return result;

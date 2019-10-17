@@ -156,7 +156,7 @@ void CircuitEditor::draw_ui(UIContext *ui_context) {
 		}
 
 		// draw icon
-		if (widget->has_border() && widget->icon()) {
+		if (widget->has_border() && widget->icon() != nullptr) {
     		widget->icon()->draw(widget_to_screen, widget->aabb_size() - Point(10,10), 
 							   draw_list, 2, COLOR_COMPONENT_ICON);
 		}
@@ -334,11 +334,11 @@ void CircuitEditor::user_interaction() {
 
 	// -> edit-mode: right mouse button released
 	if (!is_simulating() && mouse_in_window && ImGui::IsMouseReleased(1)) {
-		if (m_state == CS_IDLE && m_hovered_wire) {
+		if (m_state == CS_IDLE && m_hovered_wire != nullptr) {
 			// popup menu to edit the wire segment
 			m_wire_start = { m_mouse_grid_point, PIN_ID_INVALID, m_hovered_wire };
 			ui_popup_edit_segment_open();
-		} else if (m_state == CS_IDLE && !m_hovered_widget && !m_hovered_wire) {
+		} else if (m_state == CS_IDLE && m_hovered_widget == nullptr && m_hovered_wire == nullptr) {
 			// popup menu to insert a sub circuit
 			ui_popup_embed_circuit_open();
 		} else if (m_state == CS_CREATE_WIRE) {
@@ -349,7 +349,7 @@ void CircuitEditor::user_interaction() {
 
 	// -> simulation-mode: right mouse button released
 	if (is_simulating() && mouse_in_window && ImGui::IsMouseReleased(1)) {
-		if (m_hovered_widget && m_hovered_widget->component_model()->type() == COMPONENT_SUB_CIRCUIT) {
+		if (m_hovered_widget != nullptr && m_hovered_widget->component_model()->type() == COMPONENT_SUB_CIRCUIT) {
 			ui_popup_sub_circuit_open();
 		}
 	}
@@ -361,7 +361,7 @@ void CircuitEditor::user_interaction() {
 			m_wire_end = { m_mouse_grid_point, PIN_ID_INVALID, nullptr };
 			add_wire();
 			m_state = CS_IDLE;
-		} else if (m_hovered_wire) {
+		} else if (m_hovered_wire != nullptr) {
 			// select the entire wire
 			for (size_t idx = 0; idx < m_hovered_wire->num_segments(); ++idx) {
 				auto segment = m_hovered_wire->segment_by_index(idx);
@@ -464,7 +464,7 @@ void CircuitEditor::prepare_move_selected_items() {
 	std::set<ModelWire *>	touched_wires;
 
 	for (auto& item : m_selection) {
-		if (item.m_segment) {
+		if (item.m_segment != nullptr) {
 			auto new_wire = m_model_circuit->create_wire();
 			auto old_wire = item.m_segment->wire();
 			new_wire->add_segment(item.m_segment->junction(0)->position(), item.m_segment->junction(1)->position());
@@ -492,11 +492,11 @@ void CircuitEditor::move_selected_items() {
 	m_dragging_last_point = m_mouse_grid_point;
 
 	for (auto &item : m_selection) {
-		if (item.m_widget) {
+		if (item.m_widget != nullptr) {
 			auto model = item.m_widget->component_model();
 			model->set_position(model->position() + delta);
 			item.m_widget->build_transform();
-		} else if (item.m_segment) {
+		} else if (item.m_segment != nullptr) {
 			item.m_segment->move(delta);
 		}
 	}
@@ -505,9 +505,9 @@ void CircuitEditor::move_selected_items() {
 void CircuitEditor::reconnect_selected_items() {
 
 	for (auto &item : m_selection) {
-		if (item.m_widget) {
+		if (item.m_widget != nullptr) {
 			ui_fix_widget_connections(item.m_widget);
-		} else if (item.m_segment) {
+		} else if (item.m_segment != nullptr) {
 			auto wire = ui_try_merge_wire_segment(item.m_segment);
 			ui_fix_wire(wire);
 		}
@@ -522,11 +522,11 @@ void CircuitEditor::delete_selected_items() {
 	
 	// phase 1: remove components + wire segments
 	for (auto &item : m_selection) {
-		if (item.m_widget) {
+		if (item.m_widget != nullptr) {
 			auto model = item.m_widget->component_model();
 			m_model_circuit->remove_component(model->id());
 			remove_widget(item.m_widget);
-		} else if (item.m_segment) {
+		} else if (item.m_segment != nullptr) {
 			auto wire = item.m_segment->wire();
 			wire->remove_segment(item.m_segment);
 			touched_wires.insert(wire);
@@ -557,7 +557,7 @@ void CircuitEditor::add_wire() {
 	} else if (m_wire_end.m_pin == PIN_ID_INVALID && m_wire_end.m_wire == nullptr) {
 		// wire without an explicit endpoint
 		ModelWire *wire = m_wire_start.m_wire;
-		if (!wire) {
+		if (wire == nullptr) {
 			wire = m_model_circuit->create_wire();
 			wire->add_pin(m_wire_start.m_pin);
 		} else {
@@ -581,7 +581,7 @@ void CircuitEditor::add_wire() {
 		auto wire = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_wire : m_wire_end.m_wire;
 		auto junction = (m_wire_start.m_wire != nullptr) ? m_wire_start.m_position : m_wire_end.m_position;
 
-		if (wire) {
+		if (wire != nullptr) {
 			wire->split_at_new_junction(junction);
 			wire->add_segments(m_line_anchors.data(), m_line_anchors.size());
 			wire->simplify();
@@ -791,13 +791,13 @@ ComponentWidget *CircuitEditor::selected_widget() const {
 
 void CircuitEditor::set_simulation_instance(SimCircuit *sim_circuit, bool view_only) {
 
-	if (sim_circuit && m_sim_circuit == nullptr) {
+	if (sim_circuit != nullptr && m_sim_circuit == nullptr) {
 		m_state = CS_SIMULATING;
 		m_view_only = view_only;
 		clear_selection();
 	}
 
-	if (!sim_circuit && m_sim_circuit != nullptr) {
+	if (sim_circuit == nullptr && m_sim_circuit != nullptr) {
 		m_state = CS_IDLE;
 		m_view_only = false;
 	}
@@ -814,7 +814,7 @@ void CircuitEditor::copy_selected_components() {
 	m_copy_center = {0, 0};
 
 	for (auto &item : m_selection) {
-		if (item.m_widget) {
+		if (item.m_widget != nullptr) {
 			auto comp = item.m_widget->component_model();
 			m_copy_components.push_back(comp->copy());
 			m_copy_center = m_copy_center + comp->position();

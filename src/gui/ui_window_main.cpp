@@ -36,7 +36,7 @@ void main_window_setup(const char *circuit_file) {
 	ui_context.lsim_context()->add_folder("examples", "./examples");
 
 	// try to load the circuit specified on the command line
-	if (circuit_file) {
+	if (circuit_file != nullptr) {
 		ui_context.circuit_library_load(circuit_file);
 	}
 }
@@ -121,13 +121,13 @@ void main_window_update() {
 		if (sim_single_step) {
 			sim->step();
 			sim_single_step = false;
-		} else if (sim_running && ui_context.sim_circuit()) {
+		} else if (sim_running && ui_context.sim_circuit() != nullptr) {
 			for (int i = 0; i < cycles_per_frame; ++i) {
 				sim->step();
 			}
 		}
 
-		if (ui_context.circuit_editor()) {
+		if (ui_context.circuit_editor() != nullptr) {
 			ui_context.circuit_editor()->refresh(&ui_context);
 		}
 

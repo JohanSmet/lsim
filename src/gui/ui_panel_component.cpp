@@ -30,7 +30,7 @@ void ui_panel_component(UIContext* ui_context) {
 			}
 		}
 		auto icon = ComponentIcon::cached(component);
-		if (icon) {
+		if (icon != nullptr) {
 			icon->draw(pos + Point(20, 20), { 34, 34 }, draw_list, 1, COLOR_COMPONENT_BORDER);
 		}
 		ImGuiEx::Text(pos + Point(50, 20), caption, ImGuiEx::TAH_LEFT, ImGuiEx::TAV_CENTER);

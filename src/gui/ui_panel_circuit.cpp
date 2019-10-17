@@ -37,7 +37,7 @@ void ui_panel_circuit(UIContext* ui_context) {
 	if (ImGui::Button("Add")) {
 		auto new_name = std::string("circuit#") + std::to_string(lib->num_circuits() + 1);
 		auto circuit = lib->create_circuit(new_name.c_str(), ui_context->lsim_context());
-		if (!lib->main_circuit()) {
+		if (lib->main_circuit() == nullptr) {
 			lib->change_main_circuit(circuit->name().c_str());
 		}
 		ui_context->change_active_circuit(circuit);
