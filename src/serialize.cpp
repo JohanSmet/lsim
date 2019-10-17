@@ -230,10 +230,10 @@ private:
     pugi::xml_node      m_root;
 };
 
-#define REQUIRED_ATTR(var_name, node, attr_name)    \
-    auto var_name = (node).attribute((attr_name));  \
-    if (!var_name) {                                \
-        return false;                               \
+#define REQUIRED_ATTR(var_name, node, attr_name)        \
+    auto (var_name) = (node).attribute((attr_name));    \
+    if (!(var_name)) {                                  \
+        return false;                                   \
     }
 
 #define REQUIRED_PROP(var_name, node, prop_key)      \
