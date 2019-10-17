@@ -72,6 +72,7 @@ class Transform {
 public:
     Transform();
     Transform(const Transform &other);
+    float el(int c, int r) const {return m_el[c][r];}
 
     void reset();
     void rotate(float degrees);

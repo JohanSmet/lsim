@@ -219,6 +219,7 @@ target_sources(test_runner
 	PRIVATE
 		tests/catch.hpp
 		tests/test_main.cpp
+		tests/test_algebra.cpp
 		tests/test_gate.cpp
 		tests/test_extra.cpp
 		tests/test_circuit.cpp
