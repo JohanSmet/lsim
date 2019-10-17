@@ -266,7 +266,7 @@ void Simulator::register_sim_function(ComponentType comp_type, SimFuncType func_
         m_sim_functions.resize(COMPONENT_MAX_TYPE_ID + 1, {nullptr, [](auto, auto) {}, nullptr});
     }
 
-    m_sim_functions[comp_type][func_type] = func;
+    m_sim_functions[comp_type][func_type] = move(func);
 }
 
 bool Simulator::component_has_function(ComponentType comp_type, SimFuncType func_type) {

@@ -617,7 +617,7 @@ void LogisimParser::compute_ipin_offsets() {
     };
 
     for (int io = 0; io < 2; ++io) {
-        for (auto ipin : m_context.m_circuit_ipins[io]) {
+        for (const auto &ipin : m_context.m_circuit_ipins[io]) {
             m_context.m_ipin_offsets[ipin.second] = offsets[io];
             offsets[io].m_y += 20;
         }
@@ -630,7 +630,7 @@ bool LogisimParser::parse_location(const std::string &loc_string, Position &pos)
         return false;
     }
 
-    auto comma = loc_string.find_first_of(",");
+    auto comma = loc_string.find_first_of(',');
     if (comma == loc_string.npos) {
         ERROR_MSG("Unparseable location \"%s\"; should contain a comma", loc_string.c_str());
         return false;

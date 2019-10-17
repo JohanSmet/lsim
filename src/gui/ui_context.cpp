@@ -89,7 +89,7 @@ void UIContext::create_sub_circuit_view(SimCircuit* parent_sim, ModelComponent *
 	m_sub_circuit_views.push_back(move(sub_circuit));
 }
 
-void UIContext::foreach_sub_circuit_view(std::function<bool(CircuitEditor*)> callback) {
+void UIContext::foreach_sub_circuit_view(const std::function<bool(CircuitEditor*)> &callback) {
 	for (auto iter = m_sub_circuit_views.begin(); iter != m_sub_circuit_views.end();) {
 		auto keep_open = callback(iter->get());
 		

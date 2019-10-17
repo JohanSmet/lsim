@@ -52,7 +52,7 @@ void ComponentWidget::recompute_aabb() {
 }
 
 void ComponentWidget::set_draw_callback(ComponentWidget::draw_func_t func) {
-	m_draw_callback = func;
+	m_draw_callback = move(func);
 }
 
 void ComponentWidget::run_draw_callback(CircuitEditor* circuit, Transform transform) {

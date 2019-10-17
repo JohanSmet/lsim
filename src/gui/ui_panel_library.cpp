@@ -40,8 +40,8 @@ void ui_panel_library(UIContext* ui_context) {
 	ImGui::SameLine();
 	if (ImGui::Button("Add Library")) {
 		ui_file_selector_open(ui_context->lsim_context(), [ui_context](const std::string& selection) {
-			auto name_begin = selection.find_last_of("/") + 1;
-			auto name_end = selection.find_last_of(".");
+			auto name_begin = selection.find_last_of('/') + 1;
+			auto name_end = selection.find_last_of('.');
 			auto name = selection.substr(name_begin, name_end - name_begin);
 			auto context = ui_context->lsim_context();
 			context->load_reference_library(name.c_str(), context->relative_file_path(selection).c_str());

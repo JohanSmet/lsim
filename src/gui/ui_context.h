@@ -43,7 +43,7 @@ public:
 
 	// sub-circuit views
 	void create_sub_circuit_view(SimCircuit* sim_circuit, ModelComponent *model_comp);
-	void foreach_sub_circuit_view(std::function<bool(CircuitEditor*)> callback);
+	void foreach_sub_circuit_view(const std::function<bool(CircuitEditor*)> &callback);
 
 private:
 	LSimContext*							m_lsim_context;

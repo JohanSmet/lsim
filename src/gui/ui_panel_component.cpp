@@ -85,9 +85,11 @@ void ui_panel_component(UIContext* ui_context) {
 			ImGui::Indent();
 			for (size_t idx = 0; idx < ref_lib->num_circuits(); ++idx) {
 				auto sub_name = ref_lib->circuit_by_idx(idx)->name();
+				auto full_name = ref + ".";
+				full_name += sub_name;
 				add_component_button(COMPONENT_SUB_CIRCUIT, sub_name.c_str(),
-					[ref, sub_name](ModelCircuit* circuit) {
-						return circuit->add_sub_circuit((ref + "." + sub_name).c_str());
+					[full_name](ModelCircuit* circuit) {
+						return circuit->add_sub_circuit(full_name.c_str());
 					});
 			}
 			ImGui::EndGroup();

@@ -77,7 +77,7 @@ static const std::unordered_map<ComponentType, std::string> component_type_to_na
 
 static const auto name_to_component_type = []() {
     std::unordered_map<std::string, ComponentType> result;
-    for (auto entry : component_type_to_name) {
+    for (const auto &entry : component_type_to_name) {
         result[entry.second] = entry.first;
     }
     return result;
@@ -473,7 +473,7 @@ public:
             REQUIRED_ATTR(value_attr, pin_node, XML_ATTR_VALUE);
             std::string pin_string = value_attr.as_string();
 
-            auto hash = pin_string.find_first_of("#");
+            auto hash = pin_string.find_first_of('#');
             if (hash == pin_string.npos) {
                 ERROR_MSG("Unparseable location \"%s\"; should contain a comma", pin_string.c_str());
                 return false;

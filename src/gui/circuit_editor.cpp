@@ -72,8 +72,8 @@ void CircuitEditor::init_ui_refresh() {
 	if (m_state == CS_CREATE_WIRE) {
 		// snap to diagonal (45 degree) / vertical / horizontal when creating wires
 		auto delta = m_mouse_grid_point - m_segment_start;
-		auto abs_delta = Point(fabs(delta.x), fabs(delta.y));
-		if (abs_delta.x > 0 && abs_delta.y > 0 && fabs(abs_delta.y - abs_delta.x) < 10) {
+		auto abs_delta = Point(fabsf(delta.x), fabsf(delta.y));
+		if (abs_delta.x > 0 && abs_delta.y > 0 && fabsf(abs_delta.y - abs_delta.x) < 10) {
 			m_mouse_grid_point = m_segment_start + Point(delta.x, abs_delta.x * ((delta.y < 0) ? -1.0f : 1.0f));
 		} else if (abs_delta.y > abs_delta.x) {
 			m_mouse_grid_point.x = m_segment_start.x;
@@ -931,7 +931,7 @@ void CircuitEditor::ui_popup_edit_segment_open() {
 CircuitEditorFactory::materialize_func_map_t CircuitEditorFactory::m_materialize_funcs;
 
 void CircuitEditorFactory::register_materialize_func(ComponentType type, materialize_func_t func) {
-	m_materialize_funcs[type] = func;
+	m_materialize_funcs[type] = move(func);
 }
 
 CircuitEditor::uptr_t CircuitEditorFactory::create_circuit(ModelCircuit *circuit) {
