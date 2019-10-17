@@ -1,0 +1,5 @@
+---
+Checks:          'clang-diagnostic-*,clang-analyzer-*,bugprone-*,modernize-*,performance-*,readability-*,portability-*,misc-*'
+WarningsAsErrors: ''
+HeaderFilterRegex: 'lsim\/src\/[^\/]*\.h$|lsim\/src\/gui\/[^\/]*\.h$'
+...
