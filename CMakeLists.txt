@@ -168,7 +168,7 @@ if (NOT EMSCRIPTEN)
 	target_link_libraries(${APP_TARGET} PRIVATE ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
 
 	if (APPLE) 
-		target_link_libraries(${APP_TARGET} "-framework CoreFoundation")
+		target_link_libraries(${APP_TARGET} PRIVATE "-framework CoreFoundation")
 	endif (APPLE)
 else()
 	target_sources(${APP_TARGET} PRIVATE
