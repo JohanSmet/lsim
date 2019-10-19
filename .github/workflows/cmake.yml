@@ -1,26 +1,73 @@
-name: CMake
+name: LSim build 
 
 on: [push]
 
 jobs:
-  build:
-
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest, macOS-latest]
+  test_linux:
+    
+    runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-    - name: Create build directory
-      run: cmake -E make_directory ${{runner.workspace}}/build
-    - name: Run CMake
-      shell: bash
-      working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE
-    - name: Build
-      shell: bash
-      working-directory: ${{runner.workspace}}/build
-      run: cmake --build .
+        - uses: actions/checkout@v1
+          with:
+            submodules: true
+        - name: Install dependencies
+          run: |
+            sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+            sudo apt-get update -y -qq
+            sudo apt-get install libsdl2-dev
+        - name: Create build directory
+          run: cmake -E make_directory ${{runner.workspace}}/build
+        - name: Run CMake
+          shell: bash
+          working-directory: ${{runner.workspace}}/build
+          run: cmake $GITHUB_WORKSPACE
+        - name: Build
+          shell: bash
+          working-directory: ${{runner.workspace}}/build
+          run: cmake --build .
+    
+  test_macos:
+
+    runs-on: macos-latest
+
+    steps:
+        - uses: actions/checkout@v1
+          with:
+            submodules: true
+        - name: Install dependencies
+          run: |
+            brew install SDL2
+        - name: Create build directory
+          run: cmake -E make_directory ${{runner.workspace}}/build
+        - name: Run CMake
+          shell: bash
+          working-directory: ${{runner.workspace}}/build
+          run: cmake $GITHUB_WORKSPACE
+        - name: Build
+          shell: bash
+          working-directory: ${{runner.workspace}}/build
+          run: cmake --build .
+
+  test_windows:
+    runs-on: windows-latest
+
+    steps:
+        - uses: actions/checkout@v1
+          with:
+              submodules: true
+        - name: Create build directory
+          run: cmake -E make_directory ${{runner.workspace}}/build
+        - uses: actions/checkout@v1
+          with:
+              repository: JohanSmet/sdl2_vc_ci
+              ref: 2.0.10
+              path: _sdl2
+        - name: Run CMake
+          shell: bash
+          working-directory: ${{runner.workspace}}/build
+          run: cmake -DSDL2_DIR=../_sdl2 $GITHUB_WORKSPACE 
+        - name: Build
+          shell: bash
+          working-directory: ${{runner.workspace}}/build
+          run: cmake --build .
