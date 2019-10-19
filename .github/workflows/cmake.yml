@@ -1,0 +1,24 @@
+name: CMake
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macOS-latest]
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Create build directory
+      run: cmake -E make_directory ${{runner.workspace}}/build
+    - name: Run CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE
+    - name: Build
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: cmake --build .
