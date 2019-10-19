@@ -28,6 +28,7 @@ void ui_panel_library(UIContext* ui_context) {
 		});
 	}
 	ImGui::SameLine();
+#ifndef __EMSCRIPTEN__
 	if (ImGui::Button("Save")) {
 		if (!ui_context->library_filename().empty()) {
 			ui_context->circuit_library_save(ui_context->library_filename());
@@ -37,6 +38,7 @@ void ui_panel_library(UIContext* ui_context) {
 			});
 		}
 	}
+#endif // __EMSCRIPTEN__
 	ImGui::SameLine();
 	if (ImGui::Button("Add Library")) {
 		ui_file_selector_open(ui_context->lsim_context(), [ui_context](const std::string& selection) {
