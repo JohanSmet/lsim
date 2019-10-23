@@ -71,3 +71,46 @@ jobs:
           shell: bash
           working-directory: ${{runner.workspace}}/build
           run: cmake --build .
+
+          jobs:
+
+  test_emscripten:
+    
+    runs-on: ubuntu-latest
+
+    steps:
+        - uses: actions/checkout@v1
+          with:
+            submodules: true
+        - uses: lovasoa/setup-emscripten@master
+          with:
+            emscripten-version: '1.38.48'
+        - name: Run CMake
+          shell: bash
+          env:
+            BUILD_DIR: ${{runner.workspace}}/_build
+          run: |
+            mkdir $BUILD_DIR
+            cd $BUILD_DIR
+            emcmake cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=Release
+        - name: Build
+          shell: bash
+          env:
+            BUILD_DIR: ${{runner.workspace}}/_build
+          run: cmake --build $BUILD_DIR
+        - name: Prepare artifacts
+          shell: bash
+          env:
+            BUILD_DIR: ${{runner.workspace}}/_build
+            ARCH_DIR: ${{runner.workspace}}/_arch
+          run: |
+            mkdir $ARCH_DIR
+            cp $BUILD_DIR/lsim.data $ARCH_DIR
+            cp $BUILD_DIR/lsim.js $ARCH_DIR
+            cp $BUILD_DIR/lsim.html $ARCH_DIR/index.html
+            cp $BUILD_DIR/lsim.wasm $ARCH_DIR
+        - name: Archive build
+          uses: actions/upload-artifact@v1
+          with:
+            name: dist
+            path: ${{runner.workspace}}/_arch
