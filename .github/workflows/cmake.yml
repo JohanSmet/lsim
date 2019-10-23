@@ -72,8 +72,6 @@ jobs:
           working-directory: ${{runner.workspace}}/build
           run: cmake --build .
 
-          jobs:
-
   test_emscripten:
     
     runs-on: ubuntu-latest
