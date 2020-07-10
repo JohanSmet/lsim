@@ -165,7 +165,7 @@ if (NOT EMSCRIPTEN)
 		src/gui/main.cpp
 	)
 	target_include_directories(${APP_TARGET} PRIVATE ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} src/gui/gl3w)
-	target_link_libraries(${APP_TARGET} PRIVATE ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
+	target_link_libraries(${APP_TARGET} PRIVATE ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} SDL2::SDL2)
 
 	if (APPLE) 
 		target_link_libraries(${APP_TARGET} PRIVATE "-framework CoreFoundation")
