@@ -43,6 +43,9 @@ target_sources(${CUTE_TARGET} PRIVATE
 # SDL2 / OpenGL
 if (NOT EMSCRIPTEN)
 	find_package(SDL2 REQUIRED)
+	if (TARGET SDL2::SDL2)
+		set(SDL2_LIBRARIES SDL2::SDL2)
+	endif()
 	find_package(OpenGL REQUIRED)
 endif()
 
@@ -165,7 +168,7 @@ if (NOT EMSCRIPTEN)
 		src/gui/main.cpp
 	)
 	target_include_directories(${APP_TARGET} PRIVATE ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} src/gui/gl3w)
-	target_link_libraries(${APP_TARGET} PRIVATE ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} SDL2::SDL2)
+	target_link_libraries(${APP_TARGET} PRIVATE ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
 
 	if (APPLE)
 		target_link_libraries(${APP_TARGET} PRIVATE "-framework CoreFoundation")
