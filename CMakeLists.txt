@@ -35,7 +35,7 @@ set (PUGIXML_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/pugixml/src)
 set(CUTE_TARGET cute)
 set (CUTE_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libs/cute)
 add_library(${CUTE_TARGET} STATIC)
-target_sources(${CUTE_TARGET} PRIVATE 
+target_sources(${CUTE_TARGET} PRIVATE
 		libs/cute/cute_files.cpp
 		libs/cute/cute_files.h
 )
@@ -45,7 +45,7 @@ if (NOT EMSCRIPTEN)
 	find_package(SDL2 REQUIRED)
 	find_package(OpenGL REQUIRED)
 endif()
-	
+
 #
 # simulator library
 #
@@ -53,7 +53,7 @@ endif()
 set (LIB_TARGET lsim)
 
 add_library(${LIB_TARGET} STATIC)
-target_sources(${LIB_TARGET} 
+target_sources(${LIB_TARGET}
 	PRIVATE
 		src/algebra.cpp
 		src/algebra.h
@@ -99,7 +99,7 @@ lsim_source_group(${LIB_TARGET} src)
 # python bindings
 #
 
-if (PYTHON_BINDINGS) 
+if (PYTHON_BINDINGS)
 	set (PYTHON_TARGET lsimpy)
 
 	add_subdirectory(libs/pybind11)
@@ -115,7 +115,7 @@ endif()
 set(APP_TARGET lsim_gui)
 
 add_executable(${APP_TARGET} WIN32)
-target_sources(${APP_TARGET} 
+target_sources(${APP_TARGET}
 	PRIVATE
 		src/gui/imgui/imgui_draw.cpp
 		src/gui/imgui/imgui_internal.h
@@ -167,7 +167,7 @@ if (NOT EMSCRIPTEN)
 	target_include_directories(${APP_TARGET} PRIVATE ${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} src/gui/gl3w)
 	target_link_libraries(${APP_TARGET} PRIVATE ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} SDL2::SDL2)
 
-	if (APPLE) 
+	if (APPLE)
 		target_link_libraries(${APP_TARGET} PRIVATE "-framework CoreFoundation")
 	endif (APPLE)
 else()
@@ -177,17 +177,17 @@ else()
 
 	target_compile_options(${APP_TARGET} PRIVATE -s USE_SDL=2)
 	target_link_libraries(${APP_TARGET} PRIVATE "-s USE_SDL=2")
-	target_link_libraries(${APP_TARGET} PRIVATE 
-		"-s WASM=1" 
-		"-s ALLOW_MEMORY_GROWTH=1" 
+	target_link_libraries(${APP_TARGET} PRIVATE
+		"-s WASM=1"
+		"-s ALLOW_MEMORY_GROWTH=1"
 		"-s BINARYEN_TRAP_MODE=clamp"
 		"--no-heap-copy"
 	)
-	target_link_libraries(${APP_TARGET} PRIVATE 
+	target_link_libraries(${APP_TARGET} PRIVATE
 		"--shell-file ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/shell_minimal.html"
 		"-o lsim.html"
 	)
-	target_link_libraries(${APP_TARGET} PRIVATE 
+	target_link_libraries(${APP_TARGET} PRIVATE
 		"--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/examples@/examples --exclude-file *.circ"
 	)
 endif()
@@ -204,7 +204,7 @@ set(SPEED_TARGET speedtest)
 add_executable(${SPEED_TARGET})
 target_sources(${SPEED_TARGET} PRIVATE src/tools/speedtest/speedtest_main.cpp)
 
-target_include_directories(${SPEED_TARGET} PRIVATE src) 
+target_include_directories(${SPEED_TARGET} PRIVATE src)
 target_compile_definitions(${SPEED_TARGET} PRIVATE ${PLATFORM_DEF})
 target_link_libraries(${SPEED_TARGET} PRIVATE ${LIB_TARGET} ${CMAKE_DL_LIBS})
 
@@ -215,7 +215,7 @@ target_link_libraries(${SPEED_TARGET} PRIVATE ${LIB_TARGET} ${CMAKE_DL_LIBS})
 enable_testing()
 
 add_executable(test_runner)
-target_sources(test_runner 
+target_sources(test_runner
 	PRIVATE
 		tests/catch.hpp
 		tests/test_main.cpp
@@ -226,7 +226,7 @@ target_sources(test_runner
 		tests/test_logisim.cpp
 )
 target_include_directories(test_runner PRIVATE src)
-target_link_libraries(test_runner PRIVATE ${LIB_TARGET}) 
+target_link_libraries(test_runner PRIVATE ${LIB_TARGET})
 add_test(NAME unittests COMMAND test_runner)
 
 if (NOT EMSCRIPTEN)
@@ -238,7 +238,7 @@ endif()
 add_custom_command(
      TARGET test_runner
      COMMENT "Run tests"
-     POST_BUILD 
+     POST_BUILD
      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
      COMMAND ${TEST_CMD}
 )
