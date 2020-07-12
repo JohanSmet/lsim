@@ -1,12 +1,12 @@
-name: LSim build 
+name: LSim build
 
 on: [push]
 
 jobs:
   test_linux:
-    
+
     runs-on: ubuntu-latest
-    
+
     steps:
         - uses: actions/checkout@v1
           with:
@@ -26,7 +26,7 @@ jobs:
           shell: bash
           working-directory: ${{runner.workspace}}/build
           run: cmake --build .
-    
+
   test_macos:
 
     runs-on: macos-latest
@@ -66,23 +66,25 @@ jobs:
         - name: Run CMake
           shell: bash
           working-directory: ${{runner.workspace}}/build
-          run: cmake -DSDL2_DIR=../_sdl2 $GITHUB_WORKSPACE 
+          run: cmake -DSDL2_DIR=../_sdl2 $GITHUB_WORKSPACE
         - name: Build
           shell: bash
           working-directory: ${{runner.workspace}}/build
           run: cmake --build .
 
   test_emscripten:
-    
+
     runs-on: ubuntu-latest
 
     steps:
         - uses: actions/checkout@v1
           with:
             submodules: true
-        - uses: lovasoa/setup-emscripten@master
+        - name: Setup Emscripten
+          uses: mymindstorm/setup-emsdk@v6
           with:
-            emscripten-version: '1.38.48'
+            version: 1.38.48
+            actions-cache-folder: 'emsdk-cache'
         - name: Run CMake
           shell: bash
           env:
