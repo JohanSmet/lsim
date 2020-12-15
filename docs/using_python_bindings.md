@@ -3,7 +3,7 @@
 LSim provides rudimentary Python 3 bindings to allow you to write test scripts for a circuit or even generate repetitive circuits programmatically.
 
 1. Build LSim with Python bindings enabled (`cmake -DPYTHON_BINDINGS=ON`)
-2. Make the resulting module available to Python. You could install it to your system but I just add the build directory the the PYTHONPATH environment variable
+2. Make the resulting module available to Python. You could install it to your system but I just add the build directory to the PYTHONPATH environment variable
 3. Profit.
 
 ## Testing a circuit
