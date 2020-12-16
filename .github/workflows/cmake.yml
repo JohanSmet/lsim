@@ -81,7 +81,7 @@ jobs:
           with:
             submodules: true
         - name: Setup Emscripten
-          uses: mymindstorm/setup-emsdk@v6
+          uses: mymindstorm/setup-emsdk@v7
           with:
             version: 1.38.48
             actions-cache-folder: 'emsdk-cache'
