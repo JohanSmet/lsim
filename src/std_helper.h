@@ -6,6 +6,7 @@
 #define LSIM_STD_HELPER_H
 
 #include <algorithm>
+#include <iterator>
 #include <memory>
 #include <set>
 #include <string>
