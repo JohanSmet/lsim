@@ -183,7 +183,6 @@ else()
 	target_link_libraries(${APP_TARGET} PRIVATE
 		"-s WASM=1"
 		"-s ALLOW_MEMORY_GROWTH=1"
-		"-s BINARYEN_TRAP_MODE=clamp"
 		"--no-heap-copy"
 	)
 	target_link_libraries(${APP_TARGET} PRIVATE
