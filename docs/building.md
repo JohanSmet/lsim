@@ -15,6 +15,7 @@ LSim uses the CMake build system, all you need is the traditional CMake workflow
 git clone --recursive https://github.com/JohanSmet/lsim.git
 cd lsim
 mkdir build
+cd build
 cmake ..
 make
 ```
