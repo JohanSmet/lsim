@@ -14,9 +14,8 @@ LSim uses the CMake build system, all you need is the traditional CMake workflow
 ```bash
 git clone --recursive https://github.com/JohanSmet/lsim.git
 cd lsim
-mkdir build
-cmake ..
-make
+cmake -B _build
+cmake --build _build
 ```
 
 Specify -DPYTHON_BINDINGS=ON with the cmake command to build the Python bindings.
@@ -28,9 +27,13 @@ Requires a working Emscripten installation.
 ```bash
 git clone --recursive https://github.com/JohanSmet/lsim.git
 cd lsim
-mkdir build
-emcmake cmake ..
-emmake make
+emcmake cmake -B _build_wasm
+cmake --build _build_wasm
 ```
 
 This builds the WebAssembly and glue-files. Copy lsim.* to a location that is accessible from your webserver.
+
+## Continuous Integration
+
+LSim uses GitHub workflows to automatically run and test a build for each supported workflow.
+The [configuration file](../.github/workflows/cmake.yml) is also a good reference for, tested, build instructions.
